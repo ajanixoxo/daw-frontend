@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -49,6 +50,29 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-stat-card-bg: var(--stat-card-bg);
+  --color-stat-icon-bg-purple: var(--stat-icon-bg-purple);
+  --color-stat-icon-bg-pink: var(--stat-icon-bg-pink);
+  --color-stat-icon-bg-blue: var(--stat-icon-bg-blue);
+  --color-stat-text-primary: var(--stat-text-primary);
+  --color-stat-text-secondary: var(--stat-text-secondary);
+  --color-stat-text-muted: var(--stat-text-muted);
+  --color-stat-increase-color: var(--stat-increase-color);
+  --color-table-header-bg: var(--table-header-bg);
+  --color-table-header-text: var(--table-header-text);
+  --color-table-border: var(--table-border);
+  --color-table-row-text: var(--table-row-text);
+  --color-table-row-date: var(--table-row-date);
+  --color-badge-account-bg: var(--badge-account-bg);
+  --color-badge-corporative-bg: var(--badge-corporative-bg);
+  --color-badge-listing-bg: var(--badge-listing-bg);
+  --color-badge-shipped-bg: var(--badge-shipped-bg);
+  --color-badge-text: var(--badge-text);
+  --color-activity-text-primary: var(--activity-text-primary);
+  --color-activity-text-secondary: var(--activity-text-secondary);
+  --color-activity-status-pending: var(--activity-status-pending);
+  --color-export-button-bg: var(--export-button-bg);
+  --color-export-button-text: var(--export-button-text);
 }
 
 :root {
@@ -91,6 +115,29 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --stat-card-bg: #ffffff;
+  --stat-icon-bg-purple: #f0e9f8;
+  --stat-icon-bg-pink: #fce9f4;
+  --stat-icon-bg-blue: #e9f4fc;
+  --stat-text-primary: #000000;
+  --stat-text-secondary: #676767;
+  --stat-text-muted: #454953;
+  --stat-increase-color: #009a49;
+  --table-header-bg: #f9fafb;
+  --table-header-text: #4f4f4f;
+  --table-border: #e5e7eb;
+  --table-row-text: #344054;
+  --table-row-date: #101113;
+  --badge-account-bg: #c76034;
+  --badge-corporative-bg: #3436c7;
+  --badge-listing-bg: #7634c7;
+  --badge-shipped-bg: #34c759;
+  --badge-text: #ffffff;
+  --activity-text-primary: #1d283a;
+  --activity-text-secondary: #6a7381;
+  --activity-status-pending: #ff8d28;
+  --export-button-bg: #344054;
+  --export-button-text: #ffffff;
 }
 
 .dark {
@@ -188,4 +235,82 @@
   font-size: 20px;
   font-weight: 500;
   letter-spacing: -1.20px;
+}
+
+@utility dashboard-title {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+@utility dashboard-subtitle {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+@utility stat-label {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+@utility stat-value {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+@utility stat-change {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+@utility table-header {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@utility table-cell {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@utility badge-text {
+  font-family: Manrope, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 10px;
+}
+
+@utility activity-title {
+  font-family: Manrope, sans-serif;
+  font-size: 22.31px;
+  font-weight: 600;
+  letter-spacing: -0.60px;
+  line-height: 24px;
+}
+
+@utility activity-description {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+@utility activity-time {
+  font-family: Manrope, sans-serif;
+  font-size: 11.63px;
+  font-weight: 400;
+}
+
+@utility view-all-button {
+  font-family: Inter, sans-serif;
+  font-size: 13.67px;
+  font-weight: 500;
 }
