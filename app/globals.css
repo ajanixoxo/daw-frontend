@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -73,6 +74,32 @@
   --color-activity-status-pending: var(--activity-status-pending);
   --color-export-button-bg: var(--export-button-bg);
   --color-export-button-text: var(--export-button-text);
+  --color-user-mgmt-bg: var(--user-mgmt-bg);
+  --color-user-mgmt-header-text: var(--user-mgmt-header-text);
+  --color-user-mgmt-subtitle-text: var(--user-mgmt-subtitle-text);
+  --color-user-mgmt-stat-text: var(--user-mgmt-stat-text);
+  --color-user-mgmt-button-bg: var(--user-mgmt-button-bg);
+  --color-user-mgmt-button-text: var(--user-mgmt-button-text);
+  --color-user-mgmt-search-border: var(--user-mgmt-search-border);
+  --color-user-mgmt-search-placeholder: var(--user-mgmt-search-placeholder);
+  --color-user-mgmt-filter-bg: var(--user-mgmt-filter-bg);
+  --color-user-mgmt-filter-text: var(--user-mgmt-filter-text);
+  --color-user-mgmt-table-header-bg: var(--user-mgmt-table-header-bg);
+  --color-user-mgmt-table-header-text: var(--user-mgmt-table-header-text);
+  --color-user-mgmt-table-border: var(--user-mgmt-table-border);
+  --color-user-mgmt-table-row-bg: var(--user-mgmt-table-row-bg);
+  --color-user-mgmt-table-text-primary: var(--user-mgmt-table-text-primary);
+  --color-user-mgmt-table-text-secondary: var(--user-mgmt-table-text-secondary);
+  --color-user-mgmt-table-text-tertiary: var(--user-mgmt-table-text-tertiary);
+  --color-user-mgmt-table-date-text: var(--user-mgmt-table-date-text);
+  --color-user-mgmt-avatar-bg: var(--user-mgmt-avatar-bg);
+  --color-user-mgmt-avatar-text: var(--user-mgmt-avatar-text);
+  --color-user-mgmt-status-shipped: var(--user-mgmt-status-shipped);
+  --color-user-mgmt-status-cancelled: var(--user-mgmt-status-cancelled);
+  --color-user-mgmt-status-pending: var(--user-mgmt-status-pending);
+  --color-user-mgmt-status-shipped-bg: var(--user-mgmt-status-shipped-bg);
+  --color-user-mgmt-status-pending-bg: var(--user-mgmt-status-pending-bg);
+  --color-user-mgmt-drawer-backdrop: var(--user-mgmt-drawer-backdrop);
 }
 
 :root {
@@ -138,6 +165,32 @@
   --activity-status-pending: #ff8d28;
   --export-button-bg: #344054;
   --export-button-text: #ffffff;
+  --user-mgmt-bg: #ffffff;
+  --user-mgmt-header-text: #000000;
+  --user-mgmt-subtitle-text: #454953;
+  --user-mgmt-stat-text: #676767;
+  --user-mgmt-button-bg: #000000;
+  --user-mgmt-button-text: #ffffff;
+  --user-mgmt-search-border: #667185;
+  --user-mgmt-search-placeholder: #667185;
+  --user-mgmt-filter-bg: #344054;
+  --user-mgmt-filter-text: #344054;
+  --user-mgmt-table-header-bg: #e4e7ec;
+  --user-mgmt-table-header-text: #344054;
+  --user-mgmt-table-border: #e5e7eb;
+  --user-mgmt-table-row-bg: #ffffff;
+  --user-mgmt-table-text-primary: #101928;
+  --user-mgmt-table-text-secondary: #475367;
+  --user-mgmt-table-text-tertiary: #344054;
+  --user-mgmt-table-date-text: #101113;
+  --user-mgmt-avatar-bg: #973bfe;
+  --user-mgmt-avatar-text: #973bfe;
+  --user-mgmt-status-shipped: #34c759;
+  --user-mgmt-status-cancelled: #ff383c;
+  --user-mgmt-status-pending: #ff8d28;
+  --user-mgmt-status-shipped-bg: rgba(52, 199, 89, 0.10);
+  --user-mgmt-status-pending-bg: rgba(255, 141, 40, 0.10);
+  --user-mgmt-drawer-backdrop: rgba(79, 73, 73, 0.50);
 }
 
 .dark {
@@ -312,5 +365,99 @@
 @utility view-all-button {
   font-family: Inter, sans-serif;
   font-size: 13.67px;
+  font-weight: 500;
+}
+
+@utility user-mgmt-title {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+@utility user-mgmt-subtitle {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+@utility user-mgmt-stat-label {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+@utility user-mgmt-stat-value {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+@utility user-mgmt-stat-change {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+@utility user-mgmt-section-title {
+  font-family: Manrope, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@utility user-mgmt-search-text {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@utility user-mgmt-filter-text {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@utility user-mgmt-table-header {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@utility user-mgmt-table-cell {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@utility user-mgmt-table-name {
+  font-family: Host Grotesk, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@utility user-mgmt-table-desc {
+  font-family: Host Grotesk, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@utility user-mgmt-avatar-text {
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+@utility user-mgmt-status-text {
+  font-family: Manrope, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 10px;
+}
+
+@utility user-mgmt-button-text {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
   font-weight: 500;
 }
