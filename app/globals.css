@@ -100,6 +100,24 @@
   --color-user-mgmt-status-shipped-bg: var(--user-mgmt-status-shipped-bg);
   --color-user-mgmt-status-pending-bg: var(--user-mgmt-status-pending-bg);
   --color-user-mgmt-drawer-backdrop: var(--user-mgmt-drawer-backdrop);
+  --color-analytics-bg: var(--analytics-bg);
+  --color-analytics-header-text: var(--analytics-header-text);
+  --color-analytics-subtitle-text: var(--analytics-subtitle-text);
+  --color-analytics-stat-text: var(--analytics-stat-text);
+  --color-analytics-tab-active-bg: var(--analytics-tab-active-bg);
+  --color-analytics-tab-active-text: var(--analytics-tab-active-text);
+  --color-analytics-tab-inactive-text: var(--analytics-tab-inactive-text);
+  --color-analytics-chart-title: var(--analytics-chart-title);
+  --color-analytics-chart-subtitle: var(--analytics-chart-subtitle);
+  --color-analytics-chart-axis-text: var(--analytics-chart-axis-text);
+  --color-analytics-chart-bar-color: var(--analytics-chart-bar-color);
+  --color-analytics-chart-area-fill: var(--analytics-chart-area-fill);
+  --color-analytics-rank-text: var(--analytics-rank-text);
+  --color-analytics-list-title: var(--analytics-list-title);
+  --color-analytics-list-subtitle: var(--analytics-list-subtitle);
+  --color-analytics-growth-text: var(--analytics-growth-text);
+  --color-analytics-revenue-text: var(--analytics-revenue-text);
+  --color-analytics-dropdown-border: var(--analytics-dropdown-border);
 }
 
 :root {
@@ -191,6 +209,24 @@
   --user-mgmt-status-shipped-bg: rgba(52, 199, 89, 0.10);
   --user-mgmt-status-pending-bg: rgba(255, 141, 40, 0.10);
   --user-mgmt-drawer-backdrop: rgba(79, 73, 73, 0.50);
+  --analytics-bg: #ffffff;
+  --analytics-header-text: #000000;
+  --analytics-subtitle-text: #454953;
+  --analytics-stat-text: #676767;
+  --analytics-tab-active-bg: #f10e7c;
+  --analytics-tab-active-text: #ffffff;
+  --analytics-tab-inactive-text: #6b7280;
+  --analytics-chart-title: #33363e;
+  --analytics-chart-subtitle: #8e8e8e;
+  --analytics-chart-axis-text: #b4b4b5;
+  --analytics-chart-bar-color: #f10e7c;
+  --analytics-chart-area-fill: #f10e7c;
+  --analytics-rank-text: #000000;
+  --analytics-list-title: #1d283a;
+  --analytics-list-subtitle: #6a7381;
+  --analytics-growth-text: #676767;
+  --analytics-revenue-text: #1d283a;
+  --analytics-dropdown-border: #454953;
 }
 
 .dark {
@@ -460,4 +496,116 @@
   font-family: Manrope, sans-serif;
   font-size: 16px;
   font-weight: 500;
+}
+
+@utility analytics-title {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+@utility analytics-subtitle {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+@utility analytics-stat-label {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+@utility analytics-stat-value {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+@utility analytics-stat-change {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+@utility analytics-tab-text {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@utility analytics-chart-title {
+  font-family: Manrope, sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+@utility analytics-chart-subtitle {
+  font-family: Manrope, sans-serif;
+  font-size: 13.34px;
+  font-weight: 400;
+}
+
+@utility analytics-chart-axis {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@utility analytics-chart-label {
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.50px;
+}
+
+@utility analytics-dropdown-text {
+  font-family: Manrope, sans-serif;
+  font-size: 13.34px;
+  font-weight: 500;
+}
+
+@utility analytics-list-title {
+  font-family: Manrope, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.60px;
+  line-height: 24px;
+}
+
+@utility analytics-rank-text {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@utility analytics-item-name {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+@utility analytics-item-subtitle {
+  font-family: Manrope, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+@utility analytics-revenue-text {
+  font-family: Manrope, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+@utility analytics-avatar-text {
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
 }
