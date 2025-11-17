@@ -9,7 +9,7 @@ export default function WhyDAWSection() {
               Why DAW
             </h2>
             <p className="text-[#000000] text-base sm:text-lg font-normal leading-[24px] tracking-[-0.27px] max-w-[480px]">
-              Empowering Women's Cooperatives with Smart, Scalable Management Tools
+              Empowering Women&apos;s Cooperatives with Smart, Scalable Management Tools
             </p>
           </div>
 

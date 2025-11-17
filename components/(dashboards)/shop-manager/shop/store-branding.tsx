@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Upload } from "lucide-react"
@@ -46,7 +47,7 @@ export function StoreBranding() {
           <div className="space-y-3">
             <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-lg border border-[#e4e7ec]">
               {logoPreview ? (
-                <img src={logoPreview || "/placeholder.svg"} alt="Store logo" className="h-full w-full object-cover" />
+                <Image src={logoPreview || "/placeholder.svg"} alt="Store logo" fill className="object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[#f9f9f9] text-[#667185]">
                   No logo
@@ -68,10 +69,11 @@ export function StoreBranding() {
           <Label className="text-sm font-medium text-[#1c1c1c]">Store Banner</Label>
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-[#e4e7ec]">
             {bannerPreview ? (
-              <img
+              <Image
                 src={bannerPreview || "/placeholder.svg"}
                 alt="Store banner"
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-[#e4baca]">

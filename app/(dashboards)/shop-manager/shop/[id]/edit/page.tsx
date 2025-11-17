@@ -23,7 +23,7 @@ export default function EditShopPage({
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-[#1c1c1c] md:text-3xl">Faye's Complex</h1>
+              <h1 className="text-2xl font-bold text-[#1c1c1c] md:text-3xl">Faye&apos;s Complex</h1>
               <p className="mt-1 text-sm text-[#667185]">Manage your store settings and information</p>
             </div>
           </div>
@@ -51,7 +51,7 @@ export default function EditShopPage({
             <StoreStatus />
 
             {/* Profile Photo */}
-            <ProfilePhotoSection shopId={params.id} />
+            <ProfilePhotoSection />
           </div>
         </div>
 

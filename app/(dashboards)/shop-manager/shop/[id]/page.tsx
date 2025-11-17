@@ -22,7 +22,7 @@ export default function ShopDetailsPage({
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-[#1c1c1c] md:text-3xl">Faye's Complex Orders</h1>
+              <h1 className="text-2xl font-bold text-[#1c1c1c] md:text-3xl">Faye&apos;s Complex Orders</h1>
               <p className="mt-1 text-sm text-[#667185]">Track and manage customer orders</p>
             </div>
           </div>
@@ -37,6 +37,7 @@ export default function ShopDetailsPage({
 
       {/* Hero Image */}
       <div className="relative h-48 overflow-hidden md:h-64">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women-z1BmsUYjV92g31E8hHTTY6ZKtS2GR7.png"
           alt="Shop interior"
@@ -51,7 +52,7 @@ export default function ShopDetailsPage({
           <div className="flex-1">
             <div className="mb-3 flex items-start justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-[#1c1c1c]">Faye's Complex</h2>
+                <h2 className="text-2xl font-bold text-[#1c1c1c]">Faye&apos;s Complex</h2>
                 <p className="mt-1 text-[#667185]">Quality African fashion and accessories</p>
               </div>
               <span className="rounded-full bg-[#fccfe5] px-3 py-1 text-sm font-medium text-[#f10e7c]">Verified</span>

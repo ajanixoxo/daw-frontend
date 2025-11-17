@@ -242,7 +242,7 @@ const LoanManagement = () => {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'overview' | 'tiers' | 'history' | 'apply')}
                 className={`flex-1 px-6 py-4 font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'text-white bg-pink-600'

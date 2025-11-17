@@ -106,93 +106,38 @@ export const mockRootProps = {
     {
       id: "2" as const,
       rank: 2,
-      name: "Lagos Artisan Network" as const,
-      location: "Lagos" as const,
-      members: 45,
-      avatar: "M" as const,
-      avatarColor: "#973bfe" as const,
-      growthPercentage: 10,
-      revenue: 125000
-    },
-    {
-      id: "3" as const,
-      rank: 3,
-      name: "Lagos Artisan Network" as const,
-      location: "Lagos" as const,
-      members: 45,
-      avatar: "M" as const,
-      avatarColor: "#973bfe" as const,
-      growthPercentage: 10,
-      revenue: 125000
-    },
-    {
-      id: "4" as const,
-      rank: 4,
-      name: "Lagos Artisan Network" as const,
-      location: "Lagos" as const,
-      members: 45,
-      avatar: "M" as const,
-      avatarColor: "#973bfe" as const,
-      growthPercentage: 10,
-      revenue: 125000
-    },
-    {
-      id: "5" as const,
-      rank: 5,
-      name: "Lagos Artisan Network" as const,
-      location: "Lagos" as const,
-      members: 45,
-      avatar: "M" as const,
-      avatarColor: "#973bfe" as const,
-      growthPercentage: 10,
-      revenue: 125000
-    }
-  ],
-  topProducts: [
-    {
-      id: "1" as const,
-      rank: 1,
-      name: "Turtleneck v-neck" as const,
-      organization: "Lagos Artisan Network" as const,
-      image: "https://i.pravatar.cc/150?img=1" as const,
-      growthPercentage: 10,
-      revenue: 125000
-    },
-    {
-      id: "2" as const,
-      rank: 2,
-      name: "Turtleneck v-neck" as const,
-      organization: "Lagos Artisan Network" as const,
+      name: "Leather Bag" as const,
+      organization: "Kano Crafters" as const,
       image: "https://i.pravatar.cc/150?img=2" as const,
-      growthPercentage: 10,
-      revenue: 125000
+      growthPercentage: 12,
+      revenue: 98000
     },
     {
       id: "3" as const,
       rank: 3,
-      name: "Turtleneck v-neck" as const,
-      organization: "Lagos Artisan Network" as const,
+      name: "Beaded Necklace" as const,
+      organization: "Abuja Women Cooperative" as const,
       image: "https://i.pravatar.cc/150?img=3" as const,
-      growthPercentage: 10,
-      revenue: 125000
+      growthPercentage: 8,
+      revenue: 75000
     },
     {
       id: "4" as const,
       rank: 4,
-      name: "Turtleneck v-neck" as const,
-      organization: "Lagos Artisan Network" as const,
+      name: "Hand-woven Shawl" as const,
+      organization: "Ibadan Textiles" as const,
       image: "https://i.pravatar.cc/150?img=4" as const,
-      growthPercentage: 10,
-      revenue: 125000
+      growthPercentage: 15,
+      revenue: 142000
     },
     {
       id: "5" as const,
       rank: 5,
-      name: "Turtleneck v-neck" as const,
-      organization: "Lagos Artisan Network" as const,
+      name: "Ceramic Plates" as const,
+      organization: "Benin Art Studios" as const,
       image: "https://i.pravatar.cc/150?img=5" as const,
-      growthPercentage: 10,
-      revenue: 125000
+      growthPercentage: 6,
+      revenue: 62000
     }
   ]
 };

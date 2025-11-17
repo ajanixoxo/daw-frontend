@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Copy, ExternalLink, Palette } from "lucide-react"
 import { useState } from "react"
 
-export function ProfilePhotoSection({ shopId }: { shopId: string }) {
+export function ProfilePhotoSection() {
   const [copied, setCopied] = useState(false)
   const storeUrl = `https://daw.app/fayes-complex`
 

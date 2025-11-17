@@ -1,5 +1,3 @@
-import type { ApprovalType } from "./enums";
-
 export const formatCurrency = (amount: number): string => {
   return `₦${(amount / 1000000).toFixed(0)}M`;
 };

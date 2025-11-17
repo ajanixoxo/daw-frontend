@@ -64,6 +64,7 @@ export default function TopPerformingMembers() {
             <div key={member.id} className="flex items-center justify-between rounded-lg border p-4">
               <div className="flex items-center gap-4">
                 <span className="text-lg font-semibold text-muted-foreground">{member.id}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={member.image || "/placeholder.svg"}
                   alt={member.name}

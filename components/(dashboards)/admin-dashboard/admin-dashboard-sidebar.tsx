@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   ShoppingBag,
-  Package,
-  ShoppingCart,
   HandCoins,
   Wallet,
   BarChart3,

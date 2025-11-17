@@ -21,7 +21,7 @@ const stats = [
     label: "Active Members",
     value: "312",
     change: "Contributing regularly",
-    changeType: "neutral" as const,
+    changeType: "neutral" as "positive" | "negative" | "neutral",
   },
   {
     icon: (

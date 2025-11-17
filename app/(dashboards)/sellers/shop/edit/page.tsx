@@ -38,7 +38,7 @@ export default function EditShopPage() {
                 <ArrowLeft className="h-5 w-5 text-[#1d1d2a]" />
               </Button>
               <div>
-                <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">Faye's Complex</h1>
+                <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">Faye&apos;s Complex</h1>
                 <p className="text-[14px] text-[#667185] leading-relaxed">Manage your store settings and information</p>
               </div>
             </div>
@@ -123,6 +123,7 @@ export default function EditShopPage() {
                     <label className="block text-[14px] font-medium text-[#344054] mb-3">Store Logo</label>
                     <div className="relative">
                       <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#e4baca]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-jGgLZj9vmgNyqApIPPBE0FtK9ciuuq.png"
                           alt="Store Logo"

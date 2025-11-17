@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Package,
-  ShoppingCart,
   HandCoins,
   Wallet,
   BarChart3,

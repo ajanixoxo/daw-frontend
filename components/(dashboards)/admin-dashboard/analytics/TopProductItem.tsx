@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image";
 import ArrowUpIcon from "@/components/icons/ArrowUpIcon";
 import type { ProductData } from "./schema";
 import { formatCurrency, formatPercentage } from "./formatters";

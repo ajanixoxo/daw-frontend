@@ -1,4 +1,6 @@
 // Props types (data passed to components)
+
+
 export interface AnalyticsProps {
   stats: StatsData;
   platformGrowth: PlatformGrowthData[];

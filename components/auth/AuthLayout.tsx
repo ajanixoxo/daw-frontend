@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { FC, ReactNode } from 'react';
+import type { FC } from 'react';
 import { Badge } from 'lucide-react';
 import PromoSection from './PromoSection';
 import SignInForm from './SignInForm';

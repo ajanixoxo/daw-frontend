@@ -5,11 +5,7 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   ShoppingBag,
-  Package,
-  ShoppingCart,
   HandCoins,
-  Wallet,
-  BarChart3,
   Settings,
   X,
   Menu,

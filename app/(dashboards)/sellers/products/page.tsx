@@ -240,7 +240,7 @@ function AddProductDrawer() {
               variant="ghost"
               size="icon"
               className="size-8 -ml-2"
-              onClick={(e) => {
+              onClick={() => {
                 const closeButton = document.querySelector("[data-sheet-close]") as HTMLButtonElement
                 closeButton?.click()
               }}
@@ -381,7 +381,7 @@ function AddProductDrawer() {
                   <SelectValue placeholder="Select Store" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="fayes-complex">Faye's Complex</SelectItem>
+                  <SelectItem value="fayes-complex">Faye&apos;s Complex</SelectItem>
                   <SelectItem value="store-2">Store 2</SelectItem>
                   <SelectItem value="store-3">Store 3</SelectItem>
                 </SelectContent>
@@ -559,6 +559,7 @@ export default function ProductsPage() {
                       <tr key={product.id} className="border-b border-[#e7e8e9] hover:bg-[#f9f9f9]">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={product.image || "/placeholder.svg"}
                               alt={product.name}
@@ -620,6 +621,7 @@ export default function ProductsPage() {
                 {products.map((product) => (
                   <div key={product.id} className="border border-[#e7e8e9] rounded-lg p-4">
                     <div className="flex items-start gap-3 mb-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}

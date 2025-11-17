@@ -118,99 +118,52 @@ export const mockRootProps = {
     },
     {
       id: "3",
-      type: ApprovalType.LISTING,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "New seller account application submitted",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000)
     },
     {
       id: "4",
-      type: ApprovalType.ACCOUNT,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "Account verified successfully",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000)
     },
     {
       id: "5",
-      type: ApprovalType.CORPORATIVE,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "Cooperative listing pending review",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000)
     },
     {
       id: "6",
-      type: ApprovalType.LISTING,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "Product listing approved",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 10 * 60 * 60 * 1000)
     },
     {
       id: "7",
-      type: ApprovalType.SHIPPED,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "Order shipped successfully",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000)
     },
     {
       id: "8",
-      type: ApprovalType.SHIPPED,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "Payment received from seller",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 14 * 60 * 60 * 1000)
     },
     {
       id: "9",
-      type: ApprovalType.SHIPPED,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
+      description: "New cooperative registered",
+      status: ActivityStatus.PENDING,
+      timestamp: new Date(Date.now() - 16 * 60 * 60 * 1000)
     },
     {
       id: "10",
-      type: ApprovalType.SHIPPED,
-      name: "Amina Hssan",
-      submittedBy: "Self Registration",
-      orderDate: new Date(2025, 3, 7),
-      description: "New seller acct application"
-    }
-  ],
-  recentActivities: [
-    {
-      id: "1",
-      description: "Account Suspended: Mutiple policy violations",
+      description: "Loan application received",
       status: ActivityStatus.PENDING,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
-    },
-    {
-      id: "2",
-      description: "Account Suspended: Mutiple policy violations",
-      status: ActivityStatus.PENDING,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
-    },
-    {
-      id: "3",
-      description: "Account Suspended: Mutiple policy violations",
-      status: ActivityStatus.PENDING,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
-    },
-    {
-      id: "4",
-      description: "Account Suspended: Mutiple policy violations",
-      status: ActivityStatus.PENDING,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
-    },
-    {
-      id: "5",
-      description: "Account Suspended: Mutiple policy violations",
-      status: ActivityStatus.PENDING,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
+      timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000)
     }
   ]
+
 };
