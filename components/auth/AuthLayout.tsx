@@ -34,10 +34,7 @@ const AuthLayout: FC<AuthLayoutProps> = ({
         <div className="w-full max-w-[406px] flex flex-col gap-10">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <Badge size={24} className="text-(--brand-pink)" />
-            <span className="auth-logo-text text-(--brand-pink)">
-              Digital African Women
-            </span>
+           <img src="/logo-full.png" alt="Logo" className="h-6" />
           </div>
 
           {/* Tab Navigation */}
