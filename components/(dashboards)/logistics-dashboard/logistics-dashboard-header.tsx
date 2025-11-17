@@ -14,15 +14,10 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         {/* Left: Mobile Menu + Logo */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
-            <Menu className="h-5 w-5" />
+              <img src="/sidebar-left.svg" alt="Collapse sidebar" className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2 lg:hidden">
-            <div className="w-8 h-8 rounded-full bg-[#f10e7c] flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 2L12.5 7L18 8L14 12L15 18L10 15L5 18L6 12L2 8L7.5 7L10 2Z" fill="white" />
-              </svg>
-            </div>
-            <span className="text-[#f10e7c] font-semibold text-base">Digital African Women</span>
+       <img src="/logo-full.png" alt="Logo" className="h-6" />
           </div>
         </div>
 
