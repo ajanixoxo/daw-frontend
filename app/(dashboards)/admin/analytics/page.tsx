@@ -102,17 +102,17 @@ export default function AnalyticsPage() {
         </TabsList>
 
         <TabsContent value={TabType.OVERVIEW} className="mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_445px] gap-5">
+          {/* <div className="grid grid-cols-1 lg:grid-cols-[1fr_445px] gap-5"> */}
             {/* Left Column - Charts */}
             <div className="space-y-5">
               <PlatformGrowthChart data={platformGrowth} />
               <MonthlySalesChart data={monthlySales} />
-            </div>
+            {/* </div> */}
 
             {/* Right Column - Rankings */}
             <div className="space-y-5">
               {/* Top Cooperatives */}
-              <Card className="p-6 rounded-xl border-none" style={{
+              {/* <Card className="p-6 rounded-xl border-none" style={{
                 background: "linear-gradient(145.52deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%)",
                 boxShadow: "0px 2px 4px rgba(29, 40, 58, 0.06), 0px 4px 6px rgba(29, 40, 58, 0.10)"
               }}>
@@ -127,10 +127,10 @@ export default function AnalyticsPage() {
                     <TopCooperativeItem key={cooperative.id} cooperative={cooperative} />
                   ))}
                 </div>
-              </Card>
+              </Card> */}
 
               {/* Top Products */}
-              <Card className="p-6 rounded-xl border-none" style={{
+              {/* <Card className="p-6 rounded-xl border-none" style={{
                 background: "linear-gradient(145.52deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%)",
                 boxShadow: "0px 2px 4px rgba(29, 40, 58, 0.06), 0px 4px 6px rgba(29, 40, 58, 0.10)"
               }}>
@@ -145,7 +145,7 @@ export default function AnalyticsPage() {
                     <TopProductItem key={product.id} product={product} />
                   ))}
                 </div>
-              </Card>
+              </Card> */}
             </div>
           </div>
         </TabsContent>

@@ -26,17 +26,17 @@ const navItems = [
   { icon: ShoppingBag, label: "User", href: "/admin/user" },
   // { icon: Package, label: "Products", href: "/cooperative-dashboard/products" },
   // { icon: ShoppingCart, label: "Orders", href: "/cooperative-dashboard/orders" },
-  { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
-  { icon: Wallet, label: "Listings", href: "/admin/listings" },
+  // { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
+  // { icon: Wallet, label: "Listings", href: "/admin/listings" },
   { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
-  { icon: Settings, label: "Settings", href: "/admin/settings" },
+  // { icon: Settings, label: "Settings", href: "/admin/settings" },
 ]
 
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
   const pathname = usePathname()
 
   return (
-    <>
+   <>
       {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onToggle} aria-hidden="true" />}
 
       {/* Sidebar */}
@@ -53,15 +53,14 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
         )}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between px-6 py-6 border-b border-[#e7e8e9] min-h-[88px]">
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-[#f10e7c] flex items-center justify-center flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 2L12.5 7L18 8L14 12L15 18L10 15L5 18L6 12L2 8L7.5 7L10 2Z" fill="white" />
-                </svg>
+          <div className="flex items-center justify-between px-2 py-6 border-b border-[#e7e8e9] min-h-[88px]">
+            <div className="flex items-center gap-0.5 overflow-hidden">
+              {isCollapsed ? (
+              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                <img src="/logo.png" alt="Logo" className="h-7 w-7" />
               </div>
-              {!isCollapsed && (
-                <span className="text-[#f10e7c] font-semibold text-base whitespace-nowrap">Digital African Women</span>
+              ) : (
+              <img src="/logo-full.png" alt="Logo" className="h-6" />
               )}
             </div>
             {/* Desktop collapse toggle - always visible on desktop */}
@@ -72,7 +71,7 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
               className={cn("hidden lg:flex flex-shrink-0 h-8 w-8 hover:bg-[#f9f9f9]", isCollapsed && "mx-auto")}
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <Menu className="h-5 w-5 text-[#667185]" />
+              <img src="/sidebar-left.svg" alt="Collapse sidebar" className="h-3 w-3" />
             </Button>
             {/* Mobile close button */}
             <Button

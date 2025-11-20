@@ -64,10 +64,10 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Main Content - Table and Activity Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_395px] gap-5">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-[1fr_395px] gap-5"> */}
         <PendingApprovalsTable approvals={pendingApprovals} />
-        <RecentActivityPanel activities={recentActivities} />
-      </div>
+        {/* <RecentActivityPanel activities={recentActivities} /> */}
+      {/* </div> */}
     </div>
   );
 }
