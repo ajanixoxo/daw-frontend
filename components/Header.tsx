@@ -34,10 +34,13 @@ export default function Header() {
         <div className="flex items-center gap-8 lg:gap-[60px]">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#F10E7C] rounded-sm shrink-0"></div>
+                           {/* <div className="flex items-center gap-2 lg:"> */}
+       <img src="/logo-full.png" alt="Logo" className="h-6" />
+          {/* </div> */}
+            {/* <div className="w-6 h-6 bg-[#F10E7C] rounded-sm shrink-0"></div>
             <span className="text-[#F10E7C] font-inter text-base lg:text-[20px] font-medium tracking-[-0.06em] whitespace-nowrap">
               Digital African Women
-            </span>
+            </span> */}
           </div>
 
           {/* Desktop Navigation */}
@@ -70,11 +73,12 @@ export default function Header() {
         </div>
 
         {/* Desktop Login Button */}
-        <button className="hidden lg:flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group">
+        <Link href="/auth" passHref>   <button className="hidden lg:flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group">
           <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px]">
             Login
           </span>
-        </button>
+        </button></Link>
+     
 
         {/* Mobile Menu Button */}
         <button
