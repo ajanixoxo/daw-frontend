@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image';
 export default function Mission() {
   return (
-    <div className="min-h-screen bg-[#F5F5F5] py-12 px-4 sm:px-6 lg:px-20 xl:px-20">
+    <div className="min-h-screen bg-[#FFEFF7] py-12 px-4 sm:px-6 lg:px-20 xl:px-20">
       <div className="max-w-[1272px] mx-auto">
         <div className="flex flex-col items-center gap-16 lg:gap-[60px]">
           {/* Header Section */}

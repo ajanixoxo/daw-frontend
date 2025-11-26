@@ -2,19 +2,19 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
+// import { Card } from "@/components/ui/card";
 import { AnalyticsStatCard } from "@/components/(dashboards)/admin-dashboard/analytics/AnalyticsStatCard";
 import { PlatformGrowthChart } from "@/components/(dashboards)/admin-dashboard/analytics/PlatformGrowthChart";
 import { MonthlySalesChart } from "@/components/(dashboards)/admin-dashboard/analytics/MonthlySalesChart";
-import { TopCooperativeItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopCooperativeItem";
-import { TopProductItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopProductItem";
+// import { TopCooperativeItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopCooperativeItem";
+// import { TopProductItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopProductItem";
 import { mockRootProps } from "@/components/(dashboards)/admin-dashboard/analytics/analyticsMockData";
 import { formatPercentageChange } from "@/components/(dashboards)/admin-dashboard/analytics/formatters";
 import { TabType } from "@/components/(dashboards)/admin-dashboard/analytics/enums";
 import DocumentTextAnalyticsIcon from "@/components/icons/DocumentTextAnalyticsIcon";
 import ArrowUpIcon from "@/components/icons/ArrowUpIcon";
 import CardsAnalyticsIcon from "@/components/icons/CardsAnalyticsIcon";
-import ListDocumentIcon from "@/components/icons/ListDocumentIcon";
+// import ListDocumentIcon from "@/components/icons/ListDocumentIcon";
 
 export default function AnalyticsPage() {
   const { stats, platformGrowth, monthlySales, topCooperatives, topProducts } = mockRootProps;

@@ -1,18 +1,18 @@
 import Header from "@/components/Header";
 import Footer from "@/components/landing-page/cooperatives/Footer";
-import { MasterclassContent } from "@/components/landing-page/masterclass/masterclass";
+import { MarketplaceContent } from "@/components/landing-page/marketplace/marketplace-content";
 
 export const metadata = {
-  title: "Masterclass | DAW",
+  title: "African Women Marketplace | DAW",
   description:
     "Discover authentic handcrafted products made by talented women entrepreneurs from across Africa.",
 };
 
-export default function MasterclassPage() {
+export default function MarketplacePage() {
   return (
     <div>
       <Header />
-      <MasterclassContent />
+      <MarketplaceContent />
       <Footer />
     </div>
   );
