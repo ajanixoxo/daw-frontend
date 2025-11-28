@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image';
+import { OurVision } from './our-vision';
 export default function Mission() {
   return (
     <div className="min-h-screen bg-[#FFEFF7] py-12 px-4 sm:px-6 lg:px-20 xl:px-20">
@@ -114,6 +115,8 @@ export default function Mission() {
             </div>
           </div>
         </div>
+
+         <OurVision />
       </div>
     </div>
   );

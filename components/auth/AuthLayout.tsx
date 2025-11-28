@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { FC } from 'react';
-import { Badge } from 'lucide-react';
 import PromoSection from './PromoSection';
 import SignInForm from './SignInForm';
 import SignUpForm from './SignUpForm';
@@ -11,33 +10,19 @@ type AuthMode = 'signin' | 'signup';
 
 interface AuthLayoutProps {
   initialMode?: AuthMode;
-  onSignIn?: (email: string, password: string) => void | Promise<void>;
-  onSignUp?: (data: {
-    fullName: string;
-    email: string;
-    password: string;
-    role: string;
-  }) => void | Promise<void>;
 }
 
-const AuthLayout: FC<AuthLayoutProps> = ({
-  initialMode = 'signin',
-  onSignIn,
-  onSignUp,
-}) => {
+const AuthLayout: FC<AuthLayoutProps> = ({ initialMode = 'signin' }) => {
   const [mode, setMode] = useState<AuthMode>(initialMode);
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white">
-      {/* Left Panel - Form Section */}
       <div className="w-full lg:w-[550px] flex flex-col items-center justify-center p-8 lg:p-12">
         <div className="w-full max-w-[406px] flex flex-col gap-10">
-          {/* Logo */}
           <div className="flex items-center gap-3">
-           <img src="/logo-full.png" alt="Logo" className="h-6" />
+            <img src="/logo-full.png" alt="Logo" className="h-6" />
           </div>
 
-          {/* Tab Navigation */}
           <div className="flex flex-col gap-8">
             <div className="flex items-center gap-0 bg-(--bg-light-gray) rounded-xl p-1">
               <button
@@ -64,7 +49,6 @@ const AuthLayout: FC<AuthLayoutProps> = ({
               </button>
             </div>
 
-            {/* Form Content with Transition */}
             <div className="relative overflow-hidden">
               <div
                 className="transition-all duration-500 ease-in-out"
@@ -75,7 +59,7 @@ const AuthLayout: FC<AuthLayoutProps> = ({
                   width: '100%',
                 }}
               >
-                <SignInForm onSubmit={onSignIn} />
+                <SignInForm />
               </div>
 
               <div
@@ -85,14 +69,13 @@ const AuthLayout: FC<AuthLayoutProps> = ({
                   opacity: mode === 'signup' ? 1 : 0,
                   position: mode === 'signup' ? 'relative' : 'absolute',
                   width: '100%',
-                  top: mode === 'signup' ? 0 : 0,
+                  top: 0,
                 }}
               >
-                <SignUpForm onSubmit={onSignUp} />
+                <SignUpForm />
               </div>
             </div>
 
-            {/* Footer Link */}
             <div className="text-center">
               <span className="auth-label text-(--text-light-muted)">
                 {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
@@ -109,7 +92,6 @@ const AuthLayout: FC<AuthLayoutProps> = ({
         </div>
       </div>
 
-      {/* Right Panel - Promotional Content */}
       <div className="flex-1 hidden lg:flex p-4">
         <PromoSection />
       </div>

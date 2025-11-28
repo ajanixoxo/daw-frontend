@@ -13,112 +13,176 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Eye, EyeOff } from 'lucide-react';
+import { useSignup } from '@/hooks/useAuth';
+import type { ISignupRequest } from '@/types/auth.types';
 
-interface SignUpFormProps {
-  onSubmit?: (data: {
-    fullName: string;
-    email: string;
-    password: string;
-    role: string;
-  }) => void | Promise<void>;
-}
-
-const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('');
+const SignUpForm: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{
-    fullName?: string;
+    firstName?: string;
+    lastName?: string;
     email?: string;
+    phone?: string;
     password?: string;
     confirmPassword?: string;
     role?: string;
   }>({});
+
+  // USE THE SIGNUP HOOK HERE
+  const { signup, isLoading, error } = useSignup();
+
+  const [formData, setFormData] = useState<ISignupRequest>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    role: 'registered_shopper',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: value as "registered_shopper" ,
+    }));
+  };
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // const validatePhone = (phone: string): boolean => {
+  //   const phoneRegex = /^234\d{10}$/;
+  //   return phoneRegex.test(phone);
+  // };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: {
-      fullName?: string;
+      firstName?: string;
+      lastName?: string;
       email?: string;
+      phone?: string;
       password?: string;
       confirmPassword?: string;
       role?: string;
     } = {};
 
-    if (!fullName) {
-      newErrors.fullName = 'Full name is required';
+    if (!formData.firstName) {
+      newErrors.firstName = 'First name is required';
     }
 
-    if (!email) {
+    if (!formData.lastName) {
+      newErrors.lastName = 'Last name is required';
+    }
+
+    if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!validateEmail(email)) {
+    } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
 
-    if (!password) {
+    // if (!formData.phone) {
+    //   newErrors.phone = 'Phone number is required';
+    // } else if (!validatePhone(formData.phone)) {
+    //   newErrors.phone = 'Invalid phone format (e.g., 23409099987)';
+    // }
+
+    if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (password.length < 8) {
+    } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
 
-    if (!confirmPassword) {
+    if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
-    } else if (password !== confirmPassword) {
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    if (!role) {
+    if (!formData.role) {
       newErrors.role = 'Please select a role';
     }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      onSubmit?.({ fullName, email, password, role });
+      await signup(formData);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Full Name Field */}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="fullName" className="auth-label text-(--text-dark)">
-          Full Name
-        </Label>
-        <Input
-          id="fullName"
-          type="text"
-          placeholder="John Doe"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
-          aria-invalid={!!errors.fullName}
-        />
-        {errors.fullName && (
-          <span className="text-xs text-destructive">{errors.fullName}</span>
-        )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="firstName" className="auth-label text-(--text-dark)">
+            First Name
+          </Label>
+          <Input
+            id="firstName"
+            name="firstName"
+            type="text"
+            placeholder="John"
+            value={formData.firstName}
+            onChange={handleChange}
+            disabled={isLoading}
+            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
+            aria-invalid={!!errors.firstName}
+          />
+          {errors.firstName && (
+            <span className="text-xs text-destructive">{errors.firstName}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="lastName" className="auth-label text-(--text-dark)">
+            Last Name
+          </Label>
+          <Input
+            id="lastName"
+            name="lastName"
+            type="text"
+            placeholder="Doe"
+            value={formData.lastName}
+            onChange={handleChange}
+            disabled={isLoading}
+            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
+            aria-invalid={!!errors.lastName}
+          />
+          {errors.lastName && (
+            <span className="text-xs text-destructive">{errors.lastName}</span>
+          )}
+        </div>
       </div>
 
-      {/* Email Field */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email" className="auth-label text-(--text-dark)">
           Email
         </Label>
         <Input
           id="email"
+          name="email"
           type="email"
           placeholder="hello@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
+          disabled={isLoading}
           className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
           aria-invalid={!!errors.email}
         />
@@ -127,7 +191,26 @@ const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
         )}
       </div>
 
-      {/* Password Field */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="phone" className="auth-label text-(--text-dark)">
+          Phone Number
+        </Label>
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          placeholder="23409099987"
+          value={formData.phone}
+          onChange={handleChange}
+          disabled={isLoading}
+          className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
+          aria-invalid={!!errors.phone}
+        />
+        {errors.phone && (
+          <span className="text-xs text-destructive">{errors.phone}</span>
+        )}
+      </div>
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="password" className="auth-label text-(--text-dark)">
           Password
@@ -135,24 +218,23 @@ const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
         <div className="relative">
           <Input
             id="password"
+            name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
+            disabled={isLoading}
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
             aria-invalid={!!errors.password}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors"
+            disabled={isLoading}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
-            {showPassword ? (
-              <EyeOff size={20} />
-            ) : (
-              <Eye size={20} />
-            )}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         {errors.password && (
@@ -160,7 +242,6 @@ const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
         )}
       </div>
 
-      {/* Confirm Password Field */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword" className="auth-label text-(--text-dark)">
           Confirm Password
@@ -168,24 +249,23 @@ const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
         <div className="relative">
           <Input
             id="confirmPassword"
+            name="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
             placeholder="••••••••"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            disabled={isLoading}
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
             aria-invalid={!!errors.confirmPassword}
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors"
+            disabled={isLoading}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
             aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
           >
-            {showConfirmPassword ? (
-              <EyeOff size={20} />
-            ) : (
-              <Eye size={20} />
-            )}
+            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         {errors.confirmPassword && (
@@ -193,24 +273,22 @@ const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
         )}
       </div>
 
-      {/* Role Selection */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="role" className="auth-label text-(--text-dark)">
           I am joining as a
         </Label>
-        <Select value={role} onValueChange={setRole}>
+        <Select value={formData.role} onValueChange={handleRoleChange} disabled={isLoading}>
           <SelectTrigger
             id="role"
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base w-full"
             aria-invalid={!!errors.role}
           >
-            <SelectValue placeholder="Community Member" />
+            <SelectValue placeholder="Registered Shopper" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="community-member">Community Member</SelectItem>
-            <SelectItem value="entrepreneur">Entrepreneur</SelectItem>
-            <SelectItem value="buyer">Buyer</SelectItem>
-            <SelectItem value="mentor">Mentor</SelectItem>
+            <SelectItem value="registered_shopper">Registered Shopper</SelectItem>
+            <SelectItem value="vendor">Vendor</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
         {errors.role && (
@@ -218,13 +296,13 @@ const SignUpForm: FC<SignUpFormProps> = ({ onSubmit }) => {
         )}
       </div>
 
-      {/* Submit Button */}
       <Button
         type="submit"
-        className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5"
+        disabled={isLoading}
+        className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ letterSpacing: '-0.64px' }}
       >
-        Create Account
+        {isLoading ? 'Creating Account...' : 'Create Account'}
       </Button>
     </form>
   );
