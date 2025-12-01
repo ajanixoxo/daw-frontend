@@ -7,10 +7,11 @@ import { MarketplaceProducts } from "@/components/landing-page/home/marketplace-
 import { MembershipPricing } from "@/components/landing-page/home/membership-pricing";
 import { Testimonials } from "@/components/landing-page/home/testimonials";
 import { WhyDAW } from "@/components/landing-page/home/why-daw";
-
+import { HeroSection } from "@/components/landing-page/home/signed-in-hero";
 export default function Home() {
   return (
     <div>
+      <HeroSection/>
       <Hero />
       <CooperativePlatform />
       <WhyDAW />

@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 
 
@@ -171,7 +172,10 @@ export default function CooperativesOption() {
                     </div>
 
                     {/* Join Button */}
-                    <button className="flex w-full px-5 py-3 justify-center items-center gap-1 rounded-[40px] bg-[#222222] hover:bg-[#000000] transition-colors">
+
+                    <Link href="/cooperatives/join">
+
+                           <button className="flex w-full px-5 py-3 justify-center items-center gap-1 rounded-[40px] bg-[#222222] hover:bg-[#000000] transition-colors">
                       <svg 
                         width="20" 
                         height="20" 
@@ -240,6 +244,11 @@ export default function CooperativesOption() {
                         Join Cooperative
                       </span>
                     </button>
+                    
+                    </Link>
+             
+
+                    
                   </div>
                 </div>
               ))}

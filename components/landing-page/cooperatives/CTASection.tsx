@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTASection() {
   return (
     <section className="bg-[#FFFFFF] flex items-center justify-center px-4 sm:px-6 lg:px-20">
@@ -14,11 +16,15 @@ export default function CTASection() {
               </p>
             </div>
 
-            <button className="flex px-6 sm:px-8 py-4 justify-center items-center gap-1 rounded-[40px] bg-[#FFFFFF] hover:bg-[#f5f5f5] transition-colors self-start">
+            <Link href="/cooperatives/join">
+              <button className="flex px-6 sm:px-8 py-4 justify-center items-center gap-1 rounded-[40px] bg-[#FFFFFF] hover:bg-[#f5f5f5] transition-colors self-start">
               <span className="text-[#222222] text-lg sm:text-xl font-medium tracking-[-0.8px]">
                 Join Cooperative
               </span>
             </button>
+            </Link>
+
+          
           </div>
 
           {/* Decorative Star Pattern */}

@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -26,11 +27,19 @@ export default function Hero() {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                <button className="flex items-center justify-center px-8 py-4 rounded-[40px] bg-[#F10E7C] hover:bg-[#d00c6b] transition-colors">
+
+                <Link href="/cooperatives/join">
+
+                                <button className="flex items-center justify-center px-8 py-4 rounded-[40px] bg-[#F10E7C] hover:bg-[#d00c6b] transition-colors">
                   <span className="text-white font-inter text-[18px] lg:text-[20px] font-medium tracking-[-0.8px]">
                     Join Cooperative
                   </span>
                 </button>
+                
+                </Link>
+
+
+
                 <button className="flex items-center justify-center px-8 py-4 rounded-[40px] border border-[#FCCFE5] bg-white hover:bg-[#FFF5FB] transition-colors">
                   <span className="text-[#F10E7C] font-inter text-[18px] lg:text-[20px] font-medium tracking-[-0.8px]">
                     Enter Marketplace

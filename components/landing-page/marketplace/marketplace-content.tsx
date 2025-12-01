@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import Image from "next/image"
-import { ChevronDown, Search } from "lucide-react"
+import { useState, useMemo } from "react";
+import Image from "next/image";
+import { ChevronDown, Search } from "lucide-react";
+import Link from "next/link";
 
 const products = [
   {
@@ -10,7 +11,8 @@ const products = [
     name: "Adire Throw Pillow Set",
     price: 85.0,
     category: "HOME DECOR",
-    description: "Set of 4 handcrafted throw pillows with traditional Adire patterns",
+    description:
+      "Set of 4 handcrafted throw pillows with traditional Adire patterns",
     image: "/pillow.png",
   },
   {
@@ -29,6 +31,9 @@ const products = [
     description: "Tailored blazer in vibrant Kitenge fabric",
     image: "/bash.png",
   },
+
+
+  
   {
     id: 4,
     name: "Decorative Carved Calabash Bowl",
@@ -42,7 +47,8 @@ const products = [
     name: "Adire Throw Pillow Set",
     price: 85.0,
     category: "HOME DECOR",
-    description: "Set of 4 handcrafted throw pillows with traditional Adire patterns",
+    description:
+      "Set of 4 handcrafted throw pillows with traditional Adire patterns",
     image: "/pillow.png",
   },
   {
@@ -74,7 +80,8 @@ const products = [
     name: "Adire Throw Pillow Set",
     price: 85.0,
     category: "HOME DECOR",
-    description: "Set of 4 handcrafted throw pillows with traditional Adire patterns",
+    description:
+      "Set of 4 handcrafted throw pillows with traditional Adire patterns",
     image: "/pillow.png",
   },
   {
@@ -101,24 +108,26 @@ const products = [
     description: "Hand-carved calabash bowl with intricate designs",
     image: "/suit.png",
   },
-]
+];
 
-const categories = ["All Categories", "HOME DECOR", "BEAUTY", "CLOTHING"]
+const categories = ["All Categories", "HOME DECOR", "BEAUTY", "CLOTHING"];
 
 export function MarketplaceContent() {
-  const [selectedCategory, setSelectedCategory] = useState("All Categories")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const matchesCategory = selectedCategory === "All Categories" || product.category === selectedCategory
+      const matchesCategory =
+        selectedCategory === "All Categories" ||
+        product.category === selectedCategory;
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchesCategory && matchesSearch
-    })
-  }, [selectedCategory, searchQuery])
+        product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
 
   return (
     <section className="py-24 px-4 md:px-8 lg:px-16 lg:my-18 max-w-[1400px] mx-auto">
@@ -128,7 +137,8 @@ export function MarketplaceContent() {
           African Women Marketplace
         </h1>
         <p className="text-[#6b6b6b] text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-          Discover authentic handcrafted products made by talented women entrepreneurs from across Africa.
+          Discover authentic handcrafted products made by talented women
+          entrepreneurs from across Africa.
         </p>
       </div>
 
@@ -141,7 +151,11 @@ export function MarketplaceContent() {
             className="flex items-center gap-2 px-5 py-3 bg-white border border-[#e5e5e5] rounded-full text-sm font-medium text-[#222222] hover:border-[#d2d2d2] transition-colors"
           >
             {selectedCategory}
-            <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                isDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
           {isDropdownOpen && (
@@ -150,11 +164,13 @@ export function MarketplaceContent() {
                 <button
                   key={category}
                   onClick={() => {
-                    setSelectedCategory(category)
-                    setIsDropdownOpen(false)
+                    setSelectedCategory(category);
+                    setIsDropdownOpen(false);
                   }}
                   className={`w-full text-left px-4 py-3 text-sm hover:bg-[#f5f5f5] transition-colors ${
-                    selectedCategory === category ? "bg-[#f5f5f5] font-medium" : "text-[#222222]"
+                    selectedCategory === category
+                      ? "bg-[#f5f5f5] font-medium"
+                      : "text-[#222222]"
                   }`}
                 >
                   {category}
@@ -184,37 +200,53 @@ export function MarketplaceContent() {
             <div key={product.id} className="flex flex-col">
               {/* Product Image */}
               <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-[#f5f5f5]">
-                <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+                <Image
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
               {/* Category */}
-              <span className="text-[10px] font-medium text-[#6b6b6b] tracking-wider mb-2">{product.category}</span>
+              <span className="text-[10px] font-medium text-[#6b6b6b] tracking-wider mb-2">
+                {product.category}
+              </span>
 
               {/* Name and Price Row */}
               <div className="flex justify-between items-start gap-2 mb-1">
-                <h3 className="font-semibold text-sm text-[#222222] leading-tight">{product.name}</h3>
+                <h3 className="font-semibold text-sm text-[#222222] leading-tight">
+                  {product.name}
+                </h3>
                 <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
                   ${product.price.toFixed(2)}
                 </span>
               </div>
 
               {/* Description */}
-              <p className="text-[#6b6b6b] text-xs leading-relaxed mb-4 flex-grow">{product.description}</p>
+              <p className="text-[#6b6b6b] text-xs leading-relaxed mb-4 flex-grow">
+                {product.description}
+              </p>
 
               {/* View Product Button */}
-              <button className="w-full py-3 bg-[#222222] text-white text-sm font-medium rounded-full hover:bg-[#333333] transition-colors">
+              <Link
+                href={`/marketplace/${product.id}`}
+                className="w-full py-3 bg-[#222222] text-white text-sm font-medium rounded-full hover:bg-[#333333] transition-colors text-center block"
+              >
                 View Product
-              </button>
+              </Link>
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center py-16">
-          <p className="text-[#6b6b6b] text-lg">No products found matching your criteria.</p>
+          <p className="text-[#6b6b6b] text-lg">
+            No products found matching your criteria.
+          </p>
           <button
             onClick={() => {
-              setSelectedCategory("All Categories")
-              setSearchQuery("")
+              setSelectedCategory("All Categories");
+              setSearchQuery("");
             }}
             className="mt-4 text-[#f10e7c] font-medium hover:underline"
           >
@@ -223,5 +255,5 @@ export function MarketplaceContent() {
         </div>
       )}
     </section>
-  )
+  );
 }
