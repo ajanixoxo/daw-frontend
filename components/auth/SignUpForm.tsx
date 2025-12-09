@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Check } from 'lucide-react';
 import { useSignup } from '@/hooks/useAuth';
 import type { ISignupRequest } from '@/types/auth.types';
 
@@ -29,7 +29,7 @@ const SignUpForm: FC = () => {
     role?: string;
   }>({});
 
-// signup hook
+  // signup hook
   const { signup, isLoading, error } = useSignup();
 
   const [formData, setFormData] = useState<ISignupRequest>({
@@ -230,8 +230,59 @@ const SignUpForm: FC = () => {
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
+
+        {/* Password Strength Indicator */}
+        {formData.password && (
+          <div className="mt-3 space-y-3">
+            <div className="flex gap-1 h-1.5">
+              {[1, 2, 3, 4].map((level) => {
+                const score = [
+                  formData.password.length >= 8,
+                  /[A-Z]/.test(formData.password),
+                  /[0-9]/.test(formData.password),
+                  /[^A-Za-z0-9]/.test(formData.password)
+                ].filter(Boolean).length;
+
+                let color = "bg-gray-200";
+                if (score >= level) {
+                  if (score <= 1) color = "bg-red-500";
+                  else if (score <= 3) color = "bg-yellow-500";
+                  else color = "bg-green-500";
+                }
+
+                return (
+                  <div
+                    key={level}
+                    className={`flex-1 rounded-full transition-colors duration-300 ${color}`}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "At least 8 chars", met: formData.password.length >= 8 },
+                { label: "One uppercase", met: /[A-Z]/.test(formData.password) },
+                { label: "One number", met: /[0-9]/.test(formData.password) },
+                { label: "One special char", met: /[^A-Za-z0-9]/.test(formData.password) },
+              ].map((req, idx) => (
+                <div key={idx} className="flex items-center gap-1.5 text-xs">
+                  {req.met ? (
+                    <Check size={12} className="text-green-500" />
+                  ) : (
+                    <div className="w-3 h-3 rounded-full border border-gray-300" />
+                  )}
+                  <span className={req.met ? "text-green-600 font-medium" : "text-gray-500"}>
+                    {req.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {errors.password && (
-          <span className="text-xs text-destructive">{errors.password}</span>
+          <span className="text-xs text-destructive mt-1">{errors.password}</span>
         )}
       </div>
 
