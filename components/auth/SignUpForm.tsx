@@ -331,8 +331,8 @@ const SignUpForm: FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="buyer">Buyer</SelectItem>
-            <SelectItem value="vendor">Vendor</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
+            {/* <SelectItem value="vendor">Vendor</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem> */}
           </SelectContent>
         </Select>
         {errors.role && (
