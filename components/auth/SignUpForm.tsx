@@ -29,7 +29,7 @@ const SignUpForm: FC = () => {
     role?: string;
   }>({});
 
-  // USE THE SIGNUP HOOK HERE
+// signup hook
   const { signup, isLoading, error } = useSignup();
 
   const [formData, setFormData] = useState<ISignupRequest>({
@@ -39,7 +39,7 @@ const SignUpForm: FC = () => {
     password: '',
     confirmPassword: '',
     phone: '',
-    role: 'registered_shopper',
+    roles: 'buyer',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +52,7 @@ const SignUpForm: FC = () => {
   const handleRoleChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      role: value as "registered_shopper" ,
+      roles: value as "buyer" | "admin" | "vendor",
     }));
   };
 
@@ -61,10 +61,7 @@ const SignUpForm: FC = () => {
     return emailRegex.test(email);
   };
 
-  // const validatePhone = (phone: string): boolean => {
-  //   const phoneRegex = /^234\d{10}$/;
-  //   return phoneRegex.test(phone);
-  // };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,11 +89,7 @@ const SignUpForm: FC = () => {
       newErrors.email = 'Invalid email format';
     }
 
-    // if (!formData.phone) {
-    //   newErrors.phone = 'Phone number is required';
-    // } else if (!validatePhone(formData.phone)) {
-    //   newErrors.phone = 'Invalid phone format (e.g., 23409099987)';
-    // }
+
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -110,7 +103,7 @@ const SignUpForm: FC = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    if (!formData.role) {
+    if (!formData.roles) {
       newErrors.role = 'Please select a role';
     }
 
@@ -274,19 +267,19 @@ const SignUpForm: FC = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="role" className="auth-label text-(--text-dark)">
+        <Label htmlFor="roles" className="auth-label text-(--text-dark)">
           I am joining as a
         </Label>
-        <Select value={formData.role} onValueChange={handleRoleChange} disabled={isLoading}>
+        <Select value={formData.roles} onValueChange={handleRoleChange} disabled={isLoading}>
           <SelectTrigger
-            id="role"
+            id="roles"
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base w-full"
             aria-invalid={!!errors.role}
           >
-            <SelectValue placeholder="Registered Shopper" />
+            <SelectValue placeholder="Buyer" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="registered_shopper">Registered Shopper</SelectItem>
+            <SelectItem value="buyer">Buyer</SelectItem>
             <SelectItem value="vendor">Vendor</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>

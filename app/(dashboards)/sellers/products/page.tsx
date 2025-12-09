@@ -195,9 +195,8 @@ function AddCategoryModal() {
                   key={color.value}
                   type="button"
                   onClick={() => setSelectedColor(color.value)}
-                  className={`size-10 rounded-full transition-all ${
-                    selectedColor === color.value ? "ring-2 ring-offset-2 ring-[#f10e7c]" : ""
-                  }`}
+                  className={`size-10 rounded-full transition-all ${selectedColor === color.value ? "ring-2 ring-offset-2 ring-[#f10e7c]" : ""
+                    }`}
                   style={{ backgroundColor: color.value }}
                   aria-label={color.name}
                 />
@@ -482,205 +481,201 @@ function StatCard({
 export default function ProductsPage() {
   return (
     <main className="p-4 md:p-6 lg:p-8">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
-            <div>
-              <h1 className="text-2xl lg:text-[32px] font-bold text-[#1d1d2a] leading-tight">Product Management</h1>
-              <p className="text-sm text-[#667185] mt-1">Get an Overview of your store activity here</p>
-            </div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
+        <div>
+          <h1 className="text-2xl lg:text-[32px] font-bold text-[#1d1d2a] leading-tight">Product Management</h1>
+          <p className="text-sm text-[#667185] mt-1">Get an Overview of your store activity here</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <AddCategoryModal />
+          <AddProductDrawer />
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <StatCard
+          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          label="Total Products"
+          value="₦100"
+          change="+10%"
+          changeLabel="More than Previous"
+        />
+        <StatCard
+          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          label="Active Products"
+          value="12"
+          change="+10%"
+          changeLabel="Cards Issued"
+        />
+        <StatCard
+          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          label="Low Stock"
+          value="65"
+          changeLabel="Requires Attention"
+        />
+        <StatCard
+          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          label="Out of Stock"
+          value="65"
+          changeLabel="Requires Attention"
+        />
+      </div>
+
+      {/* Product Inventory */}
+      <div className="bg-white rounded-lg border border-[#e7e8e9]">
+        <div className="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h2 className="text-lg font-semibold text-[#292d32]">Product Inventory</h2>
             <div className="flex items-center gap-3">
-              <AddCategoryModal />
-              <AddProductDrawer />
+              <div className="relative flex-1 sm:flex-initial sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#667185]" />
+                <Input placeholder="Search here..." className="pl-9 border-[#e7e8e9]" />
+              </div>
+              <Button variant="outline" size="icon" className="border-[#e7e8e9] flex-shrink-0 bg-transparent">
+                <SlidersHorizontal className="size-4" />
+              </Button>
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-            <StatCard
-              icon={<div className="size-4 bg-[#f10e7c] rounded" />}
-              label="Total Products"
-              value="₦100"
-              change="+10%"
-              changeLabel="More than Previous"
-            />
-            <StatCard
-              icon={<div className="size-4 bg-[#f10e7c] rounded" />}
-              label="Active Products"
-              value="12"
-              change="+10%"
-              changeLabel="Cards Issued"
-            />
-            <StatCard
-              icon={<div className="size-4 bg-[#f10e7c] rounded" />}
-              label="Low Stock"
-              value="65"
-              changeLabel="Requires Attention"
-            />
-            <StatCard
-              icon={<div className="size-4 bg-[#f10e7c] rounded" />}
-              label="Out of Stock"
-              value="65"
-              changeLabel="Requires Attention"
-            />
-          </div>
-
-          {/* Product Inventory */}
-          <div className="bg-white rounded-lg border border-[#e7e8e9]">
-            <div className="p-4 lg:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <h2 className="text-lg font-semibold text-[#292d32]">Product Inventory</h2>
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1 sm:flex-initial sm:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#667185]" />
-                    <Input placeholder="Search here..." className="pl-9 border-[#e7e8e9]" />
-                  </div>
-                  <Button variant="outline" size="icon" className="border-[#e7e8e9] flex-shrink-0 bg-transparent">
-                    <SlidersHorizontal className="size-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Table - Desktop */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[#e7e8e9]">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Item Name</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Category</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Store</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Price</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Stock</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Status</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-[#667185]">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr key={product.id} className="border-b border-[#e7e8e9] hover:bg-[#f9f9f9]">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-3">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={product.image || "/placeholder.svg"}
-                              alt={product.name}
-                              className="size-10 rounded-lg object-cover"
-                            />
-                            <span className="text-sm font-medium text-[#292d32]">{product.name}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-[#667185]">{product.category}</td>
-                        <td className="py-3 px-4 text-sm text-[#667185]">{product.store}</td>
-                        <td className="py-3 px-4 text-sm text-[#292d32]">{product.price}</td>
-                        <td className="py-3 px-4 text-sm text-[#667185]">{product.stock}</td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                              product.status === "Shipped"
-                                ? "bg-[#e5f8ed] text-[#009a49]"
-                                : product.status === "Cancelled"
-                                  ? "bg-[#ffe7cc] text-[#ad3307]"
-                                  : "bg-[#fff8e5] text-[#f1a20e]"
-                            }`}
-                          >
-                            <span
-                              className={`size-1.5 rounded-full ${
-                                product.status === "Shipped"
-                                  ? "bg-[#009a49]"
-                                  : product.status === "Cancelled"
-                                    ? "bg-[#ad3307]"
-                                    : "bg-[#f1a20e]"
-                              }`}
-                            />
-                            {product.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#292d32]">
-                              <Pencil className="size-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#ad3307]">
-                              <Trash2 className="size-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#f10e7c]">
-                              <Heart className="size-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#f10e7c]">
-                              <Heart className="size-4 fill-current" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Cards - Mobile/Tablet */}
-              <div className="lg:hidden space-y-4">
+          {/* Table - Desktop */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#e7e8e9]">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Item Name</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Category</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Store</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Price</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Stock</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">Status</th>
+                  <th className="text-right py-3 px-4 text-sm font-medium text-[#667185]">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
                 {products.map((product) => (
-                  <div key={product.id} className="border border-[#e7e8e9] rounded-lg p-4">
-                    <div className="flex items-start gap-3 mb-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        className="size-16 rounded-lg object-cover"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-[#292d32] mb-1">{product.name}</h3>
-                        <p className="text-sm text-[#667185]">{product.category}</p>
+                  <tr key={product.id} className="border-b border-[#e7e8e9] hover:bg-[#f9f9f9]">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+
+                        <img
+                          src={product.image || "/placeholder.svg"}
+                          alt={product.name}
+                          className="size-10 rounded-lg object-cover"
+                        />
+                        <span className="text-sm font-medium text-[#292d32]">{product.name}</span>
                       </div>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-[#667185]">{product.category}</td>
+                    <td className="py-3 px-4 text-sm text-[#667185]">{product.store}</td>
+                    <td className="py-3 px-4 text-sm text-[#292d32]">{product.price}</td>
+                    <td className="py-3 px-4 text-sm text-[#667185]">{product.stock}</td>
+                    <td className="py-3 px-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          product.status === "Shipped"
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Shipped"
                             ? "bg-[#e5f8ed] text-[#009a49]"
                             : product.status === "Cancelled"
                               ? "bg-[#ffe7cc] text-[#ad3307]"
                               : "bg-[#fff8e5] text-[#f1a20e]"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`size-1.5 rounded-full ${
-                            product.status === "Shipped"
+                          className={`size-1.5 rounded-full ${product.status === "Shipped"
                               ? "bg-[#009a49]"
                               : product.status === "Cancelled"
                                 ? "bg-[#ad3307]"
                                 : "bg-[#f1a20e]"
-                          }`}
+                            }`}
                         />
                         {product.status}
                       </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
-                      <div>
-                        <span className="text-[#667185]">Store:</span>
-                        <span className="ml-1 text-[#292d32]">{product.store}</span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#292d32]">
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#ad3307]">
+                          <Trash2 className="size-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#f10e7c]">
+                          <Heart className="size-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="size-8 text-[#667185] hover:text-[#f10e7c]">
+                          <Heart className="size-4 fill-current" />
+                        </Button>
                       </div>
-                      <div>
-                        <span className="text-[#667185]">Price:</span>
-                        <span className="ml-1 text-[#292d32] font-medium">{product.price}</span>
-                      </div>
-                      <div>
-                        <span className="text-[#667185]">Stock:</span>
-                        <span className="ml-1 text-[#292d32]">{product.stock}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
-                      <Button variant="ghost" size="sm" className="flex-1 text-[#667185] hover:text-[#292d32]">
-                        <Pencil className="size-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button variant="ghost" size="sm" className="flex-1 text-[#667185] hover:text-[#ad3307]">
-                        <Trash2 className="size-4 mr-1" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
-        </main>
+
+          {/* Cards - Mobile/Tablet */}
+          <div className="lg:hidden space-y-4">
+            {products.map((product) => (
+              <div key={product.id} className="border border-[#e7e8e9] rounded-lg p-4">
+                <div className="flex items-start gap-3 mb-3">
+
+                  <img
+                    src={product.image || "/placeholder.svg"}
+                    alt={product.name}
+                    className="size-16 rounded-lg object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-[#292d32] mb-1">{product.name}</h3>
+                    <p className="text-sm text-[#667185]">{product.category}</p>
+                  </div>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Shipped"
+                        ? "bg-[#e5f8ed] text-[#009a49]"
+                        : product.status === "Cancelled"
+                          ? "bg-[#ffe7cc] text-[#ad3307]"
+                          : "bg-[#fff8e5] text-[#f1a20e]"
+                      }`}
+                  >
+                    <span
+                      className={`size-1.5 rounded-full ${product.status === "Shipped"
+                          ? "bg-[#009a49]"
+                          : product.status === "Cancelled"
+                            ? "bg-[#ad3307]"
+                            : "bg-[#f1a20e]"
+                        }`}
+                    />
+                    {product.status}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+                  <div>
+                    <span className="text-[#667185]">Store:</span>
+                    <span className="ml-1 text-[#292d32]">{product.store}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#667185]">Price:</span>
+                    <span className="ml-1 text-[#292d32] font-medium">{product.price}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#667185]">Stock:</span>
+                    <span className="ml-1 text-[#292d32]">{product.stock}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
+                  <Button variant="ghost" size="sm" className="flex-1 text-[#667185] hover:text-[#292d32]">
+                    <Pencil className="size-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button variant="ghost" size="sm" className="flex-1 text-[#667185] hover:text-[#ad3307]">
+                    <Trash2 className="size-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
   )
 }

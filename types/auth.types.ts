@@ -15,7 +15,7 @@ export interface IUser {
   phone: string;
   isVerified: boolean;
   kyc_status?: string;
-  role: string;
+  roles: string[];
   status: string;
   createdAt?: string;
   updatedAt?: string;
@@ -33,7 +33,7 @@ export interface ISignupRequest {
   password: string;
   confirmPassword: string;
   phone: string;
-  role: "registered_shopper" | "admin" ;
+  roles: "buyer" | "admin" | "vendor";
 }
 
 export interface ILoginResponse {
@@ -42,7 +42,7 @@ export interface ILoginResponse {
   token: {
     accessToken: string;
     refreshToken: string;
-  };
+  } | string;
 }
 
 export interface ISignupResponse {
@@ -55,12 +55,9 @@ export interface ISignupResponse {
     email: string;
     phone: string;
     verified: boolean;
-    role: string;
+    roles: string[];
   };
-  token: {
-    accessToken: string;
-    refreshToken: string;
-  };
+  token: string;
 }
 
 export interface IActionResponse<T = void> {
@@ -68,4 +65,37 @@ export interface IActionResponse<T = void> {
   data?: T;
   error?: string;
   message?: string;
+}
+
+export interface IOtpRequest {
+  otp: string;
+  email?: string;
+}
+
+export interface IVerifyEmailResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface IOtpResponse {
+  message: string;
+  token: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  user: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    otp: null;
+    isVerified: boolean;
+    kyc_status: string;
+    kycVerified: boolean;
+    roles: string[];
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }

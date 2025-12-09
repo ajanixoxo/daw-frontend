@@ -2,47 +2,69 @@
  * Global API client instance with base configuration
  */
 
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
 
-interface ApiRequestConfig extends RequestInit {
+interface ApiRequestConfig {
   token?: string;
+  headers?: Record<string, string>;
 }
 
 class ApiClient {
-  private baseUrl: string;
+  private axiosInstance: AxiosInstance;
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+    this.axiosInstance = axios.create({
+      baseURL: baseUrl,
+      timeout: 30000, // 30 second timeout
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.code === 'ECONNABORTED') {
+          throw new Error('Request timeout - please check your internet connection and try again');
+        }
+        if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+          throw new Error('Unable to connect to the server - please try again later');
+        }
+        throw error;
+      }
+    );
   }
 
   private async request<T>(
     endpoint: string,
-    config: ApiRequestConfig = {}
+    config: AxiosRequestConfig & ApiRequestConfig = {}
   ): Promise<T> {
     const { token, headers, ...restConfig } = config;
 
-    const defaultHeaders: HeadersInit = {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+    try {
+      const response = await this.axiosInstance.request<T>({
+        url: endpoint,
+        ...restConfig,
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+          ...headers,
+        },
+      });
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...restConfig,
-      headers: {
-        ...defaultHeaders,
-        ...headers,
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || data.error || `Request failed with status ${response.status}`
-      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const message =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          `Request failed with status ${error.response.status}`;
+        throw new Error(message);
+      }
+      throw error;
     }
-
-    return data;
   }
 
   async get<T>(endpoint: string, config?: ApiRequestConfig): Promise<T> {
@@ -57,7 +79,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...config,
       method: "POST",
-      body: JSON.stringify(body),
+      data: body,
     });
   }
 
@@ -69,7 +91,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...config,
       method: "PUT",
-      body: JSON.stringify(body),
+      data: body,
     });
   }
 
@@ -85,21 +107,23 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...config,
       method: "PATCH",
-      body: JSON.stringify(body),
+      data: body,
     });
   }
 }
 
-// Export singleton instance
+
 export const apiClient = new ApiClient(API_BASE_URL);
 
-// Export API endpoints as constants
+
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "/auth/login",
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
+    VERIFY_EMAIL: "/auth/verify/email",
+    LOGIN_OTP: "/auth/login/otp",
   },
-  // Add more endpoints as needed
+
 } as const;

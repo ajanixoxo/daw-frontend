@@ -8,11 +8,20 @@ import { MembershipPricing } from "@/components/landing-page/home/membership-pri
 import { Testimonials } from "@/components/landing-page/home/testimonials";
 import { WhyDAW } from "@/components/landing-page/home/why-daw";
 import { HeroSection } from "@/components/landing-page/home/signed-in-hero";
-export default function Home() {
+import { checkVerificationStatus } from "@/app/actions/auth";
+
+export default async function Home() {
+  const verificationStatus = await checkVerificationStatus();
+  console.log("Verification Status:", verificationStatus);
+
   return (
     <div>
-      <HeroSection/>
-      <Hero />
+      {verificationStatus.isAuthenticated && verificationStatus.isVerified && (
+        <HeroSection/>
+      )}
+      {!verificationStatus.isAuthenticated && (
+        <Hero />
+      )}
       <CooperativePlatform />
       <WhyDAW />
       <MembershipPricing />

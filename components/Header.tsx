@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Loader2 } from "lucide-react";
+import { checkVerificationStatus } from "@/app/actions/auth";
+import { useLogout } from "@/hooks/useAuth";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
+  const { logout, isLoading: isLoggingOut } = useLogout();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,27 +27,41 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const status = await checkVerificationStatus();
+        setIsAuthenticated(status.isAuthenticated && status.isVerified);
+      } catch (error) {
+        console.error("Failed to check auth status", error);
+      } finally {
+        setIsLoadingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setIsAuthenticated(false);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${isScrolled
           ? "bg-white/95 backdrop-blur-md shadow-sm"
           : "bg-transparent"
-      }`}
+        }`}
     >
       <div className="flex items-center justify-between px-5 py-5 lg:px-[84px] lg:py-[19px] max-w-[1440px] mx-auto">
         {/* Logo and Navigation */}
         <div className="flex items-center gap-8 lg:gap-[60px]">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-                           {/* <div className="flex items-center gap-2 lg:"> */}
-       <img src="/logo-full.png" alt="Logo" className="h-6" />
-          {/* </div> */}
-            {/* <div className="w-6 h-6 bg-[#F10E7C] rounded-sm shrink-0"></div>
-            <span className="text-[#F10E7C] font-inter text-base lg:text-[20px] font-medium tracking-[-0.06em] whitespace-nowrap">
-              Digital African Women
-            </span> */}
-          </div>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo-full.png" alt="Logo" className="h-6" />
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-5">
@@ -72,13 +92,31 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Desktop Login Button */}
-        <Link href="/auth" passHref>   <button className="hidden lg:flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group">
-          <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px]">
-            Login
-          </span>
-        </button></Link>
-     
+        {/* Desktop Login/Logout Button */}
+        <div className="hidden lg:block">
+          {isLoadingAuth ? (
+            <div className="w-[100px] h-[48px] rounded-[40px] bg-gray-100 animate-pulse"></div>
+          ) : isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group"
+            >
+              <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
+                {isLoggingOut && <Loader2 className="w-4 h-4 animate-spin" />}
+                Logout
+              </span>
+            </button>
+          ) : (
+            <Link href="/auth" passHref>
+              <button className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group">
+                <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px]">
+                  Login
+                </span>
+              </button>
+            </Link>
+          )}
+        </div>
 
         {/* Mobile Menu Button */}
         <button
@@ -126,11 +164,27 @@ export default function Header() {
             >
               Masterclass
             </Link>
-            <button className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors mt-2 group">
-              <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px]">
-                Login
-              </span>
-            </button>
+
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors mt-2 group w-full"
+              >
+                <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
+                  {isLoggingOut && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Logout
+                </span>
+              </button>
+            ) : (
+              <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
+                <button className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors mt-2 group w-full">
+                  <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px]">
+                    Login
+                  </span>
+                </button>
+              </Link>
+            )}
           </nav>
         </div>
       )}

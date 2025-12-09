@@ -39,7 +39,7 @@ export function useLogin(): UseLoginReturn {
             router.push("/");
             router.refresh();
           } else {
-            router.push("/verify-email");
+            router.push("/otp?mode=login");
           }
         }
 
@@ -97,7 +97,7 @@ export function useSignup(): UseSignupReturn {
 
         if (result.data) {
           setData(result.data);
-          router.push("/verify-email");
+          router.push("/otp?mode=signup");
         }
 
         setIsLoading(false);
@@ -158,5 +158,68 @@ export function useLogout(): UseLogoutReturn {
     logout,
     isLoading: isLoading || isPending,
     error,
+  };
+}
+
+interface UseVerifyOtpReturn {
+  verifyOtp: (otp: string, mode: "signup" | "login") => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  success: boolean;
+}
+
+export function useVerifyOtp(): UseVerifyOtpReturn {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const verify = async (otp: string, mode: "signup" | "login") => {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    startTransition(async () => {
+      try {
+        const { verifyEmail, verifyLoginOtp } = await import("@/app/actions/auth");
+
+        let result;
+        if (mode === "signup") {
+          result = await verifyEmail({ otp });
+        } else {
+          result = await verifyLoginOtp({ otp });
+        }
+
+        if (!result.success) {
+          setError(result.error || "Verification failed");
+          setIsLoading(false);
+          return;
+        }
+
+        setSuccess(true);
+
+        if (mode === "signup") {
+   
+        } else {
+        
+          router.push("/");
+          router.refresh();
+        }
+
+        setIsLoading(false);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "An error occurred";
+        setError(message);
+        setIsLoading(false);
+      }
+    });
+  };
+
+  return {
+    verifyOtp: verify,
+    isLoading: isLoading || isPending,
+    error,
+    success,
   };
 }

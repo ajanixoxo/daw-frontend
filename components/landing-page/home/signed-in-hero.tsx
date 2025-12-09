@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import Header from "@/components/Header"
 
 const categories = [
   {
@@ -106,10 +107,11 @@ const categories = [
 export function HeroSection() {
   return (
     <section className="px-4 md:px-8 lg:px-16 py-8 lg:py-32">
-      <div className="relative rounded-3xl overflow-hidden min-h-[400px] md:min-h-[480px] lg:min-h-[520px]">
-        {/* Background Image - fills entire container */}
+           <Header />
+      <div className="relative mt-12 md:mt-4 rounded-3xl overflow-hidden min-h-[400px] md:min-h-[480px] lg:min-h-[520px]">
+       
         <Image
-          src="/herobg.png"
+          src="/herobg.jpg"
           alt="Diverse group of women entrepreneurs"
           fill
           className="object-cover object-right"
@@ -118,9 +120,9 @@ export function HeroSection() {
 
         <div className="absolute inset-0 bg-gradient-to-r from-[#e8e8e8]/95 via-[#e8e8e8]/80 via-40% to-transparent" />
 
-        {/* Content overlay positioned on left */}
+       
         <div className="relative z-10 h-full min-h-[400px] md:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center p-8 md:p-12 lg:p-16 max-w-[500px]">
-          {/* Logo */}
+       
           <div className="flex items-center gap-3 mb-8">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="24" cy="24" r="5" fill="#e91e8c" />

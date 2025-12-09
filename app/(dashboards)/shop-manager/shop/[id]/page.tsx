@@ -37,7 +37,7 @@ export default function ShopDetailsPage({
 
       {/* Hero Image */}
       <div className="relative h-48 overflow-hidden md:h-64">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+
         <img
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women-z1BmsUYjV92g31E8hHTTY6ZKtS2GR7.png"
           alt="Shop interior"
