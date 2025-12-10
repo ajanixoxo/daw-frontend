@@ -8,6 +8,7 @@ import { MembershipPricing } from "@/components/landing-page/home/membership-pri
 import { Testimonials } from "@/components/landing-page/home/testimonials";
 import { WhyDAW } from "@/components/landing-page/home/why-daw";
 import { HeroSection } from "@/components/landing-page/home/signed-in-hero";
+import { PopularProducts } from "@/components/landing-page/home/popular-products";
 import { checkVerificationStatus } from "@/app/actions/auth";
 
 export default async function Home() {
@@ -17,11 +18,12 @@ export default async function Home() {
   return (
     <div>
       {verificationStatus.isAuthenticated && verificationStatus.isVerified && (
-        <HeroSection/>
+        <>
+          <HeroSection />
+          <PopularProducts />
+        </>
       )}
-      {!verificationStatus.isAuthenticated && (
-        <Hero />
-      )}
+      {!verificationStatus.isAuthenticated && <Hero />}
       <CooperativePlatform />
       <WhyDAW />
       <MembershipPricing />

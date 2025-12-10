@@ -126,5 +126,8 @@ export const API_ENDPOINTS = {
     LOGIN_OTP: "/auth/login/otp",
     RESEND_VERIFICATION: "/auth/resend/verificatiion",
   },
-
+  MARKETPLACE: {
+    GET_ALL_PRODUCTS: "/marketplace/get/all/products",
+    GET_PRODUCT: (id: string) => `/marketplace/get/product/${id}`,
+  },
 } as const;
