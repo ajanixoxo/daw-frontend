@@ -63,6 +63,7 @@ export interface ISignupResponse {
 export interface IActionResponse<T = void> {
   success: boolean;
   data?: T;
+  user?: IUser;
   error?: string;
   message?: string;
 }

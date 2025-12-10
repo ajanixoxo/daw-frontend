@@ -1,7 +1,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser, signupUser, logoutUser, resendOtp } from "@/app/actions/auth";
-import type { ILoginRequest, ISignupRequest, ISessionData } from "@/types/auth.types";
+import type { ILoginRequest, ISignupRequest, ISessionData, IUser } from "@/types/auth.types";
+import { useAuthStore } from "@/zustand/store";
 
 interface UseLoginReturn {
   login: (credentials: ILoginRequest) => Promise<void>;
@@ -16,6 +17,7 @@ export function useLogin(): UseLoginReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ISessionData | null>(null);
+  const { login: setAuthData } = useAuthStore();
 
   const login = async (credentials: ILoginRequest) => {
     setIsLoading(true);
@@ -34,6 +36,10 @@ export function useLogin(): UseLoginReturn {
 
         if (result.data) {
           setData(result.data);
+          
+          if (result.user) {
+            setAuthData(result.user, result.data);
+          }
 
           if (result.data.isVerified) {
             router.push("/");
@@ -73,6 +79,7 @@ export function useSignup(): UseSignupReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ISessionData | null>(null);
+  const { setSessionData } = useAuthStore();
 
   const signup = async (userData: ISignupRequest) => {
     setIsLoading(true);
@@ -97,6 +104,9 @@ export function useSignup(): UseSignupReturn {
 
         if (result.data) {
           setData(result.data);
+          
+          setSessionData(result.data);
+          
           router.push("/otp?mode=signup");
         }
 
@@ -128,6 +138,7 @@ export function useLogout(): UseLogoutReturn {
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { logout: clearAuthData } = useAuthStore();
 
   const logout = async () => {
     setIsLoading(true);
@@ -142,6 +153,8 @@ export function useLogout(): UseLogoutReturn {
           setIsLoading(false);
           return;
         }
+
+        clearAuthData();
 
         router.push("/");
         router.refresh();
@@ -174,6 +187,7 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const { login: setAuthData, setAuthStatus } = useAuthStore();
 
   const verify = async (otp: string, mode: "signup" | "login") => {
     setIsLoading(true);
@@ -199,12 +213,16 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
 
         setSuccess(true);
 
-        if (mode === "signup") {
-
-        } else {
-
+        if (mode === "login" && result.data) {
+          if (result.user) {
+            setAuthData(result.user, result.data);
+          } else {
+            setAuthStatus(true, true);
+          }
           router.push("/");
           router.refresh();
+        } else {
+          setAuthStatus(false, true);
         }
 
         setIsLoading(false);

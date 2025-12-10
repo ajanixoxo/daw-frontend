@@ -12,6 +12,7 @@ import type {
   IOtpRequest,
   IOtpResponse,
   IVerifyEmailResponse,
+  IUser,
 } from "@/types/auth.types";
 
 const COOKIE_CONFIG = {
@@ -171,6 +172,7 @@ export async function loginUser(
     return {
       success: true,
       data: sessionData,
+      user: user,
       message: response.message
     };
   } catch (error) {
@@ -257,7 +259,7 @@ export async function verifyEmail(
 
 export async function verifyLoginOtp(
   data: IOtpRequest
-): Promise<IActionResponse> {
+): Promise<IActionResponse<ISessionData>> {
   try {
     const session = await getServerSession();
     const tempToken = session?.accessToken;
@@ -278,18 +280,40 @@ export async function verifyLoginOtp(
       throw new Error("Invalid response from server");
     }
 
+  
+    const updatedSessionData: ISessionData = {
+      ...session,
+      isVerified: true,
+      accessToken: response.token.accessToken,
+      refreshToken: response.token.refreshToken,
+      role: response.user.roles && response.user.roles.length > 0 ? response.user.roles[0] : session.role,
+    };
 
     if (session) {
-      await createServerSession({
-        ...session,
-        isVerified: true,
-        accessToken: response.token.accessToken,
-        refreshToken: response.token.refreshToken,
-        role: response.user.roles && response.user.roles.length > 0 ? response.user.roles[0] : session.role,
-      });
+      await createServerSession(updatedSessionData);
     }
 
-    return { success: true, message: response.message || "Login verified successfully" };
+    // Convert IOtpResponse user to IUser format
+    const user: IUser = {
+      _id: response.user._id,
+      firstName: response.user.firstName,
+      lastName: response.user.lastName,
+      email: response.user.email,
+      phone: response.user.phone,
+      isVerified: response.user.isVerified,
+      kyc_status: response.user.kyc_status,
+      roles: response.user.roles,
+      status: response.user.status,
+      createdAt: response.user.createdAt,
+      updatedAt: response.user.updatedAt,
+    };
+
+    return { 
+      success: true, 
+      message: response.message || "Login verified successfully",
+      user: user,
+      data: updatedSessionData
+    };
   } catch (error) {
     console.error("Login OTP Verification error:", error);
     const message = error instanceof Error ? error.message : "Failed to verify OTP";
