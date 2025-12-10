@@ -124,6 +124,7 @@ export const API_ENDPOINTS = {
     REFRESH: "/auth/refresh",
     VERIFY_EMAIL: "/auth/verify/email",
     LOGIN_OTP: "/auth/login/otp",
+    RESEND_VERIFICATION: "/auth/resend/verificatiion",
   },
 
 } as const;

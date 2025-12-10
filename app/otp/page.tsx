@@ -1,18 +1,40 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useVerifyOtp } from "@/hooks/useAuth";
+import { useVerifyOtp, useResendOtp } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
 function OtpContent() {
     const [otp, setOtp] = useState("");
     const { verifyOtp, isLoading, error, success } = useVerifyOtp();
+    const { resend, isLoading: isResending, error: resendError, success: resendSuccess } = useResendOtp();
     const searchParams = useSearchParams();
     const mode = (searchParams.get("mode") as "signup" | "login") || "signup";
+
+    // Timer state
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [canResend, setCanResend] = useState(true);
+
+    useEffect(() => {
+        if (timeLeft > 0) {
+            const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+            return () => clearTimeout(timerId);
+        } else {
+            setCanResend(true);
+        }
+    }, [timeLeft]);
+
+    const handleResend = async () => {
+        if (!canResend) return;
+
+        await resend();
+        setTimeLeft(60); // 60 seconds cooldown
+        setCanResend(false);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,6 +105,18 @@ function OtpContent() {
                         </div>
                     )}
 
+                    {resendError && (
+                        <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">
+                            {resendError}
+                        </div>
+                    )}
+
+                    {resendSuccess && (
+                        <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded">
+                            {resendSuccess}
+                        </div>
+                    )}
+
                     <Button
                         type="submit"
                         disabled={isLoading || otp.length < 4}
@@ -104,13 +138,20 @@ function OtpContent() {
                         Didn't receive the code?{" "}
                         <button
                             type="button"
-                            className="font-medium text-brand-pink hover:text-brand-pink/80"
-                            onClick={() => {
-                               
-                                alert("Resend functionality to be implemented");
-                            }}
+                            className="font-medium text-brand-pink hover:text-brand-pink/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleResend}
+                            disabled={!canResend || isResending}
                         >
-                            Resend
+                            {isResending ? (
+                                <span className="flex items-center gap-1">
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                    Sending...
+                                </span>
+                            ) : canResend ? (
+                                "Resend"
+                            ) : (
+                                `Resend in ${timeLeft}s`
+                            )}
                         </button>
                     </p>
                 </div>

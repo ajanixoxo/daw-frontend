@@ -1,6 +1,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser, signupUser, logoutUser } from "@/app/actions/auth";
+import { loginUser, signupUser, logoutUser, resendOtp } from "@/app/actions/auth";
 import type { ILoginRequest, ISignupRequest, ISessionData } from "@/types/auth.types";
 
 interface UseLoginReturn {
@@ -200,9 +200,9 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
         setSuccess(true);
 
         if (mode === "signup") {
-   
+
         } else {
-        
+
           router.push("/");
           router.refresh();
         }
@@ -218,6 +218,52 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
 
   return {
     verifyOtp: verify,
+    isLoading: isLoading || isPending,
+    error,
+    success,
+  };
+}
+
+interface UseResendOtpReturn {
+  resend: () => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  success: string | null;
+}
+
+export function useResendOtp(): UseResendOtpReturn {
+  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const resend = async () => {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    startTransition(async () => {
+      try {
+        const result = await resendOtp();
+
+        if (!result.success) {
+          setError(result.error || "Failed to resend OTP");
+          setIsLoading(false);
+          return;
+        }
+
+        setSuccess(result.message || "OTP resent successfully");
+        setIsLoading(false);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "An error occurred";
+        setError(message);
+        setIsLoading(false);
+      }
+    });
+  };
+
+  return {
+    resend,
     isLoading: isLoading || isPending,
     error,
     success,

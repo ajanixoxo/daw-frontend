@@ -17,7 +17,7 @@ import type {
 const COOKIE_CONFIG = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const, 
+  sameSite: "lax" as const,
   path: "/",
 };
 
@@ -194,14 +194,14 @@ export async function signupUser(
     }
 
     const { user, token } = response;
-    
+
     const sessionData: ISessionData = {
       userId: user._id,
       email: user.email,
       role: user.roles && user.roles.length > 0 ? user.roles[0] : "buyer",
       isVerified: false,
-      accessToken: token, 
-      refreshToken: "", 
+      accessToken: token,
+      refreshToken: "",
     };
 
     const sessionResult = await createServerSession(sessionData);
@@ -232,7 +232,7 @@ export async function verifyEmail(
       throw new Error("Authentication required");
     }
 
-    
+
     const payload = { otp: data.otp };
 
     const response = await apiClient.post<IVerifyEmailResponse>(
@@ -278,7 +278,7 @@ export async function verifyLoginOtp(
       throw new Error("Invalid response from server");
     }
 
-  
+
     if (session) {
       await createServerSession({
         ...session,
@@ -293,6 +293,28 @@ export async function verifyLoginOtp(
   } catch (error) {
     console.error("Login OTP Verification error:", error);
     const message = error instanceof Error ? error.message : "Failed to verify OTP";
+    return { success: false, error: message };
+  }
+}
+
+export async function resendOtp(): Promise<IActionResponse> {
+  try {
+    const session = await getServerSession();
+    const email = session?.email;
+
+    if (!email) {
+      throw new Error("Email not found in session");
+    }
+
+    const response = await apiClient.post<{ success: boolean; message: string }>(
+      API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
+      { email }
+    );
+
+    return { success: true, message: response.message || "OTP resent successfully" };
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+    const message = error instanceof Error ? error.message : "Failed to resend OTP";
     return { success: false, error: message };
   }
 }
