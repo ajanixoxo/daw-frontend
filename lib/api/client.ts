@@ -95,8 +95,16 @@ class ApiClient {
     });
   }
 
-  async delete<T>(endpoint: string, config?: ApiRequestConfig): Promise<T> {
-    return this.request<T>(endpoint, { ...config, method: "DELETE" });
+  async delete<T>(
+    endpoint: string,
+    body?: unknown,
+    config?: ApiRequestConfig
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      ...config,
+      method: "DELETE",
+      data: body,
+    });
   }
 
   async patch<T>(
@@ -129,5 +137,11 @@ export const API_ENDPOINTS = {
   MARKETPLACE: {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",
     GET_PRODUCT: (id: string) => `/marketplace/get/product/${id}`,
+  },
+  CART: {
+    ADD_ITEM: "/marketplace/cart/item",
+    GET_CART: (cartId: string) => `/marketplace/cart/${cartId}`,
+    UPDATE_ITEM: "/marketplace/cart/item",
+    REMOVE_ITEM: "/marketplace/remove/cart/item",
   },
 } as const;

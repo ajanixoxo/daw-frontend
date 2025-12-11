@@ -2,9 +2,22 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Loader2 } from "lucide-react";
+import { Menu, X, Loader2, ShoppingCart, User } from "lucide-react";
 import { checkVerificationStatus } from "@/app/actions/auth";
 import { useLogout } from "@/hooks/useAuth";
+import { useCartItemCount } from "@/hooks/useCart";
+
+function CartBadge() {
+  const itemCount = useCartItemCount();
+
+  if (itemCount === 0) return null;
+
+  return (
+    <span className="absolute -top-1 -right-1 bg-[#F10E7C] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+      {itemCount > 99 ? "99+" : itemCount}
+    </span>
+  );
+}
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -50,10 +63,9 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${isScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
-        }`}
+      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${
+        isScrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-transparent"
+      }`}
     >
       <div className="flex items-center justify-between px-5 py-5 lg:px-[84px] lg:py-[19px] max-w-[1440px] mx-auto">
         {/* Logo and Navigation */}
@@ -92,21 +104,41 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Desktop Login/Logout Button */}
-        <div className="hidden lg:block">
+        {/* Desktop Actions */}
+        <div className="hidden lg:flex items-center gap-4">
           {isLoadingAuth ? (
             <div className="w-[100px] h-[48px] rounded-[40px] bg-gray-100 animate-pulse"></div>
           ) : isAuthenticated ? (
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group"
-            >
-              <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
-                {isLoggingOut && <Loader2 className="w-4 h-4 animate-spin" />}
-                Logout
-              </span>
-            </button>
+            <>
+              {/* Cart Icon */}
+              <Link
+                href="/cart"
+                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <ShoppingCart className="w-6 h-6 text-[#222]" />
+                <CartBadge />
+              </Link>
+
+              {/* Profile Icon */}
+              <Link
+                href="/profile"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <User className="w-6 h-6 text-[#222]" />
+              </Link>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group"
+              >
+                <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
+                  {isLoggingOut && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Logout
+                </span>
+              </button>
+            </>
           ) : (
             <Link href="/auth" passHref>
               <button className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group">

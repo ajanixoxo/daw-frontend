@@ -28,6 +28,40 @@ export interface ICart {
   total: number;
 }
 
+export interface IAddToCartRequest {
+  productId: string;
+  quantity: number;
+  price: number;
+}
+
+export interface IAddToCartResponse {
+  success: boolean;
+  item: {
+    cart_id: string;
+    product_id: string;
+    quantity: number;
+    price: number;
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+}
+
+export interface ICartResponse {
+  success: boolean;
+  items: Array<{
+    _id: string;
+    cart_id: string;
+    product_id: IProduct;
+    quantity: number;
+    price: number;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  }>;
+}
+
 export interface IOrder {
   _id: string;
   user_id: string;
@@ -45,4 +79,10 @@ export interface IOrder {
 export interface IOrdersResponse {
   message: string;
   orders: IOrder[];
+}
+export interface IActionResponse<T = void> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
 }

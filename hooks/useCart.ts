@@ -1,101 +1,132 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiClient, API_ENDPOINTS } from '@/lib/api/client';
+import type { IAddToCartRequest, ICartResponse } from '@/types/product.types';
+import { addToCart, updateCartItem, removeCartItem, getCart } from '@/app/actions/cart';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { IProduct, ICartItem } from '@/types/product.types';
+import { toast } from 'sonner';
 
-interface CartState {
-  items: ICartItem[];
-  addItem: (product: IProduct, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
-  getTotal: () => number;
-  getItemCount: () => number;
+// Store for persisting cartId
+interface CartIdState {
+  cartId: string | null;
+  setCartId: (id: string | null) => void;
 }
 
-export const useCartStore = create<CartState>()(
+export const useCartIdStore = create<CartIdState>()(
   persist(
-    (set, get) => ({
-      items: [],
-
-      addItem: (product, quantity = 1) => {
-        set((state) => {
-          const existingItem = state.items.find(
-            (item) => item.product._id === product._id
-          );
-
-          if (existingItem) {
-            return {
-              items: state.items.map((item) =>
-                item.product._id === product._id
-                  ? { ...item, quantity: item.quantity + quantity }
-                  : item
-              ),
-            };
-          }
-
-          return {
-            items: [...state.items, { product, quantity }],
-          };
-        });
-      },
-
-      removeItem: (productId) => {
-        set((state) => ({
-          items: state.items.filter((item) => item.product._id !== productId),
-        }));
-      },
-
-      updateQuantity: (productId, quantity) => {
-        if (quantity <= 0) {
-          get().removeItem(productId);
-          return;
-        }
-
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.product._id === productId ? { ...item, quantity } : item
-          ),
-        }));
-      },
-
-      clearCart: () => {
-        set({ items: [] });
-      },
-
-      getTotal: () => {
-        return get().items.reduce(
-          (total, item) => total + item.product.price * item.quantity,
-          0
-        );
-      },
-
-      getItemCount: () => {
-        return get().items.reduce((count, item) => count + item.quantity, 0);
-      },
+    (set) => ({
+      cartId: null,
+      setCartId: (cartId) => set({ cartId }),
     }),
     {
-      name: 'cart-storage',
+      name: 'cart-id-storage',
       storage: createJSONStorage(() => localStorage),
     }
   )
 );
 
-export function useCart() {
-  const items = useCartStore((state) => state.items);
-  const addItem = useCartStore((state) => state.addItem);
-  const removeItem = useCartStore((state) => state.removeItem);
-  const updateQuantity = useCartStore((state) => state.updateQuantity);
-  const clearCart = useCartStore((state) => state.clearCart);
-  const getTotal = useCartStore((state) => state.getTotal);
-  const getItemCount = useCartStore((state) => state.getItemCount);
+export function useAddToCart() {
+  const queryClient = useQueryClient();
+  const { cartId, setCartId } = useCartIdStore();
 
-  return {
-    items,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-    total: getTotal(),
-    itemCount: getItemCount(),
-  };
+  return useMutation({
+    mutationFn: async (data: IAddToCartRequest) => {
+      const result = await addToCart(data);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to add item to cart");
+      }
+      return result.data!;
+    },
+    onSuccess: (data) => {
+      // Save cart_id if we don't have one or if it changed
+      if (data.item?.cart_id) {
+        setCartId(data.item.cart_id);
+        queryClient.invalidateQueries({ queryKey: ['cart', data.item.cart_id] });
+      } else if (cartId) {
+        queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
+      }
+    },
+  });
+}
+
+export function useCart() {
+  const { cartId } = useCartIdStore();
+
+  return useQuery({
+    queryKey: ['cart', cartId],
+    queryFn: async () => {
+      if (!cartId) return null;
+      
+      const result = await getCart(cartId);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to fetch cart");
+      }
+      return result.data!;
+    },
+    enabled: !!cartId,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+}
+
+export function useUpdateCartItem() {
+  const queryClient = useQueryClient();
+  const { cartId } = useCartIdStore();
+
+  return useMutation({
+    mutationFn: async (data: { productId: string; quantity: number; price: number }) => {
+      const result = await updateCartItem(data);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update cart item");
+      }
+      return result.data!;
+    },
+    onSuccess: () => {
+      if (cartId) {
+        queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
+      }
+    },
+  });
+}
+
+export function useRemoveCartItem() {
+  const queryClient = useQueryClient();
+  const { cartId } = useCartIdStore();
+
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      const result = await removeCartItem(itemId);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to remove cart item");
+      }
+      return result;
+    },
+    onSuccess: () => {
+      if (cartId) {
+        queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
+      }
+    },
+  });
+}
+
+// Helper function to get cart item count
+export function useCartItemCount() {
+  const { data: cartData } = useCart();
+  
+  // New response structure: items is directly in the response
+  const itemCount = cartData?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+  
+  return itemCount;
+}
+
+// Helper function to check if product is in cart
+export function useIsProductInCart(productId: string) {
+  const { data: cartData } = useCart();
+  
+  const isInCart = cartData?.items?.some(
+    (item) => typeof item.product_id === 'object' 
+      ? item.product_id._id === productId 
+      : item.product_id === productId
+  ) || false;
+  
+  return isInCart;
 }
