@@ -31,7 +31,7 @@ export async function addToCart(data: IAddToCartRequest): Promise<IActionRespons
       { token }
     );
 
-    revalidatePath("/shopping-cart");
+    revalidatePath("/cart");
     return { success: true, data: response, message: "Item added to cart" };
   } catch (error) {
     console.error("Add to cart error:", error);
@@ -83,7 +83,7 @@ export async function updateCartItem(data: { productId: string; quantity: number
       { token }
     );
 
-    revalidatePath("/shopping-cart");
+    revalidatePath("/cart");
     return { success: true, data: response, message: "Cart item updated" };
   } catch (error) {
     console.error("Update cart item error:", error);
@@ -107,7 +107,7 @@ export async function removeCartItem(itemId: string): Promise<IActionResponse> {
       { token }
     );
 
-    revalidatePath("/shopping-cart");
+    revalidatePath("/cart");
     return { success: true, message: "Removed" };
   } catch (error) {
     console.error("Remove cart item error:", error);
