@@ -134,6 +134,8 @@ export const API_ENDPOINTS = {
     LOGIN_OTP: "/auth/login/otp",
     RESEND_VERIFICATION: "/auth/resend/verificatiion",
     PROFILE: "/auth/profile",
+    FORGOT_PASSWORD: "/auth/forgot/password",
+    RESET_PASSWORD: "/auth/reset/password",
   },
   MARKETPLACE: {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",

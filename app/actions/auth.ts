@@ -30,17 +30,17 @@ export async function createServerSession(
 
     console.log("Setting cookies for user:", data.userId, "role:", data.role, "isVerified:", data.isVerified);
 
-    cookieStore.set("userId", data.userId, {
+    cookieStore.set("userId", data.userId || "", {
       ...COOKIE_CONFIG,
       maxAge: 60 * 60, // 1 hour
     });
 
-    cookieStore.set("email", data.email, {
+    cookieStore.set("email", data.email || "", {
       ...COOKIE_CONFIG,
       maxAge: 60 * 60, // 1 hour
     });
 
-    cookieStore.set("role", data.role, {
+    cookieStore.set("role", data.role || "buyer", {
       ...COOKIE_CONFIG,
       maxAge: 60 * 60, // 1 hour
     });
@@ -55,7 +55,7 @@ export async function createServerSession(
       maxAge: 60 * 60, // 1 hour
     });
 
-    cookieStore.set("refreshToken", data.refreshToken, {
+    cookieStore.set("refreshToken", data.refreshToken || "", {
       ...COOKIE_CONFIG,
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
@@ -90,7 +90,7 @@ export async function getServerSession(): Promise<ISessionData | null> {
     });
 
 
-    if (!userId || !email || role === undefined || role === null || !accessToken || refreshToken === undefined || refreshToken === null || isVerified === undefined) {
+    if (userId === undefined || email === undefined || role === undefined || accessToken === undefined || refreshToken === undefined || isVerified === undefined) {
       console.log("Missing required cookie values - role:", role, "refreshToken:", refreshToken);
       return null;
     }

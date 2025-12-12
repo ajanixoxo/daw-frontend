@@ -78,6 +78,25 @@ export interface IVerifyEmailResponse {
   message: string;
 }
 
+export interface IForgotPasswordRequest {
+  email: string;
+}
+
+export interface IForgotPasswordResponse {
+  message: string;
+  token: string;
+}
+
+export interface IResetPasswordRequest {
+  otp: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
+export interface IResetPasswordResponse {
+  message: string;
+}
+
 export interface IOtpResponse {
   message: string;
   token: {

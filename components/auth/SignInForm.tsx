@@ -1,24 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { FC } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Eye, EyeOff } from 'lucide-react';
-import { useLogin } from '@/hooks/useAuth';
-import type { ILoginRequest } from '@/types/auth.types';
+import { useState } from "react";
+import type { FC } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
+import { useLogin } from "@/hooks/useAuth";
+import type { ILoginRequest } from "@/types/auth.types";
 
 const SignInForm: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
 
   const { login, isLoading, error } = useLogin();
 
   const [formData, setFormData] = useState<ILoginRequest>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,13 +39,13 @@ const SignInForm: FC = () => {
     const newErrors: { email?: string; password?: string } = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -63,7 +64,7 @@ const SignInForm: FC = () => {
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email" className="auth-label text-(--text-dark)">
+        <Label htmlFor="email" className="auth-label text-text-dark">
           Email
         </Label>
         <Input
@@ -74,7 +75,7 @@ const SignInForm: FC = () => {
           value={formData.email}
           onChange={handleChange}
           disabled={isLoading}
-          className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
+          className="h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder"
           aria-invalid={!!errors.email}
         />
         {errors.email && (
@@ -90,7 +91,7 @@ const SignInForm: FC = () => {
           <Input
             id="password"
             name="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             value={formData.password}
             onChange={handleChange}
@@ -103,7 +104,7 @@ const SignInForm: FC = () => {
             onClick={() => setShowPassword(!showPassword)}
             disabled={isLoading}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
@@ -111,15 +112,23 @@ const SignInForm: FC = () => {
         {errors.password && (
           <span className="text-xs text-destructive">{errors.password}</span>
         )}
+        <div className="flex justify-end">
+          <a
+            href="/forgot-password"
+            className="text-sm font-medium text-[#1a1a1a] hover:underline"
+          >
+            Forgot Password?
+          </a>
+        </div>
       </div>
 
       <Button
         type="submit"
         disabled={isLoading}
         className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{ letterSpacing: '-0.64px' }}
+        style={{ letterSpacing: "-0.64px" }}
       >
-        {isLoading ? 'Signing in...' : 'Login'}
+        {isLoading ? "Signing in..." : "Login"}
       </Button>
     </form>
   );
