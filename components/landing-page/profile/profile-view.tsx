@@ -1,10 +1,30 @@
 "use client";
 
-import Image from "next/image";
 import { Pencil, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
+import { useProfile } from "@/hooks/useProfile";
+import { Loader2 } from "lucide-react";
+
 export function ProfileView() {
+  const { data: user, isLoading } = useProfile();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F10E7C]" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-12 text-gray-500">
+        Failed to load profile.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="font-serif text-3xl md:text-4xl font-semibold text-[#1a1a1a]">
@@ -14,16 +34,12 @@ export function ProfileView() {
       {/* Profile Card */}
       <div className="bg-white rounded-2xl border border-[#e7e8e9] p-6 md:p-8">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-32 h-32 rounded-full overflow-hidden mb-4 bg-[#f5f5f5]">
-            <Image
-              src="/african-woman-with-glasses-smiling-professional-he.jpg"
-              alt="Profile"
-              width={128}
-              height={128}
-              className="w-full h-full object-cover"
-            />
+          <div className="w-32 h-32 rounded-full overflow-hidden mb-4 bg-[#f5f5f5] flex items-center justify-center text-4xl font-bold text-gray-400 uppercase">
+            {user.firstName?.charAt(0) || "U"}
           </div>
-          <h2 className="text-xl font-medium text-[#1a1a1a]">Hello Favour</h2>
+          <h2 className="text-xl font-medium text-[#1a1a1a]">
+            Hello {user.firstName}
+          </h2>
         </div>
 
         {/* Personal Details */}
@@ -35,30 +51,34 @@ export function ProfileView() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <p className="text-sm text-[#6b6b6b] mb-1">Full Name</p>
-                <p className="font-medium text-[#1a1a1a]">Favour Princewill</p>
-              </div>
-              <div>
-                <p className="text-sm text-[#6b6b6b] mb-1">Email Address</p>
                 <p className="font-medium text-[#1a1a1a]">
-                  ololodaniel444@gmail.com
+                  {user.firstName} {user.lastName}
                 </p>
               </div>
               <div>
+                <p className="text-sm text-[#6b6b6b] mb-1">Email Address</p>
+                <p className="font-medium text-[#1a1a1a]">{user.email}</p>
+              </div>
+              <div>
                 <p className="text-sm text-[#6b6b6b] mb-1">Phone Number</p>
-                <p className="font-medium text-[#1a1a1a]">08028685210</p>
+                <p className="font-medium text-[#1a1a1a]">{user.phone}</p>
               </div>
               <div>
-                <p className="text-sm text-[#6b6b6b] mb-1">DAW ID</p>
-                <p className="font-medium text-[#1a1a1a]">DAW-2025-003</p>
-              </div>
-              <div>
-                <p className="text-sm text-[#6b6b6b] mb-1">Location</p>
-                <p className="font-medium text-[#1a1a1a]">Lagos, Nigeria</p>
-              </div>
-              <div>
-                <p className="text-sm text-[#6b6b6b] mb-1">Cooperative</p>
+                <p className="text-sm text-[#6b6b6b] mb-1">User ID</p>
                 <p className="font-medium text-[#1a1a1a]">
-                  Lagos Fashion Collective
+                  {user._id.substring(0, 10)}...
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-[#6b6b6b] mb-1">Status</p>
+                <p className="font-medium text-[#1a1a1a] capitalize">
+                  {user.status}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-[#6b6b6b] mb-1">Role</p>
+                <p className="font-medium text-[#1a1a1a] capitalize">
+                  {user.roles?.[0] || "Buyer"}
                 </p>
               </div>
             </div>

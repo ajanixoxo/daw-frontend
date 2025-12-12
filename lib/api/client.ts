@@ -133,6 +133,7 @@ export const API_ENDPOINTS = {
     VERIFY_EMAIL: "/auth/verify/email",
     LOGIN_OTP: "/auth/login/otp",
     RESEND_VERIFICATION: "/auth/resend/verificatiion",
+    PROFILE: "/auth/profile",
   },
   MARKETPLACE: {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",
