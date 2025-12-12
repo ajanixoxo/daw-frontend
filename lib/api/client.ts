@@ -144,4 +144,9 @@ export const API_ENDPOINTS = {
     UPDATE_ITEM: "/marketplace/cart/item",
     REMOVE_ITEM: "/marketplace/remove/cart/item",
   },
+  WISHLIST: {
+    ADD: "/marketplace/wishlist",
+    GET: "/marketplace/wishlist",
+    REMOVE: "/marketplace/remove/wishlist",
+  },
 } as const;

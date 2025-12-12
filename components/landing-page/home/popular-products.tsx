@@ -3,10 +3,22 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
+import {
+  ShoppingCart,
+  Loader2,
+  ArrowRight,
+  CheckCircle2,
+  Star,
+} from "lucide-react";
 import { usePopularProducts } from "@/hooks/useProducts";
 import { useAddToCart, useIsProductInCart } from "@/hooks/useCart";
+import {
+  useAddToWishlist,
+  useRemoveFromWishlist,
+  useIsProductInWishlist,
+} from "@/hooks/useWishlist";
 import type { IProduct } from "@/types/product.types";
+import { cn } from "@/lib/utils";
 
 export function PopularProducts() {
   const { data, isLoading, error } = usePopularProducts(8);
@@ -116,6 +128,21 @@ function ProductCard({
   const isInCart = useIsProductInCart(product._id);
   const showGoToCart = isInCart || justAdded;
 
+  const { mutate: addToWishlist, isPending: isAddingToWishlist } =
+    useAddToWishlist();
+  const { mutate: removeFromWishlist, isPending: isRemovingFromWishlist } =
+    useRemoveFromWishlist();
+  const isInWishlist = useIsProductInWishlist(product._id);
+  const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
+
+  const toggleWishlist = () => {
+    if (isInWishlist) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist(product._id);
+    }
+  };
+
   return (
     <div className="flex flex-col relative">
       {/* Success Animation */}
@@ -176,14 +203,36 @@ function ProductCard({
         </p>
       )}
 
-      {/* Stock Info */}
-      <p className="text-[10px] text-[#6b6b6b] mb-3">
-        {product.quantity > 0 ? (
-          <span className="text-[#009a49]">{product.quantity} in stock</span>
-        ) : (
-          <span className="text-[#ad3307]">Out of stock</span>
-        )}
-      </p>
+      {/* Stock Info and Wishlist Button */}
+      <div className="flex justify-between items-center mb-3">
+        <p className="text-[10px] text-[#6b6b6b]">
+          {product.quantity > 0 ? (
+            <span className="text-[#009a49]">{product.quantity} in stock</span>
+          ) : (
+            <span className="text-[#ad3307]">Out of stock</span>
+          )}
+        </p>
+
+        <button
+          onClick={toggleWishlist}
+          disabled={isWishlistLoading}
+          className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          {isWishlistLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+          ) : (
+            <Star
+              className={cn(
+                "w-4 h-4 transition-colors",
+                isInWishlist
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-gray-400"
+              )}
+            />
+          )}
+        </button>
+      </div>
 
       {/* Action Buttons */}
       <div className="flex gap-2">
