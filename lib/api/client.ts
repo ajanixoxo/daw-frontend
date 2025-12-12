@@ -136,7 +136,7 @@ export const API_ENDPOINTS = {
   },
   MARKETPLACE: {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",
-    GET_PRODUCT: (id: string) => `/marketplace/get/product/${id}`,
+    GET_PRODUCT: (id: string) => `/marketplace/get/products/${id}`,
   },
   CART: {
     ADD_ITEM: "/marketplace/cart/item",
@@ -148,5 +148,9 @@ export const API_ENDPOINTS = {
     ADD: "/marketplace/wishlist",
     GET: "/marketplace/wishlist",
     REMOVE: "/marketplace/remove/wishlist",
+  },
+  REVIEWS: {
+    CREATE: "/marketplace/reviews",
+    GET: (productId: string) => `/marketplace/reviews/${productId}`,
   },
 } as const;

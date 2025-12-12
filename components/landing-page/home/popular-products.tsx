@@ -236,12 +236,12 @@ function ProductCard({
 
       {/* Action Buttons */}
       <div className="flex gap-2">
-        {/* <Link
-          href={`/marketplace/${product._id}`}
+        <Link
+          href={`/product/${product._id}`}
           className="flex-1 py-3 bg-white border border-[#222222] text-[#222222] text-sm font-medium rounded-full hover:bg-[#f5f5f5] transition-colors text-center"
         >
           View Details
-        </Link> */}
+        </Link>
 
         {showGoToCart ? (
           <Link

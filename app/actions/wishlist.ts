@@ -35,11 +35,15 @@ export async function removeFromWishlist(productId: string): Promise<IActionResp
     const session = await getServerSession();
     const token = session?.accessToken;
 
+    console.log("Remove from wishlist - Product ID:", productId);
+    console.log("Remove from wishlist - Token exists:", !!token);
+
     if (!token) {
       return { success: false, error: "Please login to remove items from wishlist" };
     }
 
-    await apiClient.post(
+    // Using DELETE method as per pattern seen in cart removal
+    await apiClient.delete(
       API_ENDPOINTS.WISHLIST.REMOVE,
       { product_id: productId },
       { token }
