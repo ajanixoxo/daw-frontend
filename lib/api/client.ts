@@ -141,6 +141,8 @@ export const API_ENDPOINTS = {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",
     GET_PRODUCT: (id: string) => `/marketplace/get/products/${id}`,
     ADD_PRODUCT: "/marketplace/add/products",
+    GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
+    GET_ALL_ORDERS: "/marketplace/get/all/orders",
   },
   CART: {
     ADD_ITEM: "/marketplace/cart/item",

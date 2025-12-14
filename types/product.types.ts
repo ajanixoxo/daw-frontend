@@ -62,23 +62,31 @@ export interface ICartResponse {
   }>;
 }
 
+import { IShop } from './shop.types';
+
 export interface IOrder {
   _id: string;
-  user_id: string;
-  products: {
-    product_id: string;
-    quantity: number;
-    price: number;
-  }[];
-  total: number;
+  buyer_id: string;
+  shop_id: string | IShop;
+  total_amount: number;
+  discount: number;
+  escrow_status: 'pending' | 'completed' | 'released' | 'refunded';
+  payment_status: 'paid' | 'unpaid' | 'partial';
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   createdAt: string;
   updatedAt: string;
+  __v?: number;
+}
+
+export interface IOrderResponse {
+  success: boolean;
+  order: IOrder;
 }
 
 export interface IOrdersResponse {
-  message: string;
-  orders: IOrder[];
+  success: boolean;
+  orders?: IOrder[];
+  message?: string;
 }
 export interface IAddProductRequest {
   shop_id: string;
