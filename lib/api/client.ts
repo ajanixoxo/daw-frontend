@@ -129,7 +129,7 @@ export const API_ENDPOINTS = {
     LOGIN: "/auth/login",
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
-    REFRESH: "/auth/refresh",
+    REFRESH_TOKEN: "/auth/refresh/token",
     VERIFY_EMAIL: "/auth/verify/email",
     LOGIN_OTP: "/auth/login/otp",
     RESEND_VERIFICATION: "/auth/resend/verificatiion",
@@ -140,6 +140,7 @@ export const API_ENDPOINTS = {
   MARKETPLACE: {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",
     GET_PRODUCT: (id: string) => `/marketplace/get/products/${id}`,
+    ADD_PRODUCT: "/marketplace/add/products",
   },
   CART: {
     ADD_ITEM: "/marketplace/cart/item",
@@ -155,5 +156,15 @@ export const API_ENDPOINTS = {
   REVIEWS: {
     CREATE: "/marketplace/reviews",
     GET: (productId: string) => `/marketplace/reviews/${productId}`,
+  },
+  SHOPS: {
+    CREATE: "/marketplace/create/shops",
+    GET_SHOP: (shopId: string) => `/marketplace/shops/${shopId}`,
+  },
+  KYC: {
+    VERIFY_NIN: "/kyc/verify-nin",
+  },
+  USERS: {
+    UPGRADE_SELLER: (userId: string) => `/api/users/${userId}/upgrade/seller`,
   },
 } as const;

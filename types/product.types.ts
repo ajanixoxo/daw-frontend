@@ -80,6 +80,22 @@ export interface IOrdersResponse {
   message: string;
   orders: IOrder[];
 }
+export interface IAddProductRequest {
+  shop_id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  description?: string;
+  category?: string;
+  images?: string[];
+  status?: 'available' | 'unavailable' | 'out_of_stock';
+}
+
+export interface IAddProductResponse {
+  success: boolean;
+  product: IProduct;
+}
+
 export interface IActionResponse<T = void> {
   success: boolean;
   data?: T;

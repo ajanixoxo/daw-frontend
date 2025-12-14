@@ -35,6 +35,13 @@ export default function ShopPage() {
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
               <Button
+                onClick={() => router.push("/sellers/shop/create")}
+                className="bg-[#f10e7c] text-white hover:bg-[#d90d6a] h-11 px-5 rounded-lg font-medium text-[14px]"
+              >
+                <Edit className="h-[18px] w-[18px] mr-2" />
+                Create Shop
+              </Button>
+              <Button
                 variant="outline"
                 className="border border-[#d0d5dd] text-[#344054] hover:bg-[#f9fafb] h-11 px-5 rounded-lg font-medium text-[14px] bg-white"
               >
@@ -42,7 +49,7 @@ export default function ShopPage() {
                 Share Shop
               </Button>
               <Button
-                onClick={() => router.push("/shop/edit")}
+                onClick={() => router.push("/sellers/shop/edit")}
                 className="bg-[#000000] text-white hover:bg-[#1a1a1a] h-11 px-5 rounded-lg font-medium text-[14px]"
               >
                 <Edit className="h-[18px] w-[18px] mr-2" />

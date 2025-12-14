@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardSidebar } from "@/components/(dashboards)/sellers-dashboard/dashboard-sidebar"
 import { DashboardHeader } from "@/components/(dashboards)/sellers-dashboard/dashboard-header"
 import { cn } from "@/lib/utils"
+import { useRefreshToken } from "@/hooks/useRefreshToken"
 
 export default function SellersDashboardLayout({
   children,
@@ -12,6 +13,12 @@ export default function SellersDashboardLayout({
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const { mutate: refreshToken } = useRefreshToken()
+
+  // Refresh token on mount/reload
+  useEffect(() => {
+    refreshToken()
+  }, [refreshToken])
 
   return (
     <div className="min-h-screen bg-[#f9f9f9]">

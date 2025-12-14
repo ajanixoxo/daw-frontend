@@ -1,6 +1,8 @@
 "use client"
 
-import { User, ShoppingBag, Heart, Wallet, Settings } from "lucide-react"
+import { User, ShoppingBag, Heart, Wallet, Settings, Store } from "lucide-react"
+import Link from "next/link"
+import { useAuth } from "@/hooks/useAuthState"
 import type { ViewType } from "./profile-page"
 
 interface SidebarProps {
@@ -17,6 +19,15 @@ const menuItems = [
 ]
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
+  const { user, sessionData } = useAuth()
+  
+  // Check if user has seller role
+  const isSeller = 
+    user?.roles?.includes("seller") || 
+    user?.roles?.includes("vendor") ||
+    sessionData?.role === "seller" ||
+    sessionData?.role === "vendor"
+
   return (
     <aside className="w-full lg:w-[280px]  lg:shrink-0">
       <div className="bg-white rounded-2xl shadow-sm border border-[#e7e8e9] lg:sticky lg:top-32">
@@ -38,6 +49,19 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 </li>
               )
             })}
+            
+            {/* Seller Dashboard - Only show if user has seller role */}
+            {isSeller && (
+              <li className="shrink-0 lg:shrink">
+                <Link
+                  href="/sellers/dashboard"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-[#6b6b6b] hover:bg-[#f5f5f5]"
+                >
+                  <Store className="w-5 h-5 text-[#838794]" />
+                  <span className="font-medium text-[15px]">Seller Dashboard</span>
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
       </div>

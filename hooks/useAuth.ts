@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { loginUser, signupUser, logoutUser, resendOtp } from "@/app/actions/auth";
 import type { ILoginRequest, ISignupRequest, ISessionData, IUser } from "@/types/auth.types";
 import { useAuthStore } from "@/zustand/store";
+import { tokenManager } from "@/lib/api/client-client";
 
 interface UseLoginReturn {
   login: (credentials: ILoginRequest) => Promise<void>;
@@ -36,6 +37,11 @@ export function useLogin(): UseLoginReturn {
 
         if (result.data) {
           setData(result.data);
+          
+          // Store tokens in localStorage for client-side API client
+          if (result.data.accessToken && result.data.refreshToken) {
+            tokenManager.setTokens(result.data.accessToken, result.data.refreshToken);
+          }
           
           if (result.user) {
             setAuthData(result.user, result.data);
@@ -105,6 +111,11 @@ export function useSignup(): UseSignupReturn {
         if (result.data) {
           setData(result.data);
           
+          // Store tokens in localStorage for client-side API client
+          if (result.data.accessToken && result.data.refreshToken) {
+            tokenManager.setTokens(result.data.accessToken, result.data.refreshToken);
+          }
+          
           setSessionData(result.data);
           
           router.push("/otp?mode=signup");
@@ -155,6 +166,9 @@ export function useLogout(): UseLogoutReturn {
         }
 
         clearAuthData();
+        
+        // Clear tokens from localStorage
+        tokenManager.clearTokens();
 
         router.push("/");
         router.refresh();
@@ -214,6 +228,11 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
         setSuccess(true);
 
         if (mode === "login" && result.data) {
+          // Store tokens in localStorage for client-side API client
+          if (result.data.accessToken && result.data.refreshToken) {
+            tokenManager.setTokens(result.data.accessToken, result.data.refreshToken);
+          }
+          
           if (result.user) {
             setAuthData(result.user, result.data);
           } else {

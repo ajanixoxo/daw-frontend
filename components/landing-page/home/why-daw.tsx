@@ -1,4 +1,5 @@
 import { Wifi, Monitor } from "lucide-react"
+import Link from "next/link"
 
 export function WhyDAW() {
   return (
@@ -41,7 +42,7 @@ export function WhyDAW() {
           </div>
 
           {/* Become a Seller Card */}
-          <div className="bg-white rounded-2xl p-6 md:p-8 min-h-[280px] md:min-h-[320px] flex flex-col border-2 border-dashed border-[#d2d2d2] md:col-span-2 lg:col-span-1">
+          <Link href="/sellers/kyc" className="bg-white rounded-2xl p-6 md:p-8 min-h-[280px] md:min-h-[320px] flex flex-col border-2 border-dashed border-[#d2d2d2] md:col-span-2 lg:col-span-1 hover:border-[#f10e7c] transition-colors cursor-pointer">
             <div className="w-12 h-12 flex items-center justify-center mb-auto">
               <Monitor className="w-8 h-8 text-[#000000]" />
             </div>
@@ -51,7 +52,7 @@ export function WhyDAW() {
                 Turn Your Passion into Profit — Sell Smarter on the DAW Marketplace.
               </p>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>

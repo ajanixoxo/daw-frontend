@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function WhyDAWSection() {
   return (
     <section className="bg-[#FFEFF7] flex items-center justify-center px-4 sm:px-6 lg:px-28">
@@ -62,7 +64,7 @@ export default function WhyDAWSection() {
             </div>
 
             {/* Card 3 - White */}
-            <div className="flex flex-col justify-between p-6 sm:p-8 rounded-[20px] bg-[#FFFFFF] min-h-[291px]">
+            <Link href="/sellers/kyc" className="flex flex-col justify-between p-6 sm:p-8 rounded-[20px] bg-[#FFFFFF] min-h-[291px] hover:border-2 hover:border-[#F10E7C] transition-all cursor-pointer">
               <svg 
                 width="45" 
                 height="45" 
@@ -82,7 +84,7 @@ export default function WhyDAWSection() {
                   Turn Your Passion into Profit — Sell Smarter on the DAW Marketplace.
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>

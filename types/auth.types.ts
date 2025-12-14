@@ -7,6 +7,15 @@ export interface ISessionData {
   refreshToken: string;
 }
 
+export interface IMember {
+  memberId: string;
+  cooperativeId: string;
+  status: string;
+  joinDate?: string;
+  monthlyContribution?: number;
+  subscriptionTierId?: string;
+}
+
 export interface IUser {
   _id: string;
   firstName: string;
@@ -17,6 +26,8 @@ export interface IUser {
   kyc_status?: string;
   roles: string[];
   status: string;
+  shop?: string; // Shop ID
+  member?: IMember[]; // Array of member objects with cooperativeId
   createdAt?: string;
   updatedAt?: string;
 }
@@ -117,5 +128,18 @@ export interface IOtpResponse {
     status: string;
     createdAt: string;
     updatedAt: string;
+  };
+}
+
+export interface IRefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface IRefreshTokenResponse {
+  success: boolean;
+  message: string;
+  token: {
+    accessToken: string;
+    refreshToken: string;
   };
 }

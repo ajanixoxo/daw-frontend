@@ -15,6 +15,7 @@ import {
   Menu,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useSellerProfile } from "@/hooks/useSellerProfile"
 
 interface DashboardSidebarProps {
   isOpen: boolean
@@ -23,19 +24,35 @@ interface DashboardSidebarProps {
   onCollapse: () => void
 }
 
-const navItems = [
+const allNavItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/sellers/dashboard" },
   { icon: ShoppingBag, label: "Shop", href: "/sellers/shop" },
   { icon: Package, label: "Products", href: "/sellers/products" },
   { icon: ShoppingCart, label: "Orders", href: "/sellers/orders" },
-  { icon: HandCoins, label: "Contribution", href: "/sellers/contribution" },
-  { icon: Wallet, label: "Loans", href: "/sellers/loans" },
-  { icon: BarChart3, label: "Analytics", href: "/sellers/analytics" },
+  { icon: HandCoins, label: "Contribution", href: "/sellers/contribution", hideIfMember: true },
+  { icon: Wallet, label: "Loans", href: "/sellers/loans", hideIfMember: true },
+  { icon: BarChart3, label: "Analytics", href: "/sellers/analytics", hideIfMember: true },
   { icon: Settings, label: "Settings", href: "/sellers/settings" },
 ]
 
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const { data: user } = useSellerProfile()
+
+  // Check if user has member data with cooperativeId
+  const hasMemberWithCooperative = user?.member && 
+    Array.isArray(user.member) && 
+    user.member.length > 0 && 
+    user.member.some(m => m.cooperativeId)
+
+  // Filter nav items based on member status
+  const navItems = allNavItems.filter(item => {
+    // Hide items marked with hideIfMember if user has member/cooperative data
+    if (item.hideIfMember && hasMemberWithCooperative) {
+      return false
+    }
+    return true
+  })
 
   return (
    <>

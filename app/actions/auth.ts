@@ -13,6 +13,8 @@ import type {
   IOtpResponse,
   IVerifyEmailResponse,
   IUser,
+  IRefreshTokenRequest,
+  IRefreshTokenResponse,
 } from "@/types/auth.types";
 
 const COOKIE_CONFIG = {
@@ -361,6 +363,55 @@ export async function logoutUser(): Promise<IActionResponse> {
   } catch (error) {
     console.error("Logout error:", error);
     return { success: false, error: "Failed to logout" };
+  }
+}
+
+export async function refreshAccessToken(): Promise<IActionResponse<ISessionData>> {
+  try {
+    const session = await getServerSession();
+    const refreshToken = session?.refreshToken;
+
+    if (!refreshToken) {
+      return { success: false, error: "No refresh token available" };
+    }
+
+    const payload: IRefreshTokenRequest = {
+      refreshToken,
+    };
+
+    const response = await apiClient.post<IRefreshTokenResponse>(
+      API_ENDPOINTS.AUTH.REFRESH_TOKEN,
+      payload
+    );
+
+    if (!response.success || !response.token) {
+      throw new Error(response.message || "Failed to refresh token");
+    }
+
+    const { token } = response;
+
+    // Update session with new tokens
+    const updatedSessionData: ISessionData = {
+      ...session!,
+      accessToken: token.accessToken,
+      refreshToken: token.refreshToken,
+    };
+
+    // Update cookies with new tokens
+    const sessionResult = await createServerSession(updatedSessionData);
+    if (!sessionResult.success) {
+      throw new Error(sessionResult.error || "Failed to update session");
+    }
+
+    return {
+      success: true,
+      data: updatedSessionData,
+      message: response.message || "Token refreshed successfully",
+    };
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    const message = error instanceof Error ? error.message : "Failed to refresh token";
+    return { success: false, error: message };
   }
 }
 
