@@ -32,7 +32,7 @@ export function useAddProduct() {
     mutationFn: async (data: Omit<IAddProductRequest, 'shop_id'>) => {
       const response = await addProductClient(data);
       if (!response.success) {
-        throw new Error(response.message || 'Failed to add product');
+        throw new Error('Failed to add product');
       }
       return response;
     },
