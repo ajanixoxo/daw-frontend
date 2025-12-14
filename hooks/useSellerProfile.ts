@@ -28,7 +28,16 @@ export function storeShopId(shopId: string | null) {
 // Get shop ID from localStorage
 export function getShopId(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(SHOP_ID_KEY);
+  const shopId = localStorage.getItem(SHOP_ID_KEY);
+  
+  // Validate shopId - if it contains [object Object], it's invalid
+  if (shopId && (shopId.includes('[object Object]') || shopId.trim() === '')) {
+    // Clear invalid data
+    localStorage.removeItem(SHOP_ID_KEY);
+    return null;
+  }
+  
+  return shopId;
 }
 
 // Hook to fetch seller profile
@@ -44,9 +53,39 @@ export function useSellerProfile() {
         throw new Error('Failed to fetch profile');
       }
 
-      // Store shop ID in localStorage if available
+      // Store shop ID in localStorage if available (use first shop's shopId)
       if (response.user.shop) {
-        storeShopId(response.user.shop);
+        if (Array.isArray(response.user.shop) && response.user.shop.length > 0) {
+          const firstShop = response.user.shop[0];
+          // Ensure we extract shopId as a string, not the entire object
+          if (firstShop && typeof firstShop === 'object' && firstShop !== null) {
+            // Check if shopId exists and is a valid string
+            const shopId = firstShop.shopId;
+            if (shopId && typeof shopId === 'string' && shopId.trim() !== '') {
+              storeShopId(shopId.trim());
+            } else if (shopId && typeof shopId !== 'string') {
+              // If shopId is not a string, try to convert it
+              const shopIdString = String(shopId).trim();
+              if (shopIdString && !shopIdString.includes('[object Object]')) {
+                storeShopId(shopIdString);
+              } else {
+                console.warn('Invalid shopId format:', shopId);
+                storeShopId(null);
+              }
+            } else {
+              console.warn('Missing or empty shopId in shop object:', firstShop);
+              storeShopId(null);
+            }
+          } else {
+            console.warn('Invalid shop structure - not an object:', firstShop);
+            storeShopId(null);
+          }
+        } else {
+          // If shop is not an array or is empty, clear it
+          storeShopId(null);
+        }
+      } else {
+        storeShopId(null);
       }
 
       return response.user;

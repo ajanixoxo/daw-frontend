@@ -16,6 +16,18 @@ export interface IMember {
   subscriptionTierId?: string;
 }
 
+export interface IShopInfo {
+  shopId: string;
+  name: string;
+  description?: string;
+  category?: string;
+  logo_url?: string;
+  banner_url?: string;
+  is_member_shop?: boolean;
+  status?: string;
+  cooperative_id?: string | null;
+}
+
 export interface IUser {
   _id: string;
   firstName: string;
@@ -26,7 +38,7 @@ export interface IUser {
   kyc_status?: string;
   roles: string[];
   status: string;
-  shop?: string; // Shop ID
+  shop?: IShopInfo[]; // Array of shop objects with shopId
   member?: IMember[]; // Array of member objects with cooperativeId
   createdAt?: string;
   updatedAt?: string;

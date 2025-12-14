@@ -14,32 +14,29 @@ export function useSellerOrders() {
         return { orders: [] };
       }
 
+      // Validate shopId before making the API call
+      const shopIdString = String(shopId).trim();
+      if (!shopIdString || shopIdString === '[object Object]' || shopIdString.includes('[object Object]')) {
+        console.error("Invalid shop ID found in localStorage for orders:", shopId);
+        return { orders: [] };
+      }
+
       try {
-        // Fetch all orders and filter by shop_id
-        // TODO: Replace with endpoint to get orders by shop_id when available
+        // Fetch orders by shop ID using the dedicated endpoint
         const response = await clientApiClient.get<IOrdersResponse>(
-          API_ENDPOINTS.MARKETPLACE.GET_ALL_ORDERS
+          API_ENDPOINTS.MARKETPLACE.GET_ORDERS_BY_SHOP(shopIdString)
         );
-
-        // Filter orders by shop_id
-        const sellerOrders = response.orders?.filter((order) => {
-          const orderShopId = typeof order.shop_id === 'string' 
-            ? order.shop_id 
-            : order.shop_id._id;
-          return orderShopId === shopId;
-        }) || [];
-
         return {
           ...response,
-          orders: sellerOrders,
+          orders: response.orders || [],
         };
       } catch (error) {
         console.error('Error fetching seller orders:', error);
-        // If endpoint doesn't exist, return empty array
+        // If endpoint fails, return empty array
         return { orders: [] };
       }
     },
-    enabled: !!shopId,
+    enabled: !!shopId && !shopId.includes('[object Object]'),
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }
@@ -61,5 +58,6 @@ export function useSellerOrder(orderId: string) {
     staleTime: 2 * 60 * 1000,
   });
 }
+
 
 

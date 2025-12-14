@@ -66,7 +66,7 @@ import { IShop } from './shop.types';
 
 export interface IOrder {
   _id: string;
-  buyer_id: string;
+  buyer_id: string | { _id: string; [key: string]: any };
   shop_id: string | IShop;
   total_amount: number;
   discount: number;

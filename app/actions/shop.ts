@@ -28,7 +28,12 @@ export async function createShop(data: ICreateShopRequest): Promise<IActionRespo
     return { success: true, data: response, message: "Shop created successfully" };
   } catch (error) {
     console.error("Create shop error:", error);
-    const message = error instanceof Error ? error.message : "Failed to create shop";
+    let message = "Failed to create shop";
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === 'string') {
+      message = error;
+    }
     return { success: false, error: message };
   }
 }

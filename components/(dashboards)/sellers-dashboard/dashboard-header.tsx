@@ -2,7 +2,7 @@
 import { Bell, Menu, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSellerProfile, useShop } from "@/hooks/useSellerProfile";
+import { useSellerProfile, getShopId } from "@/hooks/useSellerProfile";
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
@@ -10,11 +10,18 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { data: profile, isLoading: profileLoading } = useSellerProfile();
-  const { data: shop, isLoading: shopLoading } = useShop(profile?.shop || null);
-
-  const isLoading = profileLoading || shopLoading;
-  const shopName = shop?.name || "Shop";
+  
+  // Get shopId from localStorage (already validated and stored by useSellerProfile)
+  const shopId = getShopId();
+  
+  // Get shop name from profile directly (no need for extra API call)
+  // profile.shop is an array, get the first shop's name
+  const shopName = profile?.shop && Array.isArray(profile.shop) && profile.shop.length > 0
+    ? profile.shop[0].name || "Shop"
+    : "Shop";
+  
   const email = profile?.email || "";
+  const isLoading = profileLoading;
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-[#e7e8e9] px-4 lg:px-6 py-4">

@@ -10,7 +10,10 @@ import {
   Pencil,
   Trash2,
   Heart,
+  Loader2,
 } from "lucide-react";
+import { useAddProduct, useSellerProducts } from "@/hooks/useSellerProducts";
+import { useSellerProfile, getShopId } from "@/hooks/useSellerProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,119 +34,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Product data
-const products = [
-  {
-    id: 1,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Shipped",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 2,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Cancelled",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 3,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Pending",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 4,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Shipped",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 5,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Pending",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 6,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Shipped",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 7,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Pending",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 8,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Cancelled",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 9,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Shipped",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-  {
-    id: 10,
-    name: "Turtleneck",
-    category: "Shirt",
-    store: "Faye's Complex",
-    price: "$17.84",
-    stock: 20,
-    status: "Pending",
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-6v6SDxnVhv0SFOOWUOJfwR0Wgne5Aj.png",
-  },
-];
 
 // Color options for category
 const categoryColors = [
@@ -248,18 +138,62 @@ function AddCategoryModal() {
 }
 
 function AddProductDrawer() {
+  const [open, setOpen] = useState(false);
   const [productStatus, setProductStatus] = useState("Active");
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [store, setStore] = useState("");
+  const [quantity, setQuantity] = useState("");
   const [productFeatures, setProductFeatures] = useState("");
   const [careInstruction, setCareInstruction] = useState("");
   const [returnPolicy, setReturnPolicy] = useState("");
+  
+  const addProductMutation = useAddProduct();
+  const { data: profile, isLoading: profileLoading } = useSellerProfile();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!name || !price || !quantity) {
+      return;
+    }
+
+    // Ensure profile is loaded and shopId is valid
+    const shopId = getShopId();
+    if (!shopId || shopId.includes('[object Object]')) {
+      alert('Shop ID not found or invalid. Please refresh the page and try again.');
+      return;
+    }
+
+    try {
+      await addProductMutation.mutateAsync({
+        name,
+        price: parseFloat(price),
+        quantity: parseInt(quantity, 10),
+        description: description || undefined,
+        category: category || undefined,
+        status: productStatus === "Active" ? "available" : "unavailable",
+      });
+      
+      // Reset form
+      setName("");
+      setCategory("");
+      setDescription("");
+      setPrice("");
+      setQuantity("");
+      setProductFeatures("");
+      setCareInstruction("");
+      setReturnPolicy("");
+      setProductStatus("Active");
+      setOpen(false);
+    } catch (error) {
+      // Error is handled by the hook
+    }
+  };
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button className="gap-2 bg-[#292d32] hover:bg-[#1d2739] text-white">
           <Plus className="size-4" />
@@ -277,12 +211,7 @@ function AddProductDrawer() {
               variant="ghost"
               size="icon"
               className="size-8 -ml-2"
-              onClick={() => {
-                const closeButton = document.querySelector(
-                  "[data-sheet-close]"
-                ) as HTMLButtonElement;
-                closeButton?.click();
-              }}
+              onClick={() => setOpen(false)}
             >
               <svg
                 width="20"
@@ -324,7 +253,7 @@ function AddProductDrawer() {
         </div>
 
         {/* Form Content */}
-        <div className="px-6 py-6 space-y-6">
+        <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
           {/* Image Upload Area */}
           <div className="border-2 border-dashed border-[#e7e8e9] rounded-lg bg-[#f9f9f9] p-12 text-center">
             <div className="flex flex-col items-center gap-3">
@@ -364,17 +293,18 @@ function AddProductDrawer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label
-                htmlFor="title"
+                htmlFor="name"
                 className="text-sm font-medium text-[#292d32]"
               >
-                Title
+                Product Name *
               </Label>
               <Input
-                id="title"
-                placeholder="Enter Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                id="name"
+                placeholder="Enter Product Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="border-[#e7e8e9] h-11"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -411,42 +341,44 @@ function AddProductDrawer() {
             />
           </div>
 
-          {/* Price and Store Row */}
+          {/* Price and Quantity Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label
                 htmlFor="price"
                 className="text-sm font-medium text-[#292d32]"
               >
-                Price
+                Price *
               </Label>
               <Input
                 id="price"
+                type="number"
+                step="0.01"
+                min="0"
                 placeholder="Enter Price"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="border-[#e7e8e9] h-11"
+                required
               />
             </div>
             <div className="space-y-2">
               <Label
-                htmlFor="store"
+                htmlFor="quantity"
                 className="text-sm font-medium text-[#292d32]"
               >
-                Store
+                Quantity *
               </Label>
-              <Select value={store} onValueChange={setStore}>
-                <SelectTrigger className="border-[#e7e8e9] h-11">
-                  <SelectValue placeholder="Select Store" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fayes-complex">
-                    Faye&apos;s Complex
-                  </SelectItem>
-                  <SelectItem value="store-2">Store 2</SelectItem>
-                  <SelectItem value="store-3">Store 3</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="quantity"
+                type="number"
+                min="0"
+                placeholder="Enter Quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="border-[#e7e8e9] h-11"
+                required
+              />
             </div>
           </div>
 
@@ -520,10 +452,21 @@ function AddProductDrawer() {
           </div>
 
           {/* Save Button */}
-          <Button className="w-full bg-[#f10e7c] hover:bg-[#d00c6a] text-white h-12 text-base font-medium">
-            Save
+          <Button 
+            type="submit"
+            disabled={addProductMutation.isPending}
+            className="w-full bg-[#f10e7c] hover:bg-[#d00c6a] text-white h-12 text-base font-medium disabled:opacity-50"
+          >
+            {addProductMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding...
+              </>
+            ) : (
+              "Save"
+            )}
           </Button>
-        </div>
+        </form>
       </SheetContent>
     </Sheet>
   );
@@ -572,6 +515,15 @@ function StatCard({
 }
 
 export default function ProductsPage() {
+  const { data: productsData, isLoading: productsLoading } = useSellerProducts();
+  const products = productsData?.products || [];
+
+  // Calculate statistics
+  const totalProducts = products.length;
+  const activeProducts = products.filter(p => p.status === 'available').length;
+  const lowStockProducts = products.filter(p => p.quantity < 10 && p.quantity > 0).length;
+  const outOfStockProducts = products.filter(p => p.quantity === 0).length;
+
   return (
     <main className="p-4 md:p-6 lg:p-8">
       {/* Header */}
@@ -595,28 +547,26 @@ export default function ProductsPage() {
         <StatCard
           icon={<div className="size-4 bg-[#f10e7c] rounded" />}
           label="Total Products"
-          value="₦100"
-          change="+10%"
-          changeLabel="More than Previous"
+          value={productsLoading ? "..." : totalProducts.toString()}
+          changeLabel={productsLoading ? "Loading..." : "All products"}
         />
         <StatCard
           icon={<div className="size-4 bg-[#f10e7c] rounded" />}
           label="Active Products"
-          value="12"
-          change="+10%"
-          changeLabel="Cards Issued"
+          value={productsLoading ? "..." : activeProducts.toString()}
+          changeLabel={productsLoading ? "Loading..." : "Available now"}
         />
         <StatCard
           icon={<div className="size-4 bg-[#f10e7c] rounded" />}
           label="Low Stock"
-          value="65"
-          changeLabel="Requires Attention"
+          value={productsLoading ? "..." : lowStockProducts.toString()}
+          changeLabel={productsLoading ? "Loading..." : "Requires Attention"}
         />
         <StatCard
           icon={<div className="size-4 bg-[#f10e7c] rounded" />}
           label="Out of Stock"
-          value="65"
-          changeLabel="Requires Attention"
+          value={productsLoading ? "..." : outOfStockProducts.toString()}
+          changeLabel={productsLoading ? "Loading..." : "Requires Attention"}
         />
       </div>
 
@@ -674,57 +624,74 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="border-b border-[#e7e8e9] hover:bg-[#f9f9f9]"
-                  >
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          className="size-10 rounded-lg object-cover"
-                        />
-                        <span className="text-sm font-medium text-[#292d32]">
-                          {product.name}
-                        </span>
+                {productsLoading ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-6 w-6 animate-spin text-[#f10e7c]" />
+                        <span className="text-[#667185]">Loading products...</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#667185]">
-                      {product.category}
+                  </tr>
+                ) : products.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-[#667185]">
+                      <p className="text-lg font-medium mb-2">No products found</p>
+                      <p className="text-sm">Add your first product to get started</p>
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#667185]">
-                      {product.store}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-[#292d32]">
-                      {product.price}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-[#667185]">
-                      {product.stock}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          product.status === "Shipped"
-                            ? "bg-[#e5f8ed] text-[#009a49]"
-                            : product.status === "Cancelled"
-                            ? "bg-[#ffe7cc] text-[#ad3307]"
-                            : "bg-[#fff8e5] text-[#f1a20e]"
-                        }`}
-                      >
+                  </tr>
+                ) : (
+                  products.map((product) => (
+                    <tr
+                      key={product._id}
+                      className="border-b border-[#e7e8e9] hover:bg-[#f9f9f9]"
+                    >
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"}
+                            alt={product.name}
+                            className="size-10 rounded-lg object-cover"
+                          />
+                          <span className="text-sm font-medium text-[#292d32]">
+                            {product.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#667185]">
+                        {product.category || "-"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#667185]">
+                        Shop
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#292d32]">
+                        ₦{product.price?.toLocaleString() || "0"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#667185]">
+                        {product.quantity || 0}
+                      </td>
+                      <td className="py-3 px-4">
                         <span
-                          className={`size-1.5 rounded-full ${
-                            product.status === "Shipped"
-                              ? "bg-[#009a49]"
-                              : product.status === "Cancelled"
-                              ? "bg-[#ad3307]"
-                              : "bg-[#f1a20e]"
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            product.status === "available"
+                              ? "bg-[#e5f8ed] text-[#009a49]"
+                              : product.status === "unavailable"
+                              ? "bg-[#ffe7cc] text-[#ad3307]"
+                              : "bg-[#fff8e5] text-[#f1a20e]"
                           }`}
-                        />
-                        {product.status}
-                      </span>
-                    </td>
+                        >
+                          <span
+                            className={`size-1.5 rounded-full ${
+                              product.status === "available"
+                                ? "bg-[#009a49]"
+                                : product.status === "unavailable"
+                                ? "bg-[#ad3307]"
+                                : "bg-[#f1a20e]"
+                            }`}
+                          />
+                          {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : "Out of Stock"}
+                        </span>
+                      </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-end gap-2">
                         <Button
@@ -758,67 +725,77 @@ export default function ProductsPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           {/* Cards - Mobile/Tablet */}
           <div className="lg:hidden space-y-4">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="border border-[#e7e8e9] rounded-lg p-4"
-              >
-                <div className="flex items-start gap-3 mb-3">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    className="size-16 rounded-lg object-cover"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-[#292d32] mb-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-[#667185]">{product.category}</p>
-                  </div>
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                      product.status === "Shipped"
-                        ? "bg-[#e5f8ed] text-[#009a49]"
-                        : product.status === "Cancelled"
-                        ? "bg-[#ffe7cc] text-[#ad3307]"
-                        : "bg-[#fff8e5] text-[#f1a20e]"
-                    }`}
-                  >
-                    <span
-                      className={`size-1.5 rounded-full ${
-                        product.status === "Shipped"
-                          ? "bg-[#009a49]"
-                          : product.status === "Cancelled"
-                          ? "bg-[#ad3307]"
-                          : "bg-[#f1a20e]"
-                      }`}
-                    />
-                    {product.status}
-                  </span>
+            {productsLoading ? (
+              <div className="py-12 text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-6 w-6 animate-spin text-[#f10e7c]" />
+                  <span className="text-[#667185]">Loading products...</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
-                  <div>
-                    <span className="text-[#667185]">Store:</span>
-                    <span className="ml-1 text-[#292d32]">{product.store}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#667185]">Price:</span>
-                    <span className="ml-1 text-[#292d32] font-medium">
-                      {product.price}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="py-12 text-center text-[#667185]">
+                <p className="text-lg font-medium mb-2">No products found</p>
+                <p className="text-sm">Add your first product to get started</p>
+              </div>
+            ) : (
+              products.map((product) => (
+                <div
+                  key={product._id}
+                  className="border border-[#e7e8e9] rounded-lg p-4"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <img
+                      src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"}
+                      alt={product.name}
+                      className="size-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-[#292d32] mb-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-[#667185]">{product.category || "-"}</p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                        product.status === "available"
+                          ? "bg-[#e5f8ed] text-[#009a49]"
+                          : product.status === "unavailable"
+                          ? "bg-[#ffe7cc] text-[#ad3307]"
+                          : "bg-[#fff8e5] text-[#f1a20e]"
+                      }`}
+                    >
+                      <span
+                        className={`size-1.5 rounded-full ${
+                          product.status === "available"
+                            ? "bg-[#009a49]"
+                            : product.status === "unavailable"
+                            ? "bg-[#ad3307]"
+                            : "bg-[#f1a20e]"
+                        }`}
+                      />
+                      {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : "Out of Stock"}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-[#667185]">Stock:</span>
-                    <span className="ml-1 text-[#292d32]">{product.stock}</span>
+                  <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+                    <div>
+                      <span className="text-[#667185]">Price:</span>
+                      <span className="ml-1 text-[#292d32] font-medium">
+                        ₦{product.price?.toLocaleString() || "0"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[#667185]">Stock:</span>
+                      <span className="ml-1 text-[#292d32]">{product.quantity || 0}</span>
+                    </div>
                   </div>
-                </div>
                 <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
                   <Button
                     variant="ghost"
@@ -837,8 +814,9 @@ export default function ProductsPage() {
                     Delete
                   </Button>
                 </div>
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

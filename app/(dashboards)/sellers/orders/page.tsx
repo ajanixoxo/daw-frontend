@@ -71,6 +71,18 @@ function getShopName(order: IOrder): string {
   return order.shop_id.name || 'Shop';
 }
 
+// Helper function to get buyer ID from order
+function getBuyerId(order: IOrder): string {
+  if (typeof order.buyer_id === 'string') {
+    return order.buyer_id;
+  }
+  // If buyer_id is an object, try to get _id or id property
+  if (order.buyer_id && typeof order.buyer_id === 'object') {
+    return (order.buyer_id as any)._id || (order.buyer_id as any).id || '';
+  }
+  return '';
+}
+
 const mockOrders = [
   {
     id: "96003321",
@@ -298,13 +310,14 @@ export default function OrdersPage() {
                   orders.map((order) => {
                     const statusColors = getStatusColor(order.status);
                     const shopName = getShopName(order);
+                    const buyerId = getBuyerId(order);
                     return (
                       <TableRow key={order._id} className="border-b border-[#e4e7ec]">
                         <TableCell className="text-[#1d2739] text-sm font-medium">
                           {order._id.slice(-8).toUpperCase()}
                         </TableCell>
                         <TableCell className="text-[#1d2739] text-sm">
-                          {order.buyer_id.slice(-8).toUpperCase()}
+                          {buyerId ? buyerId.slice(-8).toUpperCase() : '-'}
                         </TableCell>
                         <TableCell className="text-[#1d2739] text-sm">-</TableCell>
                         <TableCell className="text-[#1d2739] text-sm">{shopName}</TableCell>
@@ -312,29 +325,29 @@ export default function OrdersPage() {
                         <TableCell className="text-[#1d2739] text-sm font-medium">
                           ₦{order.total_amount.toLocaleString()}
                         </TableCell>
-                        <TableCell>
-                          <span
+                    <TableCell>
+                      <span
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusColors.bg} ${statusColors.text}`}
-                          >
+                      >
                             <span className={`w-1.5 h-1.5 rounded-full ${statusColors.dot}`} />
                             {getStatusDisplay(order.status)}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreVertical className="w-4 h-4 text-[#667185]" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Edit Order</DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">Cancel Order</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="w-4 h-4 text-[#667185]" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem>Edit Order</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">Cancel Order</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
                     );
                   })
                 )}

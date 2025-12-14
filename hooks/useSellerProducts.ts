@@ -12,9 +12,16 @@ async function addProductClient(data: Omit<IAddProductRequest, 'shop_id'>) {
     throw new Error('Shop ID not found. Please create a shop first.');
   }
 
+  // Ensure shopId is a string, not an object
+  const shopIdString = String(shopId).trim();
+  
+  if (!shopIdString || shopIdString === '[object Object]' || shopIdString.includes('[object Object]')) {
+    throw new Error('Invalid shop ID. Please refresh the page and try again.');
+  }
+
   const payload: IAddProductRequest = {
     ...data,
-    shop_id: shopId,
+    shop_id: shopIdString,
   };
 
   const response = await clientApiClient.post<IAddProductResponse>(
@@ -58,23 +65,29 @@ export function useSellerProducts() {
         return { products: [] };
       }
 
-      // Fetch all products and filter by shop_id
-      // TODO: Replace with endpoint to get products by shop_id when available
-      const response = await clientApiClient.get<IProductsResponse>(
-        API_ENDPOINTS.MARKETPLACE.GET_ALL_PRODUCTS
-      );
+      // Validate shopId is not corrupted
+      if (shopId.includes('[object Object]')) {
+        console.error('Invalid shopId:', shopId);
+        return { products: [] };
+      }
 
-      // Filter products by shop_id
-      const sellerProducts = response.products?.filter(
-        (product) => product.shop_id === shopId
-      ) || [];
+      try {
+        // Fetch products by shop ID using the dedicated endpoint
+        const response = await clientApiClient.get<IProductsResponse>(
+          API_ENDPOINTS.MARKETPLACE.GET_PRODUCTS_BY_SHOP(shopId)
+        );
 
-      return {
-        ...response,
-        products: sellerProducts,
-      };
+        return {
+          ...response,
+          products: response.products || [],
+        };
+      } catch (error) {
+        console.error('Error fetching seller products:', error);
+        // If endpoint fails, return empty array
+        return { products: [] };
+      }
     },
-    enabled: !!shopId,
+    enabled: !!shopId && !shopId.includes('[object Object]'),
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }
