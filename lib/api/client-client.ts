@@ -209,9 +209,10 @@ class ClientApiClient {
 
         // Handle other errors
         if (axios.isAxiosError(error) && error.response) {
+          const errorData = error.response.data as { message?: string; error?: string } | undefined;
           const message =
-            error.response.data?.message ||
-            error.response.data?.error ||
+            errorData?.message ||
+            errorData?.error ||
             `Request failed with status ${error.response.status}`;
           throw new Error(message);
         }
