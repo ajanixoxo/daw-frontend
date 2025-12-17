@@ -155,7 +155,7 @@ export const API_ENDPOINTS = {
   WISHLIST: {
     ADD: "/marketplace/wishlist",
     GET: "/marketplace/wishlist",
-    REMOVE: "/marketplace/remove/wishlist",
+    REMOVE: (productId: string) => `/marketplace/wishlist/${productId}`,
   },
   REVIEWS: {
     CREATE: "/marketplace/reviews",

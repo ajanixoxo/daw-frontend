@@ -28,8 +28,6 @@ export function ShoppingCart() {
     }
   }, [cartData]);
 
-  const [promoCode, setPromoCode] = useState("");
-
   const handleUpdateQuantity = (cartItemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
 
@@ -77,9 +75,6 @@ export function ShoppingCart() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shipping = cartItems.length > 0 ? 1500 : 0; // Fixed shipping for now
-  const tax = subtotal * 0.075; // 7.5% VAT
-  const total = subtotal + shipping + tax;
 
   if (isLoading) {
     return (
@@ -147,26 +142,6 @@ export function ShoppingCart() {
                       })}
                     </span>
                   </div>
-                  <div className="flex justify-between text-foreground">
-                    <span>Shipping</span>
-                    <span>
-                      ₦
-                      {shipping.toLocaleString("en-NG", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-foreground">
-                    <span>Tax (7.5%)</span>
-                    <span>
-                      ₦
-                      {tax.toLocaleString("en-NG", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
                 </div>
 
                 <div className="mt-4 mb-6 pt-4 border-t">
@@ -176,30 +151,11 @@ export function ShoppingCart() {
                     </h3>
                     <span className="text-xl font-bold text-[#f10e7c]">
                       ₦
-                      {total.toLocaleString("en-NG", {
+                      {subtotal.toLocaleString("en-NG", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </span>
-                  </div>
-                </div>
-
-                {/* Promo Code */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-foreground mb-3">
-                    Promo Code
-                  </h4>
-                  <div className="flex gap-2">
-                    <Input
-                      type="text"
-                      placeholder="Enter Code"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button variant="outline" className="px-6 bg-transparent">
-                      Apply
-                    </Button>
                   </div>
                 </div>
 
