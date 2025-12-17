@@ -1,34 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Trash2, Minus, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useCart, useUpdateCartItem, useRemoveCartItem } from "@/hooks/useCart";
+import { useCart, useRemoveCartItem } from "@/hooks/useCart";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { usePlaceOrder } from "@/hooks/useCheckout";
+import { toast } from "sonner";
 
 export function ShoppingCart() {
+  const router = useRouter();
   const { data: cartData, isLoading } = useCart();
-  const { mutate: updateItem, isPending: isUpdating } = useUpdateCartItem();
   const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
+  const { mutate: placeOrder, isPending: isPlacingOrder } = usePlaceOrder();
+
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [localItems, setLocalItems] = useState<any[]>([]);
+
+  // Sync local items with server data when loaded
+  useEffect(() => {
+    if (cartData?.data?.items) {
+      setLocalItems(cartData.data.items);
+    }
+  }, [cartData]);
 
   const [promoCode, setPromoCode] = useState("");
 
-  const handleUpdateQuantity = (
-    productId: string,
-    newQuantity: number,
-    price: number
-  ) => {
+  const handleUpdateQuantity = (cartItemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setUpdatingId(productId);
-    updateItem(
-      { productId, quantity: newQuantity, price },
-      {
-        onSettled: () => setUpdatingId(null),
-      }
+
+    // Update local state directly
+    setLocalItems((prevItems) =>
+      prevItems.map((item) =>
+        item._id === cartItemId ? { ...item, quantity: newQuantity } : item
+      )
     );
   };
 
@@ -39,7 +48,30 @@ export function ShoppingCart() {
     });
   };
 
-  const cartItems = cartData?.items || [];
+  const handlePlaceOrder = () => {
+    if (localItems.length === 0) return;
+
+    const items = localItems.map((item) => ({
+      product_id: item.product._id,
+      quantity: item.quantity,
+    }));
+
+    placeOrder(
+      { items },
+      {
+        onSuccess: () => {
+          toast.success("Order placed successfully");
+          router.push("/checkout");
+        },
+        onError: (error: any) => {
+          console.error("Place order failed:", error);
+          toast.error(error.message || "Failed to place order");
+        },
+      }
+    );
+  };
+
+  const cartItems = localItems;
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -81,10 +113,7 @@ export function ShoppingCart() {
                   item={item}
                   onUpdateQuantity={handleUpdateQuantity}
                   onRemove={handleRemoveItem}
-                  isUpdating={
-                    updatingId === item.product_id._id ||
-                    updatingId === item._id
-                  }
+                  isUpdating={updatingId === item._id}
                 />
               ))
             ) : (
@@ -175,8 +204,19 @@ export function ShoppingCart() {
                 </div>
 
                 {/* Checkout Button */}
-                <Button className="w-full bg-[#222] text-white hover:bg-[#333] rounded-full py-6 text-base font-medium">
-                  Checkout
+                <Button
+                  onClick={handlePlaceOrder}
+                  disabled={isPlacingOrder}
+                  className="w-full bg-[#222] text-white hover:bg-[#333] rounded-full py-6 text-base font-medium"
+                >
+                  {isPlacingOrder ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Place Order"
+                  )}
                 </Button>
               </Card>
             </div>
@@ -189,11 +229,7 @@ export function ShoppingCart() {
 
 interface CartItemCardProps {
   item: any; // Using any for now to match the API response structure flexibly
-  onUpdateQuantity: (
-    productId: string,
-    quantity: number,
-    price: number
-  ) => void;
+  onUpdateQuantity: (cartItemId: string, quantity: number) => void;
   onRemove: (itemId: string) => void;
   isUpdating: boolean;
 }
@@ -204,7 +240,7 @@ function CartItemCard({
   onRemove,
   isUpdating,
 }: CartItemCardProps) {
-  const product = item.product_id;
+  const product = item.product;
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 border rounded-xl bg-white shadow-sm">
@@ -256,9 +292,7 @@ function CartItemCard({
 
           <div className="flex items-center border border-border rounded-full px-3 py-1 gap-3">
             <button
-              onClick={() =>
-                onUpdateQuantity(product._id, item.quantity - 1, item.price)
-              }
+              onClick={() => onUpdateQuantity(item._id, item.quantity - 1)}
               className="text-foreground hover:text-muted-foreground transition-colors disabled:opacity-50"
               aria-label="Decrease quantity"
               disabled={item.quantity <= 1 || isUpdating}
@@ -273,9 +307,7 @@ function CartItemCard({
               )}
             </span>
             <button
-              onClick={() =>
-                onUpdateQuantity(product._id, item.quantity + 1, item.price)
-              }
+              onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
               className="text-foreground hover:text-muted-foreground transition-colors disabled:opacity-50"
               aria-label="Increase quantity"
               disabled={isUpdating}

@@ -30,7 +30,7 @@ export function PopularProducts() {
     setAddingProductId(product._id);
 
     addToCart(
-      { productId: product._id, quantity: 1, price: product.price },
+      { productId: product._id, quantity: 1 },
       {
         onSuccess: () => {
           setJustAdded(product._id);

@@ -1,0 +1,59 @@
+"use server";
+
+import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
+import { getServerSession } from "@/app/actions/auth";
+import { IActionResponse } from "@/types/product.types";
+import { 
+  IPlaceOrderRequest, 
+  IPlaceOrderResponse, 
+  IPaymentInitiateRequest, 
+  IPaymentInitiateResponse 
+} from "@/types/checkout.types";
+
+export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionResponse<IPlaceOrderResponse>> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    if (!token) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    const response = await apiClient.post<IPlaceOrderResponse>(
+      API_ENDPOINTS.CHECKOUT.PLACE_ORDER,
+      data,
+      { token }
+    );
+
+    return { success: true, data: response, message: "Order placed successfully" };
+  } catch (error) {
+    console.error("Place order error:", error);
+    const message = error instanceof Error ? error.message : "Failed to place order";
+    return { success: false, error: message };
+  }
+}
+
+export async function initiatePayment(data: IPaymentInitiateRequest): Promise<IActionResponse<IPaymentInitiateResponse>> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    if (!token) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    console.log("Initiating payment with payload:", JSON.stringify(data, null, 2));
+
+    const response = await apiClient.post<IPaymentInitiateResponse>(
+      API_ENDPOINTS.PAYMENT.INITIATE,
+      data,
+      { token }
+    );
+
+    return { success: true, data: response, message: "Payment initiated" };
+  } catch (error) {
+    console.error("Initiate payment error:", error);
+    const message = error instanceof Error ? error.message : "Failed to initiate payment";
+    return { success: false, error: message };
+  }
+}

@@ -27,7 +27,7 @@ export const useCartIdStore = create<CartIdState>()(
 
 export function useAddToCart() {
   const queryClient = useQueryClient();
-  const { cartId, setCartId } = useCartIdStore();
+  const { setCartId } = useCartIdStore();
 
   return useMutation({
     mutationFn: async (data: IAddToCartRequest) => {
@@ -38,59 +38,52 @@ export function useAddToCart() {
       return result.data!;
     },
     onSuccess: (data) => {
-      // Save cart_id if we don't have one or if it changed
-      if (data.item?.cart_id) {
-        setCartId(data.item.cart_id);
-        queryClient.invalidateQueries({ queryKey: ['cart', data.item.cart_id] });
-      } else if (cartId) {
-        queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
+      // Save cart_id if available, though we might not need it for fetching anymore
+      if (data.data?.cart_id) {
+        setCartId(data.data.cart_id);
       }
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 }
 
 export function useCart() {
-  const { cartId } = useCartIdStore();
-
   return useQuery({
-    queryKey: ['cart', cartId],
+    queryKey: ['cart'],
     queryFn: async () => {
-      if (!cartId) return null;
-      
-      const result = await getCart(cartId);
+      const result = await getCart();
       if (!result.success) {
+        // If authentication required, we might want to return null or handle it gracefully
+        // For now, we'll throw to let the UI handle error state or retry
+        if (result.error === "Authentication required") return null;
         throw new Error(result.error || "Failed to fetch cart");
       }
       return result.data!;
     },
-    enabled: !!cartId,
     staleTime: 30 * 1000, // 30 seconds
+    retry: false, // Don't retry if it fails (e.g. auth error)
   });
 }
 
 export function useUpdateCartItem() {
   const queryClient = useQueryClient();
-  const { cartId } = useCartIdStore();
 
   return useMutation({
-    mutationFn: async (data: { productId: string; quantity: number; price: number }) => {
-      const result = await updateCartItem(data);
+    mutationFn: async (data: { cartItemId: string; quantity: number }) => {
+      const result = await updateCartItem(data.cartItemId, data.quantity);
       if (!result.success) {
         throw new Error(result.error || "Failed to update cart item");
       }
       return result.data!;
     },
     onSuccess: () => {
-      if (cartId) {
-        queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 }
 
 export function useRemoveCartItem() {
   const queryClient = useQueryClient();
-  const { cartId } = useCartIdStore();
 
   return useMutation({
     mutationFn: async (itemId: string) => {
@@ -101,9 +94,7 @@ export function useRemoveCartItem() {
       return result;
     },
     onSuccess: () => {
-      if (cartId) {
-        queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 }
@@ -112,8 +103,9 @@ export function useRemoveCartItem() {
 export function useCartItemCount() {
   const { data: cartData } = useCart();
   
-  // New response structure: items is directly in the response
-  const itemCount = cartData?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+  // New response structure: data.items
+  const items = cartData?.data?.items || [];
+  const itemCount = items.reduce((total, item) => total + item.quantity, 0);
   
   return itemCount;
 }
@@ -122,11 +114,12 @@ export function useCartItemCount() {
 export function useIsProductInCart(productId: string) {
   const { data: cartData } = useCart();
   
-  const isInCart = cartData?.items?.some(
-    (item) => typeof item.product_id === 'object' 
-      ? item.product_id._id === productId 
-      : item.product_id === productId
-  ) || false;
+  const items = cartData?.data?.items || [];
+  const isInCart = items.some(
+    (item) => typeof item.product === 'object' 
+      ? item.product._id === productId 
+      : item.product === productId
+  );
   
   return isInCart;
 }

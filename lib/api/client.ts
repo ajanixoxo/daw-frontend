@@ -143,14 +143,14 @@ export const API_ENDPOINTS = {
     GET_PRODUCTS_BY_SHOP: (shopId: string) => `/marketplace/get/products/shop/${shopId}`,
     ADD_PRODUCT: "/marketplace/add/products",
     GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
-    GET_ALL_ORDERS: "/marketplace/get/all/orders",
+    GET_ALL_ORDERS: "/marketplace/get/orders",
     GET_ORDERS_BY_SHOP: (shopId: string) => `/marketplace/get/orders/shop/${shopId}`,
   },
   CART: {
-    ADD_ITEM: "/marketplace/cart/item",
-    GET_CART: (cartId: string) => `/marketplace/cart/${cartId}`,
-    UPDATE_ITEM: "/marketplace/cart/item",
-    REMOVE_ITEM: "/marketplace/remove/cart/item",
+    ADD_ITEM: "/marketplace/cart",
+    GET_CART: "/marketplace/cart",
+    UPDATE_ITEM: (cartItemId: string) => `/marketplace/cart/${cartItemId}`,
+    REMOVE_ITEM: (cartItemId: string) => `/marketplace/cart/${cartItemId}`,
   },
   WISHLIST: {
     ADD: "/marketplace/wishlist",
@@ -170,5 +170,11 @@ export const API_ENDPOINTS = {
   },
   USERS: {
     UPGRADE_SELLER: (userId: string) => `/api/users/${userId}/upgrade/seller`,
+  },
+  CHECKOUT: {
+    PLACE_ORDER: "/marketplace/place/orders",
+  },
+  PAYMENT: {
+    INITIATE: "/api/payment/initiate",
   },
 } as const;

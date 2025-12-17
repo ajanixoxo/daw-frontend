@@ -15,7 +15,7 @@ export function FavoritesView() {
 
   const handleAddToCart = (product: any) => {
     addToCart(
-      { productId: product._id, quantity: 1, price: product.price },
+      { productId: product._id, quantity: 1 },
       {
         onSuccess: () => {
           toast.success("Added to cart");

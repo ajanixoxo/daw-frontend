@@ -54,7 +54,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
   const handleAddToCart = () => {
     addToCart(
-      { productId: product._id, quantity, price: product.price },
+      { productId: product._id, quantity },
       {
         onSuccess: () => {
           toast.success("Added to cart successfully");

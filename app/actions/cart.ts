@@ -22,7 +22,6 @@ export async function addToCart(data: IAddToCartRequest): Promise<IActionRespons
     const payload = {
       product_id: data.productId,
       quantity: data.quantity,
-      price: data.price
     };
 
     const response = await apiClient.post<IAddToCartResponse>(
@@ -40,7 +39,7 @@ export async function addToCart(data: IAddToCartRequest): Promise<IActionRespons
   }
 }
 
-export async function getCart(cartId: string): Promise<IActionResponse<ICartResponse>> {
+export async function getCart(): Promise<IActionResponse<ICartResponse>> {
   try {
     const session = await getServerSession();
     const token = session?.accessToken;
@@ -50,7 +49,7 @@ export async function getCart(cartId: string): Promise<IActionResponse<ICartResp
     }
 
     const response = await apiClient.get<ICartResponse>(
-      API_ENDPOINTS.CART.GET_CART(cartId),
+      API_ENDPOINTS.CART.GET_CART,
       { token }
     );
 
@@ -62,7 +61,7 @@ export async function getCart(cartId: string): Promise<IActionResponse<ICartResp
   }
 }
 
-export async function updateCartItem(data: { productId: string; quantity: number; price: number }): Promise<IActionResponse<IAddToCartResponse>> {
+export async function updateCartItem(cartItemId: string, quantity: number): Promise<IActionResponse<IAddToCartResponse>> {
   try {
     const session = await getServerSession();
     const token = session?.accessToken;
@@ -72,13 +71,11 @@ export async function updateCartItem(data: { productId: string; quantity: number
     }
 
     const payload = {
-      product_id: data.productId,
-      quantity: data.quantity,
-      price: data.price
+      quantity: quantity
     };
 
     const response = await apiClient.put<IAddToCartResponse>(
-      API_ENDPOINTS.CART.UPDATE_ITEM,
+      API_ENDPOINTS.CART.UPDATE_ITEM(cartItemId),
       payload,
       { token }
     );
@@ -102,8 +99,8 @@ export async function removeCartItem(itemId: string): Promise<IActionResponse> {
     }
 
     await apiClient.delete(
-      API_ENDPOINTS.CART.REMOVE_ITEM,
-      { cart_item_id: itemId },
+      API_ENDPOINTS.CART.REMOVE_ITEM(itemId),
+      {},
       { token }
     );
 
