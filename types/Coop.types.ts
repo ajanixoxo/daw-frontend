@@ -6,4 +6,6 @@ export interface JoinCooperativePayload {
   subscriptionTierId: string;
 }
 
-export interface ICooperative {}
+export interface ICooperative {
+  adminId: string | undefined;
+}

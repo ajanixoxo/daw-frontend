@@ -188,7 +188,7 @@ export const API_ENDPOINTS = {
       `/api/tiers/cooperative/${cooperativeId}`,
     // GET_BY_ID: (tierId: string) => `/api/subscription-tiers/${tierId}`,
     CREATE_TIER: "/api/tiers",
-    UPDATE: (tierId: string) => `/api/subscription-tiers/${tierId}`,
+    UPDATE: (tierId: string) => `/api/tiers/${tierId}`,
     // DELETE: (tierId: string) => `/api/subscription-tiers/${tierId}`,
   },
 } as const;
