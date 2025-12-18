@@ -91,7 +91,7 @@ export function PaymentSuccess() {
   const orderItems = (orderData as any)?.orderItems || [];
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white rounded-[40px] shadow-[0_10px_50px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden my-10">
+    <div className="w-full max-w-5xl mx-auto  bg-white rounded-[40px] shadow-[0_10px_50px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden my-18">
       <div className="p-8 md:p-16">
         {/* Success Header */}
         <div className="flex flex-col items-center text-center mb-12">
