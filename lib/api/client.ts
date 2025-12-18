@@ -140,11 +140,13 @@ export const API_ENDPOINTS = {
   MARKETPLACE: {
     GET_ALL_PRODUCTS: "/marketplace/get/all/products",
     GET_PRODUCT: (id: string) => `/marketplace/get/products/${id}`,
-    GET_PRODUCTS_BY_SHOP: (shopId: string) => `/marketplace/get/products/shop/${shopId}`,
+    GET_PRODUCTS_BY_SHOP: (shopId: string) =>
+      `/marketplace/get/products/shop/${shopId}`,
     ADD_PRODUCT: "/marketplace/add/products",
     GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
     GET_ALL_ORDERS: "/marketplace/get/all/orders",
-    GET_ORDERS_BY_SHOP: (shopId: string) => `/marketplace/get/orders/shop/${shopId}`,
+    GET_ORDERS_BY_SHOP: (shopId: string) =>
+      `/marketplace/get/orders/shop/${shopId}`,
   },
   CART: {
     ADD_ITEM: "/marketplace/cart/item",
@@ -170,5 +172,23 @@ export const API_ENDPOINTS = {
   },
   USERS: {
     UPGRADE_SELLER: (userId: string) => `/api/users/${userId}/upgrade/seller`,
+    UPDATE_USER: (memberId: string) => `/api/members/approve/${memberId}`,
+  },
+  COOPERATIVES: {
+    GET_ALL: "/api/cooperatives",
+    GET_BY_ID: (cooperativeId: string) => `/api/cooperatives/${cooperativeId}`,
+    JOIN: "/api/members/join",
+    GET_ALL_USER: (cooperativeId: string) =>
+      `/api/members/cooperative/${cooperativeId}`,
+    CREATE_COOP: "api/cooperatives",
+  },
+
+  SUBSCRIPTION_TIERS: {
+    GET_ALL: (cooperativeId: string) =>
+      `/api/tiers/cooperative/${cooperativeId}`,
+    // GET_BY_ID: (tierId: string) => `/api/subscription-tiers/${tierId}`,
+    CREATE_TIER: "/api/tiers",
+    UPDATE: (tierId: string) => `/api/subscription-tiers/${tierId}`,
+    // DELETE: (tierId: string) => `/api/subscription-tiers/${tierId}`,
   },
 } as const;

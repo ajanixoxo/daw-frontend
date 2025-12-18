@@ -5,27 +5,13 @@ import { useFetchMembers } from "@/hooks/useMember";
 import { Users, ShoppingBag, Clock, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
 
-export function MembersStats() {
-  const { members, fetchAllMembers, loading } = useFetchMembers();
-
-  useEffect(() => {
-    fetchAllMembers("6940311dd9b9141819c58938");
-  }, []);
-
-  const totalMembers = members.length;
-
-  const activeSellers = members.filter((m) =>
-    m.userId?.roles?.includes("seller")
-  ).length;
-
-  const pendingInvites = members.filter(
-    (m) => m.userId?.status !== "active"
-  ).length;
+export function MemberStats() {
+  // const { members, fetchAllMembers, loading } = useFetchMembers();
 
   const stats = [
     {
       title: "Total Members",
-      value: totalMembers,
+      value: 12,
       change: "Updated live",
       changeType: "positive",
       icon: Users,
@@ -34,7 +20,7 @@ export function MembersStats() {
     },
     {
       title: "Active Sellers",
-      value: activeSellers,
+      value: 12,
       change: "Verified sellers",
       changeType: "positive",
       icon: ShoppingBag,
@@ -43,7 +29,7 @@ export function MembersStats() {
     },
     {
       title: "Pending Invites",
-      value: pendingInvites,
+      value: 12,
       change: "Requires attention",
       changeType: "neutral",
       icon: Clock,
@@ -52,13 +38,13 @@ export function MembersStats() {
     },
   ];
 
-  if (loading) return <p>Loading stats...</p>;
+  //   if (loading) return <p>Loading stats...</p>;
 
   return (
     <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {stats.map((stat) => (
-        <Card key={stat.title} className="border-[#e4e7ec] bg-white">
-          <CardContent className="p-6">
+        <Card key={stat.title} className="border-[#e4e7ec] bg-white p-0">
+          <CardContent className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <p className="text-sm text-[#838794]">{stat.title}</p>

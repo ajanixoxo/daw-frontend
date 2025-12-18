@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,104 +13,104 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useFetchMembers } from "@/hooks/useMember";
 
-// const members = [
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Cancelled",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Pending",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Pending",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Pending",
-//   },
-//   {
-//     id: "20",
-//     name: "Lagos Artisan Network",
-//     description: "Supporting local artisans...",
-//     email: "Favour Princewill",
-//     emailSecondary: "princewillfavour17@gmail.com",
-//     role: "Lagos, NG",
-//     regDate: "$120,000.00",
-//     totalSales: "Shirt",
-//     status: "Cancelled",
-//   },
-//   {
-//     id: "20",
-//     name: "Lagos Artisan Network",
-//     description: "Supporting local artisans...",
-//     email: "Favour Princewill",
-//     emailSecondary: "princewillfavour17@gmail.com",
-//     role: "Lagos, NG",
-//     regDate: "$120,000.00",
-//     totalSales: "Shirt",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "20",
-//     name: "Lagos Artisan Network",
-//     description: "Supporting local artisans...",
-//     email: "Favour Princewill",
-//     emailSecondary: "princewillfavour17@gmail.com",
-//     role: "Lagos, NG",
-//     regDate: "$120,000.00",
-//     totalSales: "Shirt",
-//     status: "Pending",
-//   },
-// ];
+const members = [
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Shipped",
+  },
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Cancelled",
+  },
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Pending",
+  },
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Shipped",
+  },
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Pending",
+  },
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Shipped",
+  },
+  {
+    id: "DAW001",
+    name: "Amina Hassan",
+    email: "princewillfavour17@gmail.com",
+    role: "Seller",
+    regDate: "7 Apr, 2025",
+    totalSales: "$127.70",
+    status: "Pending",
+  },
+  {
+    id: "20",
+    name: "Lagos Artisan Network",
+    description: "Supporting local artisans...",
+    email: "Favour Princewill",
+    emailSecondary: "princewillfavour17@gmail.com",
+    role: "Lagos, NG",
+    regDate: "$120,000.00",
+    totalSales: "Shirt",
+    status: "Cancelled",
+  },
+  {
+    id: "20",
+    name: "Lagos Artisan Network",
+    description: "Supporting local artisans...",
+    email: "Favour Princewill",
+    emailSecondary: "princewillfavour17@gmail.com",
+    role: "Lagos, NG",
+    regDate: "$120,000.00",
+    totalSales: "Shirt",
+    status: "Shipped",
+  },
+  {
+    id: "20",
+    name: "Lagos Artisan Network",
+    description: "Supporting local artisans...",
+    email: "Favour Princewill",
+    emailSecondary: "princewillfavour17@gmail.com",
+    role: "Lagos, NG",
+    regDate: "$120,000.00",
+    totalSales: "Shirt",
+    status: "Pending",
+  },
+];
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -125,15 +125,15 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export function MembersList() {
+export function ContributionList() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { members, fetchAllMembers, loading, error } = useFetchMembers();
+  // const { members, fetchAllMembers, loading, error } = useFetchMembers();
 
-  useEffect(() => {
-    fetchAllMembers("6940311dd9b9141819c58938");
-  }, []);
-  console.log("members", members);
+  // useEffect(() => {
+  //   fetchAllMembers("6940311dd9b9141819c58938");
+  // }, []);
+  // console.log("members", members);
   return (
     <Card className="border-[#e4e7ec] bg-white">
       <CardHeader className="border-b border-[#e4e7ec] px-4 py-4 sm:px-6">
@@ -194,58 +194,57 @@ export function MembersList() {
             </thead>
             <tbody className="divide-y divide-[#e4e7ec]">
               {members.length > 0 ? (
-                members.map((member) => (
-                  <tr key={member._id} className="hover:bg-[#f9fafb]">
-                    {/* DAW ID */}
+                members.map((member, index) => (
+                  <tr key={index} className="hover:bg-[#f9fafb]">
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.userId?._id}
+                      {member.id}
                     </td>
-
-                    {/* Name */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-sm font-medium text-[#973bfe]">
-                          {member.userId?.firstName?.[0]}
+                          M
                         </div>
-                        <p className="text-sm font-medium text-[#1d1d2a]">
-                          {member.userId?.firstName} {member.userId?.lastName}
-                        </p>
+                        <div>
+                          <p className="text-sm font-medium text-[#1d1d2a]">
+                            {member.name}
+                          </p>
+                          {member.description && (
+                            <p className="text-xs text-[#838794]">
+                              {member.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </td>
-
-                    {/* Email */}
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="text-sm text-[#1d1d2a]">{member.email}</p>
+                        {member.emailSecondary && (
+                          <p className="text-xs text-[#838794]">
+                            {member.emailSecondary}
+                          </p>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.userId?.email}
+                      {member.role}
                     </td>
-
-                    {/* Role */}
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.userId?.roles?.join(", ")}
+                      {member.regDate}
                     </td>
-
-                    <td className="text-[#1d1d2a]">
-                      {member.joinDate
-                        ? new Date(member.joinDate).toLocaleDateString()
-                        : "—"}
-                    </td>
-
                     <td className="px-6 py-4 text-sm font-medium text-[#1d1d2a]">
-                      ₹{member.monthlyContribution}
+                      {member.totalSales}
                     </td>
-
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
-                          member.status === "active"
-                            ? "bg-[#e7f6ec] text-[#009a49]"
-                            : "bg-[#ffeaea] text-[#d92d20]"
-                        }`}
+                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
+                          member.status
+                        )}`}
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
                         {member.status}
                       </span>
                     </td>
-
                     <td className="px-6 py-4">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -282,30 +281,27 @@ export function MembersList() {
           </table>
         </div>
 
+        {/* Mobile Card View */}
         <div className="divide-y divide-[#e4e7ec] lg:hidden">
           {members.map((member, index) => (
-            <div key={member._id ?? index} className="p-4">
+            <div key={index} className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-sm font-medium text-[#973bfe]">
-                    {member.userId?.firstName?.[0] ?? "M"}
+                    M
                   </div>
-
                   <div className="flex-1">
                     <p className="text-sm font-medium text-[#1d1d2a]">
-                      {member.userId?.firstName} {member.userId?.lastName}
+                      {member.name}
                     </p>
-
                     {member.description && (
                       <p className="text-xs text-[#838794]">
                         {member.description}
                       </p>
                     )}
-
                     <p className="mt-1 text-xs text-[#838794]">
-                      {member.userId?.email}
+                      {member.email}
                     </p>
-
                     {member.emailSecondary && (
                       <p className="text-xs text-[#838794]">
                         {member.emailSecondary}
@@ -313,7 +309,6 @@ export function MembersList() {
                     )}
                   </div>
                 </div>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -323,44 +318,32 @@ export function MembersList() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>View Details</DropdownMenuItem>
                     <DropdownMenuItem>Edit Member</DropdownMenuItem>
-
-                    {member.userId.status !== "active" && (
-                      <DropdownMenuItem>Appprove Member</DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem className="text-red-600">
+                      Remove Member
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-[#838794]">ID: </span>
-                  <span className="text-[#1d1d2a]">{member.userId?._id}</span>
+                  <span className="text-[#1d1d2a]">{member.id}</span>
                 </div>
-
                 <div>
                   <span className="text-[#838794]">Role: </span>
-                  <span className="text-[#1d1d2a]">
-                    {member.userId?.roles?.join(", ")}
-                  </span>
+                  <span className="text-[#1d1d2a]">{member.role}</span>
                 </div>
-
                 <div>
                   <span className="text-[#838794]">Date: </span>
-                  <span className="text-[#1d1d2a]">
-                    {member.joinDate
-                      ? new Date(member.joinDate).toLocaleDateString()
-                      : "—"}
-                  </span>
+                  <span className="text-[#1d1d2a]">{member.regDate}</span>
                 </div>
-
                 <div>
                   <span className="text-[#838794]">Sales: </span>
                   <span className="font-medium text-[#1d1d2a]">
-                    ₹{member.monthlyContribution}
+                    {member.totalSales}
                   </span>
                 </div>
               </div>
-
               <div className="mt-3">
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
