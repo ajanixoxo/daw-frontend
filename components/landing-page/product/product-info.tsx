@@ -38,11 +38,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const isInWishlist = useIsProductInWishlist(product._id);
   const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
 
-  const { data: reviews } = useReviews(product._id);
-  const reviewCount = reviews?.length || 0;
+  const { data: reviewsData } = useReviews(product._id);
+  const reviewCount = reviewsData?.pagination.total || 0;
   const averageRating =
-    reviews && reviews.length > 0
-      ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+    reviewsData && reviewsData.pagination.total > 0
+      ? Object.entries(reviewsData.rating_distribution).reduce(
+          (acc, [rating, count]) => acc + Number(rating) * count,
+          0
+        ) / reviewsData.pagination.total
       : 5;
 
   const handleQuantityChange = (delta: number) => {

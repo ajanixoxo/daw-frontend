@@ -11,7 +11,7 @@ export function useReviews(productId: string) {
       if (!response.success) {
         throw new Error(response.error);
       }
-      return response.data?.reviews || [];
+      return response.data?.data;
     },
     enabled: !!productId,
   });
