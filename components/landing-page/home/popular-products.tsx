@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Star,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { usePopularProducts } from "@/hooks/useProducts";
 import { useAddToCart, useIsProductInCart } from "@/hooks/useCart";
 import {
@@ -21,6 +22,8 @@ import type { IProduct } from "@/types/product.types";
 import { cn } from "@/lib/utils";
 
 export function PopularProducts() {
+  const pathname = usePathname();
+  const isMarketplace = pathname === "/marketplace";
   const { data, isLoading, error } = usePopularProducts(8);
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
   const [addingProductId, setAddingProductId] = useState<string | null>(null);
@@ -69,13 +72,15 @@ export function PopularProducts() {
         <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#222222]">
           Popular Products
         </h2>
-        <Link
-          href="/marketplace"
-          className="flex items-center gap-2 text-[#f10e7c] font-medium text-sm hover:gap-3 transition-all"
-        >
-          View More
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        {!isMarketplace && (
+          <Link
+            href="/marketplace"
+            className="flex items-center gap-2 text-[#f10e7c] font-medium text-sm hover:gap-3 transition-all"
+          >
+            View More
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
       </div>
 
       {/* Loading State */}
