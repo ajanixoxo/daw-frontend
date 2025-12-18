@@ -261,34 +261,34 @@ function ProductCard({ product }: { product: IProduct }) {
           View Details
         </Link>
 
-        <button
-          onClick={handleAddToCart}
-          disabled={
-            isAddingToCart ||
-            product.status !== "available" ||
-            product.quantity === 0
-          }
-          className={cn(
-            "w-full py-3 text-sm font-medium rounded-full transition-all flex items-center justify-center gap-2",
-            isInCart || justAdded
-              ? "bg-[#009a49] text-white hover:bg-[#008a3f]"
-              : "bg-[#222222] text-white hover:bg-[#333333]"
-          )}
-        >
-          {isAddingToCart ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : isInCart || justAdded ? (
-            <>
-              <ShoppingCart className="w-4 h-4" />
-              In Cart
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-4 h-4" />
-              Add to Cart
-            </>
-          )}
-        </button>
+        {isInCart || justAdded ? (
+          <Link
+            href="/cart"
+            className="w-full py-3 text-sm font-medium rounded-full transition-all flex items-center justify-center gap-2 bg-[#009a49] text-white hover:bg-[#008a3f]"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Go to Cart
+          </Link>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            disabled={
+              isAddingToCart ||
+              product.status !== "available" ||
+              product.quantity === 0
+            }
+            className="w-full py-3 text-sm font-medium rounded-full transition-all flex items-center justify-center gap-2 bg-[#222222] text-white hover:bg-[#333333]"
+          >
+            {isAddingToCart ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" />
+                Add to Cart
+              </>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
