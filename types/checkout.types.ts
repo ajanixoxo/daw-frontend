@@ -53,3 +53,36 @@ export interface IPaymentInitiateResponse {
   reference: string;
   paymentId: string;
 }
+
+export interface IPaymentVerifyResponse {
+  success: boolean;
+  status: string;
+  payment: {
+    _id: string;
+    userId: string;
+    amount: number;
+    description: string;
+    currency: string;
+    transactionReference: string;
+    redirectUrl: string;
+    channel: string;
+    vigipayStatus: string;
+    amountAfterCharge: number;
+    charge: number;
+    rawResponse: any;
+    orderId: string;
+    name: string;
+    email: string;
+    phone: string;
+    country: string;
+    state: string;
+    city: string;
+    address: string[];
+    zipCode: string;
+    logisticsInfo: string;
+    DeliveryAddress: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+}

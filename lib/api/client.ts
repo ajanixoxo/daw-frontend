@@ -176,5 +176,6 @@ export const API_ENDPOINTS = {
   },
   PAYMENT: {
     INITIATE: "/api/payment/initiate",
+    VERIFY: (reference: string) => `/api/payment/verify/${reference}`,
   },
 } as const;

@@ -7,7 +7,8 @@ import {
   IPlaceOrderRequest, 
   IPlaceOrderResponse, 
   IPaymentInitiateRequest, 
-  IPaymentInitiateResponse 
+  IPaymentInitiateResponse,
+  IPaymentVerifyResponse
 } from "@/types/checkout.types";
 
 export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionResponse<IPlaceOrderResponse>> {
@@ -54,6 +55,30 @@ export async function initiatePayment(data: IPaymentInitiateRequest): Promise<IA
   } catch (error) {
     console.error("Initiate payment error:", error);
     const message = error instanceof Error ? error.message : "Failed to initiate payment";
+    return { success: false, error: message };
+  }
+}
+
+export async function verifyPayment(reference: string): Promise<IActionResponse<IPaymentVerifyResponse>> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    if (!token) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    console.log("Verifying payment with reference:", reference);
+
+    const response = await apiClient.get<IPaymentVerifyResponse>(
+      API_ENDPOINTS.PAYMENT.VERIFY(reference),
+      { token }
+    );
+
+    return { success: true, data: response, message: "Payment verified successfully" };
+  } catch (error) {
+    console.error("Verify payment error:", error);
+    const message = error instanceof Error ? error.message : "Failed to verify payment";
     return { success: false, error: message };
   }
 }
