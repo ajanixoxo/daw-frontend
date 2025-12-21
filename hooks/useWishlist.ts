@@ -15,12 +15,15 @@ export function useWishlist() {
         throw new Error(response.error);
       }
       
-      const items = response.data?.items || [];
+      // The response.data is the IWishlistResponse object, which contains the 'data' array
+      const items = response.data?.data || [];
       console.log("Wishlist items:", items);
       return items;
     },
   });
 }
+
+// ... (previous code)
 
 export function useAddToWishlist() {
   const queryClient = useQueryClient();
@@ -78,8 +81,8 @@ export function useIsProductInWishlist(productId: string) {
   if (!wishlistItems) return false;
   
   // Check if any item in the wishlist matches the product ID
-  // The backend returns an array of items, each having a product_id object which contains the _id
-  const isInWishlist = wishlistItems.some((item) => item.product_id?._id === productId);
+  // The backend returns an array of items, each having a product object which contains the _id
+  const isInWishlist = wishlistItems.some((item) => item.product?._id === productId);
   
   // console.log(`Checking if product ${productId} is in wishlist:`, isInWishlist);
   return isInWishlist;

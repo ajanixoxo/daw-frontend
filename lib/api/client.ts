@@ -144,20 +144,19 @@ export const API_ENDPOINTS = {
       `/marketplace/get/products/shop/${shopId}`,
     ADD_PRODUCT: "/marketplace/add/products",
     GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
-    GET_ALL_ORDERS: "/marketplace/get/all/orders",
-    GET_ORDERS_BY_SHOP: (shopId: string) =>
-      `/marketplace/get/orders/shop/${shopId}`,
+    GET_ALL_ORDERS: "/marketplace/get/orders",
+    GET_ORDERS_BY_SHOP: (shopId: string) => `/marketplace/get/orders/shop/${shopId}`,
   },
   CART: {
-    ADD_ITEM: "/marketplace/cart/item",
-    GET_CART: (cartId: string) => `/marketplace/cart/${cartId}`,
-    UPDATE_ITEM: "/marketplace/cart/item",
-    REMOVE_ITEM: "/marketplace/remove/cart/item",
+    ADD_ITEM: "/marketplace/cart",
+    GET_CART: "/marketplace/cart",
+    UPDATE_ITEM: (cartItemId: string) => `/marketplace/cart/${cartItemId}`,
+    REMOVE_ITEM: (cartItemId: string) => `/marketplace/cart/${cartItemId}`,
   },
   WISHLIST: {
     ADD: "/marketplace/wishlist",
     GET: "/marketplace/wishlist",
-    REMOVE: "/marketplace/remove/wishlist",
+    REMOVE: (productId: string) => `/marketplace/wishlist/${productId}`,
   },
   REVIEWS: {
     CREATE: "/marketplace/reviews",
@@ -172,23 +171,12 @@ export const API_ENDPOINTS = {
   },
   USERS: {
     UPGRADE_SELLER: (userId: string) => `/api/users/${userId}/upgrade/seller`,
-    UPDATE_USER: (memberId: string) => `/api/members/approve/${memberId}`,
   },
-  COOPERATIVES: {
-    GET_ALL: "/api/cooperatives",
-    GET_BY_ID: (cooperativeId: string) => `/api/cooperatives/${cooperativeId}`,
-    JOIN: "/api/members/join",
-    GET_ALL_USER: (cooperativeId: string) =>
-      `/api/members/cooperative/${cooperativeId}`,
-    CREATE_COOP: "api/cooperatives",
+  CHECKOUT: {
+    PLACE_ORDER: "/marketplace/place/orders",
   },
-
-  SUBSCRIPTION_TIERS: {
-    GET_ALL: (cooperativeId: string) =>
-      `/api/tiers/cooperative/${cooperativeId}`,
-    // GET_BY_ID: (tierId: string) => `/api/subscription-tiers/${tierId}`,
-    CREATE_TIER: "/api/tiers",
-    UPDATE: (tierId: string) => `/api/tiers/${tierId}`,
-    // DELETE: (tierId: string) => `/api/subscription-tiers/${tierId}`,
+  PAYMENT: {
+    INITIATE: "/api/payment/initiate",
+    VERIFY: (reference: string) => `/api/payment/verify/${reference}`,
   },
 } as const;

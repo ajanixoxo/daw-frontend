@@ -3,15 +3,16 @@ import { IProduct } from "./product.types";
 
 export interface IWishlistItem {
   _id: string;
-  user_id: string;
-  product_id: IProduct;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
+  user_id?: string; // Optional as it might not be in the item object based on the snippet
+  product: IProduct;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export interface IWishlistResponse {
   success: boolean;
-  items: IWishlistItem[];
+  count: number;
+  data: IWishlistItem[];
   message?: string;
 }

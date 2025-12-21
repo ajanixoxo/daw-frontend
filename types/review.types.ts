@@ -2,7 +2,12 @@ import { IUser } from "./auth.types";
 
 export interface IReview {
   _id: string;
-  user_id: IUser;
+  user_id: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email?: string;
+  };
   product_id: string;
   rating: number;
   comment: string;
@@ -12,7 +17,18 @@ export interface IReview {
 
 export interface IReviewsResponse {
   success: boolean;
-  reviews: IReview[];
+  data: {
+    reviews: IReview[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+    rating_distribution: {
+      [key: string]: number;
+    };
+  };
 }
 
 export interface ICreateReviewRequest {

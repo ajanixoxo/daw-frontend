@@ -9,6 +9,7 @@ export function middleware(request: NextRequest) {
     "/profile",
     "/cart",
     "/product", // This will match /product/[id]
+    "/checkout",
   ];
 
   // Check if the current path starts with any of the protected routes

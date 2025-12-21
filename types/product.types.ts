@@ -31,17 +31,17 @@ export interface ICart {
 export interface IAddToCartRequest {
   productId: string;
   quantity: number;
-  price: number;
 }
 
 export interface IAddToCartResponse {
   success: boolean;
-  item: {
+  message: string;
+  data: {
+    _id: string;
     cart_id: string;
-    product_id: string;
+    product_id: IProduct | string;
     quantity: number;
     price: number;
-    _id: string;
     createdAt: string;
     updatedAt: string;
     __v: number;
@@ -50,16 +50,20 @@ export interface IAddToCartResponse {
 
 export interface ICartResponse {
   success: boolean;
-  items: Array<{
-    _id: string;
+  data: {
     cart_id: string;
-    product_id: IProduct;
-    quantity: number;
-    price: number;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
-  }>;
+    items: Array<{
+      _id: string;
+      product: IProduct;
+      quantity: number;
+      price: number;
+      subtotal: number;
+      in_stock: boolean;
+      max_available: number;
+    }>;
+    total_items: number;
+    total_amount: number;
+  };
 }
 
 import { IShop } from './shop.types';

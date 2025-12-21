@@ -42,14 +42,14 @@ export function ProductTabs({ description, productId }: ProductTabsProps) {
   const [activeTab, setActiveTab] = useState<"description" | "feedback">(
     "description"
   );
-  const { data: reviews, isLoading: isLoadingReviews } = useReviews(productId);
+  const { data: reviewsData, isLoading: isLoadingReviews } =
+    useReviews(productId);
   const { mutate: createReview, isPending: isSubmitting } = useCreateReview();
-
 
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [title, setTitle] = useState(""); 
+  const [title, setTitle] = useState("");
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +84,7 @@ export function ProductTabs({ description, productId }: ProductTabsProps) {
   };
 
   return (
-    <div className="mt-16">
+    <div className="mt-16 md:p-20 p-8">
       {/* Tab Headers */}
       <div className="flex justify-center border-b border-gray-100 mb-8">
         <div className="flex gap-8">
@@ -193,50 +193,123 @@ export function ProductTabs({ description, productId }: ProductTabsProps) {
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-8 h-8 animate-spin text-[#F10E7C]" />
                 </div>
-              ) : reviews && reviews.length > 0 ? (
-                <div className="space-y-8">
-                  {reviews.map((review) => (
-                    <div
-                      key={review._id}
-                      className="border-b border-gray-100 last:border-0 pb-8 last:pb-0"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
-                            {/* Avatar placeholder */}
-                            <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm font-medium uppercase">
-                              {review.user_id?.firstName?.charAt(0) || "U"}
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-[#222]">
-                              {review.user_id?.firstName}{" "}
-                              {review.user_id?.lastName}
-                            </h4>
-                            <div className="flex gap-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={cn(
-                                    "w-3 h-3",
-                                    i < review.rating
-                                      ? "fill-[#F10E7C] text-[#F10E7C]"
-                                      : "text-gray-300"
-                                  )}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-xs text-gray-400">
-                          {timeAgo(review.createdAt)}
-                        </span>
+              ) : reviewsData?.reviews && reviewsData.reviews.length > 0 ? (
+                <div className="space-y-12">
+                  {/* Rating Summary */}
+                  <div className="flex flex-col md:flex-row gap-8 items-center bg-gray-50 p-8 rounded-3xl border border-gray-100">
+                    <div className="text-center">
+                      <div className="text-5xl font-bold text-[#222] mb-2">
+                        {(
+                          Object.entries(
+                            reviewsData.rating_distribution
+                          ).reduce(
+                            (acc, [rating, count]) =>
+                              acc + Number(rating) * count,
+                            0
+                          ) / reviewsData.pagination.total || 0
+                        ).toFixed(1)}
                       </div>
-                      <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
-                        {review.comment}
-                      </p>
+                      <div className="flex gap-1 justify-center mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={cn(
+                              "w-4 h-4",
+                              i <
+                                Math.round(
+                                  Object.entries(
+                                    reviewsData.rating_distribution
+                                  ).reduce(
+                                    (acc, [rating, count]) =>
+                                      acc + Number(rating) * count,
+                                    0
+                                  ) / reviewsData.pagination.total || 0
+                                )
+                                ? "fill-[#F10E7C] text-[#F10E7C]"
+                                : "text-gray-300"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {reviewsData.pagination.total} Reviews
+                      </div>
                     </div>
-                  ))}
+
+                    <div className="flex-1 space-y-2 w-full">
+                      {[5, 4, 3, 2, 1].map((star) => {
+                        const count =
+                          reviewsData.rating_distribution[star] || 0;
+                        const percentage =
+                          (count / reviewsData.pagination.total) * 100 || 0;
+                        return (
+                          <div
+                            key={star}
+                            className="flex items-center gap-4 text-sm"
+                          >
+                            <div className="flex items-center gap-1 w-12">
+                              <span className="font-medium">{star}</span>
+                              <Star className="w-3 h-3 fill-gray-400 text-gray-400" />
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-[#F10E7C]"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <div className="w-10 text-right text-gray-500">
+                              {count}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    {reviewsData.reviews.map((review) => (
+                      <div
+                        key={review._id}
+                        className="border-b border-gray-100 last:border-0 pb-8 last:pb-0"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+                              {/* Avatar placeholder */}
+                              <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm font-medium uppercase">
+                                {review.user_id?.firstName?.charAt(0) || "U"}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-[#222]">
+                                {review.user_id?.firstName}{" "}
+                                {review.user_id?.lastName}
+                              </h4>
+                              <div className="flex gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={cn(
+                                      "w-3 h-3",
+                                      i < review.rating
+                                        ? "fill-[#F10E7C] text-[#F10E7C]"
+                                        : "text-gray-300"
+                                    )}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            {timeAgo(review.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                          {review.comment}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">

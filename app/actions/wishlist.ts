@@ -44,8 +44,8 @@ export async function removeFromWishlist(productId: string): Promise<IActionResp
 
     // Using DELETE method as per pattern seen in cart removal
     await apiClient.delete(
-      API_ENDPOINTS.WISHLIST.REMOVE,
-      { product_id: productId },
+      API_ENDPOINTS.WISHLIST.REMOVE(productId),
+      undefined,
       { token }
     );
 

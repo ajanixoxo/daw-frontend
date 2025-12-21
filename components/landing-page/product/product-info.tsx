@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { IProduct } from "@/types/product.types";
-import { useAddToCart } from "@/hooks/useCart";
+import { useAddToCart, useIsProductInCart } from "@/hooks/useCart";
 import {
   useAddToWishlist,
   useRemoveFromWishlist,
@@ -22,6 +22,7 @@ import {
 } from "@/hooks/useWishlist";
 import { useReviews } from "@/hooks/useReviews";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface ProductInfoProps {
   product: IProduct;
@@ -30,6 +31,7 @@ interface ProductInfoProps {
 export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
+  const isInCart = useIsProductInCart(product._id);
 
   const { mutate: addToWishlist, isPending: isAddingToWishlist } =
     useAddToWishlist();
@@ -38,11 +40,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const isInWishlist = useIsProductInWishlist(product._id);
   const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
 
-  const { data: reviews } = useReviews(product._id);
-  const reviewCount = reviews?.length || 0;
+  const { data: reviewsData } = useReviews(product._id);
+  const reviewCount = reviewsData?.pagination.total || 0;
   const averageRating =
-    reviews && reviews.length > 0
-      ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+    reviewsData && reviewsData.pagination.total > 0
+      ? Object.entries(reviewsData.rating_distribution).reduce(
+          (acc, [rating, count]) => acc + Number(rating) * count,
+          0
+        ) / reviewsData.pagination.total
       : 5;
 
   const handleQuantityChange = (delta: number) => {
@@ -54,7 +59,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
   const handleAddToCart = () => {
     addToCart(
-      { productId: product._id, quantity, price: product.price },
+      { productId: product._id, quantity },
       {
         onSuccess: () => {
           toast.success("Added to cart successfully");
@@ -171,14 +176,24 @@ export function ProductInfo({ product }: ProductInfoProps) {
           </button>
         </div>
 
-        <Button
-          onClick={handleAddToCart}
-          disabled={isAddingToCart || product.quantity === 0}
-          className="flex-1 h-12 rounded-full bg-[#222] hover:bg-[#333] text-white gap-2"
-        >
-          <ShoppingCart className="w-4 h-4" />
-          {isAddingToCart ? "Adding..." : "Add to Cart"}
-        </Button>
+        {isInCart ? (
+          <Link
+            href="/cart"
+            className="flex-1 h-12 rounded-full bg-[#009a49] hover:bg-[#008a3f] text-white flex items-center justify-center gap-2 transition-all shadow-md"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Go to Cart
+          </Link>
+        ) : (
+          <Button
+            onClick={handleAddToCart}
+            disabled={isAddingToCart || product.quantity === 0}
+            className="flex-1 h-12 rounded-full bg-[#222] hover:bg-[#333] text-white gap-2"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            {isAddingToCart ? "Adding..." : "Add to Cart"}
+          </Button>
+        )}
 
         <button
           onClick={toggleWishlist}
