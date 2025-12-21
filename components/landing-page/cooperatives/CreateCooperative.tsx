@@ -84,7 +84,11 @@ export default function CreateCooperativeForm() {
 
   const onSubmit = async (data: FormValues) => {
     console.log("formValue", data);
-    const res = await createCoop({ ...data, phone: data.phone });
+    const res = await createCoop({
+      ...data,
+      phone: data.phone,
+      countryCode: "",
+    });
     if (success) {
       alert("Cooperative created successfully");
       router.push("/cooperatives/create/create-tier");

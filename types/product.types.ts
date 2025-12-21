@@ -5,7 +5,7 @@ export interface IProduct {
   quantity: number;
   price: number;
   images: string[];
-  status: 'available' | 'unavailable' | 'out_of_stock';
+  status: "available" | "unavailable" | "out_of_stock";
   description?: string;
   category?: string;
   createdAt: string;
@@ -66,7 +66,7 @@ export interface ICartResponse {
   };
 }
 
-import { IShop } from './shop.types';
+import { IShop } from "./shop.types";
 
 export interface IOrder {
   _id: string;
@@ -74,9 +74,9 @@ export interface IOrder {
   shop_id: string | IShop;
   total_amount: number;
   discount: number;
-  escrow_status: 'pending' | 'completed' | 'released' | 'refunded';
-  payment_status: 'paid' | 'unpaid' | 'partial';
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  escrow_status: "pending" | "completed" | "released" | "refunded";
+  payment_status: "paid" | "unpaid" | "partial";
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: string;
   updatedAt: string;
   __v?: number;
@@ -100,7 +100,7 @@ export interface IAddProductRequest {
   description?: string;
   category?: string;
   images?: string[];
-  status?: 'available' | 'unavailable' | 'out_of_stock';
+  status?: "available" | "unavailable" | "out_of_stock";
 }
 
 export interface IAddProductResponse {

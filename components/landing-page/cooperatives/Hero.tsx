@@ -49,7 +49,7 @@ export default function Hero() {
           {/* CTA Buttons */}
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-5 w-full md:w-auto">
             <Link href="/cooperatives/join">
-              <button className="w-full md:w-auto flex items-center justify-center px-8 py-4 rounded-[40px] bg-[#222] text-white text-[18px] md:text-[20px] font-medium tracking-[-0.8px]">
+              <button className="w-full md:w-auto flex items-center justify-center px-8 py-4 rounded-[40px] cursor-pointer bg-[#222] text-white text-[18px] md:text-[20px] font-medium tracking-[-0.8px]">
                 Join DAW Cooperative
               </button>
             </Link>

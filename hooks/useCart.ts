@@ -1,10 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, API_ENDPOINTS } from '@/lib/api/client';
-import type { IAddToCartRequest, ICartResponse } from '@/types/product.types';
-import { addToCart, updateCartItem, removeCartItem, getCart } from '@/app/actions/cart';
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { toast } from 'sonner';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
+import type { IAddToCartRequest, ICartResponse } from "@/types/product.types";
+import {
+  addToCart,
+  updateCartItem,
+  removeCartItem,
+  getCart,
+} from "@/app/actions/cart";
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { toast } from "sonner";
 
 // Store for persisting cartId
 interface CartIdState {
@@ -19,7 +24,7 @@ export const useCartIdStore = create<CartIdState>()(
       setCartId: (cartId) => set({ cartId }),
     }),
     {
-      name: 'cart-id-storage',
+      name: "cart-id-storage",
       storage: createJSONStorage(() => localStorage),
     }
   )
@@ -42,14 +47,14 @@ export function useAddToCart() {
       if (data.data?.cart_id) {
         setCartId(data.data.cart_id);
       }
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 }
 
 export function useCart() {
   return useQuery({
-    queryKey: ['cart'],
+    queryKey: ["cart"],
     queryFn: async () => {
       const result = await getCart();
       if (!result.success) {
@@ -77,7 +82,7 @@ export function useUpdateCartItem() {
       return result.data!;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 }
@@ -94,7 +99,7 @@ export function useRemoveCartItem() {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 }
@@ -102,24 +107,24 @@ export function useRemoveCartItem() {
 // Helper function to get cart item count
 export function useCartItemCount() {
   const { data: cartData } = useCart();
-  
+
   // New response structure: data.items
   const items = cartData?.data?.items || [];
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
-  
+
   return itemCount;
 }
 
 // Helper function to check if product is in cart
 export function useIsProductInCart(productId: string) {
   const { data: cartData } = useCart();
-  
+
   const items = cartData?.data?.items || [];
-  const isInCart = items.some(
-    (item) => typeof item.product === 'object' 
-      ? item.product._id === productId 
+  const isInCart = items.some((item) =>
+    typeof item.product === "object"
+      ? item.product._id === productId
       : item.product === productId
   );
-  
+
   return isInCart;
 }

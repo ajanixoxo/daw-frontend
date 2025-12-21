@@ -1,4 +1,3 @@
-
 import { IProduct } from "./product.types";
 
 export interface IWishlistItem {

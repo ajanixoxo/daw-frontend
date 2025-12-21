@@ -46,7 +46,9 @@ export interface IUser {
   member?: IMember[]; // Array of member objects with cooperativeId
   createdAt?: string;
   updatedAt?: string;
+  avatar?: string; // <- add this line
 }
+
 
 export interface ILoginRequest {
   email: string;
