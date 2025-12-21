@@ -138,7 +138,7 @@ const JoinCooperative = () => {
             )}
 
             {/* TIERS */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {cooperative?.subscriptionTiers?.map((tier) => {
                 const isSelected = formDetails.subscriptionTierId === tier.id;
 
