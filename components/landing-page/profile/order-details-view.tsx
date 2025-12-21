@@ -48,12 +48,10 @@ export function OrderDetailsView({
   }
   */
 
-
   const subtotal = order.total_amount;
-  const shipping = 1500; 
-  const tax = subtotal * 0.075; 
-  const total = subtotal; 
-
+  const shipping = 1500;
+  const tax = subtotal * 0.075;
+  const total = subtotal;
 
   return (
     <div className="space-y-6">

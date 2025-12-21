@@ -8,6 +8,10 @@ export interface ISessionData {
 }
 
 export interface IMember {
+  emailSecondary: any;
+  description: any;
+  userId: any;
+  _id: string | null | undefined;
   memberId: string;
   cooperativeId: string;
   status: string;
