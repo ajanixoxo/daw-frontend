@@ -148,14 +148,15 @@ export const API_ENDPOINTS = {
   },
   CART: {
     ADD_ITEM: "/marketplace/cart/item",
-    GET_CART: (cartId: string) => `/marketplace/cart/${cartId}`,
-    UPDATE_ITEM: "/marketplace/cart/item",
-    REMOVE_ITEM: "/marketplace/remove/cart/item",
+    GET_CART: "/marketplace/cart",
+    GET_CART_BY_ID: (cartId: string) => `/marketplace/cart/${cartId}`,
+    UPDATE_ITEM: (itemId: string) => `/marketplace/cart/item/${itemId}`,
+    REMOVE_ITEM: (itemId: string) => `/marketplace/cart/${itemId}`,
   },
   WISHLIST: {
     ADD: "/marketplace/wishlist",
     GET: "/marketplace/wishlist",
-    REMOVE: "/marketplace/remove/wishlist",
+    REMOVE: (productId: string) => `/marketplace/wishlist/${productId}`,
   },
   REVIEWS: {
     CREATE: "/marketplace/reviews",
@@ -170,7 +171,7 @@ export const API_ENDPOINTS = {
   },
   USERS: {
     UPGRADE_SELLER: (userId: string) => `/api/users/${userId}/upgrade/seller`,
-    //UPDATE_USER: (memberId: string) => `/api/members/approve/${memberId}`,
+    UPDATE_USER: (memberId: string) => `/api/members/approve/${memberId}`,
   },
   COOPERATIVES: {
     GET_ALL: "/api/cooperatives",
@@ -188,5 +189,12 @@ export const API_ENDPOINTS = {
     CREATE_TIER: "/api/tiers",
     UPDATE: (tierId: string) => `/api/tiers/${tierId}`,
     // DELETE: (tierId: string) => `/api/subscription-tiers/${tierId}`,
+  },
+  CHECKOUT: {
+    PLACE_ORDER: "/marketplace/place/orders",
+  },
+  PAYMENT: {
+    INITIATE: "/marketplace/payment/initiate",
+    VERIFY: (reference: string) => `/marketplace/payment/verify/${reference}`,
   },
 } as const;
