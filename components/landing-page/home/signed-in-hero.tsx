@@ -107,9 +107,8 @@ const categories = [
 export function HeroSection() {
   return (
     <section className="px-4 md:px-8 lg:px-16 py-8 lg:py-32">
-           <Header />
+      <Header />
       <div className="relative mt-12 md:mt-4 rounded-3xl overflow-hidden min-h-[400px] md:min-h-[480px] lg:min-h-[520px]">
-       
         <Image
           src="/herobg.jpg"
           alt="Diverse group of women entrepreneurs"
@@ -120,22 +119,37 @@ export function HeroSection() {
 
         <div className="absolute inset-0 bg-gradient-to-r from-[#e8e8e8]/95 via-[#e8e8e8]/80 via-40% to-transparent" />
 
-       
         <div className="relative z-10 h-full min-h-[400px] md:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center p-8 md:p-12 lg:p-16 max-w-[500px]">
-       
           <div className="flex items-center gap-3 mb-8">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle cx="24" cy="24" r="5" fill="#e91e8c" />
               <g fill="#e91e8c">
                 {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
-                  <ellipse key={i} cx="24" cy="11" rx="3.5" ry="6" transform={`rotate(${angle} 24 24)`} />
+                  <ellipse
+                    key={i}
+                    cx="24"
+                    cy="11"
+                    rx="3.5"
+                    ry="6"
+                    transform={`rotate(${angle} 24 24)`}
+                  />
                 ))}
               </g>
             </svg>
             <div className="leading-tight">
-              <span className="text-[#e91e8c] font-medium text-sm">Digital</span>
+              <span className="text-[#e91e8c] font-medium text-sm">
+                Digital
+              </span>
               <br />
-              <span className="text-[#e91e8c] font-medium text-sm">African</span>
+              <span className="text-[#e91e8c] font-medium text-sm">
+                African
+              </span>
               <br />
               <span className="text-[#e91e8c] font-medium text-sm">Woman</span>
             </div>
@@ -150,7 +164,7 @@ export function HeroSection() {
 
           {/* CTA Button */}
           <Link
-            href="#"
+            href="/cooperatives/join"
             className="inline-flex items-center gap-2 bg-[#f10e7c] text-white px-8 py-4 rounded-full font-medium text-lg hover:bg-[#d10c6c] transition-colors w-fit"
           >
             Join DAW Cooperative
@@ -161,7 +175,9 @@ export function HeroSection() {
 
       {/* Popular Categories */}
       <div className="mt-12 md:mt-16">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#222222] mb-8">Popular Categories</h2>
+        <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#222222] mb-8">
+          Popular Categories
+        </h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
           {categories.map((category, index) => (
@@ -170,7 +186,9 @@ export function HeroSection() {
               href="#"
               className="bg-[#f5f5f5] rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:bg-[#ebebeb] transition-colors min-h-[160px]"
             >
-              <div className="w-12 h-12 flex items-center justify-center">{category.icon}</div>
+              <div className="w-12 h-12 flex items-center justify-center">
+                {category.icon}
+              </div>
               <span className="text-[#222222] text-sm font-medium text-center whitespace-pre-line leading-tight">
                 {category.name}
               </span>
@@ -179,5 +197,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

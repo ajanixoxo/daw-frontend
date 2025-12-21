@@ -1,7 +1,7 @@
 // types/subscription.ts
 
 export interface Tier {
-  id: string;
+  _id: string;
   name: string;
   monthlyContribution: number;
   benefits?: {

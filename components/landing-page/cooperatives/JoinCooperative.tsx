@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import PromoSection from "@/components/auth/PromoSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-//import { useCooperative } from "@/hooks/useCooperative";
 import { Loader2 } from "lucide-react";
 import { useCooperative } from "@/hooks/useJoinCooperative";
+import { useProfile } from "@/hooks/useProfile";
 
 const COOPERATIVE_ID = "6940311dd9b9141819c58938";
 
@@ -21,6 +21,8 @@ const JoinCooperative = () => {
     joinSuccess,
   } = useCooperative();
 
+  const { data: user, isLoading: isProfileLoading } = useProfile();
+
   const [step, setStep] = useState<1 | 2>(1);
 
   const [formDetails, setFormDetails] = useState({
@@ -30,17 +32,29 @@ const JoinCooperative = () => {
     businessName: "",
     country: "",
     category: "",
-    userId: "", // 🔜 later from profile
+    userId: "",
     cooperativeId: COOPERATIVE_ID,
     subscriptionTierId: "",
   });
 
-  /* 🔹 FETCH COOPERATIVE DATA */
   useEffect(() => {
     loadCooperativeById(COOPERATIVE_ID);
   }, []);
 
-  /* 🔹 FORM HANDLERS */
+  useEffect(() => {
+    if (user) {
+      setFormDetails((prev) => ({
+        ...prev,
+        name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: user.email || "",
+        phone: user.phone || "",
+        userId: user._id,
+      }));
+    }
+  }, [user]);
+
+  const isSeller = user?.roles?.includes("seller");
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormDetails((prev) => ({
       ...prev,
@@ -61,12 +75,48 @@ const JoinCooperative = () => {
   };
 
   const handleFinalSubmit = async () => {
+    console.log("lets join");
     await join(formDetails);
   };
 
+  if (isProfileLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#F10E7C]" />
+      </div>
+    );
+  }
+
+  /* ================= BLOCK NON-SELLERS ================= */
+  if (!isSeller) {
+    return (
+      <div className="mt-32 flex justify-center px-6">
+        <div className="max-w-xl w-full bg-white border rounded-3xl p-8 text-center space-y-4">
+          <h2 className="text-2xl font-semibold text-red-600">
+            Seller Account Required
+          </h2>
+
+          <p className="text-gray-600">
+            Only users registered as <strong>sellers</strong> can join a
+            cooperative.
+          </p>
+
+          <p className="text-sm text-gray-500">
+            Please complete seller onboarding before joining a cooperative.
+          </p>
+
+          <Button className="mt-4 w-full" onClick={() => window.history.back()}>
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ================= MAIN UI ================= */
   return (
     <div className="mt-24 mb-12 flex flex-col md:flex-row gap-12 mx-6 md:mx-24 items-start">
-      {/* LEFT SECTION */}
+      {/* LEFT */}
       <div className="md:flex-1">
         <h1 className="text-[32px] sm:text-[40px] lg:text-[52px] font-medium leading-[120%]">
           Join {cooperative?.name || "Cooperative"}
@@ -74,7 +124,7 @@ const JoinCooperative = () => {
 
         <p className="mt-4 text-gray-600">{cooperative?.description}</p>
 
-        {/* ================= STEP 1 ================= */}
+        {/* ============ STEP 1 ============ */}
         {step === 1 && (
           <form
             onSubmit={handleContinue}
@@ -86,21 +136,21 @@ const JoinCooperative = () => {
               <Input
                 name="name"
                 placeholder="Full Name"
-                required
-                onChange={handleChange}
+                value={formDetails.name}
+                disabled
               />
               <Input
                 name="email"
                 type="email"
-                placeholder="Email Address"
-                required
-                onChange={handleChange}
+                placeholder="Email"
+                value={formDetails.email}
+                disabled
               />
               <Input
                 name="phone"
-                placeholder="Phone Number"
-                required
-                onChange={handleChange}
+                placeholder="Phone"
+                value={formDetails.phone}
+                disabled
               />
               <Input
                 name="businessName"
@@ -125,27 +175,25 @@ const JoinCooperative = () => {
           </form>
         )}
 
-        {/* ================= STEP 2 ================= */}
+        {/* ============ STEP 2 ============ */}
         {step === 2 && (
           <div className="bg-white rounded-3xl border p-6 mt-8 space-y-6">
             <h3 className="text-lg font-semibold">Select Subscription Tier</h3>
 
-            {/* LOADING */}
             {isLoadingCooperative && (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-[#F10E7C]" />
               </div>
             )}
 
-            {/* TIERS */}
             <div className="space-y-3">
               {cooperative?.subscriptionTiers?.map((tier) => {
-                const isSelected = formDetails.subscriptionTierId === tier.id;
+                const isSelected = formDetails.subscriptionTierId === tier._id;
 
                 return (
                   <div
-                    key={tier.id}
-                    onClick={() => handleTierSelect(tier.id)}
+                    key={tier._id}
+                    onClick={() => handleTierSelect(tier._id)}
                     className={`cursor-pointer rounded-xl border p-5 transition ${
                       isSelected
                         ? "border-[#F10E7C] bg-pink-50"
@@ -158,72 +206,31 @@ const JoinCooperative = () => {
                         ₹{tier.monthlyContribution}/month
                       </p>
                     </div>
-
-                    <div className="mt-3 text-sm text-gray-600 space-y-1">
-                      <p>
-                        Marketplace Discount:{" "}
-                        <strong>
-                          {tier.benefits?.marketplaceDiscount || 0}%
-                        </strong>
-                      </p>
-                      <p>Max Loan: ₹{tier.loanSettings?.maxAmount}</p>
-                      <p>Interest Rate: {tier.loanSettings?.interestRate}%</p>
-                      <p>
-                        Max Duration: {tier.loanSettings?.maxDurationMonths}{" "}
-                        months
-                      </p>
-                    </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* SUMMARY */}
-            {formDetails.subscriptionTierId && (
-              <div className="bg-gray-50 rounded-xl p-4 text-sm space-y-1">
-                <p>
-                  <strong>Name:</strong> {formDetails.name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {formDetails.email}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {formDetails.phone}
-                </p>
-                <p>
-                  <strong>Selected Tier:</strong>{" "}
-                  {
-                    cooperative?.subscriptionTiers?.find(
-                      (t) => t.id === formDetails.subscriptionTierId
-                    )?.name
-                  }
-                </p>
-              </div>
-            )}
-
-            {/* ERROR */}
             {joinError && <p className="text-sm text-red-500">{joinError}</p>}
 
-            {/* SUCCESS */}
             {joinSuccess && (
               <p className="text-sm text-green-600">
                 Successfully joined the cooperative 🎉
               </p>
             )}
 
-            {/* SUBMIT */}
             <Button
               className="w-full"
               disabled={!formDetails.subscriptionTierId || isJoining}
               onClick={handleFinalSubmit}
             >
-              {isJoining ? "Joining Cooperative..." : "Join DAW Cooperative"}
+              {isJoining ? "Joining..." : "Join Cooperative"}
             </Button>
           </div>
         )}
       </div>
 
-      {/* RIGHT SECTION */}
+      {/* RIGHT */}
       <div className="md:flex-1 w-full">
         <PromoSection />
       </div>

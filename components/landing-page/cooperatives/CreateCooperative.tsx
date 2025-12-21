@@ -198,7 +198,7 @@ export default function CreateCooperativeForm() {
                     </div>
 
                     {/* Phone & Email */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1  gap-4">
                       <div className="flex flex-col gap-2">
                         <Controller
                           name="phone"
@@ -325,7 +325,7 @@ export default function CreateCooperativeForm() {
                       </Button>
                       <Button
                         type="submit"
-                        className="flex-1 h-12 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-black border font-semibold"
+                        className="flex-1 h-12 rounded-lg bg-gradient-to-r from-[#e03e8c] to-[#F10E7C] hover:from-[#F10E7C] hover:to-[#F10E7C] text-black border font-semibold"
                         disabled={loading}
                       >
                         {loading ? "Creating..." : "Create Cooperative"}
