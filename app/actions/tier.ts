@@ -5,7 +5,7 @@ import { getServerSession } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { CreateTierPayload, Tier } from "@/types/tier.types";
 
-interface GetAllTiersResponse extends IActionResponse {
+interface GetAllTiersResponse extends IActionResponse<Tier[]> {
   data?: Tier[];
 }
 
@@ -102,7 +102,7 @@ export async function getAllTiersByCoopId(
 
     return {
       success: true,
-      data: response,
+      data: response.data,
     };
   } catch (error) {
     const message =

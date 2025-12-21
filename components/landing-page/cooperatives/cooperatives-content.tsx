@@ -60,6 +60,7 @@ export function CooperativesContent() {
     if (!selectedCooperative) return;
 
     await join({
+      userId: "",
       cooperativeId: selectedCooperative._id,
       subscriptionTierId: tierId,
     });

@@ -1,3 +1,5 @@
+import { Key, ReactNode } from "react";
+
 export interface CreateTierPayload {
   cooperativeId: string;
   name: string;
@@ -13,4 +15,14 @@ export interface CreateTierPayload {
       minPaidMonths: number;
     };
   };
+}
+
+export interface Tier {
+  _id: string;
+  benefits: any;
+  monthlyContribution: number;
+  loanSettings: any;
+  id: string;
+  name: string;
+  price: number;
 }

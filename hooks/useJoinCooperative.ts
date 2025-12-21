@@ -53,8 +53,19 @@ export const useCooperative = () => {
       if (!response.success) {
         throw new Error(response.error);
       }
-      console.log("coops", response.data);
-      setCooperatives(response.data ?? []);
+
+      // Map to ICooperative
+      const formattedCoops: ICooperative[] = (response.data ?? []).map(
+        (coop: any) => ({
+          _id: coop._id,
+          adminId: coop.adminId,
+          name: coop.name,
+          description: coop.description,
+          subscriptionTiers: coop.subscriptionTiers ?? [],
+        })
+      );
+
+      setCooperatives(formattedCoops);
     } catch (err: any) {
       setCooperativesError(err.message || "Failed to load cooperatives");
     } finally {
@@ -73,7 +84,7 @@ export const useCooperative = () => {
         throw new Error(response.error);
       }
 
-      setCooperative(response.data ?? null);
+      setCooperative((response.data as unknown as ICooperative) ?? null);
     } catch (err: any) {
       setCooperativeError(err.message || "Failed to load cooperative");
     } finally {

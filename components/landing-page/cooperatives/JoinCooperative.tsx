@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useCooperative } from "@/hooks/useJoinCooperative";
 
-const COOPERATIVE_ID = "6940311dd9b9141819c58938"; // ✅ REAL cooperativeId
+const COOPERATIVE_ID = "6940311dd9b9141819c58938";
 
 const JoinCooperative = () => {
   const {
@@ -140,12 +140,12 @@ const JoinCooperative = () => {
             {/* TIERS */}
             <div className="space-y-4">
               {cooperative?.subscriptionTiers?.map((tier) => {
-                const isSelected = formDetails.subscriptionTierId === tier._id;
+                const isSelected = formDetails.subscriptionTierId === tier.id;
 
                 return (
                   <div
-                    key={tier._id}
-                    onClick={() => handleTierSelect(tier._id)}
+                    key={tier.id}
+                    onClick={() => handleTierSelect(tier.id)}
                     className={`cursor-pointer rounded-xl border p-5 transition ${
                       isSelected
                         ? "border-[#F10E7C] bg-pink-50"
@@ -193,8 +193,8 @@ const JoinCooperative = () => {
                 <p>
                   <strong>Selected Tier:</strong>{" "}
                   {
-                    cooperative?.subscriptionTiers.find(
-                      (t) => t._id === formDetails.subscriptionTierId
+                    cooperative?.subscriptionTiers?.find(
+                      (t) => t.id === formDetails.subscriptionTierId
                     )?.name
                   }
                 </p>
