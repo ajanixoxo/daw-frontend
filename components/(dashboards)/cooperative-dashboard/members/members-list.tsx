@@ -134,6 +134,7 @@ export function MembersList() {
     fetchAllMembers("6940311dd9b9141819c58938");
   }, []);
   console.log("members", members);
+
   return (
     <Card className="border-[#e4e7ec] bg-white">
       <CardHeader className="border-b border-[#e4e7ec] px-4 py-4 sm:px-6">
