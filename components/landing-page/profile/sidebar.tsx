@@ -28,12 +28,12 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     sessionData?.role === "seller" ||
     sessionData?.role === "vendor"
 
-
-    const isAdmin =
-      user?.roles?.includes("admin") ||
-      user?.roles?.includes("Admin") ||
-      sessionData?.role === "admin" ||
-      sessionData?.role === "Admin";
+    
+    const isCooperative =
+      user?.roles?.includes("cooperative") ||
+      user?.roles?.includes("cooperative") ||
+      sessionData?.role === "cooperative" ||
+      sessionData?.role === "cooperative";
 
     return (
       <aside className="w-full lg:w-[280px]  lg:shrink-0">
@@ -79,7 +79,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                   </Link>
                 </li>
               )}
-              {isAdmin && (
+              {isCooperative && (
                 <li className="shrink-0 lg:shrink">
                   <Link
                     href="/cooperative/dashboard"
