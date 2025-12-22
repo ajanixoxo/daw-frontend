@@ -188,15 +188,9 @@ export async function signupUser(
   userData: ISignupRequest
 ): Promise<IActionResponse<ISessionData>> {
   try {
-    // Convert roles string to array format expected by backend
-    const payload = {
-      ...userData,
-      roles: [userData.roles], // Convert single role string to array
-    };
-    
     const response = await apiClient.post<ISignupResponse>(
       API_ENDPOINTS.AUTH.REGISTER,
-      payload
+      userData
     );
 
     if (!response.user || !response.token) {

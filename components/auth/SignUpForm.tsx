@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import type { FC } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import type { FC } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Eye, EyeOff, Check } from "lucide-react";
-import { useSignup } from "@/hooks/useAuth";
-import type { ISignupRequest } from "@/types/auth.types";
+} from '@/components/ui/select';
+import { Eye, EyeOff, Check } from 'lucide-react';
+import { useSignup } from '@/hooks/useAuth';
+import type { ISignupRequest } from '@/types/auth.types';
 
 const SignUpForm: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -33,13 +33,13 @@ const SignUpForm: FC = () => {
   const { signup, isLoading, error } = useSignup();
 
   const [formData, setFormData] = useState<ISignupRequest>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
-    roles: "buyer",
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    roles: 'buyer',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +52,7 @@ const SignUpForm: FC = () => {
   const handleRoleChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      roles: value as "buyer" | "seller",
+      roles: value as "buyer" | "admin" | "vendor",
     }));
   };
 
@@ -60,6 +60,8 @@ const SignUpForm: FC = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,33 +76,35 @@ const SignUpForm: FC = () => {
     } = {};
 
     if (!formData.firstName) {
-      newErrors.firstName = "First name is required";
+      newErrors.firstName = 'First name is required';
     }
 
     if (!formData.lastName) {
-      newErrors.lastName = "Last name is required";
+      newErrors.lastName = 'Last name is required';
     }
 
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = 'Invalid email format';
     }
 
+
+
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     if (!formData.roles) {
-      newErrors.role = "Please select a role";
+      newErrors.role = 'Please select a role';
     }
 
     setErrors(newErrors);
@@ -208,7 +212,7 @@ const SignUpForm: FC = () => {
           <Input
             id="password"
             name="password"
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             value={formData.password}
             onChange={handleChange}
@@ -221,7 +225,7 @@ const SignUpForm: FC = () => {
             onClick={() => setShowPassword(!showPassword)}
             disabled={isLoading}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
@@ -236,7 +240,7 @@ const SignUpForm: FC = () => {
                   formData.password.length >= 8,
                   /[A-Z]/.test(formData.password),
                   /[0-9]/.test(formData.password),
-                  /[^A-Za-z0-9]/.test(formData.password),
+                  /[^A-Za-z0-9]/.test(formData.password)
                 ].filter(Boolean).length;
 
                 let color = "bg-gray-200";
@@ -257,19 +261,10 @@ const SignUpForm: FC = () => {
 
             <div className="grid grid-cols-2 gap-2">
               {[
-                {
-                  label: "At least 8 chars",
-                  met: formData.password.length >= 8,
-                },
-                {
-                  label: "One uppercase",
-                  met: /[A-Z]/.test(formData.password),
-                },
+                { label: "At least 8 chars", met: formData.password.length >= 8 },
+                { label: "One uppercase", met: /[A-Z]/.test(formData.password) },
                 { label: "One number", met: /[0-9]/.test(formData.password) },
-                {
-                  label: "One special char",
-                  met: /[^A-Za-z0-9]/.test(formData.password),
-                },
+                { label: "One special char", met: /[^A-Za-z0-9]/.test(formData.password) },
               ].map((req, idx) => (
                 <div key={idx} className="flex items-center gap-1.5 text-xs">
                   {req.met ? (
@@ -277,11 +272,7 @@ const SignUpForm: FC = () => {
                   ) : (
                     <div className="w-3 h-3 rounded-full border border-gray-300" />
                   )}
-                  <span
-                    className={
-                      req.met ? "text-green-600 font-medium" : "text-gray-500"
-                    }
-                  >
+                  <span className={req.met ? "text-green-600 font-medium" : "text-gray-500"}>
                     {req.label}
                   </span>
                 </div>
@@ -291,24 +282,19 @@ const SignUpForm: FC = () => {
         )}
 
         {errors.password && (
-          <span className="text-xs text-destructive mt-1">
-            {errors.password}
-          </span>
+          <span className="text-xs text-destructive mt-1">{errors.password}</span>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label
-          htmlFor="confirmPassword"
-          className="auth-label text-(--text-dark)"
-        >
+        <Label htmlFor="confirmPassword" className="auth-label text-(--text-dark)">
           Confirm Password
         </Label>
         <div className="relative">
           <Input
             id="confirmPassword"
             name="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
+            type={showConfirmPassword ? 'text' : 'password'}
             placeholder="••••••••"
             value={formData.confirmPassword}
             onChange={handleChange}
@@ -321,15 +307,13 @@ const SignUpForm: FC = () => {
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             disabled={isLoading}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
-            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
           >
             {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         {errors.confirmPassword && (
-          <span className="text-xs text-destructive">
-            {errors.confirmPassword}
-          </span>
+          <span className="text-xs text-destructive">{errors.confirmPassword}</span>
         )}
       </div>
 
@@ -337,11 +321,7 @@ const SignUpForm: FC = () => {
         <Label htmlFor="roles" className="auth-label text-(--text-dark)">
           I am joining as a
         </Label>
-        <Select
-          value={formData.roles}
-          onValueChange={handleRoleChange}
-          disabled={isLoading}
-        >
+        <Select value={formData.roles} onValueChange={handleRoleChange} disabled={isLoading}>
           <SelectTrigger
             id="roles"
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base w-full"
@@ -351,7 +331,6 @@ const SignUpForm: FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="buyer">Buyer</SelectItem>
-            <SelectItem value="seller">Seller</SelectItem>
             {/* <SelectItem value="vendor">Vendor</SelectItem>
             <SelectItem value="admin">Admin</SelectItem> */}
           </SelectContent>
@@ -365,9 +344,9 @@ const SignUpForm: FC = () => {
         type="submit"
         disabled={isLoading}
         className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{ letterSpacing: "-0.64px" }}
+        style={{ letterSpacing: '-0.64px' }}
       >
-        {isLoading ? "Creating Account..." : "Create Account"}
+        {isLoading ? 'Creating Account...' : 'Create Account'}
       </Button>
     </form>
   );
