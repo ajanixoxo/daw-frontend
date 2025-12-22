@@ -62,7 +62,7 @@ export interface ISignupRequest {
   password: string;
   confirmPassword: string;
   phone: string;
-  roles: "buyer" | "admin" | "vendor";
+  roles: "buyer" | "seller";
 }
 
 export interface ILoginResponse {
