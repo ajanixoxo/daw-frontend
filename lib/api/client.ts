@@ -147,7 +147,7 @@ export const API_ENDPOINTS = {
       `/marketplace/get/orders/shop/${shopId}`,
   },
   CART: {
-    ADD_ITEM: "/marketplace/cart/item",
+    ADD_ITEM: "/marketplace/cart",
     GET_CART: "/marketplace/cart",
     GET_CART_BY_ID: (cartId: string) => `/marketplace/cart/${cartId}`,
     UPDATE_ITEM: (itemId: string) => `/marketplace/cart/item/${itemId}`,
