@@ -35,21 +35,37 @@ function getRefreshToken(): string | null {
 }
 
 /**
- * Store tokens in localStorage
+ * Store tokens in localStorage and Zustand store
  */
 function setTokens(accessToken: string, refreshToken: string): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  
+  // Sync with Zustand store
+  try {
+    const { useAuthStore } = require('@/zustand/store');
+    useAuthStore.getState().updateTokens(accessToken, refreshToken);
+  } catch (error) {
+    console.error('Failed to sync tokens with Zustand store:', error);
+  }
 }
 
 /**
- * Clear tokens from localStorage
+ * Clear tokens from localStorage and Zustand store
  */
 function clearTokens(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  
+  // Clear Zustand store
+  try {
+    const { useAuthStore } = require('@/zustand/store');
+    useAuthStore.getState().clearAuth();
+  } catch (error) {
+    console.error('Failed to clear Zustand store:', error);
+  }
 }
 
 /**
@@ -79,6 +95,17 @@ async function refreshAccessToken(): Promise<{ accessToken: string; refreshToken
 
   const { accessToken, refreshToken: newRefreshToken } = response.data.token;
   setTokens(accessToken, newRefreshToken);
+
+  // Also update server-side cookies via API route
+  try {
+    await fetch('/api/auth/sync-tokens', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessToken, refreshToken: newRefreshToken }),
+    });
+  } catch (error) {
+    console.error('Failed to sync tokens with cookies:', error);
+  }
 
   return { accessToken, refreshToken: newRefreshToken };
 }

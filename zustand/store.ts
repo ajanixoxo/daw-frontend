@@ -14,6 +14,7 @@ interface AuthState {
   login: (user: IUser, sessionData: ISessionData) => void;
   logout: () => void;
   updateUser: (userData: Partial<IUser>) => void;
+  updateTokens: (accessToken: string, refreshToken: string) => void;
   clearAuth: () => void;
 }
 
@@ -47,6 +48,12 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...userData } : null,
         })),
+      updateTokens: (accessToken, refreshToken) =>
+        set((state) => ({
+          sessionData: state.sessionData
+            ? { ...state.sessionData, accessToken, refreshToken }
+            : null,
+        })),
       clearAuth: () =>
         set({
           user: null,
@@ -60,6 +67,7 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
+        sessionData: state.sessionData,
         isAuthenticated: state.isAuthenticated,
         isVerified: state.isVerified,
       }),
