@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useCreateShop } from "@/hooks/useShop"
 import { useUpgradeToSeller } from "@/hooks/useUser"
+import { useProfile } from "@/hooks/useProfile"
+import { useLogout } from "@/hooks/useAuth"
 import { toast } from "sonner"
 
 const categories = [
@@ -29,6 +31,8 @@ export default function CreateShopPage() {
   const router = useRouter()
   const { mutate: createShop, isPending } = useCreateShop()
   const { mutate: upgradeToSeller, isPending: isUpgrading } = useUpgradeToSeller()
+  const { data: user } = useProfile()
+  const { logout } = useLogout()
 
   const [formData, setFormData] = useState({
     name: "",
@@ -98,25 +102,47 @@ export default function CreateShopPage() {
 
     createShop(payload, {
       onSuccess: (response) => {
-        toast.success("Shop created successfully! Upgrading your account...")
-        // Upgrade user role to seller
-        upgradeToSeller(undefined, {
-          onSuccess: () => {
-            toast.success("Welcome to your seller dashboard!")
-            // Redirect to seller dashboard
-            setTimeout(() => {
-              router.push("/sellers/dashboard")
-            }, 1000)
-          },
-          onError: (error) => {
-            console.error("Error upgrading role:", error)
-            // Still redirect even if upgrade fails (user can retry later)
-            toast.error("Shop created but role upgrade failed. Please contact support.")
-            setTimeout(() => {
-              router.push("/sellers/dashboard")
-            }, 2000)
-          },
-        })
+        // Check which flow: Flow 1 (direct seller signup) or Flow 2 (buyer to seller)
+        // Flow 1: User registered directly as seller (only seller role, came from OTP → KYC flow)
+        // Flow 2: User was buyer, upgraded to seller on KYC page, then created shop
+        // We detect Flow 1 by checking if user has seller role but came from direct signup
+        // We can use sessionStorage to track if they came from seller signup flow
+        const cameFromSellerSignup = typeof window !== "undefined" && sessionStorage.getItem("signupRole") === "seller"
+        
+        // Also check if user already has seller role (Flow 2 - already upgraded)
+        const alreadyHasSellerRole = user?.roles?.includes("seller")
+        
+        if (cameFromSellerSignup || (!alreadyHasSellerRole && user?.roles?.length === 1 && user?.roles[0] === "seller")) {
+          // Flow 1: Direct seller registration - logout and redirect to login
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("signupRole")
+          }
+          toast.success("Shop created successfully! Please log in to access your seller dashboard.")
+          setTimeout(async () => {
+            await logout()
+            router.push("/login")
+          }, 1500)
+        } else {
+          // Flow 2: Buyer to seller conversion - upgrade role and go to dashboard
+          toast.success("Shop created successfully! Upgrading your account...")
+          upgradeToSeller(undefined, {
+            onSuccess: () => {
+              toast.success("Welcome to your seller dashboard!")
+              // Redirect to seller dashboard
+              setTimeout(() => {
+                router.push("/sellers/dashboard")
+              }, 1000)
+            },
+            onError: (error) => {
+              console.error("Error upgrading role:", error)
+              // Still redirect even if upgrade fails (user can retry later)
+              toast.error("Shop created but role upgrade failed. Please contact support.")
+              setTimeout(() => {
+                router.push("/sellers/dashboard")
+              }, 2000)
+            },
+          })
+        }
       },
       onError: (error) => {
         console.error("Error creating shop:", error)
