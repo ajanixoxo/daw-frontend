@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, Loader2, ShoppingCart, User } from "lucide-react";
-import { checkVerificationStatus } from "@/app/actions/auth";
+import { useAuthStore } from "@/zustand/store";
 import { useLogout } from "@/hooks/useAuth";
 import { useCartItemCount } from "@/hooks/useCart";
 
@@ -22,10 +22,13 @@ function CartBadge() {
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
+  // Use Zustand store for auth state
+  const { isAuthenticated, isVerified, user } = useAuthStore();
   const { logout, isLoading: isLoggingOut } = useLogout();
+
+  // Determine if user is fully authenticated
+  const isFullyAuthenticated = isAuthenticated && isVerified;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,24 +43,8 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const status = await checkVerificationStatus();
-        setIsAuthenticated(status.isAuthenticated && status.isVerified);
-      } catch (error) {
-        console.error("Failed to check auth status", error);
-      } finally {
-        setIsLoadingAuth(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
   const handleLogout = async () => {
     await logout();
-    setIsAuthenticated(false);
     setMobileMenuOpen(false);
   };
 
@@ -106,9 +93,7 @@ export default function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-4">
-          {isLoadingAuth ? (
-            <div className="w-[100px] h-[48px] rounded-[40px] bg-gray-100 animate-pulse"></div>
-          ) : isAuthenticated ? (
+          {isFullyAuthenticated ? (
             <>
               {/* Cart Icon */}
               <Link
@@ -197,17 +182,47 @@ export default function Header() {
               Masterclass
             </Link>
 
-            {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors mt-2 group w-full"
-              >
-                <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
-                  {isLoggingOut && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Logout
-                </span>
-              </button>
+            {isFullyAuthenticated ? (
+              <>
+                {/* Cart Link */}
+                <Link
+                  href="/cart"
+                  className="flex items-center gap-2 text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  Cart
+                  {useCartItemCount() > 0 && (
+                    <span className="ml-auto bg-[#F10E7C] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {useCartItemCount()}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Profile Link */}
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User className="w-5 h-5" />
+                  Profile
+                </Link>
+
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors mt-2 group w-full"
+                >
+                  <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
+                    {isLoggingOut && (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    )}
+                    Logout
+                  </span>
+                </button>
+              </>
             ) : (
               <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
                 <button className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors mt-2 group w-full">

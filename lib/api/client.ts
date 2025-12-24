@@ -142,7 +142,7 @@ export const API_ENDPOINTS = {
       `/marketplace/get/products/shop/${shopId}`,
     ADD_PRODUCT: "/marketplace/add/products",
     GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
-    GET_ALL_ORDERS: "/marketplace/get/all/orders",
+    GET_ALL_ORDERS: "/marketplace/get/orders",
     GET_ORDERS_BY_SHOP: (shopId: string) =>
       `/marketplace/get/orders/shop/${shopId}`,
   },
@@ -194,7 +194,7 @@ export const API_ENDPOINTS = {
     PLACE_ORDER: "/marketplace/place/orders",
   },
   PAYMENT: {
-    INITIATE: "/marketplace/payment/initiate",
-    VERIFY: (reference: string) => `/marketplace/payment/verify/${reference}`,
+    INITIATE: "/api/payment/initiate",
+    VERIFY: (reference: string) => `/api/payment/verify/${reference}`,
   },
 } as const;
