@@ -1,17 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Store, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useCreateShop } from "@/hooks/useShop";
 import { useUpgradeToSeller } from "@/hooks/useUser";
 import { useProfile } from "@/hooks/useProfile";
-import { useLogout } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const categories = [
@@ -33,7 +39,7 @@ export default function CreateShopPage() {
   const { mutate: upgradeToSeller, isPending: isUpgrading } =
     useUpgradeToSeller();
   const { data: user } = useProfile();
-  const { logout } = useLogout();
+  const [showRedirectDialog, setShowRedirectDialog] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -121,17 +127,12 @@ export default function CreateShopPage() {
             user?.roles?.length === 1 &&
             user?.roles[0] === "seller")
         ) {
-          // Flow 1: Direct seller registration - logout and redirect to login
+          // Flow 1: Direct seller registration - show dialog to choose destination
           if (typeof window !== "undefined") {
             sessionStorage.removeItem("signupRole");
           }
-          toast.success(
-            "Shop created successfully! Please log in to access your seller dashboard."
-          );
-          setTimeout(async () => {
-            await logout();
-            router.push("/login");
-          }, 1500);
+          toast.success("Shop created successfully!");
+          setShowRedirectDialog(true);
         } else {
           // Flow 2: Buyer to seller conversion - upgrade role and go to dashboard
           toast.success("Shop created successfully! Upgrading your account...");
@@ -443,6 +444,43 @@ export default function CreateShopPage() {
           </div>
         </div>
       </form>
+
+      {/* Redirect Choice Dialog for Flow 1 */}
+      <Dialog open={showRedirectDialog} onOpenChange={setShowRedirectDialog}>
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">
+              Shop Created Successfully! 🎉
+            </DialogTitle>
+            <DialogDescription className="text-center text-base pt-2">
+              Where would you like to go next?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-6">
+            <Button
+              onClick={() => {
+                setShowRedirectDialog(false);
+                router.push("/sellers/dashboard");
+              }}
+              className="w-full h-14 bg-[#f10e7c] hover:bg-[#d90d6a] text-white font-medium text-base flex items-center justify-center gap-3"
+            >
+              <Store className="w-5 h-5" />
+              Go to Seller Dashboard
+            </Button>
+            <Button
+              onClick={() => {
+                setShowRedirectDialog(false);
+                router.push("/marketplace");
+              }}
+              variant="outline"
+              className="w-full h-14 border-2 border-[#d0d5dd] hover:bg-[#f9fafb] text-[#344054] font-medium text-base flex items-center justify-center gap-3"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              Browse Marketplace
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
