@@ -48,7 +48,15 @@ export function useLogin(): UseLoginReturn {
           }
 
           if (result.data.isVerified) {
-            router.push("/");
+            // Check if user is a seller and redirect to seller dashboard
+            const userRoles = result.user?.roles || [];
+            const isSeller = userRoles.includes("seller") || result.data.role === "seller";
+            
+            if (isSeller) {
+              router.push("/sellers/dashboard");
+            } else {
+              router.push("/");
+            }
             router.refresh();
           } else {
             router.push("/otp?mode=login");
@@ -117,6 +125,11 @@ export function useSignup(): UseSignupReturn {
           }
           
           setSessionData(result.data);
+          
+          // Store role in sessionStorage for seller onboarding flow
+          if (userData.roles === "seller") {
+            sessionStorage.setItem("signupRole", "seller");
+          }
           
           router.push("/otp?mode=signup");
         }
@@ -235,11 +248,39 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           
           if (result.user) {
             setAuthData(result.user, result.data);
+            
+            // Check if user is a seller and redirect to seller dashboard
+            const userRoles = result.user.roles || [];
+            const isSeller = userRoles.includes("seller") || result.data.role === "seller";
+            
+            if (isSeller) {
+              router.push("/sellers/dashboard");
+            } else {
+              router.push("/");
+            }
           } else {
             setAuthStatus(true, true);
+            router.push("/");
           }
-          router.push("/");
           router.refresh();
+        } else if (mode === "signup") {
+          // Check if user signed up as seller
+          const signupRole = sessionStorage.getItem("signupRole");
+          if (signupRole === "seller") {
+            // Clear the stored role
+            sessionStorage.removeItem("signupRole");
+            
+            // Store tokens if available (for seller onboarding flow)
+            if (result.data?.accessToken) {
+              tokenManager.setTokens(result.data.accessToken, result.data.refreshToken || "");
+            }
+            
+            // Redirect seller to KYC page
+            router.push("/sellers/kyc");
+          } else {
+            // Regular buyer signup - will show success message and redirect to login
+            setAuthStatus(false, true);
+          }
         } else {
           setAuthStatus(false, true);
         }

@@ -18,21 +18,33 @@ import type { ILoginRequest } from "@/types/auth.types";
 
 const SignInForm: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    role?: string;
+  }>({});
 
   const { login, isLoading, error } = useLogin();
 
-  const [formData, setFormData] = useState<ILoginRequest>({
+  const [formData, setFormData] = useState<
+    ILoginRequest & { role: "buyer" | "seller" }
+  >({
     email: "",
     password: "",
+    role: "buyer",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: value as "buyer" | "seller",
     }));
   };
 
@@ -43,7 +55,7 @@ const SignInForm: FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; role?: string } = {};
 
     if (!formData.email) {
       newErrors.email = "Email is required";
@@ -53,6 +65,10 @@ const SignInForm: FC = () => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
+    }
+
+    if (!formData.role) {
+      newErrors.role = "Please select a role";
     }
 
     setErrors(newErrors);
@@ -127,6 +143,32 @@ const SignInForm: FC = () => {
             Forgot Password?
           </a>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="role" className="auth-label text-(--text-dark)">
+          I am logging in as a
+        </Label>
+        <Select
+          value={formData.role}
+          onValueChange={handleRoleChange}
+          disabled={isLoading}
+        >
+          <SelectTrigger
+            id="role"
+            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base w-full"
+            aria-invalid={!!errors.role}
+          >
+            <SelectValue placeholder="Buyer" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="buyer">Buyer</SelectItem>
+            <SelectItem value="seller">Seller</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.role && (
+          <span className="text-xs text-destructive">{errors.role}</span>
+        )}
       </div>
 
       <Button

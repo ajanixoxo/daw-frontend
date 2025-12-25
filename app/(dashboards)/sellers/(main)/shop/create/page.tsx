@@ -1,16 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { useCreateShop } from "@/hooks/useShop"
-import { useUpgradeToSeller } from "@/hooks/useUser"
-import { toast } from "sonner"
+import { useState } from "react";
+import { ArrowLeft, Loader2, Store, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useCreateShop } from "@/hooks/useShop";
+import { useUpgradeToSeller } from "@/hooks/useUser";
+import { useProfile } from "@/hooks/useProfile";
+import { toast } from "sonner";
 
 const categories = [
   "Electronics",
@@ -22,13 +30,16 @@ const categories = [
   "Books & Media",
   "Sports & Outdoors",
   "Health & Wellness",
-  "Other"
-]
+  "Other",
+];
 
 export default function CreateShopPage() {
-  const router = useRouter()
-  const { mutate: createShop, isPending } = useCreateShop()
-  const { mutate: upgradeToSeller, isPending: isUpgrading } = useUpgradeToSeller()
+  const router = useRouter();
+  const { mutate: createShop, isPending } = useCreateShop();
+  const { mutate: upgradeToSeller, isPending: isUpgrading } =
+    useUpgradeToSeller();
+  const { data: user } = useProfile();
+  const [showRedirectDialog, setShowRedirectDialog] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,52 +49,52 @@ export default function CreateShopPage() {
     banner_url: "",
     is_member_shop: false,
     cooperative_id: "",
-  })
+  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Shop name is required"
+      newErrors.name = "Shop name is required";
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = "Description is required"
+      newErrors.description = "Description is required";
     }
 
     if (!formData.category) {
-      newErrors.category = "Category is required"
+      newErrors.category = "Category is required";
     }
 
     if (formData.logo_url && !isValidUrl(formData.logo_url)) {
-      newErrors.logo_url = "Please enter a valid URL"
+      newErrors.logo_url = "Please enter a valid URL";
     }
 
     if (formData.banner_url && !isValidUrl(formData.banner_url)) {
-      newErrors.banner_url = "Please enter a valid URL"
+      newErrors.banner_url = "Please enter a valid URL";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const isValidUrl = (url: string) => {
     try {
-      new URL(url)
-      return true
+      new URL(url);
+      return true;
     } catch {
-      return false
+      return false;
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      toast.error("Please fix the errors in the form")
-      return
+      toast.error("Please fix the errors in the form");
+      return;
     }
 
     const payload = {
@@ -94,47 +105,75 @@ export default function CreateShopPage() {
       banner_url: formData.banner_url.trim() || undefined,
       is_member_shop: formData.is_member_shop,
       cooperative_id: formData.cooperative_id.trim() || null,
-    }
+    };
 
     createShop(payload, {
       onSuccess: (response) => {
-        toast.success("Shop created successfully! Upgrading your account...")
-        // Upgrade user role to seller
-        upgradeToSeller(undefined, {
-          onSuccess: () => {
-            toast.success("Welcome to your seller dashboard!")
-            // Redirect to seller dashboard
-            setTimeout(() => {
-              router.push("/sellers/dashboard")
-            }, 1000)
-          },
-          onError: (error) => {
-            console.error("Error upgrading role:", error)
-            // Still redirect even if upgrade fails (user can retry later)
-            toast.error("Shop created but role upgrade failed. Please contact support.")
-            setTimeout(() => {
-              router.push("/sellers/dashboard")
-            }, 2000)
-          },
-        })
+        // Check which flow: Flow 1 (direct seller signup) or Flow 2 (buyer to seller)
+        // Flow 1: User registered directly as seller (only seller role, came from OTP → KYC flow)
+        // Flow 2: User was buyer, upgraded to seller on KYC page, then created shop
+        // We detect Flow 1 by checking if user has seller role but came from direct signup
+        // We can use sessionStorage to track if they came from seller signup flow
+        const cameFromSellerSignup =
+          typeof window !== "undefined" &&
+          sessionStorage.getItem("signupRole") === "seller";
+
+        // Also check if user already has seller role (Flow 2 - already upgraded)
+        const alreadyHasSellerRole = user?.roles?.includes("seller");
+
+        if (
+          cameFromSellerSignup ||
+          (!alreadyHasSellerRole &&
+            user?.roles?.length === 1 &&
+            user?.roles[0] === "seller")
+        ) {
+          // Flow 1: Direct seller registration - show dialog to choose destination
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("signupRole");
+          }
+          toast.success("Shop created successfully!");
+          setShowRedirectDialog(true);
+        } else {
+          // Flow 2: Buyer to seller conversion - upgrade role and go to dashboard
+          toast.success("Shop created successfully! Upgrading your account...");
+          upgradeToSeller(undefined, {
+            onSuccess: () => {
+              toast.success("Welcome to your seller dashboard!");
+              // Redirect to seller dashboard
+              setTimeout(() => {
+                router.push("/sellers/dashboard");
+              }, 1000);
+            },
+            onError: (error) => {
+              console.error("Error upgrading role:", error);
+              // Still redirect even if upgrade fails (user can retry later)
+              toast.error(
+                "Shop created but role upgrade failed. Please contact support."
+              );
+              setTimeout(() => {
+                router.push("/sellers/dashboard");
+              }, 2000);
+            },
+          });
+        }
       },
       onError: (error) => {
-        console.error("Error creating shop:", error)
+        console.error("Error creating shop:", error);
       },
-    })
-  }
+    });
+  };
 
   const handleChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
-      })
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
-  }
+  };
 
   return (
     <main className="p-6 lg:p-8">
@@ -149,8 +188,12 @@ export default function CreateShopPage() {
             <ArrowLeft className="h-5 w-5 text-[#1d1d2a]" />
           </Button>
           <div>
-            <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">Create New Shop</h1>
-            <p className="text-[14px] text-[#667185] leading-relaxed">Set up your new online store</p>
+            <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">
+              Create New Shop
+            </h1>
+            <p className="text-[14px] text-[#667185] leading-relaxed">
+              Set up your new online store
+            </p>
           </div>
         </div>
       </div>
@@ -161,12 +204,17 @@ export default function CreateShopPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Basic Information */}
             <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-              <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Basic Information</h2>
+              <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+                Basic Information
+              </h2>
 
               <div className="space-y-5">
                 {/* Shop Name */}
                 <div>
-                  <Label htmlFor="name" className="text-[14px] font-medium text-[#344054] mb-2">
+                  <Label
+                    htmlFor="name"
+                    className="text-[14px] font-medium text-[#344054] mb-2"
+                  >
                     Shop Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -178,12 +226,19 @@ export default function CreateShopPage() {
                       errors.name ? "border-red-500" : ""
                     }`}
                   />
-                  {errors.name && <p className="text-[12px] text-red-500 mt-1">{errors.name}</p>}
+                  {errors.name && (
+                    <p className="text-[12px] text-red-500 mt-1">
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
 
                 {/* Category */}
                 <div>
-                  <Label htmlFor="category" className="text-[14px] font-medium text-[#344054] mb-2">
+                  <Label
+                    htmlFor="category"
+                    className="text-[14px] font-medium text-[#344054] mb-2"
+                  >
                     Category <span className="text-red-500">*</span>
                   </Label>
                   <select
@@ -201,37 +256,55 @@ export default function CreateShopPage() {
                       </option>
                     ))}
                   </select>
-                  {errors.category && <p className="text-[12px] text-red-500 mt-1">{errors.category}</p>}
+                  {errors.category && (
+                    <p className="text-[12px] text-red-500 mt-1">
+                      {errors.category}
+                    </p>
+                  )}
                 </div>
 
                 {/* Description */}
                 <div>
-                  <Label htmlFor="description" className="text-[14px] font-medium text-[#344054] mb-2">
+                  <Label
+                    htmlFor="description"
+                    className="text-[14px] font-medium text-[#344054] mb-2"
+                  >
                     Description <span className="text-red-500">*</span>
                   </Label>
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => handleChange("description", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("description", e.target.value)
+                    }
                     placeholder="Describe your shop and what you offer"
                     rows={5}
                     className={`border-[#d0d5dd] focus:border-[#f10e7c] focus:ring-[#f10e7c] resize-none ${
                       errors.description ? "border-red-500" : ""
                     }`}
                   />
-                  {errors.description && <p className="text-[12px] text-red-500 mt-1">{errors.description}</p>}
+                  {errors.description && (
+                    <p className="text-[12px] text-red-500 mt-1">
+                      {errors.description}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Branding */}
             <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-              <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Branding</h2>
+              <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+                Branding
+              </h2>
 
               <div className="space-y-5">
                 {/* Logo URL */}
                 <div>
-                  <Label htmlFor="logo_url" className="text-[14px] font-medium text-[#344054] mb-2">
+                  <Label
+                    htmlFor="logo_url"
+                    className="text-[14px] font-medium text-[#344054] mb-2"
+                  >
                     Logo URL (Optional)
                   </Label>
                   <Input
@@ -244,13 +317,22 @@ export default function CreateShopPage() {
                       errors.logo_url ? "border-red-500" : ""
                     }`}
                   />
-                  {errors.logo_url && <p className="text-[12px] text-red-500 mt-1">{errors.logo_url}</p>}
-                  <p className="text-[12px] text-[#667185] mt-1">Enter a URL to your shop logo image</p>
+                  {errors.logo_url && (
+                    <p className="text-[12px] text-red-500 mt-1">
+                      {errors.logo_url}
+                    </p>
+                  )}
+                  <p className="text-[12px] text-[#667185] mt-1">
+                    Enter a URL to your shop logo image
+                  </p>
                 </div>
 
                 {/* Banner URL */}
                 <div>
-                  <Label htmlFor="banner_url" className="text-[14px] font-medium text-[#344054] mb-2">
+                  <Label
+                    htmlFor="banner_url"
+                    className="text-[14px] font-medium text-[#344054] mb-2"
+                  >
                     Banner URL (Optional)
                   </Label>
                   <Input
@@ -263,8 +345,14 @@ export default function CreateShopPage() {
                       errors.banner_url ? "border-red-500" : ""
                     }`}
                   />
-                  {errors.banner_url && <p className="text-[12px] text-red-500 mt-1">{errors.banner_url}</p>}
-                  <p className="text-[12px] text-[#667185] mt-1">Enter a URL to your shop banner image</p>
+                  {errors.banner_url && (
+                    <p className="text-[12px] text-red-500 mt-1">
+                      {errors.banner_url}
+                    </p>
+                  )}
+                  <p className="text-[12px] text-[#667185] mt-1">
+                    Enter a URL to your shop banner image
+                  </p>
                 </div>
               </div>
             </div>
@@ -274,13 +362,18 @@ export default function CreateShopPage() {
           <div className="space-y-8">
             {/* Shop Settings */}
             <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-              <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Shop Settings</h2>
+              <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+                Shop Settings
+              </h2>
 
               <div className="space-y-6">
                 {/* Member Shop Toggle */}
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <Label htmlFor="is_member_shop" className="text-[14px] font-medium text-[#344054]">
+                    <Label
+                      htmlFor="is_member_shop"
+                      className="text-[14px] font-medium text-[#344054]"
+                    >
                       Member Shop
                     </Label>
                     <p className="text-[12px] text-[#667185] mt-1">
@@ -290,20 +383,27 @@ export default function CreateShopPage() {
                   <Switch
                     id="is_member_shop"
                     checked={formData.is_member_shop}
-                    onCheckedChange={(checked) => handleChange("is_member_shop", checked)}
+                    onCheckedChange={(checked) =>
+                      handleChange("is_member_shop", checked)
+                    }
                   />
                 </div>
 
                 {/* Cooperative ID */}
                 {formData.is_member_shop && (
                   <div>
-                    <Label htmlFor="cooperative_id" className="text-[14px] font-medium text-[#344054] mb-2">
+                    <Label
+                      htmlFor="cooperative_id"
+                      className="text-[14px] font-medium text-[#344054] mb-2"
+                    >
                       Cooperative ID (Optional)
                     </Label>
                     <Input
                       id="cooperative_id"
                       value={formData.cooperative_id}
-                      onChange={(e) => handleChange("cooperative_id", e.target.value)}
+                      onChange={(e) =>
+                        handleChange("cooperative_id", e.target.value)
+                      }
                       placeholder="Enter cooperative ID"
                       className="h-11 border-[#d0d5dd] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
                     />
@@ -344,7 +444,43 @@ export default function CreateShopPage() {
           </div>
         </div>
       </form>
-    </main>
-  )
-}
 
+      {/* Redirect Choice Dialog for Flow 1 */}
+      <Dialog open={showRedirectDialog} onOpenChange={setShowRedirectDialog}>
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">
+              Shop Created Successfully! 🎉
+            </DialogTitle>
+            <DialogDescription className="text-center text-base pt-2">
+              Where would you like to go next?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-6">
+            <Button
+              onClick={() => {
+                setShowRedirectDialog(false);
+                router.push("/sellers/dashboard");
+              }}
+              className="w-full h-14 bg-[#f10e7c] hover:bg-[#d90d6a] text-white font-medium text-base flex items-center justify-center gap-3"
+            >
+              <Store className="w-5 h-5" />
+              Go to Seller Dashboard
+            </Button>
+            <Button
+              onClick={() => {
+                setShowRedirectDialog(false);
+                router.push("/marketplace");
+              }}
+              variant="outline"
+              className="w-full h-14 border-2 border-[#d0d5dd] hover:bg-[#f9fafb] text-[#344054] font-medium text-base flex items-center justify-center gap-3"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              Browse Marketplace
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </main>
+  );
+}
