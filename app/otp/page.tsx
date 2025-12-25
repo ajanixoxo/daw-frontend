@@ -1,16 +1,31 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useVerifyOtp, useResendOtp } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
 function OtpContent() {
   const [otp, setOtp] = useState("");
-  const { verifyOtp, isLoading, error, success } = useVerifyOtp();
+  const {
+    verifyOtp,
+    isLoading,
+    error,
+    success,
+    showSellerRegistrationDialog,
+    setShowSellerRegistrationDialog,
+  } = useVerifyOtp();
   const {
     resend,
     isLoading: isResending,
@@ -18,6 +33,7 @@ function OtpContent() {
     success: resendSuccess,
   } = useResendOtp();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const mode = (searchParams.get("mode") as "signup" | "login") || "signup";
 
   // Timer state
@@ -51,11 +67,7 @@ function OtpContent() {
   const title = mode === "login" ? "Verify Login" : "Verify your account";
   const buttonText = mode === "login" ? "Verify Login" : "Verify Account";
 
-  // Check if seller signup - if so, don't show success message (will redirect to KYC)
-  const signupRole =
-    typeof window !== "undefined" ? sessionStorage.getItem("signupRole") : null;
-
-  if (success && mode === "signup" && signupRole !== "seller") {
+  if (success && mode === "signup") {
     return (
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
         <div className="mb-4 flex justify-center">
@@ -180,6 +192,41 @@ function OtpContent() {
           </p>
         </div>
       </form>
+
+      <Dialog
+        open={showSellerRegistrationDialog}
+        onOpenChange={setShowSellerRegistrationDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Seller Account Required</DialogTitle>
+            <DialogDescription>
+              You don't have a seller account yet. Please register as a seller
+              to access the seller dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowSellerRegistrationDialog(false);
+                router.push("/");
+              }}
+            >
+              Go to Home
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSellerRegistrationDialog(false);
+                router.push("/signup");
+              }}
+              className="bg-(--brand-pink) hover:bg-(--brand-pink)/90"
+            >
+              Register as Seller
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
