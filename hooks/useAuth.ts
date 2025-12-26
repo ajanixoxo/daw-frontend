@@ -264,23 +264,14 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           }
           router.refresh();
         } else if (mode === "signup") {
-          // Check if user signed up as seller
+          // Clear the stored role if it exists
           const signupRole = sessionStorage.getItem("signupRole");
-          if (signupRole === "seller") {
-            // Clear the stored role
+          if (signupRole) {
             sessionStorage.removeItem("signupRole");
-            
-            // Store tokens if available (for seller onboarding flow)
-            if (result.data?.accessToken) {
-              tokenManager.setTokens(result.data.accessToken, result.data.refreshToken || "");
-            }
-            
-            // Redirect seller to KYC page
-            router.push("/sellers/kyc");
-          } else {
-            // Regular buyer signup - will show success message and redirect to login
-            setAuthStatus(false, true);
           }
+          
+          // Show success message and redirect to login (same for both buyer and seller)
+          setAuthStatus(false, true);
         } else {
           setAuthStatus(false, true);
         }

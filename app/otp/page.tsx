@@ -51,11 +51,8 @@ function OtpContent() {
   const title = mode === "login" ? "Verify Login" : "Verify your account";
   const buttonText = mode === "login" ? "Verify Login" : "Verify Account";
 
-  // Check if seller signup - if so, don't show success message (will redirect to KYC)
-  const signupRole =
-    typeof window !== "undefined" ? sessionStorage.getItem("signupRole") : null;
-
-  if (success && mode === "signup" && signupRole !== "seller") {
+  // Show success message for all signups (both buyer and seller)
+  if (success && mode === "signup") {
     return (
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
         <div className="mb-4 flex justify-center">
