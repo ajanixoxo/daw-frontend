@@ -12,17 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Eye, EyeOff } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
 import type { ILoginRequest } from "@/types/auth.types";
 
 const SignInForm: FC = () => {
@@ -33,14 +24,7 @@ const SignInForm: FC = () => {
     role?: string;
   }>({});
 
-  const {
-    login,
-    isLoading,
-    error,
-    showSellerRegistrationDialog,
-    setShowSellerRegistrationDialog,
-  } = useLogin();
-  const router = useRouter();
+  const { login, isLoading, error } = useLogin();
 
   const [formData, setFormData] = useState<
     ILoginRequest & { role: "buyer" | "seller" }
@@ -195,41 +179,6 @@ const SignInForm: FC = () => {
       >
         {isLoading ? "Signing in..." : "Login"}
       </Button>
-
-      <Dialog
-        open={showSellerRegistrationDialog}
-        onOpenChange={setShowSellerRegistrationDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Seller Account Required</DialogTitle>
-            <DialogDescription>
-              You don't have a seller account yet. Please register as a seller
-              to access the seller dashboard.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowSellerRegistrationDialog(false);
-                router.push("/");
-              }}
-            >
-              Go to Home
-            </Button>
-            <Button
-              onClick={() => {
-                setShowSellerRegistrationDialog(false);
-                router.push("/signup");
-              }}
-              className="bg-(--brand-pink) hover:bg-(--brand-pink)/90"
-            >
-              Register as Seller
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </form>
   );
 };
