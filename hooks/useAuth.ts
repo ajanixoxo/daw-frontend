@@ -1,6 +1,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser, signupUser, logoutUser, resendOtp } from "@/app/actions/auth";
+import { getUserProfile } from "@/app/actions/profile";
 import type { ILoginRequest, ISignupRequest, ISessionData, IUser } from "@/types/auth.types";
 import { useAuthStore } from "@/zustand/store";
 import { tokenManager } from "@/lib/api/client-client";
@@ -48,12 +49,46 @@ export function useLogin(): UseLoginReturn {
           }
 
           if (result.data.isVerified) {
-            // Check if user is a seller and redirect to seller dashboard
+            // Check if user is a seller and verify KYC status
             const userRoles = result.user?.roles || [];
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
             
             if (isSeller) {
-              router.push("/sellers/dashboard");
+              // Fetch profile to check shop and KYC status
+              try {
+                const profileResponse = await getUserProfile();
+                if (profileResponse.success && profileResponse.data) {
+                  const user = profileResponse.data;
+                  
+                  // Check if user has shops
+                  const hasShops = user.shop && Array.isArray(user.shop) && user.shop.length > 0;
+                  
+                  if (hasShops) {
+                    // User has shops, redirect to dashboard
+                    router.push("/sellers/dashboard");
+                  } else {
+                    // User has no shops, check KYC status
+                    const isKycVerified = 
+                      user.kyc_status === "verified" || 
+                      (user as any).kycVerified === true;
+                    
+                    if (!isKycVerified) {
+                      // Redirect to KYC page if not verified
+                      router.push("/sellers/kyc");
+                    } else {
+                      // KYC verified but no shops, redirect to create shop
+                      router.push("/sellers/shop/create");
+                    }
+                  }
+                } else {
+                  // If profile fetch fails, redirect to KYC to be safe
+                  router.push("/sellers/kyc");
+                }
+              } catch (error) {
+                console.error("Error checking profile:", error);
+                // On error, redirect to KYC page
+                router.push("/sellers/kyc");
+              }
             } else {
               router.push("/");
             }
@@ -238,8 +273,6 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           return;
         }
 
-        setSuccess(true);
-
         if (mode === "login" && result.data) {
           // Store tokens in localStorage for client-side API client
           if (result.data.accessToken && result.data.refreshToken) {
@@ -249,20 +282,74 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           if (result.user) {
             setAuthData(result.user, result.data);
             
-            // Check if user is a seller and redirect to seller dashboard
+            // Check if user is a seller and verify KYC status
             const userRoles = result.user.roles || [];
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
             
             if (isSeller) {
-              router.push("/sellers/dashboard");
+              // Fetch profile to check shop and KYC status
+              try {
+                const profileResponse = await getUserProfile();
+                
+                // Determine redirect path based on shop and KYC status
+                let redirectPath = "/sellers/kyc"; // Default to KYC
+                
+                if (profileResponse.success && profileResponse.data) {
+                  const user = profileResponse.data;
+                  
+                  // Check if user has shops
+                  const hasShops = user.shop && Array.isArray(user.shop) && user.shop.length > 0;
+                  
+                  if (hasShops) {
+                    // User has shops, redirect to dashboard
+                    redirectPath = "/sellers/dashboard";
+                  } else {
+                    // User has no shops, check KYC status
+                    // First try from result.user (for OTP login), then use profile data
+                    const userFromResult = result.user as any;
+                    let isKycVerified = false;
+                    
+                    if (userFromResult?.kyc_status === "verified" || userFromResult?.kycVerified === true) {
+                      isKycVerified = true;
+                    } else if (userFromResult?.kyc_status || userFromResult?.kycVerified === false) {
+                      isKycVerified = false;
+                    } else {
+                      // Use profile data for KYC status
+                      isKycVerified = 
+                        user.kyc_status === "verified" || 
+                        (user as any).kycVerified === true;
+                    }
+                    
+                    if (!isKycVerified) {
+                      // Redirect to KYC page if not verified
+                      redirectPath = "/sellers/kyc";
+                    } else {
+                      // KYC verified but no shops, redirect to create shop
+                      redirectPath = "/sellers/shop/create";
+                    }
+                  }
+                }
+                
+                // Clear loading state and redirect immediately
+                setIsLoading(false);
+                window.location.href = redirectPath;
+              } catch (error) {
+                console.error("Error checking profile:", error);
+                // On error, redirect to KYC page
+                setIsLoading(false);
+                window.location.href = "/sellers/kyc";
+              }
             } else {
+              setIsLoading(false);
               router.push("/");
+              router.refresh();
             }
           } else {
+            setIsLoading(false);
             setAuthStatus(true, true);
             router.push("/");
+            router.refresh();
           }
-          router.refresh();
         } else if (mode === "signup") {
           // Clear the stored role if it exists
           const signupRole = sessionStorage.getItem("signupRole");
@@ -271,12 +358,13 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           }
           
           // Show success message and redirect to login (same for both buyer and seller)
+          setSuccess(true);
           setAuthStatus(false, true);
+          setIsLoading(false);
         } else {
           setAuthStatus(false, true);
+          setIsLoading(false);
         }
-
-        setIsLoading(false);
       } catch (err) {
         const message = err instanceof Error ? err.message : "An error occurred";
         setError(message);
