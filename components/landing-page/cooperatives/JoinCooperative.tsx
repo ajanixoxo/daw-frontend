@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useCooperative } from "@/hooks/useJoinCooperative";
 import { useProfile } from "@/hooks/useProfile";
+import { useRouter } from "next/navigation";
 
 const COOPERATIVE_ID = "6940311dd9b9141819c58938";
 
@@ -22,62 +23,63 @@ const JoinCooperative = () => {
   } = useCooperative();
 
   const { data: user, isLoading: isProfileLoading } = useProfile();
-console.log("user", user);
-const [step, setStep] = useState<1 | 2>(1);
+  console.log("user", user);
+  const router = useRouter();
+  const [step, setStep] = useState<1 | 2>(1);
 
-const [formDetails, setFormDetails] = useState({
-  name: "",
-  email: "",
-  phone: "",
-  businessName: "",
-  country: "",
-  category: "",
-  userId: "",
-  cooperativeId: COOPERATIVE_ID,
-  subscriptionTierId: "",
-});
+  const [formDetails, setFormDetails] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    businessName: "",
+    country: "",
+    category: "",
+    userId: "",
+    cooperativeId: COOPERATIVE_ID,
+    subscriptionTierId: "",
+  });
 
-useEffect(() => {
-  loadCooperativeById(COOPERATIVE_ID);
-}, []);
+  useEffect(() => {
+    loadCooperativeById(COOPERATIVE_ID);
+  }, []);
 
-useEffect(() => {
-  if (user) {
+  useEffect(() => {
+    if (user) {
+      setFormDetails((prev) => ({
+        ...prev,
+        name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: user.email || "",
+        phone: user.phone || "",
+        userId: user._id,
+      }));
+    }
+  }, [user]);
+
+  const isSeller = user?.roles?.includes("seller");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormDetails((prev) => ({
       ...prev,
-      name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-      email: user.email || "",
-      phone: user.phone || "",
-      userId: user._id,
+      [e.target.name]: e.target.value,
     }));
-  }
-}, [user]);
+  };
 
-const isSeller = user?.roles?.includes("seller");
+  const handleContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep(2);
+  };
 
-const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setFormDetails((prev) => ({
-    ...prev,
-    [e.target.name]: e.target.value,
-  }));
-};
+  const handleTierSelect = (tierId: string) => {
+    setFormDetails((prev) => ({
+      ...prev,
+      subscriptionTierId: tierId,
+    }));
+  };
 
-const handleContinue = (e: React.FormEvent) => {
-  e.preventDefault();
-  setStep(2);
-};
-
-const handleTierSelect = (tierId: string) => {
-  setFormDetails((prev) => ({
-    ...prev,
-    subscriptionTierId: tierId,
-  }));
-};
-
-const handleFinalSubmit = async () => {
-  // console.log("lets join");
-  await join(formDetails);
-};
+  const handleFinalSubmit = async () => {
+    // console.log("lets join");
+    await join(formDetails);
+  };
 
   if (isProfileLoading) {
     return (
@@ -105,8 +107,11 @@ const handleFinalSubmit = async () => {
             Please complete seller onboarding before joining a cooperative.
           </p>
 
-          <Button className="mt-4 w-full" onClick={() => window.history.back()}>
-            Go Back
+          <Button
+            className="mt-4 w-full"
+            onClick={() => router.push("/sellers/kyc")}
+          >
+            Create or Verify Your seller account
           </Button>
         </div>
       </div>

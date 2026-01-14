@@ -38,7 +38,7 @@ export default function Hero() {
           {/* Text Content */}
           <div className="flex flex-col items-center gap-4 w-full">
             <h1 className="text-[#222] text-center text-[32px] md:text-[52px] font-medium leading-[120%] tracking-[-0.06em] md:tracking-[-3.12px]">
-              Empowering African Women Through Digital Commerce
+              Empowering African Woman Through Digital Commerce
             </h1>
             <p className="text-[#6B6B6B] text-center text-[16px] md:text-[18px] font-normal leading-[140%] tracking-[-0.02em] md:tracking-[-0.72px] max-w-[516px]">
               Join our cooperative and transform your business with digital
@@ -53,9 +53,11 @@ export default function Hero() {
                 Join DAW Cooperative
               </button>
             </Link>
-            <button className="w-full md:w-auto flex items-center justify-center px-8 py-4 rounded-[40px] border border-[#FCCFE5] bg-white text-[#F10E7C] text-[18px] md:text-[20px] font-medium tracking-[-0.8px]">
-              Learn More
-            </button>
+            <Link href="/masterclass">
+              <button className="w-full md:w-auto flex items-center justify-center px-8 py-4 rounded-[40px] border border-[#FCCFE5] bg-white text-[#F10E7C] text-[18px] md:text-[20px] font-medium tracking-[-0.8px]">
+                Learn More
+              </button>
+            </Link>
           </div>
         </div>
       </section>
