@@ -109,7 +109,7 @@ const JoinCooperative = () => {
 
           <Button
             className="mt-4 w-full"
-            onClick={() => router.push("/sellers/kyc")}
+            onClick={() => router.push("/sellers/sellers-signup")}
           >
             Create or Verify Your seller account
           </Button>
