@@ -51,7 +51,7 @@ export default function WhyDAWSection() {
 
             {/* Card 3 - White */}
             <Link
-              href="/sellers/kyc"
+              href="/sellers/sellers-signup"
               className="flex flex-col justify-between p-6 sm:p-8 rounded-[20px] bg-[#FFFFFF] min-h-[291px] hover:border-2 hover:border-[#F10E7C] transition-all cursor-pointer"
             >
               <svg
