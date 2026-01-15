@@ -8,10 +8,11 @@ import { LearnGrowCourses } from "@/components/landing-page/home/learn-grow-cour
 import { MarketplaceProducts } from "@/components/landing-page/home/marketplace-courses";
 import { MembershipPricing } from "@/components/landing-page/home/membership-pricing";
 import { Testimonials } from "@/components/landing-page/home/testimonials";
-import { WhyDAW } from "@/components/landing-page/home/why-daw";
+
 import { HeroSection } from "@/components/landing-page/home/signed-in-hero";
 import { PopularProducts } from "@/components/landing-page/home/popular-products";
 import { useAuthSync } from "@/hooks/useAuthSync";
+import WhyDAWSection from "@/components/landing-page/home/why-daw";
 
 export default function Home() {
   // This hook automatically syncs auth state between client and server
@@ -44,7 +45,7 @@ export default function Home() {
       )}
       {!isAuthenticated && <Hero />}
       <CooperativePlatform />
-      <WhyDAW />
+      <WhyDAWSection />
       <MembershipPricing />
       <Testimonials />
       <MarketplaceProducts />
