@@ -46,7 +46,7 @@ export function WhyDAW() {
                 <h3 className="text-xl md:text-2xl font-semibold text-[#000000] mb-3">
                   Create My Own Cooperative
                 </h3>
-                <p className="text-[#222222]/70 text-sm md:text-base leading-relaxed">
+                <p className="text-[#222221]/70 text-sm md:text-base leading-relaxed">
                   Lead with Confidence — Build and Manage Your Cooperative
                   Digitally.
                 </p>
