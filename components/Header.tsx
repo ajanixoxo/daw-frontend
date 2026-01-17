@@ -6,6 +6,7 @@ import { Menu, X, Loader2, ShoppingCart, User } from "lucide-react";
 import { useAuthStore } from "@/zustand/store";
 import { useLogout } from "@/hooks/useAuth";
 import { useCartItemCount } from "@/hooks/useCart";
+import { cn } from "@/lib/utils";
 
 function CartBadge() {
   const itemCount = useCartItemCount();
@@ -19,7 +20,11 @@ function CartBadge() {
   );
 }
 
-export default function Header() {
+interface HeaderProps {
+  theme?: "light" | "dark";
+}
+
+export default function Header({ theme = "dark" }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -48,6 +53,22 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
+  // Determine text color based on scroll state and theme
+  // When scrolled: always dark text (on white bg)
+  // When not scrolled: depends on theme (light theme = white text, dark theme = dark text)
+  const textColorClass = isScrolled
+    ? "text-[#222]"
+    : theme === "light"
+    ? "text-white hover:text-[#F10E7C]"
+    : "text-[#222]";
+
+  // Icon color follows text color
+  const iconColorClass = isScrolled
+    ? "text-[#222]"
+    : theme === "light"
+    ? "text-white"
+    : "text-[#222]";
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${
@@ -66,25 +87,49 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-5">
             <Link
               href="/"
-              className="text-[#222] font-inter text-[16px] font-semibold tracking-[-0.64px] hover:text-[#F10E7C] transition-colors"
+              className={cn(
+                "font-inter text-[16px] font-semibold tracking-[-0.64px] transition-colors",
+                textColorClass
+              )}
             >
               Home
             </Link>
             <Link
               href="/marketplace"
-              className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors"
+              className={cn(
+                "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
+                isScrolled
+                  ? "text-[#222]"
+                  : theme === "light"
+                  ? "text-white"
+                  : "text-[#222]"
+              )}
             >
               Marketplace
             </Link>
             <Link
               href="/cooperatives"
-              className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors"
+              className={cn(
+                "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
+                isScrolled
+                  ? "text-[#222]"
+                  : theme === "light"
+                  ? "text-white"
+                  : "text-[#222]"
+              )}
             >
               Cooperatives
             </Link>
             <Link
               href="/masterclass"
-              className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors"
+              className={cn(
+                "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
+                isScrolled
+                  ? "text-[#222]"
+                  : theme === "light"
+                  ? "text-white"
+                  : "text-[#222]"
+              )}
             >
               Masterclass
             </Link>
@@ -98,27 +143,43 @@ export default function Header() {
               {/* Cart Icon */}
               <Link
                 href="/cart"
-                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="relative p-2 hover:bg-gray-100/10 rounded-full transition-colors"
               >
-                <ShoppingCart className="w-6 h-6 text-[#222]" />
+                <ShoppingCart className={cn("w-6 h-6", iconColorClass)} />
                 <CartBadge />
               </Link>
 
               {/* Profile Icon */}
               <Link
                 href="/profile"
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100/10 rounded-full transition-colors"
               >
-                <User className="w-6 h-6 text-[#222]" />
+                <User className={cn("w-6 h-6", iconColorClass)} />
               </Link>
 
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group"
+                className={cn(
+                  "flex items-center justify-center px-6 py-3 rounded-[40px] border transition-colors group",
+                  isScrolled
+                    ? "border-[#F10E7C] bg-white hover:bg-[#F10E7C]"
+                    : theme === "light"
+                    ? "border-white bg-transparent hover:bg-white"
+                    : "border-[#F10E7C] bg-white hover:bg-[#F10E7C]"
+                )}
               >
-                <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2">
+                <span
+                  className={cn(
+                    "font-inter text-[16px] font-medium tracking-[-0.64px] flex items-center gap-2",
+                    isScrolled
+                      ? "text-[#F10E7C] group-hover:text-white"
+                      : theme === "light"
+                      ? "text-white group-hover:text-[#F10E7C]"
+                      : "text-[#F10E7C] group-hover:text-white"
+                  )}
+                >
                   {isLoggingOut && <Loader2 className="w-4 h-4 animate-spin" />}
                   Logout
                 </span>
@@ -126,8 +187,26 @@ export default function Header() {
             </>
           ) : (
             <Link href="/auth" passHref>
-              <button className="flex items-center justify-center px-6 py-3 rounded-[40px] border border-[#F10E7C] bg-white hover:bg-[#F10E7C] transition-colors group">
-                <span className="text-[#F10E7C] group-hover:text-white font-inter text-[16px] font-medium tracking-[-0.64px]">
+              <button
+                className={cn(
+                  "flex items-center justify-center px-6 py-3 rounded-[40px] border transition-colors group",
+                  isScrolled
+                    ? "border-[#F10E7C] bg-white hover:bg-[#F10E7C]"
+                    : theme === "light"
+                    ? "border-white bg-transparent hover:bg-white"
+                    : "border-[#F10E7C] bg-white hover:bg-[#F10E7C]"
+                )}
+              >
+                <span
+                  className={cn(
+                    "font-inter text-[16px] font-medium tracking-[-0.64px]",
+                    isScrolled
+                      ? "text-[#F10E7C] group-hover:text-white"
+                      : theme === "light"
+                      ? "text-white group-hover:text-[#F10E7C]"
+                      : "text-[#F10E7C] group-hover:text-white"
+                  )}
+                >
                   Login
                 </span>
               </button>
@@ -138,7 +217,7 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 text-[#222] hover:text-[#F10E7C] transition-colors"
+          className={cn("lg:hidden p-2 transition-colors", iconColorClass)}
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? (
