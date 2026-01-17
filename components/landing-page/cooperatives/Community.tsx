@@ -1,148 +1,3 @@
-// export default function CommunityPage() {
-//   return (
-//     <div className="min-h-screen bg-[#000000] text-[#ffffff] px-4 py-12 md:py-16 lg:py-20">
-//       <div className="max-w-7xl mx-auto">
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
-//           {/* Left Column - Benefits */}
-//           <div className="space-y-6 lg:space-y-8">
-//             {/* Intro Text */}
-//             <p className="text-[#a7a7a7] text-base md:text-lg leading-relaxed max-w-2xl">
-//               Become part of a thriving network of over 20,000 empowered African women entrepreneurs. Our cooperative
-//               membership offers exclusive benefits designed to accelerate your business growth and personal development.
-//             </p>
-
-//             {/* Benefits Cards */}
-//             <div className="space-y-4 md:space-y-5">
-//               {/* Exclusive Training Programs */}
-//               <div className="bg-[#101010] rounded-2xl p-6 md:p-8 border border-[#222222]">
-//                 <h3 className="text-[#ffffff] text-xl md:text-2xl font-medium mb-3">Exclusive Training Programs</h3>
-//                 <p className="text-[#a7a7a7] text-base md:text-lg leading-relaxed">
-//                   Access to advanced workshops, masterclasses, and one-on-one mentorship sessions
-//                 </p>
-//               </div>
-
-//               {/* Investment Opportunities */}
-//               <div className="bg-[#101010] rounded-2xl p-6 md:p-8 border border-[#222222]">
-//                 <h3 className="text-[#ffffff] text-xl md:text-2xl font-medium mb-3">Investment Opportunities</h3>
-//                 <p className="text-[#a7a7a7] text-base md:text-lg leading-relaxed">
-//                   Access to exclusive investment opportunities and savings programs with competitive returns
-//                 </p>
-//               </div>
-
-//               {/* Priority Loan Access */}
-//               <div className="bg-[#101010] rounded-2xl p-6 md:p-8 border border-[#222222]">
-//                 <h3 className="text-[#ffffff] text-xl md:text-2xl font-medium mb-3">Priority Loan Access</h3>
-//                 <p className="text-[#a7a7a7] text-base md:text-lg leading-relaxed">
-//                   Fast-track approval for all loan categories with preferential interest rates
-//                 </p>
-//               </div>
-
-//               {/* Free Marketplace Access */}
-//               <div className="bg-[#101010] rounded-2xl p-6 md:p-8 border border-[#222222]">
-//                 <h3 className="text-[#ffffff] text-xl md:text-2xl font-medium mb-3">Free Marketplace Access</h3>
-//                 <p className="text-[#a7a7a7] text-base md:text-lg leading-relaxed">
-//                   Join the DAW Marketplace at no cost and receive up to 10% discount on purchases
-//                 </p>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Right Column - Heading and Stats */}
-//           <div className="flex flex-col justify-start lg:justify-center space-y-8 lg:space-y-12">
-//             {/* Main Heading */}
-//             <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-normal leading-tight text-pretty">
-//               Join Our Growing Community
-//             </h1>
-
-//             {/* Stats Card */}
-//             <div className="bg-[#222222] rounded-3xl pt-8 p-8 md:p-10 lg:p-12 text-center border border-[#252525] max-w-md lg:max-w-none">
-//               <div className="text-[#f10e7c] text-5xl md:text-6xl lg:text-7xl font-normal mb-4">20,000+</div>
-//               <div className="text-[#ffffff] text-2xl md:text-3xl lg:text-4xl font-normal">Active Members</div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-
-
-
-// export default function CommunityPage() {
-//   const benefits = [
-//     {
-//       title: "Exclusive Training Programs",
-//       description: "Access to advanced workshops, masterclasses, and one-on-one mentorship sessions"
-//     },
-//     {
-//       title: "Investment Opportunities",
-//       description: "Access to exclusive investment opportunities and savings programs with competitive returns"
-//     },
-//     {
-//       title: "Priority Loan Access",
-//       description: "Fast-track approval for all loan categories with preferential interest rates"
-//     },
-//     {
-//       title: "Free Marketplace Access",
-//       description: "Join the DAW Marketplace at no cost and receive up to 10% discount on purchases"
-//     }
-//   ];
-
-//   return (
-//     <div className="min-h-screen bg-[#000000] flex items-center justify-center px-4 sm:px-6 lg:px-24">
-//       <div className="w-full max-w-[1440px] py-16 sm:py-20 lg:py-32">
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 xl:gap-40 items-center">
-//           {/* Left Column - Benefits */}
-//           <div className="flex flex-col justify-center gap-8">
-//             {/* Subtitle */}
-//             <p className="text-[#A7A7A7] text-base sm:text-lg leading-[28px] font-normal">
-//               Become part of a thriving network of over 20,000 empowered African women entrepreneurs. Our cooperative membership offers exclusive benefits designed to accelerate your business growth and personal development.
-//             </p>
-
-//             {/* Benefits List */}
-//             <div className="flex flex-col gap-6">
-//               {benefits.map((benefit, index) => (
-//                 <div 
-//                   key={index}
-//                   className="flex flex-col gap-5 p-5 sm:px-5 sm:py-[10px] rounded-[20px] bg-[#101010]"
-//                 >
-//                   <div className="flex flex-col gap-3">
-//                     <h3 className="text-[#FFFFFF] text-lg sm:text-xl font-medium leading-[130%] tracking-[-0.4px]">
-//                       {benefit.title}
-//                     </h3>
-//                     <p className="text-[#B5B5B5] text-base sm:text-lg font-normal leading-[140%]">
-//                       {benefit.description}
-//                     </p>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-
-//           {/* Right Column - Title and Stats */}
-//           <div className="flex flex-col justify-between gap-12 lg:gap-0 lg:min-h-[620px]">
-//             {/* Title */}
-//             <h1 className="text-[#FFFFFF] text-4xl sm:text-5xl lg:text-[48px] font-medium leading-normal">
-//               Join Our Growing Community
-//             </h1>
-
-//             {/* Stats Card */}
-//             <div className="flex flex-col items-center justify-center gap-0 py-10 px-8 sm:px-12 lg:px-16 rounded-[20px] bg-[#252525] self-start lg:self-auto w-full sm:w-auto">
-//               <div className="text-[#F10E7C] text-4xl sm:text-5xl lg:text-[48px] font-bold leading-[140%] tracking-[-1.92px]">
-//                 20,000+
-//               </div>
-//               <div className="text-[#FFFFFF] text-2xl sm:text-3xl lg:text-[36px] font-normal leading-[140%] tracking-[-1.44px] text-center">
-//                 Active Members
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 
 
 export default function CommunityPage() {
@@ -203,7 +58,7 @@ export default function CommunityPage() {
             <div className="flex flex-col justify-center gap-8">
               {/* Subtitle */}
               <p className="text-[#A7A7A7] text-base sm:text-lg leading-[28px] font-normal">
-                Become part of a thriving network of over 20,000 empowered African women entrepreneurs. Our cooperative membership offers exclusive benefits designed to accelerate your business growth and personal development.
+                Become part of a thriving network of over 20,000 empowered entrepreneurs. Our cooperative membership offers exclusive benefits designed to accelerate your business growth and personal development.
               </p>
 
               {/* Benefits List */}
@@ -257,7 +112,7 @@ export default function CommunityPage() {
                 Our Impact in Numbers
               </h2>
               <p className="text-[#565656] text-base sm:text-lg lg:text-xl leading-[28px] font-normal max-w-[522px]">
-                Become part of a thriving network of over 20,000 empowered African women entrepreneurs. Our cooperative membership offers exclusive benefits designed to accelerate your business growth and personal development.
+                Become part of a thriving network of over 20,000 empowered entrepreneurs. Our cooperative membership offers exclusive benefits designed to accelerate your business growth and personal development.
               </p>
             </div>
 

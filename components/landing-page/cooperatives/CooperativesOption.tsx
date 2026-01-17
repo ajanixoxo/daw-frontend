@@ -48,7 +48,7 @@ export default function CooperativesOption() {
               Join Other Cooperative
             </h2>
             <p className="text-[#6B6B6B] text-sm sm:text-base font-normal leading-[140%] tracking-[-0.64px] max-w-[516px]">
-              Access expert-led courses tailored to help African women entrepreneurs succeed in the global marketplace.
+              Access expert-led courses tailored to help entrepreneurs succeed in the global marketplace.
             </p>
           </div>
 
@@ -173,7 +173,7 @@ export default function CooperativesOption() {
 
                     {/* Join Button */}
 
-                    <Link href="/cooperatives/join">
+                    <Link href="/cooperative/cooperative-signup">
 
                            <button className="flex w-full px-5 py-3 justify-center items-center gap-1 rounded-[40px] bg-[#222222] hover:bg-[#000000] transition-colors">
                       <svg 

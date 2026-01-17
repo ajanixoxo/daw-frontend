@@ -39,7 +39,7 @@ export default function Hero() {
             <div className="relative z-10 mb-8 flex max-w-full flex-col items-start gap-8 lg:mb-0 lg:max-w-[633px] lg:gap-10">
               <div className="flex flex-col items-start gap-4">
                 <h1 className="font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-[#222] sm:text-[40px] lg:text-[52px] lg:tracking-[-3.12px]">
-                  Empowering African Women Through Digital Commerce
+                  Empowering Entrepreneurs Through Digital Commerce
                 </h1>
                 <p className="max-w-[516px] font-inter text-[16px] font-normal leading-[140%] tracking-[-0.72px] text-[#6B6B6B] lg:text-[18px]">
                   Join our cooperative and transform your business with digital
@@ -48,7 +48,7 @@ export default function Hero() {
               </div>
 
               <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
-                <Link href="/cooperatives/join">
+                <Link href="/cooperative/cooperative-signup">
                   <button className="flex w-full items-center justify-center rounded-[40px] bg-[#F10E7C] px-8 py-4 transition-colors hover:bg-[#d00c6b] sm:w-auto">
                     <span className="font-inter text-[18px] font-medium tracking-[-0.8px] text-white lg:text-[20px]">
                       Join DAW Cooperative
@@ -125,7 +125,7 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
-              <Link href="/cooperatives/join">
+              <Link href="/cooperative/cooperative-signup">
                 <button className="flex min-w-[200px] items-center justify-center rounded-[40px] bg-[#F10E7C] px-8 py-4 transition-colors hover:bg-[#d00c6b]">
                   <span className="font-inter text-[18px] font-medium tracking-[-0.8px] text-white lg:text-[20px]">
                     Join DAW Cooperative

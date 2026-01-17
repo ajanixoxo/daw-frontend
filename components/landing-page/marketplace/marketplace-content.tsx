@@ -73,11 +73,11 @@ export function MarketplaceContent() {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
-          African Women Marketplace
+          Entrepreneurs Marketplace
         </h1>
         <p className="text-[#6b6b6b] text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-          Discover authentic handcrafted products made by talented women
-          entrepreneurs from across Africa.
+          Discover products made by talented
+          entrepreneurs from across the world.
         </p>
       </div>
 

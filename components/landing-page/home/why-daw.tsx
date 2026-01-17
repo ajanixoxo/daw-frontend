@@ -11,15 +11,15 @@ export default function WhyDAWSection() {
               Why DAW
             </h2>
             <p className="text-[#000000] text-base sm:text-lg font-normal leading-[24px] tracking-[-0.27px] max-w-[480px]">
-              Empowering Women&apos;s Cooperatives with Smart, Scalable
-              Management Tools
+              Empowering entrepreneurs with smart scalable management
+tools
             </p>
           </div>
 
           {/* Bento Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:h-[291px]">
             {/* Card 1 - Pink, spans 1 column */}
-            <Link href="/cooperatives/join">
+            <Link href="/cooperative/cooperative-signup">
               <div className="flex flex-col justify-between p-6 sm:p-8 rounded-[20px] bg-[#F10E7C] min-h-[291px]">
                 <svg
                   width="45"

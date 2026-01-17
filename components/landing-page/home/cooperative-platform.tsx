@@ -10,7 +10,7 @@ export function CooperativePlatform() {
             Our Cooperative Platform
           </h2>
           <p className="text-[#222222]/70 text-base md:text-lg max-w-2xl mx-auto text-pretty leading-relaxed">
-            We provide the tools, resources, and community support to help African women entrepreneurs thrive in the
+            We provide the tools, resources, and community support to help entrepreneurs thrive in the
             digital economy.
           </p>
         </div>

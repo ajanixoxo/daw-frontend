@@ -12,11 +12,11 @@ export default function CTASection() {
                 Ready to Transform Your Business?
               </h2>
               <p className="text-[#FFFFFF] text-base sm:text-lg lg:text-xl font-normal leading-[140%] tracking-[-0.8px]">
-                Join thousands of African women entrepreneurs who are already growing their businesses on our platform.
+                Join thousands of entrepreneurs who are already growing their businesses on our platform.
               </p>
             </div>
 
-            <Link href="/cooperatives/join">
+            <Link href="/cooperative/cooperative-signup">
               <button className="flex px-6 sm:px-8 py-4 justify-center items-center gap-1 rounded-[40px] bg-[#FFFFFF] hover:bg-[#f5f5f5] transition-colors self-start">
               <span className="text-[#222222] text-lg sm:text-xl font-medium tracking-[-0.8px]">
                 Join Cooperative

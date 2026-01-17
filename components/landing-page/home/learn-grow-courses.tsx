@@ -41,7 +41,7 @@ export function LearnGrowCourses() {
             Learn & Grow Your Business
           </h2>
           <p className="text-[#6b6b6b] text-base md:text-lg max-w-xl leading-relaxed">
-            Access expert-led courses tailored to help African women entrepreneurs
+            Access expert-led courses tailored to help entrepreneurs
             <br className="hidden md:block" /> succeed in the global marketplace.
           </p>
         </div>

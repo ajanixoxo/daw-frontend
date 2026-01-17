@@ -18,7 +18,7 @@ export default function Mission() {
               className="text-[#6B6B6B] text-base sm:text-lg lg:text-[20px] font-normal leading-[140%] tracking-[-0.04em] max-w-[600px]"
               style={{ fontFamily: 'Satoshi, -apple-system, Roboto, Helvetica, sans-serif' }}
             >
-              Our mission is clear: empower African women through strategic financial support, community building, and collaborative growth opportunities.
+              Our mission is clear: empower entrepreneurs through strategic financial support, community building, and collaborative growth opportunities.
             </p>
           </div>
 
@@ -77,7 +77,7 @@ export default function Mission() {
                     className="text-[#222222] text-base sm:text-lg lg:text-[18px] font-normal leading-[120%] tracking-[-0.04em] max-w-[368px]"
                     style={{ fontFamily: 'Satoshi, -apple-system, Roboto, Helvetica, sans-serif' }}
                   >
-                    Join a thriving network of over 20,000 empowered African women entrepreneurs.
+                    Join a thriving network of over 20,000 empowered entrepreneurs.
                   </p>
                 </div>
               </div>

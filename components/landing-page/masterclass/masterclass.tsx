@@ -59,7 +59,7 @@ export function MasterclassContent() {
         <div className="text-center mb-12 my-8">
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#222222] mb-4">Masterclass</h1>
           <p className="text-[#6b6b6b] text-base max-w-lg mx-auto leading-relaxed">
-            Discover authentic handcrafted products made by talented women entrepreneurs from across Africa.
+            Discover products made by talented women entrepreneurs from across Africa.
           </p>
         </div>
 

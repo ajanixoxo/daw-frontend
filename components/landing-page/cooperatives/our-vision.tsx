@@ -24,7 +24,7 @@ export function OurVision() {
             </h2>
 
             <p className="text-[#6b6b6b] text-lg md:text-xl leading-relaxed mb-10">
-              To build a world where African women lead boldly in business and technology, transforming their lives and
+              To build a world where Entrepreneurs lead boldly in business and technology, transforming their lives and
               communities through innovation and collaboration.
             </p>
 

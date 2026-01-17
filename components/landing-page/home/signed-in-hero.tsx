@@ -270,7 +270,7 @@ export function HeroSection() {
       image: "/banner1.png",
       title: "Transform your\nBusiness Today",
       cta: "Join DAW Cooperative",
-      link: "/cooperatives/join",
+      link: "/cooperative/cooperative-signup",
       textColor: "text-[#222222]",
       overlay:
         "bg-gradient-to-r from-[#e8e8e8]/95 via-[#e8e8e8]/80 via-40% to-transparent",

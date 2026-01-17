@@ -26,11 +26,11 @@ export function MarketplaceProducts() {
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
-            Discover African Craftsmanship
+            Discover  Craftsmanship
           </h2>
           <p className="text-[#6b6b6b] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Browse our curated selection of authentic products made by talented
-            <br className="hidden md:block" /> African women entrepreneurs.
+            <br className="hidden md:block" /> Entrepreneurs.
           </p>
         </div>
 
