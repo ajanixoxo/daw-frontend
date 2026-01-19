@@ -27,7 +27,7 @@ export function ProfileView() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl md:text-4xl font-semibold text-[#1a1a1a]">
+      <h1 className=" text-3xl md:text-4xl font-semibold text-[#1a1a1a]">
         Profile
       </h1>
 

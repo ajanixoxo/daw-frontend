@@ -98,7 +98,7 @@ export function Testimonials() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-[42px] font-bold text-[#222222] mb-4">
+          <h2 className=" text-3xl md:text-4xl lg:text-[42px] font-bold text-[#222222] mb-4">
             Hear From Our Members
           </h2>
           <p className="text-[#888888] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
@@ -119,14 +119,14 @@ export function Testimonials() {
                   {testimonials
                     .slice(
                       slideIndex * itemsPerSlide,
-                      (slideIndex + 1) * itemsPerSlide
+                      (slideIndex + 1) * itemsPerSlide,
                     )
                     .map((testimonial, index) => (
                       <div
                         key={index}
                         className={cn(
                           "bg-white rounded-2xl p-8 md:p-10 shadow-sm flex flex-col justify-between min-h-[320px] transition-all duration-300 hover:shadow-md",
-                          itemsPerSlide === 1 ? "w-full" : "w-1/2"
+                          itemsPerSlide === 1 ? "w-full" : "w-1/2",
                         )}
                       >
                         {/* Quote Icon */}
@@ -191,7 +191,7 @@ export function Testimonials() {
                   "h-2.5 rounded-full transition-all duration-300",
                   currentSlide === index
                     ? "w-8 bg-[#F10E7C]"
-                    : "w-2.5 bg-gray-300 hover:bg-[#F10E7C]/50"
+                    : "w-2.5 bg-gray-300 hover:bg-[#F10E7C]/50",
                 )}
                 aria-label={`Go to slide ${index + 1}`}
               />

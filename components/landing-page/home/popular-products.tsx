@@ -49,7 +49,7 @@ export function PopularProducts() {
           console.error("Error adding to cart:", error);
           setAddingProductId(null);
         },
-      }
+      },
     );
   };
 
@@ -69,7 +69,7 @@ export function PopularProducts() {
     <section className="py-12 px-4 md:px-8 lg:px-16 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#222222]">
+        <h2 className=" text-2xl md:text-3xl font-bold text-[#222222]">
           Popular Products
         </h2>
         {!isMarketplace && (
@@ -232,7 +232,7 @@ function ProductCard({
                 "w-4 h-4 transition-colors",
                 isInWishlist
                   ? "fill-yellow-400 text-yellow-400"
-                  : "text-gray-400"
+                  : "text-gray-400",
               )}
             />
           )}

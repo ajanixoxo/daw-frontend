@@ -383,7 +383,7 @@ export function HeroSection() {
 
                 {/* Heading */}
                 <h1
-                  className={`font-serif text-4xl md:text-5xl lg:text-[56px] font-bold leading-[1.1] mb-8 ${banner.textColor} whitespace-pre-line`}
+                  className={` text-4xl md:text-5xl lg:text-[56px] font-bold leading-[1.1] mb-8 ${banner.textColor} whitespace-pre-line`}
                 >
                   {banner.title}
                 </h1>
@@ -420,7 +420,7 @@ export function HeroSection() {
 
       {/* Popular Categories */}
       <div className="mt-12 md:mt-16">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#222222] mb-8">
+        <h2 className=" text-2xl md:text-3xl font-bold text-[#222222] mb-8">
           Popular Categories
         </h2>
 

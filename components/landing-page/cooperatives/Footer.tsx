@@ -89,10 +89,10 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#FFFFFF] border-t border-[#E5E5E5]">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-21 py-12 sm:py-16 lg:py-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16 lg:py-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
           {/* Brand Column */}
-          <div className="flex flex-col gap-8 lg:col-span-1">
+          <div className="flex flex-col gap-8 lg:col-span-3">
             <div className="flex items-center gap-2">
               <svg
                 width="24"
@@ -124,12 +124,12 @@ export default function Footer() {
           </div>
 
           {/* Navigation Column 1 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5 lg:col-span-2">
             {navigation.column1.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="text-[#222222] text-base font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors"
+                className="text-[#222222] text-[17px] font-normal tracking-[-0.02em] hover:text-[#F10E7C] transition-colors"
               >
                 {item.name}
               </a>
@@ -137,12 +137,12 @@ export default function Footer() {
           </div>
 
           {/* Navigation Column 2 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5 lg:col-span-2">
             {navigation.column2.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="text-[#222222] text-base font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors"
+                className="text-[#222222] text-[17px] font-normal tracking-[-0.02em] hover:text-[#F10E7C] transition-colors"
               >
                 {item.name}
               </a>
@@ -150,30 +150,31 @@ export default function Footer() {
           </div>
 
           {/* Newsletter Column */}
-          <div className="flex flex-col gap-4">
-            <p className="text-[#222222] text-base font-medium tracking-[-0.64px]">
+          <div className="flex flex-col gap-8 lg:col-span-5 lg:pl-10">
+            <h4 className="text-[#1A1A1A] text-[22px] font-semibold tracking-[-0.03em] leading-tight">
               Subscribe to our newsletter for updates
-            </p>
-            <div className="flex h-[60px] pl-6 pr-2 py-2 items-center gap-2 rounded-[40px] border border-[#E5E5E5] bg-[#FFFFFF]">
+            </h4>
+
+            <div className="relative flex h-[72px] w-full max-w-[540px] items-center rounded-full border border-[#E5E5E5] bg-white p-[7px] shadow-sm transition-all focus-within:border-[#F10E7C]/30">
               <input
                 type="email"
                 placeholder="Email address"
-                className="flex-1 bg-transparent text-base font-medium tracking-[-0.64px] placeholder:text-[rgba(0,0,0,0.25)] outline-none"
+                className="flex-1 bg-transparent pl-8 text-[18px] font-normal text-[#1A1A1A] placeholder:text-[#ADADAD] outline-none"
               />
-              <button className="flex h-full px-6 items-center justify-center gap-1 rounded-[40px] bg-[#F10E7C] hover:bg-[#d00c69] transition-colors flex-shrink-0">
-                <span className="text-[#FFFFFF] text-base font-medium tracking-[-0.64px]">
+              <button className="h-full px-12 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg">
+                <span className="text-white text-[18px] font-semibold tracking-[-0.01em]">
                   Subscribe
                 </span>
               </button>
             </div>
 
             {/* Social Links */}
-            <div className="flex items-center gap-6 mt-4">
+            <div className="flex items-center gap-8 pt-2">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href="#"
-                  className="hover:opacity-70 transition-opacity"
+                  className="text-[#6B6B6B] hover:text-[#F10E7C] transition-all hover:scale-110"
                   aria-label={social.name}
                 >
                   {social.icon}

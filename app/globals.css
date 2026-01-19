@@ -270,6 +270,9 @@
     @apply bg-background text-foreground;
     font-family: "Satoshi", sans-serif;
   }
+  button {
+    @apply cursor-pointer;
+  }
 }
 
 @utility auth-heading {

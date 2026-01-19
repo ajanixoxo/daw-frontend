@@ -56,7 +56,7 @@ export default function ProductDetailsPage() {
           {/* Breadcrumb or Back Link could go here */}
 
           <div className="text-center mb-12">
-            <h1 className="font-serif text-4xl font-medium text-[#222] mb-2">
+            <h1 className=" text-4xl font-medium text-[#222] mb-2">
               Details
             </h1>
             <p className="text-sm text-gray-500">

@@ -27,21 +27,21 @@ export default function Hero() {
       {/* --- SLIDE 1: Original White Design --- */}
       <div
         className={cn(
-          "absolute inset-0 h-full w-full transition-opacity duration-1000 ease-in-out pt-20",
+          "absolute inset-0 h-full w-full transition-opacity duration-1000 ease-in-out",
           currentSlide === 0
             ? "opacity-100 z-10 pointer-events-auto"
-            : "opacity-0 z-0 pointer-events-none"
+            : "opacity-0 z-0 pointer-events-none",
         )}
       >
-        <div className="relative mx-auto max-w-[1440px]">
-          <div className="relative flex min-h-[760px] flex-col items-center justify-between px-5 py-12 lg:flex-row lg:px-[84px] lg:py-0">
+        <div className="relative mx-auto h-full max-w-[1440px]">
+          <div className="relative flex h-full flex-col items-center px-5 lg:flex-row lg:px-[84px]">
             {/* Left Content */}
-            <div className="relative z-10 mb-8 flex max-w-full flex-col items-start gap-8 lg:mb-0 lg:max-w-[633px] lg:gap-10">
+            <div className="relative z-20 flex flex-col items-start gap-8 pt-20 lg:max-w-[650px] lg:gap-10 lg:pt-0">
               <div className="flex flex-col items-start gap-4">
                 <h1 className="font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-[#222] sm:text-[40px] lg:text-[52px] lg:tracking-[-3.12px]">
-                  Empowering Entrepreneurs Through Digital Commerce
+                  Empowering African Women Through Digital Commerce
                 </h1>
-                <p className="max-w-[516px] font-inter text-[16px] font-normal leading-[140%] tracking-[-0.72px] text-[#6B6B6B] lg:text-[18px]">
+                <p className="max-w-[480px] font-inter text-[16px] font-normal leading-[150%] tracking-[-0.02em] text-[#6B6B6B] lg:text-[18px]">
                   Join our cooperative and transform your business with digital
                   tools, financial support, and a global marketplace.
                 </p>
@@ -49,44 +49,48 @@ export default function Hero() {
 
               <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
                 <Link href="/cooperative/cooperative-signup">
-                  <button className="flex w-full items-center justify-center rounded-[40px] bg-[#F10E7C] px-8 py-4 transition-colors hover:bg-[#d00c6b] sm:w-auto">
-                    <span className="font-inter text-[18px] font-medium tracking-[-0.8px] text-white lg:text-[20px]">
-                      Join DAW Cooperative
+                  <button className="flex h-[56px] min-w-[180px] items-center justify-center rounded-[40px] bg-[#F10E7C] px-8 transition-all hover:bg-[#d00c6b] hover:shadow-lg">
+                    <span className="font-inter text-[16px] font-semibold text-white">
+                      Join Daw Cooperative
                     </span>
                   </button>
                 </Link>
-                <Link href="/marketplace">
-                  <button className="flex w-full items-center justify-center rounded-[40px] border border-[#FCCFE5] bg-white px-8 py-4 transition-colors hover:bg-[#FFF5FB] sm:w-auto">
-                    <span className="font-inter text-[18px] font-medium tracking-[-0.8px] text-[#F10E7C] lg:text-[20px]">
-                      Enter Marketplace
+                <Link href="/sellers/sellers-signup">
+                  <button className="flex h-[56px] min-w-[180px] items-center justify-center rounded-[40px] border border-[#F10E7C]/20 bg-white px-8 transition-all hover:bg-[#FFF5FB] hover:border-[#F10E7C]/40">
+                    <span className="font-inter text-[16px] font-semibold text-[#F10E7C]">
+                      Become a Seller
                     </span>
                   </button>
                 </Link>
               </div>
             </div>
 
-            {/* Right Image with Gradient */}
-            <div className="relative flex w-full items-center justify-center lg:w-auto lg:justify-end">
-              {/* Gradient Blur Effect - Hidden on mobile */}
-              <div className="pointer-events-none absolute right-[-100px] top-[100px] hidden h-[636px] w-[719px] bg-gradient-to-br from-[rgba(241,14,124,0.4)] via-[rgba(246,110,174,0.4)] to-[rgba(252,205,53,0.4)] blur-[250px] lg:block"></div>
+            {/* Right Image Container */}
+            <div className="absolute bottom-0 right-0 h-full w-full lg:w-[65%]">
+              {/* Soft Gradient Background */}
+              <div className="absolute right-0 top-1/2 h-[80%] w-[80%] -translate-y-1/2 rounded-full bg-linear-to-l from-[#FDEAF3] via-[#FDEAF3]/40 to-transparent blur-[120px]" />
 
-              {/* Woman Image */}
-              <div className="relative z-10 w-full max-w-[500px] lg:max-w-[900px]">
+              <div className="relative flex h-full w-full items-end justify-end overflow-hidden lg:overflow-visible">
                 <Image
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/c79d4e14d02fbec6f417674dd3c0303e429826e7?width=1560"
-                  alt="Happy young African American businesswoman"
-                  className="h-auto w-full object-cover"
-                  width={1560}
-                  height={899}
+                  src="/dawoman.png"
+                  alt="Empowered African Businesswoman"
+                  className="h-[60%] w-auto object-contain sm:h-[75%] lg:h-[110%] lg:translate-y-[10%]"
+                  width={1200}
+                  height={1500}
                   priority={currentSlide === 0}
                 />
-                {/* BLUR END EFFECT */}
-                <div className="absolute bottom-0 left-0 right-[-100px] h-[35%] bg-gradient-to-t from-white via-white/80 to-transparent backdrop-blur-[4px]"></div>
+
+                {/* Isomorphic Bottom Blur/Fade */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-white via-white/60 to-transparent backdrop-blur-sm"
+                  style={{
+                    WebkitMaskImage:
+                      "linear-gradient(to top, black 20%, transparent 100%)",
+                  }}
+                />
               </div>
             </div>
           </div>
-          {/* Bottom Blur Effect */}
-          <div className="pointer-events-none absolute bottom-0 left-[-101px] hidden h-[307px] w-[1642px] bg-[rgba(255,255,255,0.1)] blur-[30px] backdrop-blur-[50px] lg:block"></div>
         </div>
       </div>
 
@@ -96,7 +100,7 @@ export default function Hero() {
           "absolute inset-0 h-full w-full transition-opacity duration-1000 ease-in-out",
           currentSlide === 1
             ? "opacity-100 z-10 pointer-events-auto"
-            : "opacity-0 z-0 pointer-events-none"
+            : "opacity-0 z-0 pointer-events-none",
         )}
       >
         <div className="absolute inset-0">
@@ -133,7 +137,7 @@ export default function Hero() {
                 </button>
               </Link>
               <Link href="/marketplace">
-                <button className="flex min-w-[200px] items-center justify-center rounded-[40px] border border-white bg-transparent px-8 py-4 transition-colors hover:bg-white/10">
+                <button className=" flex min-w-[200px] items-center justify-center rounded-[40px] border border-white bg-transparent px-8 py-4 transition-colors hover:bg-white/10">
                   <span className="font-inter text-[18px] font-medium tracking-[-0.8px] text-white lg:text-[20px]">
                     Enter Marketplace
                   </span>
@@ -160,8 +164,8 @@ export default function Hero() {
                   ? "bg-[#F10E7C]"
                   : "bg-gray-300 hover:bg-gray-400"
                 : index === currentSlide
-                ? "bg-[#F10E7C]"
-                : "bg-white/50 hover:bg-white"
+                  ? "bg-[#F10E7C]"
+                  : "bg-white/50 hover:bg-white",
             )}
             aria-label={`Go to slide ${index + 1}`}
           />

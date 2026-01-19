@@ -73,7 +73,7 @@ export function CooperativesContent() {
     <section className="py-32 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
+        <h1 className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
           Join Our Cooperative Network
         </h1>
         <p className="text-gray-500 max-w-xl mx-auto">
@@ -169,7 +169,7 @@ export function CooperativesContent() {
               className="w-full flex items-center justify-center gap-2 py-3 bg-[#333333] text-white rounded-full hover:bg-[#222222]"
             >
               <Building2 className="w-4 h-4" />
-              Join Cooperative
+              Join Daw Cooperative
             </button>
           </div>
         ))}

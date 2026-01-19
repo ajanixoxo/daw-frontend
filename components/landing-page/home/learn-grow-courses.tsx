@@ -37,7 +37,7 @@ export function LearnGrowCourses() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12 md:mb-16">
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
+          <h2 className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
             Learn & Grow Your Business
           </h2>
           <p className="text-[#6b6b6b] text-base md:text-lg max-w-xl leading-relaxed">

@@ -154,7 +154,7 @@ export function LoanTierPricing() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
         {/* Header */}
         <div className="mb-10">
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-normal text-[#222222] mb-4">
+          <h2 className=" text-3xl md:text-4xl lg:text-5xl font-normal text-[#222222] mb-4">
             Choose Your Loan Tier
           </h2>
           <p className="text-[#666666] text-base md:text-lg max-w-2xl">

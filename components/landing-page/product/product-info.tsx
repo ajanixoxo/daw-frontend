@@ -46,7 +46,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
     reviewsData && reviewsData.pagination.total > 0
       ? Object.entries(reviewsData.rating_distribution).reduce(
           (acc, [rating, count]) => acc + Number(rating) * count,
-          0
+          0,
         ) / reviewsData.pagination.total
       : 5;
 
@@ -67,7 +67,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         onError: () => {
           toast.error("Failed to add to cart");
         },
-      }
+      },
     );
   };
 
@@ -83,9 +83,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
     <div className="space-y-6">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-serif font-bold text-[#222]">
-            {product.name}
-          </h1>
+          <h1 className="text-3xl  font-bold text-[#222]">{product.name}</h1>
           {product.quantity > 0 ? (
             <span className="px-3 py-1 bg-[#e6f4ea] text-[#009a49] text-xs font-medium rounded-full">
               In Stock
@@ -106,7 +104,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
                   "w-4 h-4",
                   star <= Math.round(averageRating)
                     ? "fill-yellow-400 text-yellow-400"
-                    : "text-gray-300"
+                    : "text-gray-300",
                 )}
               />
             ))}
@@ -202,7 +200,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             "w-12 h-12 rounded-full border flex items-center justify-center transition-colors",
             isInWishlist
               ? "border-[#F10E7C] bg-[#fff0f7] text-[#F10E7C]"
-              : "border-gray-200 hover:border-[#F10E7C] hover:text-[#F10E7C] text-gray-400"
+              : "border-gray-200 hover:border-[#F10E7C] hover:text-[#F10E7C] text-gray-400",
           )}
         >
           <Heart className={cn("w-5 h-5", isInWishlist && "fill-current")} />

@@ -1,50 +1,55 @@
-import Image from "next/image"
+import Image from "next/image";
 
 export function OurVision() {
   return (
-    <section className="py-16 md:py-24 px-4 md:px-8 lg:px-16 ">
+    <section className="py-16 md:py-24  ">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap- items-stretch">
-          {/* Left - Image */}
-          <div className="lg:w-[45%] flex-shrink-0">
-            <div className="relative w-full h-[400px] md:h-[500px] lg:h-full lg:min-h-[550px] rounded-2xl overflow-hidden">
-              <Image
-                src="/eye.png"
-                alt="Close-up of a human eye representing vision and foresight"
-                fill
-                className="object-cover"
-              />
-            </div>
+        {/* Unified Card Container */}
+        <div className="bg-white rounded-[20px]  flex flex-col lg:flex-row items-stretch overflow-hidden ">
+          {/* Left - Image Side (Flush) */}
+          <div className="w-full lg:w-[46%] relative min-h-[320px] md:min-h-[440px] lg:min-h-full flex-shrink-0">
+            <Image
+              src="/eye.png"
+              alt="Close-up of a human eye representing vision and foresight"
+              fill
+              className="object-cover rounded-[20px]"
+              priority
+            />
           </div>
 
-          {/* Right - Content */}
-          <div className="lg:w-[55%] flex flex-col justify-center py-4 p-8 bg-white border rounded-md">
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.5rem] font-normal text-[#222222] mb-6">
+          {/* Right - Content Side */}
+          <div className="w-full lg:w-[54%] flex flex-col justify-center p-8 md:p-12 lg:p-16 xl:p-20">
+            <h2 className="text-[32px] md:text-[42px] lg:text-[48px] font-semibold text-[#1A1A1A] mb-6 tracking-[-0.03em] leading-tight">
               Our Vision
             </h2>
 
-            <p className="text-[#6b6b6b] text-lg md:text-xl leading-relaxed mb-10">
-              To build a world where Entrepreneurs lead boldly in business and technology, transforming their lives and
-              communities through innovation and collaboration.
+            <p className="text-[#6b6b6b] text-[16px] md:text-[18px] leading-relaxed mb-10 max-w-[540px]">
+              To build a world where African women lead boldly in business and
+              technology, transforming their lives and communities through
+              innovation and collaboration.
             </p>
 
-            {/* Feature Cards */}
-            <div className="space-y-6">
-              {/* Card 1 */}
-              <div className="bg-[#f5f5f5] rounded-xl p-6 md:p-8">
-                <h3 className="font-semibold text-xl md:text-2xl text-[#222222] mb-2">
+            {/* Feature Boxes */}
+            <div className="space-y-4">
+              {/* Box 1 */}
+              <div className="bg-[#F9F9F9] rounded-[24px] p-6 md:p-8 border border-gray-100/50">
+                <h3 className="font-bold text-[18px] md:text-[20px] text-[#1A1A1A] mb-2 tracking-tight">
                   Building Inclusive Communities:
                 </h3>
-                <p className="text-[#6b6b6b] text-base md:text-lg leading-relaxed">
-                  Creating networks that foster growth, connection, and opportunity.
+                <p className="text-[#6b6b6b] text-[15px] md:text-[16px] leading-relaxed">
+                  Creating networks that foster growth, connection, and
+                  opportunity.
                 </p>
               </div>
 
-              {/* Card 2 */}
-              <div className="bg-[#f5f5f5] rounded-xl p-6 md:p-8">
-                <h3 className="font-semibold text-xl md:text-2xl text-[#222222] mb-2">Empowerment Through Skills:</h3>
-                <p className="text-[#6b6b6b] text-base md:text-lg leading-relaxed">
-                  Helping women gain the knowledge and tools they need to thrive.
+              {/* Box 2 */}
+              <div className="bg-[#F9F9F9] rounded-[24px] p-6 md:p-8 border border-gray-100/50">
+                <h3 className="font-bold text-[18px] md:text-[20px] text-[#1A1A1A] mb-2 tracking-tight">
+                  Empowerment Through Skills:
+                </h3>
+                <p className="text-[#6b6b6b] text-[15px] md:text-[16px] leading-relaxed">
+                  Helping women gain the knowledge and tools they need to
+                  thrive.
                 </p>
               </div>
             </div>
@@ -52,5 +57,5 @@ export function OurVision() {
         </div>
       </div>
     </section>
-  )
+  );
 }

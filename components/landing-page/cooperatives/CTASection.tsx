@@ -19,7 +19,7 @@ export default function CTASection() {
             <Link href="/cooperative/cooperative-signup">
               <button className="flex px-6 sm:px-8 py-4 justify-center items-center gap-1 rounded-[40px] bg-[#FFFFFF] hover:bg-[#f5f5f5] transition-colors self-start">
               <span className="text-[#222222] text-lg sm:text-xl font-medium tracking-[-0.8px]">
-                Join Cooperative
+                Join Daw Cooperative
               </span>
             </button>
             </Link>

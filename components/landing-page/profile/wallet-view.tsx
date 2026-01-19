@@ -79,9 +79,7 @@ export function WalletView() {
 
       {/* Recent History */}
       <div>
-        <h2 className="font-serif italic text-xl text-[#1a1a1a] mb-4">
-          Recent History
-        </h2>
+        <h2 className=" italic text-xl text-[#1a1a1a] mb-4">Recent History</h2>
         <div className="space-y-3">
           {transactions.map((transaction) => (
             <div

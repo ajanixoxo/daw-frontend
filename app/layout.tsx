@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ReactQueryProvider } from "@/lib/providers/react-query-provider";
 import { Toaster } from "sonner";
+import SmoothScroll from "@/lib/smooth-scroll";
 
 export const metadata: Metadata = {
   title: "DAW",
@@ -17,7 +18,8 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <ReactQueryProvider>
-          {children}
+          <SmoothScroll>{children}</SmoothScroll>
+
           <Toaster />
         </ReactQueryProvider>
       </body>

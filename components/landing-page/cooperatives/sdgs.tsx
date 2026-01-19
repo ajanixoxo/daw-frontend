@@ -84,7 +84,7 @@ export function OurSDGs() {
       <div className="mx-auto max-w-6xl px-4">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h2 className="font-serif text-4xl md:text-5xl font-medium italic text-[#f10e7c] mb-4">OUR SDGs</h2>
+          <h2 className=" text-4xl md:text-5xl font-medium text-[#f10e7c] mb-4">OUR SDGs</h2>
           <p className="text-[#666666] text-base md:text-lg">
             Our mission aligns with the following UN Sustainable Development Goals:
           </p>

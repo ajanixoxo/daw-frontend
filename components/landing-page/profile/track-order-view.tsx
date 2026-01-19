@@ -55,7 +55,7 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
         >
           <ArrowLeft className="w-5 h-5 text-[#1a1a1a]" />
         </button>
-        <h1 className="font-serif text-2xl md:text-3xl font-medium text-[#1a1a1a]">
+        <h1 className=" text-2xl md:text-3xl font-medium text-[#1a1a1a]">
           Order #{order._id.slice(-6).toUpperCase()}
         </h1>
       </div>
@@ -86,8 +86,8 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
                     order.status === "delivered"
                       ? "bg-green-100 text-green-700"
                       : order.status === "cancelled"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-[#fce4ec] text-[#f10e7c]"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-[#fce4ec] text-[#f10e7c]"
                   }`}
                 >
                   {order.status}

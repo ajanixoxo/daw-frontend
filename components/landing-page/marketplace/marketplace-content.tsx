@@ -31,7 +31,7 @@ export function MarketplaceContent() {
 
   const categories = useMemo(() => {
     const uniqueCategories = Array.from(
-      new Set(products.map((p) => p.category).filter(Boolean))
+      new Set(products.map((p) => p.category).filter(Boolean)),
     );
     return ["All Categories", ...uniqueCategories];
   }, [products]);
@@ -72,12 +72,12 @@ export function MarketplaceContent() {
     <section className="py-24 px-4 md:px-8 lg:px-16 lg:my-18 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
+        <h1 className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
           Entrepreneurs Marketplace
         </h1>
         <p className="text-[#6b6b6b] text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-          Discover products made by talented
-          entrepreneurs from across the world.
+          Discover products made by talented entrepreneurs from across the
+          world.
         </p>
       </div>
 
@@ -179,7 +179,7 @@ function ProductCard({ product }: { product: IProduct }) {
           setJustAdded(true);
           setTimeout(() => setJustAdded(false), 2000);
         },
-      }
+      },
     );
   };
 
@@ -225,7 +225,7 @@ function ProductCard({ product }: { product: IProduct }) {
                 "w-4 h-4 transition-colors",
                 isInWishlist
                   ? "fill-yellow-400 text-yellow-400"
-                  : "text-gray-400"
+                  : "text-gray-400",
               )}
             />
           )}

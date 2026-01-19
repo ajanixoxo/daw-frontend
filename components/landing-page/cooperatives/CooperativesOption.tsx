@@ -241,7 +241,7 @@ export default function CooperativesOption() {
                         />
                       </svg>
                       <span className="text-[#FFFFFF] text-base font-medium tracking-[-0.64px]">
-                        Join Cooperative
+                        Join Daw Cooperative
                       </span>
                     </button>
                     
