@@ -1,0 +1,284 @@
+"use client";
+
+import { FC, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Upload } from "lucide-react";
+import { useSellerSignupStore } from "@/zustand/seller-signup-store";
+
+const SellerSignupStep1: FC = () => {
+  const { formData, updateShopInfo, setStep } = useSellerSignupStore();
+  const { shopInfo } = formData;
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof shopInfo, string>>
+  >({});
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    updateShopInfo({ [e.target.name]: e.target.value });
+  };
+
+  const handleCategoryChange = (value: string) => {
+    updateShopInfo({ category: value });
+  };
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "shopLogo" | "shopBanner",
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      updateShopInfo({ [field]: e.target.files[0] });
+    }
+  };
+
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: Partial<Record<keyof typeof shopInfo, string>> = {};
+
+    if (!shopInfo.shopName) newErrors.shopName = "Shop name is required";
+    if (!shopInfo.description)
+      newErrors.description = "Description is required";
+    if (!shopInfo.category) newErrors.category = "Category is required";
+    if (!shopInfo.contactNumber)
+      newErrors.contactNumber = "Contact number is required";
+    if (!shopInfo.businessAddress)
+      newErrors.businessAddress = "Business address is required";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setStep(2);
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <div className="mb-8">
+        <h2
+          className="text-2xl font-medium text-[#1a1a1a] mb-2"
+          style={{ letterSpacing: "-0.96px" }}
+        >
+          Shop Information
+        </h2>
+        <p className="text-sm text-[#6b6b6b]">
+          Provide details about your shop and products
+        </p>
+      </div>
+
+      <form onSubmit={handleNext} className="flex flex-col gap-5">
+        {/* Shop Name */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="shopName" className="auth-label text-text-dark">
+            Shop Name
+          </Label>
+          <Input
+            id="shopName"
+            name="shopName"
+            type="text"
+            placeholder="e.g., Amina's Fashion Boutique"
+            value={shopInfo.shopName}
+            onChange={handleChange}
+            className="h-12 rounded-lg border border-input-border bg-white px-4 text-sm placeholder:text-input-placeholder"
+            aria-invalid={!!errors.shopName}
+          />
+          {errors.shopName && (
+            <span className="text-xs text-destructive">{errors.shopName}</span>
+          )}
+        </div>
+
+        {/* Description */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="description" className="auth-label text-text-dark">
+            Description
+          </Label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Describe what you sell and what makes your shop Unique"
+            value={shopInfo.description}
+            onChange={handleChange}
+            className="min-h-[100px] rounded-lg border border-input-border bg-[#F9F9FB] px-4 py-3 text-sm placeholder:text-input-placeholder resize-none focus:outline-none focus:ring-2 focus:ring-brand-pink/20 focus:border-brand-pink"
+            aria-invalid={!!errors.description}
+          />
+          {errors.description && (
+            <span className="text-xs text-destructive">
+              {errors.description}
+            </span>
+          )}
+        </div>
+
+        {/* Category */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="category" className="auth-label text-text-dark">
+            Category
+          </Label>
+          <Select
+            value={shopInfo.category}
+            onValueChange={handleCategoryChange}
+          >
+            <SelectTrigger
+              id="category"
+              className="h-12 rounded-lg border border-input-border bg-white px-4 text-sm w-full"
+              aria-invalid={!!errors.category}
+            >
+              <SelectValue placeholder="Select Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fashion">Fashion & Clothing</SelectItem>
+              <SelectItem value="jewelry">Jewelry & Accessories</SelectItem>
+              <SelectItem value="crafts">Arts & Crafts</SelectItem>
+              <SelectItem value="beauty">Beauty & Cosmetics</SelectItem>
+              <SelectItem value="food">Food & Beverages</SelectItem>
+              <SelectItem value="home">Home & Decor</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.category && (
+            <span className="text-xs text-destructive">{errors.category}</span>
+          )}
+        </div>
+
+        {/* Contact Number & Business Address */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <Label
+              htmlFor="contactNumber"
+              className="auth-label text-text-dark"
+            >
+              Contact Number
+            </Label>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 h-12 px-3 rounded-lg border border-input-border bg-[#f5f5f5]">
+                <span className="text-xl">🇳🇬</span>
+                <span className="text-sm text-[#1a1a1a]">+234</span>
+              </div>
+              <Input
+                id="contactNumber"
+                name="contactNumber"
+                type="tel"
+                placeholder="000 000 000"
+                value={shopInfo.contactNumber}
+                onChange={handleChange}
+                className="flex-1 h-12 rounded-lg border border-input-border bg-white px-4 text-sm placeholder:text-input-placeholder"
+                aria-invalid={!!errors.contactNumber}
+              />
+            </div>
+            {errors.contactNumber && (
+              <span className="text-xs text-destructive">
+                {errors.contactNumber}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label
+              htmlFor="businessAddress"
+              className="auth-label text-text-dark"
+            >
+              Business Address
+            </Label>
+            <Input
+              id="businessAddress"
+              name="businessAddress"
+              type="text"
+              placeholder="City, State"
+              value={shopInfo.businessAddress}
+              onChange={handleChange}
+              className="h-12 rounded-lg border border-input-border bg-white px-4 text-sm placeholder:text-input-placeholder"
+              aria-invalid={!!errors.businessAddress}
+            />
+            {errors.businessAddress && (
+              <span className="text-xs text-destructive">
+                {errors.businessAddress}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Shop Branding (Optional) */}
+        <div>
+          <p className="text-sm font-medium text-[#1a1a1a] mb-4">
+            Shop Branding (Optional)
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Shop Logo */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="shopLogo" className="text-xs text-[#6b6b6b]">
+                Shop Logo
+              </Label>
+              <div className="relative">
+                <input
+                  type="file"
+                  id="shopLogo"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "shopLogo")}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div className="h-32 rounded-lg border border-dashed border-input-border bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                  <Upload className="w-6 h-6 text-[#b6b8c0]" />
+                  <p className="text-xs text-[#1a1a1a]">
+                    {shopInfo.shopLogo ? shopInfo.shopLogo.name : "Upload Logo"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Shop Banner */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="shopBanner" className="text-xs text-[#6b6b6b]">
+                Shop Banner
+              </Label>
+              <div className="relative">
+                <input
+                  type="file"
+                  id="shopBanner"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "shopBanner")}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div className="h-32 rounded-lg border border-dashed border-input-border bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                  <Upload className="w-6 h-6 text-[#b6b8c0]" />
+                  <p className="text-xs text-[#1a1a1a]">
+                    {shopInfo.shopBanner
+                      ? shopInfo.shopBanner.name
+                      : "Upload Banner"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => (window.location.href = "/")}
+            className="flex-1 h-12 rounded-[40px] border-2 border-gray-100 bg-white text-[#b6b8c0] font-semibold text-base hover:bg-gray-50"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="flex-1 h-12 rounded-[40px] bg-brand-pink hover:bg-brand-pink/90 text-white font-semibold text-base"
+            style={{ letterSpacing: "-0.64px" }}
+          >
+            Next
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default SellerSignupStep1;

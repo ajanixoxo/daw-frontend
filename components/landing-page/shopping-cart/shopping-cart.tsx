@@ -34,8 +34,8 @@ export function ShoppingCart() {
     // Update local state directly
     setLocalItems((prevItems) =>
       prevItems.map((item) =>
-        item._id === cartItemId ? { ...item, quantity: newQuantity } : item
-      )
+        item._id === cartItemId ? { ...item, quantity: newQuantity } : item,
+      ),
     );
   };
 
@@ -65,7 +65,7 @@ export function ShoppingCart() {
           console.error("Place order failed:", error);
           toast.error(error.message || "Failed to place order");
         },
-      }
+      },
     );
   };
 
@@ -73,7 +73,7 @@ export function ShoppingCart() {
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
 
   if (isLoading) {
@@ -89,7 +89,7 @@ export function ShoppingCart() {
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <h1 className=" text-4xl sm:text-5xl font-bold text-foreground mb-4">
             Shopping Cart
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto text-balance">

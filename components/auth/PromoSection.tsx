@@ -22,7 +22,7 @@ const PromoSection: FC = () => {
           <div className="flex flex-col lg:flex-row gap-5">
             <div className="flex flex-col gap-2">
               <h3 className="auth-feature-title text-white">
-                Connect with African Women Entrepreneurs
+                Connect with Entrepreneurs
               </h3>
               <p className="auth-feature-desc text-white">
                 Join a vibrant community of business owners sharing insights and support.

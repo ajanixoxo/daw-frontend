@@ -21,6 +21,9 @@ import {
 import type { IProduct } from "@/types/product.types";
 import { cn } from "@/lib/utils";
 
+import { motion } from "framer-motion";
+import { fadeIn, staggerContainer } from "@/lib/animations";
+
 export function PopularProducts() {
   const pathname = usePathname();
   const isMarketplace = pathname === "/marketplace";
@@ -49,7 +52,7 @@ export function PopularProducts() {
           console.error("Error adding to cart:", error);
           setAddingProductId(null);
         },
-      }
+      },
     );
   };
 
@@ -66,53 +69,65 @@ export function PopularProducts() {
   }
 
   return (
-    <section className="py-12 px-4 md:px-8 lg:px-16 max-w-[1400px] mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#222222]">
-          Popular Products
-        </h2>
-        {!isMarketplace && (
-          <Link
-            href="/marketplace"
-            className="flex items-center gap-2 text-[#f10e7c] font-medium text-sm hover:gap-3 transition-all"
+    <section className="py-12 px-4 md:px-8 lg:px-16 max-w-[1400px] mx-auto overflow-hidden">
+      <motion.div
+        variants={staggerContainer(0.1, 0)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <motion.h2
+            variants={fadeIn("right", 0.1)}
+            className=" text-2xl md:text-3xl font-bold text-[#222222]"
           >
-            View More
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            Popular Products
+          </motion.h2>
+          {!isMarketplace && (
+            <motion.div variants={fadeIn("left", 0.1)}>
+              <Link
+                href="/marketplace"
+                className="flex items-center gap-2 text-[#f10e7c] font-medium text-sm hover:gap-3 transition-all"
+              >
+                View More
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-[#f10e7c]" />
+          </div>
         )}
-      </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-[#f10e7c]" />
-        </div>
-      )}
+        {/* Products Grid */}
+        {!isLoading && data?.products && data.products.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+            {data.products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onAddToCart={handleAddToCart}
+                isAdding={addingProductId === product._id}
+                justAdded={justAdded === product._id}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Products Grid */}
-      {!isLoading && data?.products && data.products.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-          {data.products.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product}
-              onAddToCart={handleAddToCart}
-              isAdding={addingProductId === product._id}
-              justAdded={justAdded === product._id}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!isLoading && (!data?.products || data.products.length === 0) && (
-        <div className="text-center py-16">
-          <p className="text-[#6b6b6b] text-lg">
-            No products available at the moment.
-          </p>
-        </div>
-      )}
+        {/* Empty State */}
+        {!isLoading && (!data?.products || data.products.length === 0) && (
+          <div className="text-center py-16">
+            <p className="text-[#6b6b6b] text-lg">
+              No products available at the moment.
+            </p>
+          </div>
+        )}
+      </motion.div>
     </section>
   );
 }
@@ -149,7 +164,10 @@ function ProductCard({
   };
 
   return (
-    <div className="flex flex-col relative">
+    <motion.div
+      variants={fadeIn("up", 0.2)}
+      className="flex flex-col relative group"
+    >
       {/* Success Animation */}
       {justAdded && (
         <div className="absolute -top-2 -right-2 z-10 animate-bounce">
@@ -166,10 +184,10 @@ function ProductCard({
             src={product.images[0]}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f5f5f5] to-[#e5e5e5]">
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-[#f5f5f5] to-[#e5e5e5]">
             <span className="text-[#9ca3af] text-sm">No image</span>
           </div>
         )}
@@ -189,7 +207,7 @@ function ProductCard({
 
       {/* Name and Price Row */}
       <div className="flex justify-between items-start gap-2 mb-1">
-        <h3 className="font-semibold text-sm text-[#222222] leading-tight line-clamp-2">
+        <h3 className="font-semibold text-sm text-[#222222] leading-tight line-clamp-2 transition-colors group-hover:text-[#F10E7C]">
           {product.name}
         </h3>
         <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
@@ -203,7 +221,7 @@ function ProductCard({
 
       {/* Description */}
       {product.description && (
-        <p className="text-[#6b6b6b] text-xs leading-relaxed mb-4 flex-grow line-clamp-2">
+        <p className="text-[#6b6b6b] text-xs leading-relaxed mb-4 grow line-clamp-2">
           {product.description}
         </p>
       )}
@@ -232,7 +250,7 @@ function ProductCard({
                 "w-4 h-4 transition-colors",
                 isInWishlist
                   ? "fill-yellow-400 text-yellow-400"
-                  : "text-gray-400"
+                  : "text-gray-400",
               )}
             />
           )}
@@ -280,6 +298,6 @@ function ProductCard({
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -132,7 +132,7 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-7xl">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="font-serif text-4xl font-bold text-foreground mb-2">
+            <h1 className=" text-4xl font-bold text-foreground mb-2">
               Checkout
             </h1>
             <p className="text-muted-foreground text-sm">

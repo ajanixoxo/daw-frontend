@@ -4,9 +4,9 @@ import { MarketplaceContent } from "@/components/landing-page/marketplace/market
 import { PopularProducts } from "@/components/landing-page/home/popular-products";
 
 export const metadata = {
-  title: "African Women Marketplace | DAW",
+  title: "Marketplace | DAW",
   description:
-    "Discover authentic handcrafted products made by talented women entrepreneurs from across Africa.",
+    "Discover products made by talented women entrepreneurs from across Africa.",
 };
 
 export default function MarketplacePage() {

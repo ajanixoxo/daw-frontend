@@ -5,7 +5,7 @@ import { MasterclassContent } from "@/components/landing-page/masterclass/master
 export const metadata = {
   title: "Masterclass | DAW",
   description:
-    "Discover authentic handcrafted products made by talented women entrepreneurs from across Africa.",
+    "Discover products made by talented women entrepreneurs from across Africa.",
 };
 
 export default function MasterclassPage() {

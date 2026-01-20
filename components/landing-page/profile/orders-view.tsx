@@ -72,7 +72,7 @@ export function OrdersView({ onViewDetails, onTrack }: OrdersViewProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="font-serif text-3xl md:text-4xl font-semibold text-[#1a1a1a]">
+        <h1 className=" text-3xl md:text-4xl font-semibold text-[#1a1a1a]">
           Order History
         </h1>
         <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e7e8e9] rounded-full text-[#1a1a1a] hover:bg-[#f5f5f5] transition-colors w-fit">
@@ -184,10 +184,10 @@ function OrderCard({ order, onViewDetails, onTrack }: OrderCardProps) {
               order.status === "delivered"
                 ? "text-[#34c759] bg-green-50"
                 : order.status === "in transit"
-                ? "text-[#f10e7c] bg-pink-50"
-                : order.status === "pending" || order.status === "processing"
-                ? "text-[#808080] bg-gray-100"
-                : "text-red-500 bg-red-50"
+                  ? "text-[#f10e7c] bg-pink-50"
+                  : order.status === "pending" || order.status === "processing"
+                    ? "text-[#808080] bg-gray-100"
+                    : "text-red-500 bg-red-50"
             }`}
           >
             {order.status}

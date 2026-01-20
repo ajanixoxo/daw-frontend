@@ -12,6 +12,7 @@ import { Testimonials } from "@/components/landing-page/home/testimonials";
 import { HeroSection } from "@/components/landing-page/home/signed-in-hero";
 import { PopularProducts } from "@/components/landing-page/home/popular-products";
 import { useAuthSync } from "@/hooks/useAuthSync";
+import { BecomeASellerBanner } from "@/components/landing-page/home/become-a-seller-banner";
 import WhyDAWSection from "@/components/landing-page/home/why-daw";
 
 export default function Home() {
@@ -46,9 +47,10 @@ export default function Home() {
       {!isAuthenticated && <Hero />}
       <CooperativePlatform />
       <WhyDAWSection />
-      <MembershipPricing />
+      {/* <MembershipPricing /> */}
       <Testimonials />
       <MarketplaceProducts />
+      {isAuthenticated && isVerified && <BecomeASellerBanner />}
       <LearnGrowCourses />
       <CTASection />
       <Footer />

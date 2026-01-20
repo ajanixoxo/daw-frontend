@@ -9,7 +9,7 @@ export default function GeneralSettings() {
   const [formData, setFormData] = useState({
     cooperativeName: "Digital African Women",
     registrationNumber: "DAW-COOP-2025-001",
-    description: "A cooperative dedicated to empowering African women through digital commerce and entrepreneurship.",
+    description: "A cooperative dedicated to empowering entrepreneurs through digital commerce and entrepreneurship.",
     email: "admin@daw-cooperative.com",
     phone: "+234 9032353555",
     address: "123 Innovation Street, Lagos, Nigeria",
