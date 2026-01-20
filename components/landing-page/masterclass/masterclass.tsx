@@ -4,38 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ChevronDown, Search, ArrowRight } from "lucide-react";
 
-const courses = [
-  {
-    id: 1,
-    image: "/cargo.png",
-    category: "Marketing",
-    level: "Beginner",
-    duration: "45 minutes",
-    title: "Digital Marketing Essentials",
-    description:
-      "Learn how to leverage social media and digital platforms to reach global customers and grow your online presence.",
-  },
-  {
-    id: 2,
-    image: "/laptop.png",
-    category: "Finance",
-    level: "Beginner",
-    duration: "80 minutes",
-    title: "Financial Management for Small Business",
-    description:
-      "Master the basics of business finance, from record-keeping to profit margins and sustainable growth planning.",
-  },
-  {
-    id: 3,
-    image: "/plan.png",
-    category: "Logistics",
-    level: "Intermediate",
-    duration: "50 minutes",
-    title: "International Shipping Made Simple",
-    description:
-      "Navigate international shipping regulations, customs procedures, and cost-effective global delivery strategies.",
-  },
-];
+import { courses } from "@/lib/masterclass-data";
 
 const categories = [
   "All Categories",
@@ -173,7 +142,7 @@ export function MasterclassContent() {
 
                 {/* Watch Now Link */}
                 <a
-                  href="#"
+                  href={`/masterclass/${course.id}`}
                   className="inline-flex items-center gap-2 text-[#f10e7c] text-sm font-medium group hover:gap-3 transition-all"
                 >
                   Watch now

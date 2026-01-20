@@ -151,17 +151,17 @@ export default function Footer() {
 
           {/* Newsletter Column */}
           <div className="flex flex-col gap-8 lg:col-span-5 lg:pl-10">
-            <h4 className="text-[#1A1A1A] text-[22px] font-semibold tracking-[-0.03em] leading-tight">
+            <h4 className=" text-[18px]  tracking-[-0.03em] leading-tight">
               Subscribe to our newsletter for updates
             </h4>
 
-            <div className="relative flex h-[72px] w-full max-w-[540px] items-center rounded-full border border-[#E5E5E5] bg-white p-[7px] shadow-sm transition-all focus-within:border-[#F10E7C]/30">
+            <div className="relative flex h-[72px] w-full max-w-[540px] items-center rounded-full border border-[#E5E5E5] bg-white p-[7px] transition-all focus-within:border-[#F10E7C]/30">
               <input
                 type="email"
                 placeholder="Email address"
                 className="flex-1 bg-transparent pl-8 text-[18px] font-normal text-[#1A1A1A] placeholder:text-[#ADADAD] outline-none"
               />
-              <button className="h-full px-12 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg">
+              <button className="h-full px-6 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg">
                 <span className="text-white text-[18px] font-semibold tracking-[-0.01em]">
                   Subscribe
                 </span>

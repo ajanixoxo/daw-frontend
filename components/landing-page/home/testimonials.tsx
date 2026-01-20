@@ -56,6 +56,9 @@ function QuoteIcon() {
   );
 }
 
+import { motion } from "framer-motion";
+import { fadeIn, staggerContainer } from "@/lib/animations";
+
 export function Testimonials() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(1);
@@ -95,20 +98,32 @@ export function Testimonials() {
 
   return (
     <section className="bg-[#f5f5f5] py-16 md:py-24 px-4 md:px-8 overflow-hidden">
-      <div className="max-w-6xl mx-auto">
+      <motion.div
+        variants={staggerContainer(0.2, 0)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="max-w-6xl mx-auto"
+      >
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className=" text-3xl md:text-4xl lg:text-[42px] font-bold text-[#222222] mb-4">
+          <motion.h2
+            variants={fadeIn("up", 0.1)}
+            className=" text-3xl md:text-4xl lg:text-[42px] font-bold text-[#222222] mb-4"
+          >
             Hear From Our Members
-          </h2>
-          <p className="text-[#888888] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          </motion.h2>
+          <motion.p
+            variants={fadeIn("up", 0.2)}
+            className="text-[#888888] text-base md:text-lg max-w-2xl mx-auto leading-relaxed"
+          >
             Real testimonials from entrepreneurs who have transformed their
             businesses through our platform.
-          </p>
+          </motion.p>
         </div>
 
         {/* Carousel Container */}
-        <div className="relative group">
+        <motion.div variants={fadeIn("up", 0.3)} className="relative group">
           <div className="overflow-hidden rounded-2xl">
             <div
               className="flex transition-transform duration-500 ease-in-out"
@@ -197,8 +212,8 @@ export function Testimonials() {
               />
             ))}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

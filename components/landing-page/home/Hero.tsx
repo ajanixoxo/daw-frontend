@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -36,18 +38,33 @@ export default function Hero() {
         <div className="relative mx-auto h-full max-w-[1440px]">
           <div className="relative flex h-full flex-col items-center px-5 lg:flex-row lg:px-[84px]">
             {/* Left Content */}
-            <div className="relative z-20 flex flex-col items-start gap-8 pt-20 lg:max-w-[650px] lg:gap-10 lg:pt-0">
+            <motion.div
+              variants={staggerContainer(0.2, 0.5)}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.25 }}
+              className="relative z-20 flex flex-col items-start gap-8 pt-20 lg:max-w-[650px] lg:gap-10 lg:pt-0"
+            >
               <div className="flex flex-col items-start gap-4">
-                <h1 className="font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-[#222] sm:text-[40px] lg:text-[52px] lg:tracking-[-3.12px]">
+                <motion.h1
+                  variants={fadeIn("up", 0.2)}
+                  className="font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-[#222] sm:text-[40px] lg:text-[52px] lg:tracking-[-3.12px]"
+                >
                   Empowering African Women Through Digital Commerce
-                </h1>
-                <p className="max-w-[480px] font-inter text-[16px] font-normal leading-[150%] tracking-[-0.02em] text-[#6B6B6B] lg:text-[18px]">
+                </motion.h1>
+                <motion.p
+                  variants={fadeIn("up", 0.4)}
+                  className="max-w-[480px] font-inter text-[16px] font-normal leading-[150%] tracking-[-0.02em] text-[#6B6B6B] lg:text-[18px]"
+                >
                   Join our cooperative and transform your business with digital
                   tools, financial support, and a global marketplace.
-                </p>
+                </motion.p>
               </div>
 
-              <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
+              <motion.div
+                variants={fadeIn("up", 0.6)}
+                className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5"
+              >
                 <Link href="/cooperative/cooperative-signup">
                   <button className="flex h-[56px] min-w-[180px] items-center justify-center rounded-[40px] bg-[#F10E7C] px-8 transition-all hover:bg-[#d00c6b] hover:shadow-lg">
                     <span className="font-inter text-[16px] font-semibold text-white">
@@ -62,15 +79,21 @@ export default function Hero() {
                     </span>
                   </button>
                 </Link>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Right Image Container */}
             <div className="absolute bottom-0 right-0 h-full w-full lg:w-[65%]">
               {/* Soft Gradient Background */}
               <div className="absolute right-0 top-1/2 h-[80%] w-[80%] -translate-y-1/2 rounded-full bg-linear-to-l from-[#FDEAF3] via-[#FDEAF3]/40 to-transparent blur-[120px]" />
 
-              <div className="relative flex h-full w-full items-end justify-end overflow-hidden lg:overflow-visible">
+              <motion.div
+                variants={fadeIn("left", 0.5)}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                className="relative flex h-full w-full items-end justify-end overflow-hidden lg:overflow-visible"
+              >
                 <Image
                   src="/dawoman.png"
                   alt="Empowered African Businesswoman"
@@ -88,7 +111,7 @@ export default function Hero() {
                       "linear-gradient(to top, black 20%, transparent 100%)",
                   }}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -119,16 +142,31 @@ export default function Hero() {
         </div>
 
         <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 pt-20 text-center lg:px-[84px]">
-          <div className="max-w-[900px]">
-            <h1 className="mb-6 font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-white transition-all duration-700 sm:text-[48px] lg:text-[64px] lg:tracking-[-3.12px]">
+          <motion.div
+            variants={staggerContainer(0.2, 0.3)}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="max-w-[900px]"
+          >
+            <motion.h1
+              variants={fadeIn("up", 0.2)}
+              className="mb-6 font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-white transition-all duration-700 sm:text-[48px] lg:text-[64px] lg:tracking-[-3.12px]"
+            >
               Empowering African Woman Through Digital Commerce
-            </h1>
-            <p className="mx-auto mb-10 max-w-[600px] font-inter text-[16px] font-normal leading-[140%] tracking-[-0.72px] text-white/90 lg:text-[20px]">
+            </motion.h1>
+            <motion.p
+              variants={fadeIn("up", 0.4)}
+              className="mx-auto mb-10 max-w-[600px] font-inter text-[16px] font-normal leading-[140%] tracking-[-0.72px] text-white/90 lg:text-[20px]"
+            >
               Join our cooperative and transform your business with digital
               tools, financial support, and a global marketplace.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+            <motion.div
+              variants={fadeIn("up", 0.6)}
+              className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6"
+            >
               <Link href="/cooperative/cooperative-signup">
                 <button className="flex min-w-[200px] items-center justify-center rounded-[40px] bg-[#F10E7C] px-8 py-4 transition-colors hover:bg-[#d00c6b]">
                   <span className="font-inter text-[18px] font-medium tracking-[-0.8px] text-white lg:text-[20px]">
@@ -143,8 +181,8 @@ export default function Hero() {
                   </span>
                 </button>
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 

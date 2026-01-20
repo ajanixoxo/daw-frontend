@@ -1,25 +1,44 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export function CooperativePlatform() {
   return (
-    <section className="w-full py-16 md:py-24 bg-white">
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+    <section className="w-full py-16 md:py-24 bg-white overflow-hidden">
+      <motion.div
+        variants={staggerContainer(0.2, 0)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="container mx-auto px-4 md:px-6 max-w-7xl"
+      >
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#000000] mb-4 text-balance">
+          <motion.h2
+            variants={fadeIn("up", 0.1)}
+            className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#000000] mb-4 text-balance"
+          >
             Our Cooperative Platform
-          </h2>
-          <p className="text-[#222222]/70 text-base md:text-lg max-w-2xl mx-auto text-pretty leading-relaxed">
+          </motion.h2>
+          <motion.p
+            variants={fadeIn("up", 0.2)}
+            className="text-[#222222]/70 text-base md:text-lg max-w-2xl mx-auto text-pretty leading-relaxed"
+          >
             We provide the tools, resources, and community support to help
             entrepreneurs thrive in the digital economy.
-          </p>
+          </motion.p>
         </div>
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="relative rounded-2xl min-h-[420px] md:min-h-[480px] flex flex-col overflow-hidden border border-[#eaeaea]/50">
+          <motion.div
+            variants={fadeIn("right", 0.3)}
+            className="relative rounded-2xl min-h-[420px] md:min-h-[480px] flex flex-col overflow-hidden border border-[#eaeaea]/50 shadow-sm hover:shadow-md transition-shadow"
+          >
             {/* Gradient background that fades to white */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#f10e7c] via-[#ffff]/60 via-40% to-white" />
+            <div className="absolute inset-0 bg-linear-to-b from-[#f10e7c] via-[#ffff]/60 via-40% to-white" />
 
             <div className="relative z-10 p-6 md:p-8">
               <h3 className="text-xl md:text-2xl font-semibold text-white mb-3">
@@ -41,9 +60,12 @@ export function CooperativePlatform() {
                 className="object-contain "
               />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="relative rounded-2xl min-h-[420px] md:min-h-[480px] overflow-hidden">
+          <motion.div
+            variants={fadeIn("up", 0.4)}
+            className="relative rounded-2xl min-h-[420px] md:min-h-[480px] overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+          >
             {/* Background image fills entire card */}
             <Image
               src="/finsup.png"
@@ -53,7 +75,7 @@ export function CooperativePlatform() {
             />
 
             {/* Gradient overlay at top for text readability - fades from gray/white to transparent */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#f5f5f5]/95 via-[#f5f5f5]/70 via-35% to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-b from-[#f5f5f5]/95 via-[#f5f5f5]/70 via-35% to-transparent" />
 
             {/* Text content at top */}
             <div className="relative z-10 p-6 md:p-8">
@@ -65,9 +87,12 @@ export function CooperativePlatform() {
                 business with flexible repayment terms.
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="relative rounded-2xl min-h-[420px] md:min-h-[480px] flex flex-col overflow-hidden md:col-span-2 lg:col-span-1 bg-[#f5e6f5] border border-[#e8d8e8]/50">
+          <motion.div
+            variants={fadeIn("left", 0.5)}
+            className="relative rounded-2xl min-h-[420px] md:min-h-[480px] flex flex-col overflow-hidden md:col-span-2 lg:col-span-1 bg-[#f5e6f5] border border-[#e8d8e8]/50 shadow-sm hover:shadow-md transition-shadow"
+          >
             {/* Text content at top left */}
             <div className="relative z-10 p-6 md:p-8">
               <h3 className="text-xl md:text-2xl font-semibold text-[#000000] mb-3">
@@ -89,9 +114,9 @@ export function CooperativePlatform() {
                 className="object-contain translate-x-4 translate-y-2"
               />
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

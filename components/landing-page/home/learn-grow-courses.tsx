@@ -1,58 +1,57 @@
-import Image from "next/image"
-import { ArrowRight } from "lucide-react"
+"use client";
 
-const courses = [
-  {
-    id: 1,
-    image: "/laptop.png",
-    duration: "45 minutes",
-    tags: ["Marketing", "Beginner"],
-    title: "Digital Marketing Essentials",
-    description:
-      "Learn how to leverage social media and digital platforms to reach global customers and grow your online presence.",
-  },
-  {
-    id: 2,
-    image: "/plan.png",
-    duration: "60 minutes",
-    tags: ["Finance", "Beginner"],
-    title: "Financial Management for Small Business",
-    description:
-      "Master the basics of business finance, from record-keeping to profit margins and sustainable growth planning.",
-  },
-  {
-    id: 3,
-    image: "/cargo.png",
-    duration: "50 minutes",
-    tags: ["Logistics", "Intermediate"],
-    title: "International Shipping Made Simple",
-    description:
-      "Navigate international shipping regulations, customs procedures, and cost-effective global delivery strategies.",
-  },
-]
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+
+import { courses } from "@/lib/masterclass-data";
+
+import { motion } from "framer-motion";
+import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export function LearnGrowCourses() {
   return (
-    <section className="py-16 md:py-24 px-4 md:px-8 lg:px-16 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-16 md:py-24 px-4 md:px-8 lg:px-16 bg-white overflow-hidden">
+      <motion.div
+        variants={staggerContainer(0.2, 0)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="max-w-7xl mx-auto"
+      >
         {/* Header */}
         <div className="mb-12 md:mb-16">
-          <h2 className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">
+          <motion.h2
+            variants={fadeIn("right", 0.1)}
+            className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4"
+          >
             Learn & Grow Your Business
-          </h2>
-          <p className="text-[#6b6b6b] text-base md:text-lg max-w-xl leading-relaxed">
+          </motion.h2>
+          <motion.p
+            variants={fadeIn("right", 0.2)}
+            className="text-[#6b6b6b] text-base md:text-lg max-w-xl leading-relaxed"
+          >
             Access expert-led courses tailored to help entrepreneurs
-            <br className="hidden md:block" /> succeed in the global marketplace.
-          </p>
+            <br className="hidden md:block" /> succeed in the global
+            marketplace.
+          </motion.p>
         </div>
 
         {/* Courses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {courses.map((course) => (
-            <div key={course.id} className="flex flex-col">
+            <motion.div
+              key={course.id}
+              variants={fadeIn("up", 0.3)}
+              className="flex flex-col group cursor-pointer"
+            >
               {/* Course Image with Duration Badge */}
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-5">
-                <Image src={course.image || "/placeholder.svg"} alt={course.title} fill className="object-cover" />
+                <Image
+                  src={course.image || "/placeholder.svg"}
+                  alt={course.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
                 {/* Duration Badge */}
                 <div className="absolute bottom-3 right-3 bg-[#222222]/80 text-white text-sm px-3 py-1 rounded-md">
                   {course.duration}
@@ -63,32 +62,37 @@ export function LearnGrowCourses() {
               <div className="flex flex-col flex-1">
                 {/* Tags */}
                 <div className="flex gap-2 mb-3">
-                  {course.tags.map((tag) => (
-                    <span key={tag} className="text-sm text-[#6b6b6b] bg-[#f5f5f5] px-3 py-1 rounded-full">
-                      {tag}
-                    </span>
-                  ))}
+                  <span className="text-sm text-[#6b6b6b] bg-[#f5f5f5] px-3 py-1 rounded-full">
+                    {course.category}
+                  </span>
+                  <span className="text-sm text-[#6b6b6b] bg-[#f5f5f5] px-3 py-1 rounded-full">
+                    {course.level}
+                  </span>
                 </div>
 
                 {/* Title */}
-                <h3 className="font-semibold text-[#222222] text-xl mb-3 leading-tight">{course.title}</h3>
+                <h3 className="font-semibold text-[#222222] text-xl mb-3 leading-tight group-hover:text-[#F10E7C] transition-colors">
+                  {course.title}
+                </h3>
 
                 {/* Description */}
-                <p className="text-[#6b6b6b] text-base leading-relaxed mb-4 flex-1">{course.description}</p>
+                <p className="text-[#6b6b6b] text-base leading-relaxed mb-4 flex-1">
+                  {course.description}
+                </p>
 
                 {/* Explore Masterclass Link */}
                 <a
-                  href="#"
-                  className="text-[#f10e7c] font-semibold text-base hover:underline inline-flex items-center gap-2 group"
+                  href={`/masterclass/${course.id}`}
+                  className="text-[#f10e7c] font-semibold text-base hover:underline inline-flex items-center gap-2 group/link"
                 >
                   Explore Masterclass
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
                 </a>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
-  )
+  );
 }

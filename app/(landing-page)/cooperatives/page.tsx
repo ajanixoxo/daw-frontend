@@ -19,7 +19,7 @@ export default function Cooperatives() {
       <WhyDAWSection />
 
       <CommunityPage />
-      <LoanTierPricing />
+      {/* <LoanTierPricing /> */}
       <CooperativesOption />
 
       <CTASection />
