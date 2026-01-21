@@ -23,7 +23,7 @@ export default function Hero() {
 
         {/* Background Images */}
         <Image
-          src="https://api.builder.io/api/v1/image/assets/TEMP/980427758a00106b3dd5aa1e1d1aafa8c0760281?width=3768"
+          src="/handglobe.jpg"
           alt=""
           className="absolute top-[-49px] left-[-224px] w-[1884px] h-[899px] object-cover mix-blend-screen  "
           fill
