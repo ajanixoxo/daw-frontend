@@ -1,22 +1,170 @@
 "use client";
 
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
+import { useProfile } from "@/hooks/useProfile";
+import {
+  joinCooperative,
+  guestJoinCooperative,
+  fetchDAWCooperative,
+  cooperativeJoinWithSellerOnboard,
+} from "@/app/actions/coop";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function CooperativeSignupStep3() {
-  const { formData, setStep } = useCooperativeSignupStore();
+  const router = useRouter();
+  const { currentStep, formData, dawCooperativeId, dawTiers, setDAWCooperative, setStep, reset } =
+    useCooperativeSignupStore();
   const { personalInfo, membershipTier } = formData;
+  const shopInfo = formData.shopInfo ?? { shopName: "", description: "", category: "", contactNumber: "", businessAddress: "", shopLogo: null, shopBanner: null };
+  const documents = formData.documents ?? { idDocument: null, proofOfResidence: null, businessCac: null, passportPhotograph: null };
+  const { data: profile } = useProfile();
   const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleBack = () => {
-    setStep(2);
-  };
+  const isLoggedIn = !!profile;
+  const isBuyerOrGuestFlow =
+    !profile ||
+    (profile && (!profile.shop || (Array.isArray(profile.shop) && profile.shop.length === 0)));
 
-  const handleComplete = () => {
-    if (agreed) {
-      // Handle submission logic
-      console.log("Submitting:", formData);
+  const handleBack = () => setStep(currentStep - 1);
+
+  const handleComplete = async () => {
+    if (!agreed) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    let cooperativeId = dawCooperativeId;
+    const tierIndex = membershipTier != null ? membershipTier - 1 : -1;
+    let subscriptionTierId =
+      tierIndex >= 0 && dawTiers[tierIndex] ? dawTiers[tierIndex]._id : null;
+
+    if (!cooperativeId || !subscriptionTierId) {
+      try {
+        const res = await fetchDAWCooperative();
+        if (!res.success || !res.data?.cooperative || !res.data?.tiers?.length) {
+          toast.error(res.error ?? "Could not load DAW cooperative. Please refresh and try again.");
+          setIsSubmitting(false);
+          return;
+        }
+        setDAWCooperative(res.data.cooperative._id, res.data.tiers);
+        cooperativeId = res.data.cooperative._id;
+        subscriptionTierId =
+          tierIndex >= 0 && res.data.tiers[tierIndex]
+            ? res.data.tiers[tierIndex]._id
+            : null;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Could not load DAW cooperative.";
+        toast.error(msg);
+        setSubmitError(msg);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    if (!cooperativeId || !subscriptionTierId) {
+      toast.error("DAW cooperative or tier not loaded. Please refresh and try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      if (isBuyerOrGuestFlow) {
+        const fd = new FormData();
+        if (!isLoggedIn) {
+          fd.append("firstName", personalInfo.firstName.trim());
+          fd.append("lastName", (personalInfo.lastName ?? "").trim());
+          fd.append("email", personalInfo.email.trim());
+          fd.append("phone", personalInfo.phoneNumber.trim());
+          fd.append("password", personalInfo.password);
+          fd.append("confirmPassword", personalInfo.confirmPassword);
+        }
+        fd.append("name", shopInfo.shopName);
+        fd.append("description", shopInfo.description);
+        fd.append("category", shopInfo.category);
+        if (shopInfo.contactNumber) fd.append("contactNumber", shopInfo.contactNumber);
+        if (shopInfo.businessAddress) fd.append("businessAddress", shopInfo.businessAddress);
+        fd.append("cooperativeId", cooperativeId);
+        fd.append("subscriptionTierId", subscriptionTierId);
+        if (shopInfo.shopLogo) fd.append("shopLogo", shopInfo.shopLogo);
+        if (shopInfo.shopBanner) fd.append("shopBanner", shopInfo.shopBanner);
+        if (documents.idDocument) fd.append("idDocument", documents.idDocument);
+        if (documents.proofOfResidence) fd.append("proofOfResidence", documents.proofOfResidence);
+        if (documents.businessCac) fd.append("businessCac", documents.businessCac);
+        if (documents.passportPhotograph) fd.append("passportPhotograph", documents.passportPhotograph);
+
+        const res = await cooperativeJoinWithSellerOnboard(fd);
+        if (res.success) {
+          toast.success(isLoggedIn ? "Seller onboarded and joined DAW cooperative." : "Account created, seller onboarded, and joined. Please log in.");
+          reset();
+          router.push(isLoggedIn ? "/cooperative" : "/login");
+          return;
+        }
+        setSubmitError(res.error ?? "Failed to complete registration");
+        toast.error(res.error ?? "Failed to complete registration");
+        return;
+      }
+
+      if (isLoggedIn) {
+        const res = await joinCooperative({ cooperativeId, subscriptionTierId });
+        if (res.success) {
+          toast.success("You have joined the DAW cooperative.");
+          reset();
+          router.push("/cooperative");
+          return;
+        }
+        setSubmitError(res.error ?? "Failed to join cooperative");
+        toast.error(res.error ?? "Failed to join cooperative");
+        return;
+      }
+
+      const { email, password, confirmPassword, firstName, lastName, phoneNumber } =
+        personalInfo;
+      if (!email?.trim() || !password || !confirmPassword?.trim() || !firstName?.trim() || !phoneNumber?.trim()) {
+        toast.error("Please fill in email, password, confirm password, first name, and phone.");
+        setIsSubmitting(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match.");
+        setIsSubmitting(false);
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const res = await guestJoinCooperative({
+        email: email.trim(),
+        password,
+        confirmPassword: confirmPassword.trim(),
+        firstName: firstName.trim(),
+        lastName: (lastName ?? "").trim(),
+        phone: phoneNumber.trim(),
+        cooperativeId,
+        subscriptionTierId,
+      });
+
+      if (res.success) {
+        toast.success("Account created and joined. Please log in.");
+        reset();
+        router.push("/login");
+        return;
+      }
+      setSubmitError(res.error ?? "Failed to join cooperative");
+      toast.error(res.error ?? "Failed to join cooperative");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setSubmitError(msg);
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -61,8 +209,10 @@ export function CooperativeSignupStep3() {
             <p className="text-sm text-gray-600">{personalInfo.phoneNumber}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-[#222]">Business Name:</p>
-            <p className="text-sm text-gray-600">{personalInfo.businessName}</p>
+            <p className="text-sm font-medium text-[#222]">Business/Shop Name:</p>
+            <p className="text-sm text-gray-600">
+              {isBuyerOrGuestFlow ? shopInfo.shopName : personalInfo.businessName}
+            </p>
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Country:</p>
@@ -103,20 +253,25 @@ export function CooperativeSignupStep3() {
         </label>
       </div>
 
+      {submitError && (
+        <p className="mb-4 text-sm text-red-600">{submitError}</p>
+      )}
+
       {/* Actions */}
       <div className="flex gap-4">
         <button
           onClick={handleBack}
-          className="w-full rounded-full border border-gray-100 bg-gray-50 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
+          disabled={isSubmitting}
+          className="w-full rounded-full border border-gray-100 bg-gray-50 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
         >
           Back
         </button>
         <button
           onClick={handleComplete}
-          disabled={!agreed}
+          disabled={!agreed || isSubmitting}
           className="w-full rounded-full bg-[#F10E7C] py-3 text-sm font-medium text-white transition-colors hover:bg-[#d00c6b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Complete Application
+          {isSubmitting ? "Submitting…" : "Complete Application"}
         </button>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { CheckCircle2, Check } from "lucide-react";
 
 export function CooperativeSignupStep2() {
-  const { formData, setMembershipTier, setStep } = useCooperativeSignupStore();
+  const { currentStep, formData, setMembershipTier, setStep } = useCooperativeSignupStore();
   const { membershipTier } = formData;
 
   const tiers = [
@@ -44,14 +44,10 @@ export function CooperativeSignupStep2() {
   ];
 
   const handleNext = () => {
-    if (membershipTier) {
-      setStep(3);
-    }
+    if (membershipTier) setStep(currentStep + 1);
   };
 
-  const handleBack = () => {
-    setStep(1);
-  };
+  const handleBack = () => setStep(currentStep - 1);
 
   return (
     <div className="w-full max-w-[600px]">

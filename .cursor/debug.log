@@ -1,0 +1,3 @@
+{"location":"bank-accounts/route.ts:159","message":"Token created","data":{"tokenId":"btok_1SeeDZ4o3DJ4qtaC8gVDefwL","tokenType":"bank_account"},"timestamp":1765814508318,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"bank-accounts/route.ts:167","message":"Platform account retrieved","data":{"accountId":"acct_1SG28R4o3DJ4qtaC"},"timestamp":1765814511225,"sessionId":"debug-session","runId":"run2","hypothesisId":"D"}
+{"location":"bank-accounts/route.ts:199","message":"Failed to attach external account","data":{"errorType":"StripePermissionError","errorMessage":"You cannot use this method on your own account: you may only use it on connected accounts."},"timestamp":1765814513154,"sessionId":"debug-session","runId":"run2","hypothesisId":"D"}

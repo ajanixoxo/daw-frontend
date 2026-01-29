@@ -4,12 +4,6 @@ import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
 import { getServerSession } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
-interface IJoinCooperativeRequest {
-  userId: string;
-  cooperativeId: string;
-  subscriptionTierId: string;
-}
-
 interface IJoinCooperativeResponse {
   id: string;
   userId: string;
@@ -66,21 +60,14 @@ export async function joinCooperative(data: {
   try {
     const session = await getServerSession();
     const token = session?.accessToken;
-    const userId = session?.userId;
 
-    if (!token || !userId) {
+    if (!token) {
       return { success: false, error: "Authentication required" };
     }
 
-    const payload: IJoinCooperativeRequest = {
-      userId,
-      cooperativeId: data.cooperativeId,
-      subscriptionTierId: data.subscriptionTierId,
-    };
-    console.log("payload to join", payload);
     const response = await apiClient.post<IJoinCooperativeResponse>(
       API_ENDPOINTS.COOPERATIVES.JOIN,
-      payload,
+      { cooperativeId: data.cooperativeId, subscriptionTierId: data.subscriptionTierId },
       { token }
     );
 
@@ -88,6 +75,82 @@ export async function joinCooperative(data: {
       success: true,
       data: response,
       message: "Successfully joined cooperative",
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to join cooperative";
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Combined: guest/buyer → create user (if guest) + seller onboard + join DAW cooperative.
+ * Client builds FormData with: personal (firstName, lastName, email, phone, password?, confirmPassword?);
+ * shop (name, description, category, contactNumber, businessAddress, shopLogo?, shopBanner?);
+ * documents (idDocument, proofOfResidence, businessCac, passportPhotograph); cooperativeId, subscriptionTierId.
+ */
+export async function cooperativeJoinWithSellerOnboard(
+  formData: FormData
+): Promise<
+  IActionResponse<{ member: unknown; shop: unknown; message: string }>
+> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
+    const url = `${baseUrl}${API_ENDPOINTS.SHOPS.COOPERATIVE_JOIN_WITH_SELLER_ONBOARD}`;
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(url, { method: "POST", body: formData, headers });
+    const data = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      error?: string;
+      member?: unknown;
+      shop?: unknown;
+    };
+    if (!res.ok) {
+      const msg =
+        data?.message || data?.error || `Request failed (${res.status})`;
+      return { success: false, error: msg };
+    }
+    return {
+      success: true,
+      data: {
+        member: data.member,
+        shop: data.shop,
+        message: data?.message || "Success",
+      },
+      message: data?.message || "Success",
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Request failed";
+    return { success: false, error: message };
+  }
+}
+
+/** Guest join: create account and join cooperative (no auth). */
+export async function guestJoinCooperative(data: {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  firstName: string;
+  lastName?: string;
+  phone: string;
+  cooperativeId: string;
+  subscriptionTierId: string;
+}): Promise<IActionResponse<IJoinCooperativeResponse>> {
+  try {
+    const response = await apiClient.post<IJoinCooperativeResponse>(
+      API_ENDPOINTS.COOPERATIVES.JOIN_GUEST,
+      data
+    );
+
+    return {
+      success: true,
+      data: response,
+      message: "Account created and joined cooperative. Please log in.",
     };
   } catch (error) {
     const message =
@@ -152,6 +215,31 @@ export async function fetchSubscriptionTiers(
         ? error.message
         : "Failed to fetch subscription tiers";
 
+    return { success: false, error: message };
+  }
+}
+
+/** Public: fetch the single DAW cooperative and its tiers (no auth). */
+export async function fetchDAWCooperative(): Promise<
+  IActionResponse<{
+    cooperative: { _id: string; name: string; description?: string; isActive: boolean };
+    tiers: { _id: string; name: string; monthlyContribution: number }[];
+  }>
+> {
+  try {
+    const response = await apiClient.get<{
+      cooperative: { _id: string; name: string; description?: string; isActive: boolean };
+      tiers: { _id: string; name: string; monthlyContribution: number }[];
+    }>(API_ENDPOINTS.COOPERATIVES.GET_DAW);
+
+    return {
+      success: true,
+      data: response,
+      message: "DAW cooperative fetched successfully",
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch DAW cooperative";
     return { success: false, error: message };
   }
 }

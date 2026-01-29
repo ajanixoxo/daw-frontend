@@ -5,13 +5,6 @@ import type { FC } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Eye, EyeOff } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 import type { ILoginRequest } from "@/types/auth.types";
@@ -21,30 +14,19 @@ const SignInForm: FC = () => {
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
-    role?: string;
   }>({});
 
   const { login, isLoading, error } = useLogin();
 
-  const [formData, setFormData] = useState<
-    ILoginRequest & { role: "buyer" | "seller" }
-  >({
+  const [formData, setFormData] = useState<ILoginRequest>({
     email: "",
     password: "",
-    role: "buyer",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleRoleChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      role: value as "buyer" | "seller",
     }));
   };
 
@@ -55,7 +37,7 @@ const SignInForm: FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { email?: string; password?: string; role?: string } = {};
+    const newErrors: { email?: string; password?: string } = {};
 
     if (!formData.email) {
       newErrors.email = "Email is required";
@@ -65,10 +47,6 @@ const SignInForm: FC = () => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    }
-
-    if (!formData.role) {
-      newErrors.role = "Please select a role";
     }
 
     setErrors(newErrors);
@@ -119,14 +97,14 @@ const SignInForm: FC = () => {
             value={formData.password}
             onChange={handleChange}
             disabled={isLoading}
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
+            className="h-12 rounded-[40px] border border-input-border bg-white px-4 pr-12 text-base placeholder:text-input-placeholder"
             aria-invalid={!!errors.password}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             disabled={isLoading}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-dark transition-colors disabled:opacity-50"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -145,36 +123,10 @@ const SignInForm: FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="role" className="auth-label text-(--text-dark)">
-          I am logging in as a
-        </Label>
-        <Select
-          value={formData.role}
-          onValueChange={handleRoleChange}
-          disabled={isLoading}
-        >
-          <SelectTrigger
-            id="role"
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base w-full"
-            aria-invalid={!!errors.role}
-          >
-            <SelectValue placeholder="Buyer" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="buyer">Buyer</SelectItem>
-            <SelectItem value="seller">Seller</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.role && (
-          <span className="text-xs text-destructive">{errors.role}</span>
-        )}
-      </div>
-
       <Button
         type="submit"
         disabled={isLoading}
-        className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="h-12 rounded-[40px] bg-brand-pink hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ letterSpacing: "-0.64px" }}
       >
         {isLoading ? "Signing in..." : "Login"}

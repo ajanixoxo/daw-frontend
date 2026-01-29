@@ -164,7 +164,11 @@ export const API_ENDPOINTS = {
   },
   SHOPS: {
     CREATE: "/marketplace/create/shops",
+    SELLER_ONBOARD: "/marketplace/seller-onboard",
+    /** Combined: guest/buyer → create user (if guest) + seller onboard + join DAW cooperative */
+    COOPERATIVE_JOIN_WITH_SELLER_ONBOARD: "/marketplace/cooperative-join-with-seller-onboard",
     GET_SHOP: (shopId: string) => `/marketplace/shops/${shopId}`,
+    SELLER_DOCUMENTS_ME: "/marketplace/seller-documents/me",
   },
   KYC: {
     VERIFY_NIN: "/kyc/verify-nin",
@@ -176,7 +180,10 @@ export const API_ENDPOINTS = {
   COOPERATIVES: {
     GET_ALL: "/api/cooperatives",
     GET_BY_ID: (cooperativeId: string) => `/api/cooperatives/${cooperativeId}`,
+    /** Public: single DAW cooperative + tiers (no auth) */
+    GET_DAW: "/api/cooperatives/daw",
     JOIN: "/api/members/join",
+    JOIN_GUEST: "/api/members/join/guest",
     GET_ALL_USER: (cooperativeId: string) =>
       `/api/members/cooperative/${cooperativeId}`,
     CREATE_COOP: "api/cooperatives",

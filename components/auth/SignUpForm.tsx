@@ -5,13 +5,6 @@ import type { FC } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Eye, EyeOff, Check } from "lucide-react";
 import { useSignup } from "@/hooks/useAuth";
 import type { ISignupRequest } from "@/types/auth.types";
@@ -26,7 +19,6 @@ const SignUpForm: FC = () => {
     phone?: string;
     password?: string;
     confirmPassword?: string;
-    role?: string;
   }>({});
 
   // signup hook
@@ -39,20 +31,12 @@ const SignUpForm: FC = () => {
     password: "",
     confirmPassword: "",
     phone: "",
-    roles: "buyer",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleRoleChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      roles: value as "buyer" | "seller",
     }));
   };
 
@@ -70,7 +54,6 @@ const SignUpForm: FC = () => {
       phone?: string;
       password?: string;
       confirmPassword?: string;
-      role?: string;
     } = {};
 
     if (!formData.firstName) {
@@ -97,10 +80,6 @@ const SignUpForm: FC = () => {
       newErrors.confirmPassword = "Please confirm your password";
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!formData.roles) {
-      newErrors.role = "Please select a role";
     }
 
     setErrors(newErrors);
@@ -330,34 +309,6 @@ const SignUpForm: FC = () => {
           <span className="text-xs text-destructive">
             {errors.confirmPassword}
           </span>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="roles" className="auth-label text-(--text-dark)">
-          I am joining as a
-        </Label>
-        <Select
-          value={formData.roles}
-          onValueChange={handleRoleChange}
-          disabled={isLoading}
-        >
-          <SelectTrigger
-            id="roles"
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base w-full"
-            aria-invalid={!!errors.role}
-          >
-            <SelectValue placeholder="Buyer" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="buyer">Buyer</SelectItem>
-            <SelectItem value="seller">Seller</SelectItem>
-            {/* <SelectItem value="vendor">Vendor</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem> */}
-          </SelectContent>
-        </Select>
-        {errors.role && (
-          <span className="text-xs text-destructive">{errors.role}</span>
         )}
       </div>
 

@@ -1,10 +1,16 @@
 "use client";
 
 import { FC, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { FileText, LucideIcon, Loader2 } from "lucide-react";
 import { useSellerSignupStore } from "@/zustand/seller-signup-store";
+import { useAuthStore } from "@/zustand/store";
+import { API_ENDPOINTS } from "@/lib/api/client";
+import { toast } from "sonner";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
 
 interface UploadBoxProps {
   label: string;
@@ -58,12 +64,15 @@ const UploadBox: FC<UploadBoxProps> = ({
 };
 
 const SellerSignupStep2: FC = () => {
+  const router = useRouter();
   const { formData, updateDocuments, setStep, reset } = useSellerSignupStore();
-  const { documents } = formData;
+  const { documents, shopInfo } = formData;
+  const token = useAuthStore((s) => s.sessionData?.accessToken);
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof documents, string>>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,18 +87,54 @@ const SellerSignupStep2: FC = () => {
       newErrors.passportPhotograph = "Passport photograph is required";
 
     setErrors(newErrors);
+    setSubmitError(null);
 
-    if (Object.keys(newErrors).length === 0) {
-      setIsSubmitting(true);
-      // Simulate API call
-      console.log("Submitting final form data:", formData);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setIsSubmitting(false);
+    if (Object.keys(newErrors).length !== 0) return;
 
-      // Clear store and potentially redirect
-      alert("Signup successful!");
+    if (!token) {
+      setSubmitError("You must be logged in to complete seller signup.");
+      toast.error("Please log in first.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const body = new FormData();
+      body.append("name", shopInfo.shopName);
+      body.append("description", shopInfo.description);
+      body.append("category", shopInfo.category);
+      if (shopInfo.contactNumber) body.append("contactNumber", shopInfo.contactNumber);
+      if (shopInfo.businessAddress) body.append("businessAddress", shopInfo.businessAddress);
+      if (shopInfo.shopLogo) body.append("shopLogo", shopInfo.shopLogo);
+      if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
+      body.append("idDocument", documents.idDocument!);
+      body.append("proofOfResidence", documents.proofOfResidence!);
+      body.append("businessCac", documents.businessCac!);
+      body.append("passportPhotograph", documents.passportPhotograph!);
+
+      const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.SELLER_ONBOARD}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data?.message || data?.error || `Request failed (${res.status})`;
+        setSubmitError(msg);
+        toast.error(msg);
+        return;
+      }
+      toast.success("Seller signup complete. Your shop has been created.");
       reset();
-      window.location.href = "/"; // Redirect to home or dashboard
+      router.push("/sellers/shop");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setSubmitError(msg);
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -142,6 +187,10 @@ const SellerSignupStep2: FC = () => {
           description="Upload Passport or Take Image"
           error={errors.passportPhotograph}
         />
+
+        {submitError && (
+          <p className="text-sm text-destructive">{submitError}</p>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-4 mt-8">

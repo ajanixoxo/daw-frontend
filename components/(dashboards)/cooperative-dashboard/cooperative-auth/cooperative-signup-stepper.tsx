@@ -3,14 +3,23 @@ import { Check } from "lucide-react";
 
 interface StepperProps {
   currentStep: number;
+  /** 5 for buyer/guest (Personal, Shop, Docs, Membership, Finish); 3 for seller (Personal, Membership, Finish) */
+  totalSteps: number;
 }
 
-export function CooperativeSignupStepper({ currentStep }: StepperProps) {
-  const steps = [
-    { id: 1, label: "Personal Info" },
-    { id: 2, label: "Membership Tier" },
-    { id: 3, label: "Finish" },
-  ];
+const FIVE_STEP_LABELS = [
+  "Personal Info",
+  "Shop Info",
+  "Documents",
+  "Membership",
+  "Finish",
+];
+
+const THREE_STEP_LABELS = ["Personal Info", "Membership Tier", "Finish"];
+
+export function CooperativeSignupStepper({ currentStep, totalSteps }: StepperProps) {
+  const labels = totalSteps === 5 ? FIVE_STEP_LABELS : THREE_STEP_LABELS;
+  const steps = labels.map((label, i) => ({ id: i + 1, label }));
 
   return (
     <div className="flex items-center gap-4 text-sm font-medium text-gray-500 mb-8">
@@ -40,7 +49,7 @@ export function CooperativeSignupStepper({ currentStep }: StepperProps) {
             </span>
           </div>
           {index < steps.length - 1 && (
-            <div className="mx-4 h-[1px] w-12 bg-gray-300" />
+            <div className="mx-4 h-px w-12 bg-gray-300" />
           )}
         </div>
       ))}

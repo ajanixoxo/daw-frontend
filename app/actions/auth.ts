@@ -188,12 +188,18 @@ export async function signupUser(
   userData: ISignupRequest
 ): Promise<IActionResponse<ISessionData>> {
   try {
-    // Convert roles string to array format expected by backend
-    const payload = {
-      ...userData,
-      roles: [userData.roles], // Convert single role string to array
+    // Backend defaults role (e.g. buyer) when roles not sent
+    const payload: Record<string, unknown> = {
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      password: userData.password,
+      confirmPassword: userData.confirmPassword,
+      phone: userData.phone,
     };
-    
+    if (userData.roles != null) {
+      payload.roles = [userData.roles];
+    }
     const response = await apiClient.post<ISignupResponse>(
       API_ENDPOINTS.AUTH.REGISTER,
       payload
