@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { createServerSession, getServerSession } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 interface IJoinCooperativeResponse {
@@ -108,12 +108,28 @@ export async function cooperativeJoinWithSellerOnboard(
       error?: string;
       member?: unknown;
       shop?: unknown;
+      token?: string; // guest temp token for /auth/verify/email
+      user?: { _id: string; email: string; roles?: string[] };
     };
     if (!res.ok) {
       const msg =
         data?.message || data?.error || `Request failed (${res.status})`;
       return { success: false, error: msg };
     }
+
+    // Guest flow: backend returns a temporary token so the OTP verification page can call /auth/verify/email.
+    // We must persist it into the server session cookies (same pattern as normal signup).
+    if (!token && data?.token && data?.user?._id && data?.user?.email) {
+      await createServerSession({
+        userId: data.user._id,
+        email: data.user.email,
+        role: data.user.roles?.[0] || "buyer",
+        isVerified: false,
+        accessToken: data.token,
+        refreshToken: "",
+      });
+    }
+
     return {
       success: true,
       data: {

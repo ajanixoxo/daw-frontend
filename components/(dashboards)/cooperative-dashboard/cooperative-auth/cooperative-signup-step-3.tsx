@@ -99,9 +99,13 @@ export function CooperativeSignupStep3() {
 
         const res = await cooperativeJoinWithSellerOnboard(fd);
         if (res.success) {
-          toast.success(isLoggedIn ? "Seller onboarded and joined DAW cooperative." : "Account created, seller onboarded, and joined. Please log in.");
+          toast.success(
+            isLoggedIn
+              ? "Seller onboarded and joined DAW cooperative."
+              : "Account created and joined. Please verify your email with the OTP sent."
+          );
           reset();
-          router.push(isLoggedIn ? "/cooperative" : "/login");
+          router.push(isLoggedIn ? "/sellers/shop" : "/otp?mode=signup");
           return;
         }
         setSubmitError(res.error ?? "Failed to complete registration");
@@ -114,7 +118,7 @@ export function CooperativeSignupStep3() {
         if (res.success) {
           toast.success("You have joined the DAW cooperative.");
           reset();
-          router.push("/cooperative");
+          router.push("/sellers/shop");
           return;
         }
         setSubmitError(res.error ?? "Failed to join cooperative");
