@@ -22,7 +22,7 @@ export function CooperativeSignupStepper({ currentStep, totalSteps }: StepperPro
   const steps = labels.map((label, i) => ({ id: i + 1, label }));
 
   return (
-    <div className="flex items-center gap-4 text-sm font-medium text-gray-500 mb-8">
+    <div className="flex flex-wrap items-center justify-between gap-4 text-sm font-medium text-gray-500 mb-8">
       {steps.map((step, index) => (
         <div key={step.id} className="flex items-center">
           <div className="flex items-center gap-2">

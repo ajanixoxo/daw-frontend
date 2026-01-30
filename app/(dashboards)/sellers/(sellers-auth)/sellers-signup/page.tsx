@@ -1,13 +1,17 @@
+"use client";
 import SellersSignup from "@/components/(dashboards)/sellers-dashboard/sellers-auth/sellers-signup/sellers-signup";
 import SellersSignupPromo from "@/components/(dashboards)/sellers-dashboard/sellers-auth/sellers-signup/sellers-signup-promo";
 import Image from "next/image";
 import Link from "next/link";
-
+import DAWModal from "@/components/(dashboards)/sellers-dashboard/sellers-auth/sellers-signup/modal/join-daw-modal";
+import { useState } from "react";
 export default function SellersSignupPage() {
+  const [isDAWModalOpen, setIsDAWModalOpen] = useState(true);
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white">
       {/* Left Section - Form */}
       <div className="w-full lg:w-[550px] flex flex-col items-center justify-start p-6 sm:p-8 lg:p-12 overflow-y-auto">
+         <DAWModal isOpen={isDAWModalOpen} onClose={() => setIsDAWModalOpen(false)} />
         <div className="w-full max-w-[500px] flex flex-col gap-10">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">

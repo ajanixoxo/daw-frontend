@@ -23,6 +23,7 @@ const SellersSignup: FC = () => {
 
   return (
     <div className="w-full max-w-[550px]">
+      
       {/* Stepper */}
       <div className="flex items-center gap-4 mb-12">
         {steps.map((step, index) => (

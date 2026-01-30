@@ -63,13 +63,13 @@ export default function CooperativeSignupPage() {
 
         <div className="mt-8">
           {isBuyerOrGuestFlow ? (
-            <>
+            <div>
               {currentStep === 1 && <CooperativeSignupStep1 />}
               {currentStep === 2 && <CooperativeSignupStepShop />}
               {currentStep === 3 && <CooperativeSignupStepDocs />}
               {currentStep === 4 && <CooperativeSignupStep2 />}
               {currentStep === 5 && <CooperativeSignupStep3 />}
-            </>
+            </div>
           ) : (
             <>
               {currentStep === 1 && <CooperativeSignupStep1 />}

@@ -171,7 +171,8 @@ export function CooperativeSignupStep1() {
         )}
 
         {/* Document Upload - hidden if user already has seller documents (e.g. from seller onboarding) */}
-        {!hasSellerDocuments && (
+
+          {!hasSellerDocuments && !isBuyerOrGuestFlow && (
           <div className="space-y-2">
             <label className="text-sm font-medium text-[#222]">
               Upload Valid Identification Documents: e.g. NIN, International
