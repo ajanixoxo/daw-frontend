@@ -307,7 +307,7 @@ export function HeroSection() {
   }, [banners.length]);
 
   return (
-    <section className="px-4 md:px-8 lg:px-16 py-8 lg:py-32">
+    <section className="max-w-[1440px] mx-auto px-5 lg:px-[84px] py-8 lg:pt-32 lg:pb-16">
       <Header />
       <div className="relative mt-12 md:mt-4 rounded-3xl overflow-hidden min-h-[400px] md:min-h-[480px] lg:min-h-[520px] group">
         {/* Slider Container */}

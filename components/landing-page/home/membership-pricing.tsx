@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Check } from "lucide-react"
+import { useState } from "react";
+import { Check } from "lucide-react";
 
-type TierType = "regular" | "tier1" | "tier2" | "tier3"
-type CurrencyType = "usd" | "ngn"
+type TierType = "regular" | "tier1" | "tier2" | "tier3";
+type CurrencyType = "usd" | "ngn";
 
 interface PlanFeature {
-  text: string
+  text: string;
 }
 
 interface Plan {
-  name: string
-  description: string
-  priceUSD: number
-  priceNGN: number
-  features: PlanFeature[]
-  isPopular?: boolean
+  name: string;
+  description: string;
+  priceUSD: number;
+  priceNGN: number;
+  features: PlanFeature[];
+  isPopular?: boolean;
 }
 
 const tierPlans: Record<TierType, Plan[]> = {
@@ -236,31 +236,31 @@ const tierPlans: Record<TierType, Plan[]> = {
       ],
     },
   ],
-}
+};
 
 const tierLabels: { key: TierType; label: string }[] = [
   { key: "regular", label: "Regular" },
   { key: "tier1", label: "Tier 1" },
   { key: "tier2", label: "Tier 2" },
   { key: "tier3", label: "Tier 3" },
-]
+];
 
 export function MembershipPricing() {
-  const [selectedTier, setSelectedTier] = useState<TierType>("regular")
-  const [currency, setCurrency] = useState<CurrencyType>("ngn")
+  const [selectedTier, setSelectedTier] = useState<TierType>("regular");
+  const [currency, setCurrency] = useState<CurrencyType>("ngn");
 
-  const plans = tierPlans[selectedTier]
+  const plans = tierPlans[selectedTier];
 
   const formatPrice = (priceUSD: number, priceNGN: number) => {
     if (currency === "usd") {
-      return `$${priceUSD.toFixed(2)}`
+      return `$${priceUSD.toFixed(2)}`;
     }
-    return `₦${priceNGN.toLocaleString()}`
-  }
+    return `₦${priceNGN.toLocaleString()}`;
+  };
 
   return (
-    <section className="bg-white py-16 md:py-24 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-white py-16 md:py-24 overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-5 lg:px-[84px]">
         {/* Header */}
         <div className="mb-8 md:mb-12">
           <h2 className=" text-3xl md:text-4xl lg:text-[42px] font-bold text-[#222222] mb-4">
@@ -288,7 +288,8 @@ export function MembershipPricing() {
                 } ${
                   selectedTier !== tier.key && index === 0
                     ? "rounded-l-full border-r-0"
-                    : selectedTier !== tier.key && index === tierLabels.length - 1
+                    : selectedTier !== tier.key &&
+                        index === tierLabels.length - 1
                       ? "rounded-r-full border-l-0"
                       : selectedTier !== tier.key
                         ? "border-x-0"
@@ -302,7 +303,9 @@ export function MembershipPricing() {
 
           {/* Currency Toggle */}
           <div className="flex items-center gap-3">
-            <span className={`text-sm ${currency === "usd" ? "text-[#222222] font-medium" : "text-[#999999]"}`}>
+            <span
+              className={`text-sm ${currency === "usd" ? "text-[#222222] font-medium" : "text-[#999999]"}`}
+            >
               International ($)
             </span>
             <button
@@ -315,7 +318,9 @@ export function MembershipPricing() {
                 }`}
               />
             </button>
-            <span className={`text-sm ${currency === "ngn" ? "text-[#222222] font-medium" : "text-[#999999]"}`}>
+            <span
+              className={`text-sm ${currency === "ngn" ? "text-[#222222] font-medium" : "text-[#999999]"}`}
+            >
               Nigerian (₦)
             </span>
           </div>
@@ -324,13 +329,20 @@ export function MembershipPricing() {
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {plans.map((plan, index) => (
-            <div key={index} className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden flex flex-col">
+            <div
+              key={index}
+              className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden flex flex-col"
+            >
               {/* Inner Card - contains plan details and button */}
-              <div className={`p-5 rounded-xl m-2 ${plan.isPopular ? "bg-[#f10e7c]" : "bg-[#f5f5f5]"}`}>
+              <div
+                className={`p-5 rounded-xl m-2 ${plan.isPopular ? "bg-[#f10e7c]" : "bg-[#f5f5f5]"}`}
+              >
                 {/* Plan Header */}
                 <div className="mb-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className={`text-lg font-semibold ${plan.isPopular ? "text-white" : "text-[#222222]"}`}>
+                    <h3
+                      className={`text-lg font-semibold ${plan.isPopular ? "text-white" : "text-[#222222]"}`}
+                    >
                       {plan.name}
                     </h3>
                     {plan.isPopular && (
@@ -339,17 +351,25 @@ export function MembershipPricing() {
                       </span>
                     )}
                   </div>
-                  <p className={`text-sm leading-relaxed ${plan.isPopular ? "text-white/90" : "text-[#6b6b6b]"}`}>
+                  <p
+                    className={`text-sm leading-relaxed ${plan.isPopular ? "text-white/90" : "text-[#6b6b6b]"}`}
+                  >
                     {plan.description}
                   </p>
                 </div>
 
                 {/* Price */}
                 <div className="mb-5">
-                  <span className={`text-4xl font-bold ${plan.isPopular ? "text-white" : "text-[#222222]"}`}>
+                  <span
+                    className={`text-4xl font-bold ${plan.isPopular ? "text-white" : "text-[#222222]"}`}
+                  >
                     {formatPrice(plan.priceUSD, plan.priceNGN)}
                   </span>
-                  <span className={`text-sm ml-1 ${plan.isPopular ? "text-white/80" : "text-[#6b6b6b]"}`}>/month</span>
+                  <span
+                    className={`text-sm ml-1 ${plan.isPopular ? "text-white/80" : "text-[#6b6b6b]"}`}
+                  >
+                    /month
+                  </span>
                 </div>
 
                 {/* Select Button */}
@@ -366,14 +386,21 @@ export function MembershipPricing() {
 
               {/* Features - Outside inner card, on white background */}
               <div className="px-4 pb-6 pt-4 flex-1">
-                <p className="text-[#f10e7c] text-xs font-bold tracking-wide mb-4">PLAN INCLUDES:</p>
+                <p className="text-[#f10e7c] text-xs font-bold tracking-wide mb-4">
+                  PLAN INCLUDES:
+                </p>
                 <ul className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-2.5">
                       <span className="w-5 h-5 rounded-full bg-[#e8f5e9] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-[#2ba570]" strokeWidth={3} />
+                        <Check
+                          className="w-3 h-3 text-[#2ba570]"
+                          strokeWidth={3}
+                        />
                       </span>
-                      <span className="text-sm text-[#444444] leading-relaxed">{feature.text}</span>
+                      <span className="text-sm text-[#444444] leading-relaxed">
+                        {feature.text}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -383,5 +410,5 @@ export function MembershipPricing() {
         </div>
       </div>
     </section>
-  )
+  );
 }

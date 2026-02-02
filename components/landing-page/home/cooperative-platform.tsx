@@ -12,7 +12,7 @@ export function CooperativePlatform() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="container mx-auto px-4 md:px-6 max-w-7xl"
+        className="max-w-[1440px] mx-auto px-5 lg:px-[84px]"
       >
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">

@@ -6,13 +6,13 @@ import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export default function WhyDAWSection() {
   return (
-    <section className="bg-[#FFEFF7] flex items-center justify-center px-4 sm:px-6 lg:px-28 overflow-hidden">
+    <section className="bg-[#FFEFF7] flex items-center justify-center overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="w-full max-w-[1440px] py-16 sm:py-20 lg:py-[82px]"
+        className="w-full max-w-[1440px] py-16 sm:py-20 lg:py-[82px] px-5 lg:px-[84px]"
       >
         <div className="flex flex-col gap-12 sm:gap-14 lg:gap-[60px]">
           {/* Header */}

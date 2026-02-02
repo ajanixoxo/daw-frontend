@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 export function BecomeASellerBanner() {
   return (
-    <section className="px-4 md:px-8 lg:px-16 py-8 lg:py-16">
+    <section className="max-w-[1440px] mx-auto px-5 lg:px-[84px] py-8 lg:py-16">
       <div className="relative mb-8 w-full overflow-hidden rounded-[32px] md:mb-12">
         {/* Background Image */}
         <div className="absolute inset-0 h-[400px] w-full md:h-[500px]">

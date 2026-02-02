@@ -97,13 +97,13 @@ export function Testimonials() {
   }, [nextSlide]);
 
   return (
-    <section className="bg-[#f5f5f5] py-16 md:py-24 px-4 md:px-8 overflow-hidden">
+    <section className="bg-[#f5f5f5] py-16 md:py-24 overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-[1440px] mx-auto px-5 lg:px-[84px]"
       >
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">

@@ -6,13 +6,13 @@ import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export default function CTASection() {
   return (
-    <section className="bg-[#FFFFFF] flex items-center justify-center px-4 sm:px-6 lg:px-20 overflow-hidden">
+    <section className="bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="w-full max-w-[1440px] py-12 sm:py-16 lg:py-20"
+        className="w-full max-w-[1440px] py-12 sm:py-16 lg:py-20 px-5 lg:px-[84px]"
       >
         <div className="relative overflow-hidden rounded-[32px] bg-[#F10E7C] px-6 sm:px-12 lg:px-20 py-12 sm:py-16 lg:py-[107px]">
           {/* Content */}
