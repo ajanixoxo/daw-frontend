@@ -44,9 +44,13 @@ export default function Home() {
           <PopularProducts />
         </>
       )}
-      {!isAuthenticated && <Hero />}
-      <CooperativePlatform />
-      <WhyDAWSection />
+      {!isAuthenticated && (
+        <>
+          <Hero />
+          <CooperativePlatform />
+          <WhyDAWSection />
+        </>
+      )}
       {/* <MembershipPricing /> */}
       <Testimonials />
       <MarketplaceProducts />
