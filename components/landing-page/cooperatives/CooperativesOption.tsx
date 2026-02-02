@@ -47,13 +47,13 @@ export default function CooperativesOption() {
   ];
 
   return (
-    <section className="bg-[#FFFFFF] flex items-center justify-center px-4 sm:px-6 lg:px-24 overflow-hidden">
+    <section className="bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="w-full max-w-[1440px] py-12 sm:py-14 lg:py-[58px]"
+        className="w-full max-w-[1440px] px-5 lg:px-[84px] py-12 sm:py-14 lg:py-[58px]"
       >
         <div className="flex flex-col gap-12 sm:gap-14 lg:gap-[60px]">
           {/* Header */}

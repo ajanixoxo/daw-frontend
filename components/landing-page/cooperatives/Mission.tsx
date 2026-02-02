@@ -8,13 +8,13 @@ import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export default function Mission() {
   return (
-    <div className="min-h-screen bg-[#FFEFF7] py-12 px-4 sm:px-6 lg:px-20 xl:px-20 overflow-hidden">
+    <div className="min-h-screen bg-[#FFEFF7] py-12 overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="max-w-[1272px] mx-auto"
+        className="w-full max-w-[1440px] mx-auto px-5 lg:px-[84px]"
       >
         <div className="flex flex-col items-center gap-16 lg:gap-[60px]">
           {/* Header Section */}
@@ -45,11 +45,11 @@ export default function Mission() {
           </motion.div>
 
           {/* Cards Section */}
-          <div className="w-full flex flex-col lg:flex-row items-start gap-6 lg:gap-6">
+          <div className="w-full flex flex-col lg:flex-row items-stretch justify-between gap-6 lg:gap-12">
             {/* Financial Support Card - Left Column */}
             <motion.div
               variants={fadeIn("right", 0.2)}
-              className="w-full lg:w-[62.5%] flex flex-col rounded-[20px] overflow-hidden bg-white hover:shadow-xl transition-all hover:-translate-y-1"
+              className="w-full lg:w-[60%] flex flex-col rounded-[20px] overflow-hidden bg-white hover:shadow-xl transition-all hover:-translate-y-1"
             >
               <div className="p-6 sm:p-8 lg:p-[35px_26px] flex flex-col gap-2">
                 <h2
@@ -82,7 +82,7 @@ export default function Mission() {
             </motion.div>
 
             {/* Right Column - Two Cards */}
-            <div className="w-full lg:w-[37.5%] flex flex-col gap-6 lg:gap-6">
+            <div className="w-full lg:w-[36%] flex flex-col gap-6 lg:gap-6">
               {/* Community Power Card */}
               <motion.div
                 variants={fadeIn("left", 0.3)}

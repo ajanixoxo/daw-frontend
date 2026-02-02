@@ -192,7 +192,7 @@ export function OurSDGs() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="mx-auto max-w-6xl px-4"
+        className="mx-auto max-w-[1440px] px-5 lg:px-[84px]"
       >
         {/* Header */}
         <div className="mb-12 text-center">

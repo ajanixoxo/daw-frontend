@@ -37,17 +37,17 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen overflow-hidden">
       {/* Hero Section - Join Our Growing Community */}
-      <section className="bg-black flex items-center justify-center px-4 sm:px-6 lg:px-24">
+      <section className="bg-black flex items-center justify-center">
         <motion.div
           variants={staggerContainer(0.2, 0)}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
-          className="w-full max-w-[1440px] py-16 sm:py-20 lg:py-32"
+          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-16 sm:py-20 lg:py-32"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
+          <div className="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-8">
             {/* Left Column - Intro and Benefits */}
-            <div className="flex flex-col gap-10">
+            <div className="flex flex-col gap-10 w-full lg:w-[50%]">
               {/* Introduction Text */}
               <motion.p
                 variants={fadeIn("up", 0.1)}
@@ -105,21 +105,19 @@ export default function CommunityPage() {
             </div>
 
             {/* Right Column - Title and Impact Card */}
-            <div className="flex flex-col justify-between h-full lg:min-h-[700px]">
+            <div className="flex flex-col justify-between h-full lg:min-h-[700px] w-full lg:w-[40%]">
               {/* Heading */}
               <motion.h1
                 variants={fadeIn("left", 0.3)}
                 className="text-white text-[42px] sm:text-[54px] lg:text-[64px] font-bold leading-[1.1] tracking-tight text-balance"
               >
-                What You Benefit <br className="hidden sm:block" />
-                from Our Growing <br className="hidden sm:block" />
-                Community
+                join Our Growing <br className="hidden sm:block" /> Community
               </motion.h1>
 
               {/* Stats Card - Positioned at bottom left area */}
               <motion.div
                 variants={fadeIn("up", 0.5)}
-                className="mt-20 lg:mt-auto self-start w-full sm:w-[420px] p-10 lg:p-12 rounded-[24px] bg-[#222222] flex flex-col items-center justify-center gap-2 border border-white/5 shadow-2xl"
+                className="mt-20 lg:mt-auto lg:translate-y-20 self-start w-full sm:w-[460px] p-10 lg:p-8 rounded-[24px] bg-[#222222] flex flex-col items-center justify-center gap-2 border border-white/5 shadow-2xl"
               >
                 <div className="text-[#F10E7C] text-[48px] lg:text-[64px] font-bold tracking-tighter">
                   20,000+
@@ -134,13 +132,13 @@ export default function CommunityPage() {
       </section>
 
       {/* Our Impact in Numbers Section */}
-      <section className="bg-white flex items-center justify-center px-4 sm:px-6 lg:px-24">
+      <section className="bg-white flex items-center justify-center">
         <motion.div
           variants={staggerContainer(0.2, 0)}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
-          className="w-full max-w-[1440px] py-20 lg:py-32"
+          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-20 lg:py-32"
         >
           <div className="flex flex-col gap-16 lg:gap-24">
             {/* Header */}
@@ -183,13 +181,13 @@ export default function CommunityPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="bg-[#FFEFF7] flex items-center justify-center px-4 sm:px-6 lg:px-24 border-t border-gray-100">
+      <section className="bg-[#FFEFF7] flex items-center justify-center border-t border-gray-100">
         <motion.div
           variants={staggerContainer(0.2, 0)}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
-          className="w-full max-w-[1440px] py-20 lg:py-32"
+          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-20 lg:py-32"
         >
           <div className="flex flex-col gap-16">
             {/* Header */}
