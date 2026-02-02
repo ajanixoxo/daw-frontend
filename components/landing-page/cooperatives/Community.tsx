@@ -43,7 +43,7 @@ export default function CommunityPage() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
-          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-16 sm:py-20 lg:py-32"
+          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-12 lg:py-24"
         >
           <div className="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-8">
             {/* Left Column - Intro and Benefits */}
@@ -105,7 +105,7 @@ export default function CommunityPage() {
             </div>
 
             {/* Right Column - Title and Impact Card */}
-            <div className="flex flex-col justify-between h-full lg:min-h-[700px] w-full lg:w-[40%]">
+            <div className="flex flex-col justify-between h-full lg:min-h-[600px] w-full lg:w-[40%]">
               {/* Heading */}
               <motion.h1
                 variants={fadeIn("left", 0.3)}
@@ -138,9 +138,9 @@ export default function CommunityPage() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
-          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-20 lg:py-32"
+          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-12 lg:py-20"
         >
-          <div className="flex flex-col gap-16 lg:gap-24">
+          <div className="flex flex-col gap-12 lg:gap-16">
             {/* Header */}
             <div className="flex flex-col gap-6 max-w-2xl text-left">
               <motion.h2
@@ -167,10 +167,10 @@ export default function CommunityPage() {
                   variants={fadeIn("up", 0.1 * index + 0.3)}
                   className="flex flex-col gap-2 group"
                 >
-                  <div className="text-[#1A1A1A] text-7xl lg:text-[100px] font-bold leading-none tracking-tighter group-hover:text-[#F10E7C] transition-colors duration-300">
+                  <div className="text-[#F10E7C] text-7xl lg:text-[100px] font-bold leading-none tracking-tighter group-hover:text-[#F10E7C] transition-colors duration-300">
                     {stat.number}
                   </div>
-                  <div className="text-[#1A1A1A] text-xl sm:text-2xl font-semibold tracking-tight">
+                  <div className="text-[#1A1A1A] text-lg sm:text-2xl font-medium tracking-tight">
                     {stat.description}
                   </div>
                 </motion.div>
@@ -187,7 +187,7 @@ export default function CommunityPage() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
-          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-20 lg:py-32"
+          className="w-full max-w-[1440px] px-5 lg:px-[84px] py-12 lg:py-20"
         >
           <div className="flex flex-col gap-16">
             {/* Header */}

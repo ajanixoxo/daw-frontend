@@ -2,12 +2,12 @@ import Image from "next/image";
 
 export function OurVision() {
   return (
-    <section className="py-16 md:py-24  ">
+    <section className="py-10 md:py-14">
       <div className="max-w-7xl mx-auto">
         {/* Unified Card Container */}
         <div className="bg-white rounded-[20px]  flex flex-col lg:flex-row items-stretch overflow-hidden ">
           {/* Left - Image Side (Flush) */}
-          <div className="w-full lg:w-[46%] relative min-h-[320px] md:min-h-[440px] lg:min-h-full flex-shrink-0">
+          <div className="w-full lg:w-[46%] relative min-h-[280px] md:min-h-[360px] lg:min-h-full flex-shrink-0">
             <Image
               src="/eye.png"
               alt="Close-up of a human eye representing vision and foresight"
@@ -18,7 +18,7 @@ export function OurVision() {
           </div>
 
           {/* Right - Content Side */}
-          <div className="w-full lg:w-[54%] flex flex-col justify-center p-8 md:p-12 lg:p-16 xl:p-20">
+          <div className="w-full lg:w-[54%] flex flex-col justify-center p-8 md:p-10 lg:p-12">
             <h2 className="text-[32px] md:text-[42px] lg:text-[48px] font-semibold text-[#1A1A1A] mb-6 tracking-[-0.03em] leading-tight">
               Our Vision
             </h2>
