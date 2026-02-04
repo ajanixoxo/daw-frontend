@@ -49,11 +49,19 @@ export function useLogin(): UseLoginReturn {
           }
 
           if (result.data.isVerified) {
-            // Check if user is a seller and verify KYC status
+            // Check user role and redirect accordingly
             const userRoles = result.user?.roles || [];
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
+            const isCooperativeAdmin = result.data.role === "cooperative_admin";
+            const isAdmin = result.data.role === "admin";
             
-            if (isSeller) {
+            if (isAdmin) {
+              // Redirect admin to admin dashboard
+              router.push("/admin/dashboard");
+            } else if (isCooperativeAdmin) {
+              // Redirect cooperative admin to cooperative dashboard
+              router.push("/cooperative/dashboard");
+            } else if (isSeller) {
               // Fetch profile to check shop and KYC status
               try {
                 const profileResponse = await getUserProfile();
@@ -282,11 +290,21 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           if (result.user) {
             setAuthData(result.user, result.data);
             
-            // Check if user is a seller and verify KYC status
+            // Check user role and redirect accordingly
             const userRoles = result.user.roles || [];
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
+            const isCooperativeAdmin = result.data.role === "cooperative_admin";
+            const isAdmin = result.data.role === "admin";
             
-            if (isSeller) {
+            if (isAdmin) {
+              // Redirect admin to admin dashboard
+              setIsLoading(false);
+              window.location.href = "/admin/dashboard";
+            } else if (isCooperativeAdmin) {
+              // Redirect cooperative admin to cooperative dashboard
+              setIsLoading(false);
+              window.location.href = "/cooperative/dashboard";
+            } else if (isSeller) {
               // Fetch profile to check shop and KYC status
               try {
                 const profileResponse = await getUserProfile();

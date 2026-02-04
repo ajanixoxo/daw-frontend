@@ -11,6 +11,8 @@ export function middleware(request: NextRequest) {
     "/product", // This will match /product/[id]
     "/checkout",
     "/payment",
+    "/cooperative", // Cooperative dashboard routes
+    "/admin", // Admin dashboard routes
   ];
 
   // Check if the current path starts with any of the protected routes
