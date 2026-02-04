@@ -1,47 +1,65 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { ArrowLeft, Upload, UserPlus } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { ArrowLeft, Upload, UserPlus, X } from "lucide-react";
 
 interface InviteMembersDrawerProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerProps) {
-  const [defaultRole, setDefaultRole] = useState("seller")
-  const [customMessage, setCustomMessage] = useState("")
-  const [emailAddress, setEmailAddress] = useState("")
-  const [file, setFile] = useState<File | null>(null)
+export function InviteMembersDrawer({
+  open,
+  onOpenChange,
+}: InviteMembersDrawerProps) {
+  const [defaultRole, setDefaultRole] = useState("seller");
+  const [customMessage, setCustomMessage] = useState("");
+  const [emailAddress, setEmailAddress] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
+      setFile(e.target.files[0]);
     }
-  }
+  };
 
   const handleSaveDraft = () => {
-    console.log("[v0] Saving draft...")
+    console.log("[v0] Saving draft...");
     // Handle save draft logic
-  }
+  };
 
   const handleSendInvitation = () => {
-    console.log("[v0] Sending invitation...")
+    console.log("[v0] Sending invitation...");
     // Handle send invitation logic
-    onOpenChange(false)
-  }
+    onOpenChange(false);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full p-8 overflow-y-auto sm:max-w-[540px]">
+      <SheetContent
+        side="right"
+        className="w-full p-8 overflow-y-auto sm:max-w-[540px]"
+      >
         <SheetHeader className="text-left">
           <div className="flex items-center gap-3">
             <Button
@@ -53,7 +71,9 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <SheetTitle className="text-xl font-bold text-[#1d1d2a]">Invite Members</SheetTitle>
+              <SheetTitle className="text-xl font-bold text-[#1d1d2a]">
+                Invite Members
+              </SheetTitle>
               <SheetDescription className="text-sm text-[#838794]">
                 Send invitations to join your cooperative
               </SheetDescription>
@@ -64,7 +84,10 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
         <div className="mt-8 space-y-6">
           {/* Default Role */}
           <div className="space-y-2">
-            <Label htmlFor="default-role" className="text-sm font-medium text-[#1d1d2a]">
+            <Label
+              htmlFor="default-role"
+              className="text-sm font-medium text-[#1d1d2a]"
+            >
               Default Role
             </Label>
             <Select value={defaultRole} onValueChange={setDefaultRole}>
@@ -85,7 +108,10 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
 
           {/* Custom Message */}
           <div className="space-y-2">
-            <Label htmlFor="custom-message" className="text-sm font-medium text-[#1d1d2a]">
+            <Label
+              htmlFor="custom-message"
+              className="text-sm font-medium text-[#1d1d2a]"
+            >
               Custom Message (Optional)
             </Label>
             <Textarea
@@ -99,7 +125,10 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
 
           {/* Add Recipients */}
           <div className="space-y-2">
-            <Label htmlFor="email-address" className="text-sm font-medium text-[#1d1d2a]">
+            <Label
+              htmlFor="email-address"
+              className="text-sm font-medium text-[#1d1d2a]"
+            >
               Add Recipients
             </Label>
             <div className="flex gap-2">
@@ -134,11 +163,18 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
               <Upload className="mb-3 h-6 w-6 text-[#838794]" />
               <p className="text-sm text-[#838794]">
                 Upload a CSV file with email addresses or{" "}
-                <label htmlFor="csv-upload" className="cursor-pointer font-medium text-[#1d1d2a] hover:underline">
+                <label
+                  htmlFor="csv-upload"
+                  className="cursor-pointer font-medium text-[#1d1d2a] hover:underline"
+                >
                   Browse
                 </label>
               </p>
-              {file && <p className="mt-2 text-xs text-[#f10e7c]">Selected: {file.name}</p>}
+              {file && (
+                <p className="mt-2 text-xs text-[#f10e7c]">
+                  Selected: {file.name}
+                </p>
+              )}
             </div>
           </div>
 
@@ -151,12 +187,15 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
             >
               Save as Draft
             </Button>
-            <Button onClick={handleSendInvitation} className="h-12 flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a]">
+            <Button
+              onClick={handleSendInvitation}
+              className="h-12 flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a]"
+            >
               Send Invitation
             </Button>
           </div>
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

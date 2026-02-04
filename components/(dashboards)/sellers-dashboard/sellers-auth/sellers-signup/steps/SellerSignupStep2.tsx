@@ -4,13 +4,14 @@ import { FC, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { FileText, LucideIcon, Loader2 } from "lucide-react";
+import { FileText, LucideIcon, Loader2, X } from "lucide-react";
 import { useSellerSignupStore } from "@/zustand/seller-signup-store";
 import { useAuthStore } from "@/zustand/store";
 import { API_ENDPOINTS } from "@/lib/api/client";
 import { toast } from "sonner";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
 
 interface UploadBoxProps {
   label: string;
@@ -33,6 +34,15 @@ const UploadBox: FC<UploadBoxProps> = ({
   className = "",
   error,
 }) => {
+  const handleClear = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onChange(null);
+    // Reset the file input
+    const input = document.getElementById(field) as HTMLInputElement;
+    if (input) input.value = "";
+  };
+
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <Label htmlFor={field} className="text-sm font-medium text-[#1a1a1a]">
@@ -46,13 +56,23 @@ const UploadBox: FC<UploadBoxProps> = ({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
         />
         <div
-          className={`h-[140px] rounded-xl border border-dashed ${error ? "border-destructive" : "border-gray-200"} bg-[#F9F9FB] flex flex-col items-center justify-center gap-2 group-hover:bg-gray-50 transition-colors`}
+          className={`h-[140px] rounded-xl border border-dashed ${error ? "border-destructive" : value ? "border-green-500 bg-green-50/50" : "border-gray-200"} bg-[#F9F9FB] flex flex-col items-center justify-center gap-2 group-hover:bg-gray-50 transition-colors relative`}
         >
+          {value && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+              title="Remove file"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
           <Icon
-            className={`w-8 h-8 ${error ? "text-destructive/60" : "text-[#b6b8c0]"}`}
+            className={`w-8 h-8 ${error ? "text-destructive/60" : value ? "text-green-500" : "text-[#b6b8c0]"}`}
           />
           <p
-            className={`text-sm ${error ? "text-destructive" : "text-[#6b6b6b]"} text-center px-4`}
+            className={`text-sm ${error ? "text-destructive" : value ? "text-green-600 font-medium" : "text-[#6b6b6b]"} text-center px-4`}
           >
             {value ? value.name : description || "Upload Document"}
           </p>
@@ -103,8 +123,10 @@ const SellerSignupStep2: FC = () => {
       body.append("name", shopInfo.shopName);
       body.append("description", shopInfo.description);
       body.append("category", shopInfo.category);
-      if (shopInfo.contactNumber) body.append("contactNumber", shopInfo.contactNumber);
-      if (shopInfo.businessAddress) body.append("businessAddress", shopInfo.businessAddress);
+      if (shopInfo.contactNumber)
+        body.append("contactNumber", shopInfo.contactNumber);
+      if (shopInfo.businessAddress)
+        body.append("businessAddress", shopInfo.businessAddress);
       if (shopInfo.shopLogo) body.append("shopLogo", shopInfo.shopLogo);
       if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
       body.append("idDocument", documents.idDocument!);
@@ -121,7 +143,8 @@ const SellerSignupStep2: FC = () => {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg = data?.message || data?.error || `Request failed (${res.status})`;
+        const msg =
+          data?.message || data?.error || `Request failed (${res.status})`;
         setSubmitError(msg);
         toast.error(msg);
         return;

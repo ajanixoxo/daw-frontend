@@ -2,17 +2,26 @@
 
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { useProfile } from "@/hooks/useProfile";
-import { FileText } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import Link from "next/link";
 
 export function CooperativeSignupStep1() {
-  const { formData, prefilledFields, hasSellerDocuments, updatePersonalInfo, setStep } =
-    useCooperativeSignupStore();
+  const {
+    formData,
+    prefilledFields,
+    hasSellerDocuments,
+    updatePersonalInfo,
+    setStep,
+  } = useCooperativeSignupStore();
   const { data: profile } = useProfile();
   const { personalInfo } = formData;
   const isLoggedIn = !!profile;
   /** 5-step flow: buyer or guest (no shop yet). Business/Shop name is in Shop step, not here. */
-  const isBuyerOrGuestFlow = !profile || (profile && (!profile.shop || (Array.isArray(profile.shop) && profile.shop.length === 0)));
+  const isBuyerOrGuestFlow =
+    !profile ||
+    (profile &&
+      (!profile.shop ||
+        (Array.isArray(profile.shop) && profile.shop.length === 0)));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -144,7 +153,9 @@ export function CooperativeSignupStep1() {
         {!isLoggedIn && (
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#222]">Password</label>
+              <label className="text-sm font-medium text-[#222]">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -172,7 +183,7 @@ export function CooperativeSignupStep1() {
 
         {/* Document Upload - hidden if user already has seller documents (e.g. from seller onboarding) */}
 
-          {!hasSellerDocuments && !isBuyerOrGuestFlow && (
+        {!hasSellerDocuments && !isBuyerOrGuestFlow && (
           <div className="space-y-2">
             <label className="text-sm font-medium text-[#222]">
               Upload Valid Identification Documents: e.g. NIN, International
@@ -191,10 +202,32 @@ export function CooperativeSignupStep1() {
               />
               <label
                 htmlFor="document-upload"
-                className="flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 py-10 transition-colors hover:bg-gray-100"
+                className="flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 py-10 transition-colors hover:bg-gray-100 relative"
               >
-                <FileText className="mb-2 h-8 w-8 text-gray-400" />
-                <span className="text-sm text-[#222]">
+                {personalInfo.document && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      updatePersonalInfo({ document: null });
+                      const input = document.getElementById(
+                        "document-upload",
+                      ) as HTMLInputElement;
+                      if (input) input.value = "";
+                    }}
+                    className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                    title="Remove file"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                <FileText
+                  className={`mb-2 h-8 w-8 ${personalInfo.document ? "text-green-500" : "text-gray-400"}`}
+                />
+                <span
+                  className={`text-sm ${personalInfo.document ? "text-green-600 font-medium" : "text-[#222]"}`}
+                >
                   {personalInfo.document
                     ? personalInfo.document.name
                     : "Upload Document"}

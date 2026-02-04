@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import type { CooperativeShopInfo } from "@/zustand/cooperative-signup-store";
 
@@ -27,13 +27,16 @@ const DEFAULT_SHOP_INFO: CooperativeShopInfo = {
 
 export function CooperativeSignupStepShop() {
   const { formData, updateShopInfo, setStep } = useCooperativeSignupStore();
-  const shopInfo: CooperativeShopInfo = { ...DEFAULT_SHOP_INFO, ...formData.shopInfo };
+  const shopInfo: CooperativeShopInfo = {
+    ...DEFAULT_SHOP_INFO,
+    ...formData.shopInfo,
+  };
   const [errors, setErrors] = useState<
     Partial<Record<keyof CooperativeShopInfo, string>>
   >({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     updateShopInfo({ [e.target.name]: e.target.value });
   };
@@ -44,21 +47,37 @@ export function CooperativeSignupStepShop() {
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: "shopLogo" | "shopBanner"
+    field: "shopLogo" | "shopBanner",
   ) => {
     if (e.target.files?.[0]) {
       updateShopInfo({ [field]: e.target.files[0] });
     }
   };
 
+  const handleClearFile = (
+    e: React.MouseEvent,
+    field: "shopLogo" | "shopBanner",
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateShopInfo({ [field]: null });
+    // Reset the file input
+    const input = document.getElementById(field) as HTMLInputElement;
+    if (input) input.value = "";
+  };
+
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Partial<Record<keyof CooperativeShopInfo, string>> = {};
-    if (!shopInfo.shopName) newErrors.shopName = "Business/Shop name is required";
-    if (!shopInfo.description) newErrors.description = "Description is required";
+    if (!shopInfo.shopName)
+      newErrors.shopName = "Business/Shop name is required";
+    if (!shopInfo.description)
+      newErrors.description = "Description is required";
     if (!shopInfo.category) newErrors.category = "Category is required";
-    if (!shopInfo.contactNumber) newErrors.contactNumber = "Contact number is required";
-    if (!shopInfo.businessAddress) newErrors.businessAddress = "Business address is required";
+    if (!shopInfo.contactNumber)
+      newErrors.contactNumber = "Contact number is required";
+    if (!shopInfo.businessAddress)
+      newErrors.businessAddress = "Business address is required";
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) setStep(3);
   };
@@ -94,7 +113,10 @@ export function CooperativeSignupStepShop() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-sm font-medium text-[#222]">
+          <Label
+            htmlFor="description"
+            className="text-sm font-medium text-[#222]"
+          >
             Description
           </Label>
           <textarea
@@ -114,7 +136,10 @@ export function CooperativeSignupStepShop() {
           <Label htmlFor="category" className="text-sm font-medium text-[#222]">
             Category
           </Label>
-          <Select value={shopInfo.category} onValueChange={handleCategoryChange}>
+          <Select
+            value={shopInfo.category}
+            onValueChange={handleCategoryChange}
+          >
             <SelectTrigger
               id="category"
               className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm"
@@ -138,7 +163,10 @@ export function CooperativeSignupStepShop() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="contactNumber" className="text-sm font-medium text-[#222]">
+            <Label
+              htmlFor="contactNumber"
+              className="text-sm font-medium text-[#222]"
+            >
               Contact Number
             </Label>
             <Input
@@ -151,11 +179,16 @@ export function CooperativeSignupStepShop() {
               className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm focus:border-[#F10E7C] focus:outline-none"
             />
             {errors.contactNumber && (
-              <span className="text-xs text-red-600">{errors.contactNumber}</span>
+              <span className="text-xs text-red-600">
+                {errors.contactNumber}
+              </span>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="businessAddress" className="text-sm font-medium text-[#222]">
+            <Label
+              htmlFor="businessAddress"
+              className="text-sm font-medium text-[#222]"
+            >
               Business Address
             </Label>
             <Input
@@ -168,16 +201,22 @@ export function CooperativeSignupStepShop() {
               className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm focus:border-[#F10E7C] focus:outline-none"
             />
             {errors.businessAddress && (
-              <span className="text-xs text-red-600">{errors.businessAddress}</span>
+              <span className="text-xs text-red-600">
+                {errors.businessAddress}
+              </span>
             )}
           </div>
         </div>
 
         <div>
-          <p className="text-sm font-medium text-[#222] mb-4">Shop Branding (Optional)</p>
+          <p className="text-sm font-medium text-[#222] mb-4">
+            Shop Branding (Optional)
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="shopLogo" className="text-xs text-gray-500">Shop Logo</Label>
+              <Label htmlFor="shopLogo" className="text-xs text-gray-500">
+                Shop Logo
+              </Label>
               <div className="relative">
                 <input
                   type="file"
@@ -186,16 +225,32 @@ export function CooperativeSignupStepShop() {
                   onChange={(e) => handleFileChange(e, "shopLogo")}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="h-32 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100">
-                  <Upload className="w-6 h-6 text-gray-400" />
-                  <p className="text-xs text-[#222]">
+                <div className="h-32 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100 relative transition-colors">
+                  {shopInfo.shopLogo && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleClearFile(e, "shopLogo")}
+                      className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                      title="Remove file"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                  <Upload
+                    className={`w-6 h-6 ${shopInfo.shopLogo ? "text-green-500" : "text-gray-400"}`}
+                  />
+                  <p
+                    className={`text-xs ${shopInfo.shopLogo ? "text-green-600 font-medium" : "text-[#222]"}`}
+                  >
                     {shopInfo.shopLogo ? shopInfo.shopLogo.name : "Upload Logo"}
                   </p>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shopBanner" className="text-xs text-gray-500">Shop Banner</Label>
+              <Label htmlFor="shopBanner" className="text-xs text-gray-500">
+                Shop Banner
+              </Label>
               <div className="relative">
                 <input
                   type="file"
@@ -204,10 +259,26 @@ export function CooperativeSignupStepShop() {
                   onChange={(e) => handleFileChange(e, "shopBanner")}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="h-32 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100">
-                  <Upload className="w-6 h-6 text-gray-400" />
-                  <p className="text-xs text-[#222]">
-                    {shopInfo.shopBanner ? shopInfo.shopBanner.name : "Upload Banner"}
+                <div className="h-32 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100 relative transition-colors">
+                  {shopInfo.shopBanner && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleClearFile(e, "shopBanner")}
+                      className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                      title="Remove file"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                  <Upload
+                    className={`w-6 h-6 ${shopInfo.shopBanner ? "text-green-500" : "text-gray-400"}`}
+                  />
+                  <p
+                    className={`text-xs ${shopInfo.shopBanner ? "text-green-600 font-medium" : "text-[#222]"}`}
+                  >
+                    {shopInfo.shopBanner
+                      ? shopInfo.shopBanner.name
+                      : "Upload Banner"}
                   </p>
                 </div>
               </div>

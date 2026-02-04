@@ -281,7 +281,7 @@ export function HeroSection() {
       image: "/banner2.png",
       title: "Expand your business\nreach by becoming a Seller",
       cta: "Become a Seller",
-      link: "/marketplace",
+      link: "/sellers/sellers-signup",
       textColor: "text-white",
       overlay: "bg-gradient-to-r from-black/60 via-black/40 to-transparent",
       logoColor: "#e91e8c", // Keep pink logo or make white? contrast check. Pink usually works on dark if bright enough.

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { FileText } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import type { CooperativeDocumentsInfo } from "@/zustand/cooperative-signup-store";
 
@@ -29,6 +29,15 @@ function UploadBox({
   description?: string;
   error?: string;
 }) {
+  const handleClear = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onChange(null);
+    // Reset the file input
+    const input = document.getElementById(field) as HTMLInputElement;
+    if (input) input.value = "";
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor={field} className="text-sm font-medium text-[#222]">
@@ -43,10 +52,24 @@ function UploadBox({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
         />
         <div
-          className={`h-[140px] rounded-2xl border border-dashed bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100 transition-colors ${error ? "border-red-500" : "border-gray-200"}`}
+          className={`h-[140px] rounded-2xl border border-dashed bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100 transition-colors relative ${error ? "border-red-500" : "border-gray-200"}`}
         >
-          <FileText className={`w-8 h-8 ${error ? "text-red-500" : "text-gray-400"}`} />
-          <p className={`text-sm text-center px-4 ${error ? "text-red-600" : "text-gray-600"}`}>
+          {value && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+              title="Remove file"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <FileText
+            className={`w-8 h-8 ${error ? "text-red-500" : value ? "text-green-500" : "text-gray-400"}`}
+          />
+          <p
+            className={`text-sm text-center px-4 ${error ? "text-red-600" : value ? "text-green-600 font-medium" : "text-gray-600"}`}
+          >
             {value ? value.name : description || "Upload Document"}
           </p>
         </div>
@@ -57,17 +80,27 @@ function UploadBox({
 }
 
 export function CooperativeSignupStepDocs() {
-  const { currentStep, formData, updateDocuments, setStep } = useCooperativeSignupStore();
-  const documents: CooperativeDocumentsInfo = { ...DEFAULT_DOCUMENTS, ...formData.documents };
-  const [errors, setErrors] = useState<Partial<Record<keyof CooperativeDocumentsInfo, string>>>({});
+  const { currentStep, formData, updateDocuments, setStep } =
+    useCooperativeSignupStore();
+  const documents: CooperativeDocumentsInfo = {
+    ...DEFAULT_DOCUMENTS,
+    ...formData.documents,
+  };
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CooperativeDocumentsInfo, string>>
+  >({});
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Partial<Record<keyof CooperativeDocumentsInfo, string>> = {};
+    const newErrors: Partial<Record<keyof CooperativeDocumentsInfo, string>> =
+      {};
     if (!documents.idDocument) newErrors.idDocument = "ID document is required";
-    if (!documents.proofOfResidence) newErrors.proofOfResidence = "Proof of residence is required";
-    if (!documents.businessCac) newErrors.businessCac = "Business CAC is required";
-    if (!documents.passportPhotograph) newErrors.passportPhotograph = "Passport photograph is required";
+    if (!documents.proofOfResidence)
+      newErrors.proofOfResidence = "Proof of residence is required";
+    if (!documents.businessCac)
+      newErrors.businessCac = "Business CAC is required";
+    if (!documents.passportPhotograph)
+      newErrors.passportPhotograph = "Passport photograph is required";
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) setStep(4);
   };
@@ -79,7 +112,8 @@ export function CooperativeSignupStepDocs() {
       <div className="mb-8">
         <h1 className="text-2xl font-medium text-[#222]">Documents Upload</h1>
         <p className="text-sm text-gray-500">
-          Upload valid identification and business documents (NIN is on the ID document if applicable)
+          Upload valid identification and business documents (NIN is on the ID
+          document if applicable)
         </p>
       </div>
 
