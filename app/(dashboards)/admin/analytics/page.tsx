@@ -2,19 +2,20 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-// import { Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { AnalyticsStatCard } from "@/components/(dashboards)/admin-dashboard/analytics/AnalyticsStatCard";
 import { PlatformGrowthChart } from "@/components/(dashboards)/admin-dashboard/analytics/PlatformGrowthChart";
 import { MonthlySalesChart } from "@/components/(dashboards)/admin-dashboard/analytics/MonthlySalesChart";
-// import { TopCooperativeItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopCooperativeItem";
-// import { TopProductItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopProductItem";
+import { TopCooperativeItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopCooperativeItem";
+import { TopProductItem } from "@/components/(dashboards)/admin-dashboard/analytics/TopProductItem";
 import { mockRootProps } from "@/components/(dashboards)/admin-dashboard/analytics/analyticsMockData";
 import { formatPercentageChange } from "@/components/(dashboards)/admin-dashboard/analytics/formatters";
 import { TabType } from "@/components/(dashboards)/admin-dashboard/analytics/enums";
 import DocumentTextAnalyticsIcon from "@/components/icons/DocumentTextAnalyticsIcon";
 import ArrowUpIcon from "@/components/icons/ArrowUpIcon";
 import CardsAnalyticsIcon from "@/components/icons/CardsAnalyticsIcon";
-// import ListDocumentIcon from "@/components/icons/ListDocumentIcon";
+import ListDocumentIcon from "@/components/icons/ListDocumentIcon";
+
 
 export default function AnalyticsPage() {
   const { stats, platformGrowth, monthlySales, topCooperatives, topProducts } = mockRootProps;
@@ -102,17 +103,17 @@ export default function AnalyticsPage() {
         </TabsList>
 
         <TabsContent value={TabType.OVERVIEW} className="mt-8">
-          {/* <div className="grid grid-cols-1 lg:grid-cols-[1fr_445px] gap-5"> */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_445px] gap-5">
             {/* Left Column - Charts */}
             <div className="space-y-5">
               <PlatformGrowthChart data={platformGrowth} />
               <MonthlySalesChart data={monthlySales} />
-            {/* </div> */}
+            </div>
 
             {/* Right Column - Rankings */}
             <div className="space-y-5">
               {/* Top Cooperatives */}
-              {/* <Card className="p-6 rounded-xl border-none" style={{
+              <Card className="p-6 rounded-xl border-none" style={{
                 background: "linear-gradient(145.52deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%)",
                 boxShadow: "0px 2px 4px rgba(29, 40, 58, 0.06), 0px 4px 6px rgba(29, 40, 58, 0.10)"
               }}>
@@ -127,10 +128,10 @@ export default function AnalyticsPage() {
                     <TopCooperativeItem key={cooperative.id} cooperative={cooperative} />
                   ))}
                 </div>
-              </Card> */}
+              </Card>
 
               {/* Top Products */}
-              {/* <Card className="p-6 rounded-xl border-none" style={{
+              <Card className="p-6 rounded-xl border-none" style={{
                 background: "linear-gradient(145.52deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%)",
                 boxShadow: "0px 2px 4px rgba(29, 40, 58, 0.06), 0px 4px 6px rgba(29, 40, 58, 0.10)"
               }}>
@@ -145,7 +146,7 @@ export default function AnalyticsPage() {
                     <TopProductItem key={product.id} product={product} />
                   ))}
                 </div>
-              </Card> */}
+              </Card>
             </div>
           </div>
         </TabsContent>

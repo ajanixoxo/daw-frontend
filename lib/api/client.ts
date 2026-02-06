@@ -204,4 +204,8 @@ export const API_ENDPOINTS = {
     INITIATE: "/api/payment/initiate",
     VERIFY: (reference: string) => `/api/payment/verify/${reference}`,
   },
+  ADMIN: {
+    DASHBOARD_STATS: "/api/admin/dashboard/stats",
+    PENDING_COOPERATIVES: "/api/admin/cooperatives/pending",
+  },
 } as const;
