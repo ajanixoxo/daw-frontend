@@ -21,10 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PlusIcon from "@/components/icons/PlusIcon";
-import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon"; // Assuming this exists or I'll use a lucide icon
 
 export function AddUserDrawer() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);` `
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -39,7 +38,7 @@ export function AddUserDrawer() {
         // Removed overflow-y-auto from here to handle it internally
         className="w-full sm:max-w-[500px] p-0 border-l-0 sm:border-l flex flex-col h-full"
         style={{
-          backdropFilter: "blur(16px)",
+          backdropFilter: "blur(16px)", 
         }}
       >
         <div className="flex flex-col h-full">

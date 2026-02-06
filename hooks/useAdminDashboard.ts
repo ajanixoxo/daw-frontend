@@ -57,3 +57,25 @@ export function usePendingCooperatives() {
         enabled: !!accessToken,
     });
 }
+
+import { AnalyticsResponse } from "@/components/(dashboards)/admin-dashboard/analytics/types";
+
+export function useAdminAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics"],
+        queryFn: async () => {
+            const response = await apiClient.get<AnalyticsResponse>(
+                // API_ENDPOINTS.ADMIN.ANALYTICS - we haven't added this to client.ts yet, let's hardcode or update client.ts first?
+                // Better to update client.ts first to be consistent. But I can pass string too.
+                // Let's use string for now to save a step or update client.ts.
+                // Actually, clean code is better. I'll update client.ts first? No, I can jus use string "/api/admin/analytics" as I did for users.
+                "/api/admin/analytics",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
