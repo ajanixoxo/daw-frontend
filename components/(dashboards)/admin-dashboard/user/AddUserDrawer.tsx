@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Sheet,
   SheetContent,
@@ -21,12 +22,89 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PlusIcon from "@/components/icons/PlusIcon";
+import { apiClient } from "@/lib/api/client";
+import { useAuthStore } from "@/zustand/store";
+import { toast } from "sonner";
+
+interface InviteUserPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: string;
+  notes?: string;
+}
 
 export function AddUserDrawer() {
-  const [open, setOpen] = useState(false);` `
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+  // Form state
+  const [formData, setFormData] = useState<InviteUserPayload>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    role: "",
+    notes: "",
+  });
+
+  const resetForm = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      role: "",
+      notes: "",
+    });
+  };
+
+  // Invite mutation
+  const inviteMutation = useMutation({
+    mutationFn: async (data: InviteUserPayload) => {
+      const response = await apiClient.post<{ success: boolean; message: string }>(
+        "/api/admin/users/invite",
+        data,
+        { token: accessToken }
+      );
+      return response;
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || "Invitation sent successfully!");
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      resetForm();
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to send invitation.");
+    },
+  });
+
+  const handleSubmit = () => {
+    // Validation
+    if (!formData.firstName.trim()) {
+      toast.error("First name is required.");
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Email is required.");
+      return;
+    }
+    if (!formData.role) {
+      toast.error("Please select a user role.");
+      return;
+    }
+
+    inviteMutation.mutate(formData);
+  };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={(isOpen) => {
+      setOpen(isOpen);
+      if (!isOpen) resetForm();
+    }}>
       <SheetTrigger asChild>
         <Button className="bg-user-mgmt-button-bg text-user-mgmt-button-text hover:bg-black/90 rounded-xl px-6 py-3 h-12 gap-1">
           <PlusIcon width={14} height={14} color="#ffffff" />
@@ -35,26 +113,16 @@ export function AddUserDrawer() {
       </SheetTrigger>
       <SheetContent
         side="right"
-        // Removed overflow-y-auto from here to handle it internally
         className="w-full sm:max-w-[500px] p-0 border-l-0 sm:border-l flex flex-col h-full"
         style={{
-          backdropFilter: "blur(16px)", 
+          backdropFilter: "blur(16px)",
         }}
       >
         <div className="flex flex-col h-full">
           {/* Header - Fixed at top */}
           <div className="px-6 pt-6 pb-2">
-            <div className="flex items-center gap-4 mb-4">
-              {/* Back arrow visual only since sheet closes on overlay click usually, 
-                   but we can add a close trigger if needed. 
-                   For now, just the title as per design. */}
-              {/* <Button variant="ghost" size="icon" className="p-0 hover:bg-transparent -ml-2" onClick={() => setOpen(false)}>
-                 <ArrowLeftIcon width={24} height={24} color="#000" />
-               </Button> */}
-            </div>
             <SheetHeader className="space-y-4 text-left p-0">
               <div className="flex items-center gap-3">
-                {/* Using a simple SVG for back arrow if icon doesn't exist, strictly visual matching */}
                 <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -74,11 +142,13 @@ export function AddUserDrawer() {
               {/* First Name & Last Name */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-base font-medium text-gray-700">First Name</Label>
+                  <Label htmlFor="firstName" className="text-base font-medium text-gray-700">First Name *</Label>
                   <Input
                     id="firstName"
-                    placeholder="Enter First Nmae"
+                    placeholder="Enter First Name"
                     className="h-12 border-gray-200 bg-white"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -87,18 +157,22 @@ export function AddUserDrawer() {
                     id="lastName"
                     placeholder="Enter Last Name"
                     className="h-12 border-gray-200 bg-white"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   />
                 </div>
               </div>
 
               {/* Email Address */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-base font-medium text-gray-700">Email Address</Label>
+                <Label htmlFor="email" className="text-base font-medium text-gray-700">Email Address *</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="Enter email"
                   className="h-12 border-gray-200 bg-white"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
 
@@ -108,22 +182,24 @@ export function AddUserDrawer() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="Enter phone NUMBER"
+                  placeholder="Enter phone number"
                   className="h-12 border-gray-200 bg-white"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
               </div>
 
               {/* User Role */}
               <div className="space-y-2">
-                <Label className="text-base font-medium text-gray-700">User Role</Label>
-                <Select>
+                <Label className="text-base font-medium text-gray-700">User Role *</Label>
+                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger className="h-12 border-gray-200 bg-white text-gray-500">
                     <SelectValue placeholder="Select user role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="member">Member</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
+                    <SelectItem value="buyer">Buyer</SelectItem>
+                    <SelectItem value="seller">Seller</SelectItem>
+                    <SelectItem value="member">Cooperative Member</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -135,6 +211,8 @@ export function AddUserDrawer() {
                   id="notes"
                   placeholder="Write here..."
                   className="min-h-[120px] resize-none border-gray-200 bg-white p-3"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 />
               </div>
             </div>
@@ -144,13 +222,10 @@ export function AddUserDrawer() {
           <div className="p-6 border-t border-gray-100 bg-white/50 backdrop-blur-sm mt-auto">
             <Button
               className="w-full bg-[#f10e7c] hover:bg-[#d60c6e] text-white h-12 rounded-full text-base font-medium"
-              onClick={() => {
-                // Handle form submission
-                console.log("Create user");
-                setOpen(false);
-              }}
+              onClick={handleSubmit}
+              disabled={inviteMutation.isPending}
             >
-              Create User
+              {inviteMutation.isPending ? "Sending Invitation..." : "Send Invitation"}
             </Button>
           </div>
         </div>

@@ -168,10 +168,16 @@ export default function AnalyticsPage() {
             {/* Left Column - Charts */}
             <div className="space-y-5">
               {isLoadingAnalytics ? (<Skeleton className="h-[350px] w-full rounded-xl" />) : (
-                <PlatformGrowthChart data={{ series: growthSeries, categories: categories }} />
+                <PlatformGrowthChart data={analyticsData?.growth?.user.map(d => ({
+                  month: getMonthName(d._id.month),
+                  value: d.count
+                })) || []} />
               )}
               {isLoadingAnalytics ? (<Skeleton className="h-[350px] w-full rounded-xl" />) : (
-                <MonthlySalesChart data={{ series: salesSeries, categories: salesCategories }} />
+                <MonthlySalesChart data={analyticsData?.sales?.map(d => ({
+                  month: getMonthName(d._id.month),
+                  value: d.totalSales
+                })) || []} />
               )}
             </div>
 
@@ -192,8 +198,8 @@ export default function AnalyticsPage() {
                   {isLoadingAnalytics ? (
                     Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-[60px] w-full" />)
                   ) : (
-                    topCooperatives.map((cooperative) => (
-                      <TopCooperativeItem key={cooperative._id} cooperative={cooperative} /> // Changed id to _id
+                    topCooperatives.map((cooperative, index) => (
+                      <TopCooperativeItem key={cooperative._id} cooperative={cooperative} rank={index + 1} />
                     ))
                   )}
                   {!isLoadingAnalytics && topCooperatives.length === 0 && (
@@ -217,8 +223,8 @@ export default function AnalyticsPage() {
                   {isLoadingAnalytics ? (
                     Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-[60px] w-full" />)
                   ) : (
-                    topProducts.map((product) => (
-                      <TopProductItem key={product._id} product={product} /> // Changed id to _id
+                    topProducts.map((product, index) => (
+                      <TopProductItem key={product._id} product={product} rank={index + 1} />
                     ))
                   )}
                   {!isLoadingAnalytics && topProducts.length === 0 && (

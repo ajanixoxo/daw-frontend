@@ -21,7 +21,7 @@ export default function AdminDashboardPage() {
 
   // Use API Pending Coops if available, else fallback logic (or empty array)
   // Converting API cooperative structure to table structure if differences exist
-  const pendingApprovals = pendingCoopsData?.data?.data || [];
+  const pendingApprovals = pendingCoopsData || [];
 
   return (
     <div className="p-4 lg:p-6 space-y-8">
@@ -94,7 +94,8 @@ export default function AdminDashboardPage() {
         // Since I don't see PendingApprovalsTable definition, I assume it might need some adaptation 
         // or I pass 'any' for now if types mismatch, but strictly we should verify type.
         // For now passing it directly as `approvals` which usually expects an array.
-        <PendingApprovalsTable approvals={pendingApprovals} />
+        // TODO: Transform Cooperative[] to ApprovalItem[] properly
+        <PendingApprovalsTable approvals={pendingApprovals as unknown as any} />
       )}
       {/* <RecentActivityPanel activities={recentActivities} /> */}
       {/* </div> */}

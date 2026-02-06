@@ -13,12 +13,13 @@ export const formatNaira = (amount: number): string => {
   return `₦${amount}`;
 };
 
-export const formatDate = (date: Date): string => {
+export const formatDate = (date: string | Date): string => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
-  }).format(date);
+  }).format(dateObj);
 };
 
 export const formatPercentageChange = (value: number): string => {
