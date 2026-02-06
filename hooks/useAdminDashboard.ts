@@ -8,6 +8,9 @@ export interface DashboardStats {
     products: { total: number; label: string };
     loans: { count: number; value: number; label: string };
     pendingApprovals: { value: number; label: string };
+    numberOfSellers?: { value: number; subtitle: string };
+    numberOfCategories?: { value: number; subtitle: string };
+    totalUser?: { value: number; percentageChange: number };
 }
 
 export interface Cooperative {
