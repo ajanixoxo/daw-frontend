@@ -8,6 +8,7 @@ import { FileText, LucideIcon, Loader2, X } from "lucide-react";
 import { useSellerSignupStore } from "@/zustand/seller-signup-store";
 import { useAuthStore } from "@/zustand/store";
 import { API_ENDPOINTS } from "@/lib/api/client";
+import { createServerSession } from "@/app/actions/auth";
 import { toast } from "sonner";
 
 const API_BASE_URL =
@@ -86,8 +87,9 @@ const UploadBox: FC<UploadBoxProps> = ({
 const SellerSignupStep2: FC = () => {
   const router = useRouter();
   const { formData, updateDocuments, setStep, reset } = useSellerSignupStore();
-  const { documents, shopInfo } = formData;
+  const { documents, shopInfo, personalInfo } = formData;
   const token = useAuthStore((s) => s.sessionData?.accessToken);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof documents, string>>
   >({});
@@ -111,15 +113,66 @@ const SellerSignupStep2: FC = () => {
 
     if (Object.keys(newErrors).length !== 0) return;
 
-    if (!token) {
-      setSubmitError("You must be logged in to complete seller signup.");
-      toast.error("Please log in first.");
+    // Authenticated flow: use existing SELLER_ONBOARD endpoint
+    if (isAuthenticated && token) {
+      setIsSubmitting(true);
+      try {
+        const body = new FormData();
+        body.append("name", shopInfo.shopName);
+        body.append("description", shopInfo.description);
+        body.append("category", shopInfo.category);
+        if (shopInfo.contactNumber)
+          body.append("contactNumber", shopInfo.contactNumber);
+        if (shopInfo.businessAddress)
+          body.append("businessAddress", shopInfo.businessAddress);
+        if (shopInfo.shopLogo) body.append("shopLogo", shopInfo.shopLogo);
+        if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
+        body.append("idDocument", documents.idDocument!);
+        body.append("proofOfResidence", documents.proofOfResidence!);
+        body.append("businessCac", documents.businessCac!);
+        body.append("passportPhotograph", documents.passportPhotograph!);
+
+        const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.SELLER_ONBOARD}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body,
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg =
+            data?.message || data?.error || `Request failed (${res.status})`;
+          setSubmitError(msg);
+          toast.error(msg);
+          return;
+        }
+        toast.success("Seller signup complete. Your shop has been created.");
+        reset();
+        router.push("/sellers/shop");
+      } catch (err) {
+        const msg =
+          err instanceof Error ? err.message : "Something went wrong.";
+        setSubmitError(msg);
+        toast.error(msg);
+      } finally {
+        setIsSubmitting(false);
+      }
       return;
     }
 
+    // Guest flow: use GUEST_SELLER_ONBOARD endpoint
     setIsSubmitting(true);
     try {
       const body = new FormData();
+      // Personal info fields
+      body.append("firstName", personalInfo.firstName);
+      body.append("lastName", personalInfo.lastName);
+      body.append("email", personalInfo.email);
+      body.append("phone", personalInfo.phone);
+      body.append("password", personalInfo.password);
+      body.append("confirmPassword", personalInfo.confirmPassword);
+      // Shop info fields
       body.append("name", shopInfo.shopName);
       body.append("description", shopInfo.description);
       body.append("category", shopInfo.category);
@@ -129,15 +182,15 @@ const SellerSignupStep2: FC = () => {
         body.append("businessAddress", shopInfo.businessAddress);
       if (shopInfo.shopLogo) body.append("shopLogo", shopInfo.shopLogo);
       if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
+      // Document files
       body.append("idDocument", documents.idDocument!);
       body.append("proofOfResidence", documents.proofOfResidence!);
       body.append("businessCac", documents.businessCac!);
       body.append("passportPhotograph", documents.passportPhotograph!);
 
-      const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.SELLER_ONBOARD}`;
+      const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.GUEST_SELLER_ONBOARD}`;
       const res = await fetch(url, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body,
       });
 
@@ -149,11 +202,30 @@ const SellerSignupStep2: FC = () => {
         toast.error(msg);
         return;
       }
-      toast.success("Seller signup complete. Your shop has been created.");
+
+      // Create a server session with the temp token for OTP verification
+      if (data.token && data.user) {
+        await createServerSession({
+          userId: data.user._id,
+          email: data.user.email,
+          role: "seller",
+          isVerified: false,
+          accessToken: data.token,
+          refreshToken: "",
+        });
+
+        // Store signupRole for post-OTP redirect
+        sessionStorage.setItem("signupRole", "seller");
+      }
+
+      toast.success(
+        "Account created! Please verify your email to complete signup."
+      );
       reset();
-      router.push("/sellers/shop");
+      router.push("/otp?mode=signup");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      const msg =
+        err instanceof Error ? err.message : "Something went wrong.";
       setSubmitError(msg);
       toast.error(msg);
     } finally {

@@ -156,9 +156,9 @@ export function CooperativeSignupStep3() {
       });
 
       if (res.success) {
-        toast.success("Account created and joined. Please log in.");
+        toast.success("Account created and joined. Please verify your email with the OTP sent.");
         reset();
-        router.push("/login");
+        router.push("/otp?mode=signup");
         return;
       }
       setSubmitError(res.error ?? "Failed to join cooperative");

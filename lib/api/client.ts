@@ -167,6 +167,8 @@ export const API_ENDPOINTS = {
     SELLER_ONBOARD: "/marketplace/seller-onboard",
     /** Combined: guest/buyer → create user (if guest) + seller onboard + join DAW cooperative */
     COOPERATIVE_JOIN_WITH_SELLER_ONBOARD: "/marketplace/cooperative-join-with-seller-onboard",
+    /** Guest seller onboard: guest/buyer → create user (if guest) + seller onboard (shop + docs) */
+    GUEST_SELLER_ONBOARD: "/marketplace/guest-seller-onboard",
     GET_SHOP: (shopId: string) => `/marketplace/shops/${shopId}`,
     SELLER_DOCUMENTS_ME: "/marketplace/seller-documents/me",
   },

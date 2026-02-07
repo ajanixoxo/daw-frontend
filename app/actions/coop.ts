@@ -158,15 +158,29 @@ export async function guestJoinCooperative(data: {
   subscriptionTierId: string;
 }): Promise<IActionResponse<IJoinCooperativeResponse>> {
   try {
-    const response = await apiClient.post<IJoinCooperativeResponse>(
-      API_ENDPOINTS.COOPERATIVES.JOIN_GUEST,
-      data
-    );
+    const response = await apiClient.post<
+      IJoinCooperativeResponse & {
+        token?: string;
+        user?: { _id: string; email: string; roles?: string[] };
+      }
+    >(API_ENDPOINTS.COOPERATIVES.JOIN_GUEST, data);
+
+    // Create session so OTP verification page can call /auth/verify/email
+    if (response.token && response.user?._id && response.user?.email) {
+      await createServerSession({
+        userId: response.user._id,
+        email: response.user.email,
+        role: response.user.roles?.[0] || "buyer",
+        isVerified: false,
+        accessToken: response.token,
+        refreshToken: "",
+      });
+    }
 
     return {
       success: true,
       data: response,
-      message: "Account created and joined cooperative. Please log in.",
+      message: "Account created and joined cooperative. Please verify your email.",
     };
   } catch (error) {
     const message =
