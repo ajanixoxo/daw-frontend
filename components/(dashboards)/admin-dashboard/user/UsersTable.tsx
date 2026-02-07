@@ -101,7 +101,7 @@ export function UsersTable({ users }: UsersTableProps) {
                     <StatusBadge status={user.status} />
                   </TableCell>
                   <TableCell>
-                    <UserActionsMenu userId={user._id} />
+                    <UserActionsMenu userId={user._id} userName={`${user.firstName} ${user.lastName}`} />
                   </TableCell>
                 </TableRow>
               )
