@@ -1,15 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import type { FC } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Check } from "lucide-react";
+import { Eye, EyeOff, Check, Lock } from "lucide-react";
 import { useSignup } from "@/hooks/useAuth";
 import type { ISignupRequest } from "@/types/auth.types";
+import { apiClient } from "@/lib/api/client";
+import { useAuthStore } from "@/zustand/store";
+import { toast } from "sonner";
 
-const SignUpForm: FC = () => {
+interface InviteData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  roles: string[];
+}
+
+interface SignUpFormProps {
+  inviteData?: InviteData | null;
+  inviteToken?: string | null;
+}
+
+const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
+  const router = useRouter();
+  const login = useAuthStore((state) => state.login);
+  const isInviteMode = !!inviteData && !!inviteToken;
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{
@@ -31,6 +53,72 @@ const SignUpForm: FC = () => {
     password: "",
     confirmPassword: "",
     phone: "",
+  });
+
+  // Pre-fill form data from invite
+  useEffect(() => {
+    if (inviteData) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: inviteData.firstName || "",
+        lastName: inviteData.lastName || "",
+        email: inviteData.email || "",
+        phone: inviteData.phone || "",
+      }));
+    }
+  }, [inviteData]);
+
+  // Complete registration mutation
+  const completeRegistrationMutation = useMutation({
+    mutationFn: async (data: { token: string; password: string; phone?: string }) => {
+      return await apiClient.post<{
+        success: boolean;
+        message: string;
+        data: {
+          user: { _id: string; firstName: string; lastName: string; email: string; phone: string; roles: string[]; isVerified: boolean; status: string };
+          accessToken: string;
+          refreshToken: string;
+        };
+      }>("/api/users/invite/complete", data);
+    },
+    onSuccess: (response) => {
+      toast.success(response.message || "Registration completed successfully!");
+      // Auto-login user using the store's login function
+      if (response.data) {
+        const userData = response.data.user;
+        const sessionData = {
+          userId: userData._id,
+          role: userData.roles[0] || 'buyer',
+          email: userData.email,
+          isVerified: userData.isVerified,
+          accessToken: response.data.accessToken,
+          refreshToken: response.data.refreshToken,
+        };
+        login({
+          _id: userData._id,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone,
+          roles: userData.roles,
+          isVerified: userData.isVerified,
+          status: userData.status,
+        }, sessionData);
+
+        // Redirect based on role
+        const roles = userData.roles || [];
+        if (roles.includes("seller")) {
+          router.push("/sellers/dashboard");
+        } else if (roles.includes("member") || roles.includes("cooperative")) {
+          router.push("/cooperative/shop");
+        } else {
+          router.push("/marketplace");
+        }
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to complete registration.");
+    },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,18 +144,19 @@ const SignUpForm: FC = () => {
       confirmPassword?: string;
     } = {};
 
-    if (!formData.firstName) {
-      newErrors.firstName = "First name is required";
-    }
-
-    if (!formData.lastName) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Invalid email format";
+    if (!isInviteMode) {
+      // Standard signup validation
+      if (!formData.firstName) {
+        newErrors.firstName = "First name is required";
+      }
+      if (!formData.lastName) {
+        newErrors.lastName = "Last name is required";
+      }
+      if (!formData.email) {
+        newErrors.email = "Email is required";
+      } else if (!validateEmail(formData.email)) {
+        newErrors.email = "Invalid email format";
+      }
     }
 
     if (!formData.password) {
@@ -85,15 +174,33 @@ const SignUpForm: FC = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      await signup(formData);
+      if (isInviteMode && inviteToken) {
+        // Complete registration flow
+        completeRegistrationMutation.mutate({
+          token: inviteToken,
+          password: formData.password,
+          phone: formData.phone || undefined,
+        });
+      } else {
+        // Standard signup flow
+        await signup(formData);
+      }
     }
   };
 
+  const isSubmitting = isLoading || completeRegistrationMutation.isPending;
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {error && (
+      {isInviteMode && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+          Complete your registration by setting a password.
+        </div>
+      )}
+
+      {(error || completeRegistrationMutation.error) && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-          {error}
+          {error || completeRegistrationMutation.error?.message}
         </div>
       )}
 
@@ -102,17 +209,23 @@ const SignUpForm: FC = () => {
           <Label htmlFor="firstName" className="auth-label text-(--text-dark)">
             First Name
           </Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            type="text"
-            placeholder="John"
-            value={formData.firstName}
-            onChange={handleChange}
-            disabled={isLoading}
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
-            aria-invalid={!!errors.firstName}
-          />
+          <div className="relative">
+            <Input
+              id="firstName"
+              name="firstName"
+              type="text"
+              placeholder="John"
+              value={formData.firstName}
+              onChange={handleChange}
+              disabled={isSubmitting || isInviteMode}
+              className={`h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder) ${isInviteMode ? "bg-gray-100 text-gray-600" : ""
+                }`}
+              aria-invalid={!!errors.firstName}
+            />
+            {isInviteMode && (
+              <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            )}
+          </div>
           {errors.firstName && (
             <span className="text-xs text-destructive">{errors.firstName}</span>
           )}
@@ -122,17 +235,23 @@ const SignUpForm: FC = () => {
           <Label htmlFor="lastName" className="auth-label text-(--text-dark)">
             Last Name
           </Label>
-          <Input
-            id="lastName"
-            name="lastName"
-            type="text"
-            placeholder="Doe"
-            value={formData.lastName}
-            onChange={handleChange}
-            disabled={isLoading}
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
-            aria-invalid={!!errors.lastName}
-          />
+          <div className="relative">
+            <Input
+              id="lastName"
+              name="lastName"
+              type="text"
+              placeholder="Doe"
+              value={formData.lastName}
+              onChange={handleChange}
+              disabled={isSubmitting || isInviteMode}
+              className={`h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder) ${isInviteMode ? "bg-gray-100 text-gray-600" : ""
+                }`}
+              aria-invalid={!!errors.lastName}
+            />
+            {isInviteMode && (
+              <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            )}
+          </div>
           {errors.lastName && (
             <span className="text-xs text-destructive">{errors.lastName}</span>
           )}
@@ -143,17 +262,23 @@ const SignUpForm: FC = () => {
         <Label htmlFor="email" className="auth-label text-(--text-dark)">
           Email
         </Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="hello@example.com"
-          value={formData.email}
-          onChange={handleChange}
-          disabled={isLoading}
-          className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
-          aria-invalid={!!errors.email}
-        />
+        <div className="relative">
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="hello@example.com"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={isSubmitting || isInviteMode}
+            className={`h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder) ${isInviteMode ? "bg-gray-100 text-gray-600" : ""
+              }`}
+            aria-invalid={!!errors.email}
+          />
+          {isInviteMode && (
+            <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          )}
+        </div>
         {errors.email && (
           <span className="text-xs text-destructive">{errors.email}</span>
         )}
@@ -170,7 +295,7 @@ const SignUpForm: FC = () => {
           placeholder="23409099987"
           value={formData.phone}
           onChange={handleChange}
-          disabled={isLoading}
+          disabled={isSubmitting}
           className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
           aria-invalid={!!errors.phone}
         />
@@ -191,14 +316,14 @@ const SignUpForm: FC = () => {
             placeholder="••••••••"
             value={formData.password}
             onChange={handleChange}
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
             aria-invalid={!!errors.password}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -291,14 +416,14 @@ const SignUpForm: FC = () => {
             placeholder="••••••••"
             value={formData.confirmPassword}
             onChange={handleChange}
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
             aria-invalid={!!errors.confirmPassword}
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
           >
@@ -314,11 +439,17 @@ const SignUpForm: FC = () => {
 
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isSubmitting}
         className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ letterSpacing: "-0.64px" }}
       >
-        {isLoading ? "Creating Account..." : "Create Account"}
+        {isSubmitting
+          ? isInviteMode
+            ? "Completing Registration..."
+            : "Creating Account..."
+          : isInviteMode
+            ? "Complete Registration"
+            : "Create Account"}
       </Button>
     </form>
   );

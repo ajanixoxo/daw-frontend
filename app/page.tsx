@@ -54,7 +54,7 @@ export default function Home() {
       {/* <MembershipPricing /> */}
       <Testimonials />
       <MarketplaceProducts />
-      {isAuthenticated && isVerified && <BecomeASellerBanner />}
+      <BecomeASellerBanner />
       <LearnGrowCourses />
       <CTASection />
       <Footer />
