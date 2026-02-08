@@ -233,7 +233,7 @@ const SellerSignupStep1: FC = () => {
                   id="shopLogo"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "shopLogo")}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
                 <div
                   className={`h-32 rounded-lg border border-dashed ${shopInfo.shopLogo ? "border-green-500 bg-green-50/50" : "border-input-border"} bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors relative`}
@@ -271,7 +271,7 @@ const SellerSignupStep1: FC = () => {
                   id="shopBanner"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "shopBanner")}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
                 <div
                   className={`h-32 rounded-lg border border-dashed ${shopInfo.shopBanner ? "border-green-500 bg-green-50/50" : "border-input-border"} bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors relative`}

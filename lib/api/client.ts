@@ -176,6 +176,8 @@ export const API_ENDPOINTS = {
     /** Guest seller onboard: guest/buyer → create user (if guest) + seller onboard (shop + docs) */
     GUEST_SELLER_ONBOARD: "/marketplace/guest-seller-onboard",
     GET_SHOP: (shopId: string) => `/marketplace/shops/${shopId}`,
+    MY_SHOP: "/marketplace/my-shop",
+    EDIT_SHOP: (shopId: string) => `/marketplace/edit/shops/${shopId}`,
     SELLER_DOCUMENTS_ME: "/marketplace/seller-documents/me",
   },
   KYC: {
