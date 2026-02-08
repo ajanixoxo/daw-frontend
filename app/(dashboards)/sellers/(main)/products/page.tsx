@@ -1,20 +1,28 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
 
 import {
   Search,
   SlidersHorizontal,
   Pencil,
   Trash2,
-  Heart,
   Loader2,
 } from "lucide-react";
-import { useSellerProducts } from "@/hooks/useSellerProducts";
+import { useSellerProducts, useDeleteProduct } from "@/hooks/useSellerProducts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AddCategoryModal } from "@/components/(dashboards)/sellers-dashboard/products/add-category-modal";
 import { AddProductDrawer } from "@/components/(dashboards)/sellers-dashboard/products/add-product-drawer";
+import type { IProduct } from "@/types/product.types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 function StatCard({
   icon,
@@ -61,12 +69,49 @@ function StatCard({
 export default function ProductsPage() {
   const { data: productsData, isLoading: productsLoading } = useSellerProducts();
   const products = productsData?.products || [];
+  const deleteProductMutation = useDeleteProduct();
+
+  // Edit drawer state
+  const [editProduct, setEditProduct] = useState<IProduct | null>(null);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState<IProduct | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Calculate statistics
   const totalProducts = products.length;
   const activeProducts = products.filter(p => p.status === 'available').length;
   const lowStockProducts = products.filter(p => p.quantity < 10 && p.quantity > 0).length;
   const outOfStockProducts = products.filter(p => p.quantity === 0).length;
+
+  const handleEdit = (product: IProduct) => {
+    setEditProduct(product);
+    setEditDrawerOpen(true);
+  };
+
+  const handleEditDrawerChange = (open: boolean) => {
+    setEditDrawerOpen(open);
+    if (!open) {
+      setEditProduct(null);
+    }
+  };
+
+  const handleDeleteClick = (product: IProduct) => {
+    setDeleteTarget(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteProductMutation.mutateAsync(deleteTarget._id);
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
+    } catch {
+      // Error handled by hook
+    }
+  };
 
   return (
     <main className="p-4 md:p-6 lg:p-8">
@@ -132,7 +177,7 @@ export default function ProductsPage() {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-[#e7e8e9] flex-shrink-0 bg-transparent"
+                className="border-[#e7e8e9] shrink-0 bg-transparent"
               >
                 <SlidersHorizontal className="size-4" />
               </Button>
@@ -221,6 +266,8 @@ export default function ProductsPage() {
                               ? "bg-[#e5f8ed] text-[#009a49]"
                               : product.status === "unavailable"
                               ? "bg-[#ffe7cc] text-[#ad3307]"
+                              : product.status === "draft"
+                              ? "bg-[#f0f0f5] text-[#667185]"
                               : "bg-[#fff8e5] text-[#f1a20e]"
                           }`}
                         >
@@ -230,45 +277,35 @@ export default function ProductsPage() {
                                 ? "bg-[#009a49]"
                                 : product.status === "unavailable"
                                 ? "bg-[#ad3307]"
+                                : product.status === "draft"
+                                ? "bg-[#667185]"
                                 : "bg-[#f1a20e]"
                             }`}
                           />
-                          {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : "Out of Stock"}
+                          {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : product.status === "draft" ? "Draft" : "Out of Stock"}
                         </span>
                       </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-[#667185] hover:text-[#292d32]"
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-[#667185] hover:text-[#ad3307]"
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-[#667185] hover:text-[#f10e7c]"
-                        >
-                          <Heart className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-[#667185] hover:text-[#f10e7c]"
-                        >
-                          <Heart className="size-4 fill-current" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-[#667185] hover:text-[#292d32]"
+                            onClick={() => handleEdit(product)}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-[#667185] hover:text-[#ad3307]"
+                            onClick={() => handleDeleteClick(product)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>
@@ -313,6 +350,8 @@ export default function ProductsPage() {
                           ? "bg-[#e5f8ed] text-[#009a49]"
                           : product.status === "unavailable"
                           ? "bg-[#ffe7cc] text-[#ad3307]"
+                          : product.status === "draft"
+                          ? "bg-[#f0f0f5] text-[#667185]"
                           : "bg-[#fff8e5] text-[#f1a20e]"
                       }`}
                     >
@@ -322,10 +361,12 @@ export default function ProductsPage() {
                             ? "bg-[#009a49]"
                             : product.status === "unavailable"
                             ? "bg-[#ad3307]"
+                            : product.status === "draft"
+                            ? "bg-[#667185]"
                             : "bg-[#f1a20e]"
                         }`}
                       />
-                      {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : "Out of Stock"}
+                      {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : product.status === "draft" ? "Draft" : "Out of Stock"}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
@@ -340,30 +381,83 @@ export default function ProductsPage() {
                       <span className="ml-1 text-[#292d32]">{product.quantity || 0}</span>
                     </div>
                   </div>
-                <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1 text-[#667185] hover:text-[#292d32]"
-                  >
-                    <Pencil className="size-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1 text-[#667185] hover:text-[#ad3307]"
-                  >
-                    <Trash2 className="size-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
+                  <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-[#667185] hover:text-[#292d32]"
+                      onClick={() => handleEdit(product)}
+                    >
+                      <Pencil className="size-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-[#667185] hover:text-[#ad3307]"
+                      onClick={() => handleDeleteClick(product)}
+                    >
+                      <Trash2 className="size-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               ))
             )}
           </div>
         </div>
       </div>
+
+      {/* Edit Product Drawer */}
+      <AddProductDrawer
+        product={editProduct}
+        open={editDrawerOpen}
+        onOpenChange={handleEditDrawerChange}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-[#292d32]">
+              Delete Product
+            </DialogTitle>
+            <DialogDescription className="text-sm text-[#667185] mt-2">
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-[#292d32]">
+                {deleteTarget?.name}
+              </span>
+              ? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-3 mt-4">
+            <Button
+              variant="outline"
+              className="flex-1 border-[#e7e8e9]"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setDeleteTarget(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 bg-[#ad3307] hover:bg-[#8a2906] text-white"
+              onClick={handleDeleteConfirm}
+              disabled={deleteProductMutation.isPending}
+            >
+              {deleteProductMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

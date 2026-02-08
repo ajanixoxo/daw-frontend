@@ -141,6 +141,8 @@ export const API_ENDPOINTS = {
     GET_PRODUCTS_BY_SHOP: (shopId: string) =>
       `/marketplace/get/products/shop/${shopId}`,
     ADD_PRODUCT: "/marketplace/add/products",
+    EDIT_PRODUCT: (productId: string) => `/marketplace/products/${productId}`,
+    DELETE_PRODUCT: (productId: string) => `/marketplace/products/${productId}`,
     GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
     GET_ALL_ORDERS: "/marketplace/get/orders",
     GET_ORDERS_BY_SHOP: (shopId: string) =>
