@@ -146,6 +146,10 @@ export const API_ENDPOINTS = {
     GET_ORDERS_BY_SHOP: (shopId: string) =>
       `/marketplace/get/orders/shop/${shopId}`,
   },
+  CATEGORIES: {
+    CREATE: "/marketplace/categories",
+    GET_BY_SHOP: (shopId: string) => `/marketplace/categories/shop/${shopId}`,
+  },
   CART: {
     ADD_ITEM: "/marketplace/cart",
     GET_CART: "/marketplace/cart",
