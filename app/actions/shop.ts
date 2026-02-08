@@ -3,7 +3,7 @@
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
 import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
-import { ICreateShopRequest, ICreateShopResponse, IGetShopResponse, IEditShopResponse } from "@/types/shop.types";
+import { ICreateShopRequest, ICreateShopResponse, IGetShopResponse, IEditShopResponse, IShop } from "@/types/shop.types";
 import { revalidatePath } from "next/cache";
 
 export async function createShop(data: ICreateShopRequest): Promise<IActionResponse<ICreateShopResponse>> {
@@ -37,6 +37,28 @@ export async function createShop(data: ICreateShopRequest): Promise<IActionRespo
   }
 }
 
+export async function getShop(shopId: string): Promise<IActionResponse<IGetShopResponse>> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    const response = await apiClient.get<IGetShopResponse>(
+      API_ENDPOINTS.SHOPS.GET_SHOP(shopId),
+      token ? { token } : undefined
+    );
+
+    if (!response.success || !response.shop) {
+      return { success: false, error: "Shop not found" };
+    }
+
+    return { success: true, data: response };
+  } catch (error) {
+    console.error("Get shop error:", error);
+    const message = error instanceof Error ? error.message : "Failed to get shop";
+    return { success: false, error: message };
+  }
+}
+
 export async function getMyShop(): Promise<IActionResponse<IGetShopResponse>> {
   try {
     await refreshAccessToken();
@@ -61,6 +83,32 @@ export async function getMyShop(): Promise<IActionResponse<IGetShopResponse>> {
   } catch (error) {
     console.error("Get my shop error:", error);
     const message = error instanceof Error ? error.message : "Failed to get shop";
+    return { success: false, error: message };
+  }
+}
+
+export interface IGetAllShopsResponse {
+  success: boolean;
+  shops: IShop[];
+  totalShops: number;
+}
+
+
+export async function getAllShops(): Promise<IActionResponse<IGetAllShopsResponse>> {
+  try {
+    await refreshAccessToken();
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    const response = await apiClient.get<IGetAllShopsResponse>(
+      API_ENDPOINTS.SHOPS.GET_ALL_SHOPS,
+       token ? { token } : undefined
+    );
+
+    return { success: true, data: response };
+  } catch (error) {
+    console.error("Get all shops error:", error);
+    const message = error instanceof Error ? error.message : "Failed to get shops";
     return { success: false, error: message };
   }
 }

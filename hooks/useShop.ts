@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createShop, getMyShop, editShop } from '@/app/actions/shop';
+import { createShop, getMyShop, editShop, getAllShops, getShop } from '@/app/actions/shop';
 import { ICreateShopRequest } from '@/types/shop.types';
 import { toast } from 'sonner';
 
@@ -32,6 +32,37 @@ export function useGetMyShop() {
       const response = await getMyShop();
       if (!response.success) {
         throw new Error(response.error);
+      }
+      return response.data!;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useGetShop(shopId: string) {
+  return useQuery({
+    queryKey: ['shop', shopId],
+    queryFn: async () => {
+      const response = await getShop(shopId);
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data!.shop;
+    },
+    enabled: !!shopId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useGetAllShops() {
+  return useQuery({
+    queryKey: ['shops'],
+    queryFn: async () => {
+      const response = await getAllShops();
+      if (!response.success) {
+         // Return empty if failed for now to avoid breaking UI, or throw
+         console.error(response.error)
+         return { shops: [], totalShops: 0 };
       }
       return response.data!;
     },
