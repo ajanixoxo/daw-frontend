@@ -1,5 +1,4 @@
 
-
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
@@ -141,10 +140,16 @@ export const API_ENDPOINTS = {
     GET_PRODUCTS_BY_SHOP: (shopId: string) =>
       `/marketplace/get/products/shop/${shopId}`,
     ADD_PRODUCT: "/marketplace/add/products",
+    EDIT_PRODUCT: (productId: string) => `/marketplace/products/${productId}`,
+    DELETE_PRODUCT: (productId: string) => `/marketplace/products/${productId}`,
     GET_ORDER: (orderId: string) => `/marketplace/get/orders/${orderId}`,
     GET_ALL_ORDERS: "/marketplace/get/orders",
     GET_ORDERS_BY_SHOP: (shopId: string) =>
       `/marketplace/get/orders/shop/${shopId}`,
+  },
+  CATEGORIES: {
+    CREATE: "/marketplace/categories",
+    GET_BY_SHOP: (shopId: string) => `/marketplace/categories/shop/${shopId}`,
   },
   CART: {
     ADD_ITEM: "/marketplace/cart",
@@ -169,8 +174,11 @@ export const API_ENDPOINTS = {
     COOPERATIVE_JOIN_WITH_SELLER_ONBOARD: "/marketplace/cooperative-join-with-seller-onboard",
     /** Guest seller onboard: guest/buyer → create user (if guest) + seller onboard (shop + docs) */
     GUEST_SELLER_ONBOARD: "/marketplace/guest-seller-onboard",
-    GET_SHOP: (shopId: string) => `/marketplace/shops/${shopId}`,
+    GET_SHOP: (shopId: string) => `/marketplace/get/shops/${shopId}`,
+    MY_SHOP: "/marketplace/my-shop",
+    EDIT_SHOP: (shopId: string) => `/marketplace/edit/shops/${shopId}`,
     SELLER_DOCUMENTS_ME: "/marketplace/seller-documents/me",
+    GET_ALL_SHOPS: "/marketplace/get/shops",
   },
   KYC: {
     VERIFY_NIN: "/kyc/verify-nin",

@@ -31,6 +31,20 @@ export function useProduct(productId: string) {
   });
 }
 
+export function useProductsByShop(shopId: string | undefined) {
+  return useQuery({
+    queryKey: ['products', 'shop', shopId],
+    queryFn: async () => {
+      const response = await clientApiClient.get<{ success: boolean; products: IProduct[] }>(
+        API_ENDPOINTS.MARKETPLACE.GET_PRODUCTS_BY_SHOP(shopId!)
+      );
+      return response.products;
+    },
+    enabled: !!shopId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function usePopularProducts(limit: number = 8) {
   return useQuery({
     queryKey: ['products', 'popular', limit],

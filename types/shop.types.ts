@@ -15,10 +15,13 @@ export interface IShop {
   name: string;
   description: string;
   category: string;
+  contact_number?: string;
+  business_address?: string;
   logo_url?: string;
   banner_url?: string;
   is_member_shop: boolean;
   status: string;
+  store_url?: string;
   createdAt: string;
   updatedAt: string;
   __v?: number;
@@ -32,8 +35,11 @@ export interface ICreateShopResponse {
 export interface IGetShopResponse {
   success: boolean;
   shop: IShop;
+  productCount?: number;
 }
 
-
-
-
+export interface IEditShopResponse {
+  success: boolean;
+  message: string;
+  shop: IShop;
+}

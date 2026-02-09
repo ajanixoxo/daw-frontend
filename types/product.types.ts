@@ -1,3 +1,8 @@
+export interface IProductVariant {
+  type: string;
+  values: string[];
+}
+
 export interface IProduct {
   _id: string;
   shop_id: string;
@@ -5,9 +10,13 @@ export interface IProduct {
   quantity: number;
   price: number;
   images: string[];
-  status: "available" | "unavailable" | "out_of_stock";
+  status: "available" | "unavailable" | "draft" | "out_of_stock";
   description?: string;
   category?: string;
+  variants?: IProductVariant[];
+  productFeatures?: string;
+  careInstruction?: string;
+  returnPolicy?: string;
   createdAt: string;
   updatedAt: string;
   __v?: number;
@@ -99,8 +108,12 @@ export interface IAddProductRequest {
   price: number;
   description?: string;
   category?: string;
-  images?: string[];
-  status?: "available" | "unavailable" | "out_of_stock";
+  images?: File[];
+  status?: "available" | "unavailable" | "draft" | "out_of_stock";
+  variants?: IProductVariant[];
+  productFeatures?: string;
+  careInstruction?: string;
+  returnPolicy?: string;
 }
 
 export interface IAddProductResponse {

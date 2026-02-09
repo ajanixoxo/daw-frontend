@@ -56,9 +56,7 @@ export default function ProductDetailsPage() {
           {/* Breadcrumb or Back Link could go here */}
 
           <div className="text-center mb-12">
-            <h1 className=" text-4xl font-medium text-[#222] mb-2">
-              Details
-            </h1>
+            <h1 className=" text-4xl font-medium text-[#222] mb-2">Details</h1>
             <p className="text-sm text-gray-500">
               Marketplace / Product Details
             </p>
@@ -78,6 +76,7 @@ export default function ProductDetailsPage() {
           <ProductTabs
             description={displayProduct.description}
             productId={displayProduct._id}
+            image={displayProduct.images[0] || "/placeholder-product.jpg"}
           />
         </div>
       </main>
