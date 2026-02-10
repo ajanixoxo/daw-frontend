@@ -1,14 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { IReviewsResponse, ICreateReviewRequest, ICreateReviewResponse } from "@/types/review.types";
 import { revalidatePath } from "next/cache";
 
 export async function getReviews(productId: string): Promise<IActionResponse<IReviewsResponse>> {
   try {
-
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 
@@ -29,6 +29,7 @@ export async function getReviews(productId: string): Promise<IActionResponse<IRe
 
 export async function createReview(data: ICreateReviewRequest): Promise<IActionResponse<ICreateReviewResponse>> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 

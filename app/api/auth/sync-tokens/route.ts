@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     // Update access token cookie
     cookieStore.set('accessToken', accessToken, {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 1 day (match backend JWT expiry)
     });
 
     // Update refresh token cookie
