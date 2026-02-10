@@ -246,7 +246,8 @@ export default function ShopPage() {
           icon={Wallet}
           title="Total Revenue"
           value={formatCurrency(totalRevenue)}
-          subtitle={`From ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
+          subtitleHighlight={`${totalOrders}`}
+          subtitle="Total Orders"
           trend="up"
           iconColor="#E6007A"
         />
@@ -254,7 +255,7 @@ export default function ShopPage() {
           icon={Users}
           title="Visitors"
           value={viewCount.toLocaleString()}
-          subtitle="Total shop views"
+          subtitle="Unique Visitors"
           trend="up"
           iconColor="#E6007A"
         />
@@ -262,7 +263,7 @@ export default function ShopPage() {
           icon={TrendingUp}
           title="Total Orders"
           value={totalOrders.toLocaleString()}
-          subtitle="All time orders"
+          subtitle="Orders Placed"
           trend="up"
           iconColor="#E6007A"
         />
@@ -270,8 +271,7 @@ export default function ShopPage() {
           icon={DollarSign}
           title="Avg Order Value"
           value={formatCurrency(avgOrderValue)}
-          subtitle={totalOrders > 0 ? "Per order average" : "No orders yet"}
-          trend="up"
+          subtitle="Per Order"
           iconColor="#E6007A"
         />
       </div>
