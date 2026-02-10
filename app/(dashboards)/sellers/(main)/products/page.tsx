@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import {
   Search,
@@ -11,10 +11,12 @@ import {
   Loader2,
   Package,
   CircleCheck,
+  CircleX,
   TriangleAlert,
   PackageX,
 } from "lucide-react";
 import { useSellerProducts, useDeleteProduct } from "@/hooks/useSellerProducts";
+import { useGetMyShop } from "@/hooks/useShop";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AddCategoryModal } from "@/components/(dashboards)/sellers-dashboard/products/add-category-modal";
@@ -94,11 +96,55 @@ function StatCard({
   );
 }
 
+const statusConfig: Record<
+  string,
+  { label: string; bg: string; text: string; dot: string }
+> = {
+  available: {
+    label: "Available",
+    bg: "bg-[#ECFDF3]",
+    text: "text-[#12B76A]",
+    dot: "bg-[#12B76A]",
+  },
+  unavailable: {
+    label: "Unavailable",
+    bg: "bg-[#FEF3F2]",
+    text: "text-[#F04438]",
+    dot: "bg-[#F04438]",
+  },
+  draft: {
+    label: "Draft",
+    bg: "bg-[#F9FAFB]",
+    text: "text-[#667185]",
+    dot: "bg-[#667185]",
+  },
+  out_of_stock: {
+    label: "Out of Stock",
+    bg: "bg-[#FFFAEB]",
+    text: "text-[#F79009]",
+    dot: "bg-[#F79009]",
+  },
+};
+
+function getStatusStyle(status: string) {
+  return (
+    statusConfig[status] || {
+      label: status,
+      bg: "bg-[#F9FAFB]",
+      text: "text-[#667185]",
+      dot: "bg-[#667185]",
+    }
+  );
+}
+
 export default function ProductsPage() {
   const { data: productsData, isLoading: productsLoading } =
     useSellerProducts();
+  const { data: shopData } = useGetMyShop();
   const products = productsData?.products || [];
   const deleteProductMutation = useDeleteProduct();
+
+  const shopName = shopData?.shop?.name || "My Shop";
 
   // Edit drawer state
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
@@ -109,14 +155,18 @@ export default function ProductsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Calculate statistics
-  const totalProducts = products.length;
-  const activeProducts = products.filter(
-    (p) => p.status === "available",
-  ).length;
-  const lowStockProducts = products.filter(
-    (p) => p.quantity < 10 && p.quantity > 0,
-  ).length;
-  const outOfStockProducts = products.filter((p) => p.quantity === 0).length;
+  const stats = useMemo(() => {
+    const total = products.length;
+    const active = products.filter((p) => p.status === "available").length;
+    const inactive = products.filter(
+      (p) => p.status === "unavailable" || p.status === "draft",
+    ).length;
+    const lowStock = products.filter(
+      (p) => p.quantity < 10 && p.quantity > 0,
+    ).length;
+    const outOfStock = products.filter((p) => p.quantity === 0).length;
+    return { total, active, inactive, lowStock, outOfStock };
+  }, [products]);
 
   const handleEdit = (product: IProduct) => {
     setEditProduct(product);
@@ -164,32 +214,37 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         <StatCard
           icon={<Package className="size-4 text-[#E6007A]" />}
           label="Total Products"
-          value={productsLoading ? "..." : `₦${totalProducts * 10}`}
-          change="10%"
-          changeLabel="More than Previous"
+          value={productsLoading ? "..." : String(stats.total)}
+          changeLabel="All Products"
           trend="up"
         />
         <StatCard
           icon={<CircleCheck className="size-4 text-[#E6007A]" />}
           label="Active Products"
-          value={productsLoading ? "..." : activeProducts.toString()}
-          changeLabel="Cards Issued"
+          value={productsLoading ? "..." : String(stats.active)}
+          changeLabel="Currently Listed"
           trend="up"
+        />
+        <StatCard
+          icon={<CircleX className="size-4 text-[#E6007A]" />}
+          label="Inactive"
+          value={productsLoading ? "..." : String(stats.inactive)}
+          changeLabel="Unavailable / Draft"
         />
         <StatCard
           icon={<TriangleAlert className="size-4 text-[#E6007A]" />}
           label="Low Stock"
-          value={productsLoading ? "..." : lowStockProducts.toString()}
+          value={productsLoading ? "..." : String(stats.lowStock)}
           changeLabel="Requires Attention"
         />
         <StatCard
           icon={<PackageX className="size-4 text-[#E6007A]" />}
           label="Out of Stock"
-          value={productsLoading ? "..." : outOfStockProducts.toString()}
+          value={productsLoading ? "..." : String(stats.outOfStock)}
           changeLabel="Requires Attention"
         />
       </div>
@@ -239,7 +294,7 @@ export default function ProductsPage() {
                     Stock
                   </th>
                   <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
-                    Stauts
+                    Status
                   </th>
                   <th className="text-right py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Actions
@@ -273,123 +328,110 @@ export default function ProductsPage() {
                     </td>
                   </tr>
                 ) : (
-                  products.map((product) => (
-                    <tr
-                      key={product._id}
-                      className="border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors group"
-                    >
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={
-                              product.images && product.images.length > 0
-                                ? product.images[0]
-                                : "/placeholder.svg"
-                            }
-                            alt={product.name}
-                            className="size-10 rounded-xl object-cover shrink-0 border border-[#F2F4F7]"
-                          />
-                          <span className="text-[14px] font-bold text-[#1D2939]">
-                            {product.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6 text-[14px] font-medium text-[#667185]">
-                        {product.category || "Shirt"}
-                      </td>
-                      <td className="py-4 px-6 text-[14px] font-medium text-[#667185]">
-                        Faye&apos;s Complex
-                      </td>
-                      <td className="py-4 px-6 text-[14px] font-bold text-[#1D2939]">
-                        ${product.price?.toFixed(2) || "17.84"}
-                      </td>
-                      <td className="py-4 px-6 text-[14px] font-bold text-[#1D2939]">
-                        {product.quantity || 20}
-                      </td>
-                      <td className="py-4 px-6">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold ${
-                            product.status === "available"
-                              ? "bg-[#ECFDF3] text-[#12B76A]"
-                              : product.status === "unavailable"
-                                ? "bg-[#FEF3F2] text-[#F04438]"
-                                : product.status === "draft"
-                                  ? "bg-[#F9FAFB] text-[#667185]"
-                                  : "bg-[#FFFAEB] text-[#F79009]"
-                          }`}
-                        >
+                  products.map((product) => {
+                    const style = getStatusStyle(product.status);
+                    return (
+                      <tr
+                        key={product._id}
+                        className="border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors group"
+                      >
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={
+                                product.images && product.images.length > 0
+                                  ? product.images[0]
+                                  : "/placeholder.svg"
+                              }
+                              alt={product.name}
+                              className="size-10 rounded-xl object-cover shrink-0 border border-[#F2F4F7]"
+                            />
+                            <span className="text-[14px] font-bold text-[#1D2939]">
+                              {product.name}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-[14px] font-medium text-[#667185]">
+                          {product.category || "—"}
+                        </td>
+                        <td className="py-4 px-6 text-[14px] font-medium text-[#667185]">
+                          {shopName}
+                        </td>
+                        <td className="py-4 px-6 text-[14px] font-bold text-[#1D2939]">
+                          ₦{product.price?.toLocaleString() || "0"}
+                        </td>
+                        <td className="py-4 px-6 text-[14px] font-bold text-[#1D2939]">
+                          {product.quantity ?? 0}
+                        </td>
+                        <td className="py-4 px-6">
                           <span
-                            className={`size-1.5 rounded-full ${
-                              product.status === "available"
-                                ? "bg-[#12B76A]"
-                                : product.status === "unavailable"
-                                  ? "bg-[#F04438]"
-                                  : product.status === "draft"
-                                    ? "bg-[#667185]"
-                                    : "bg-[#F79009]"
-                            }`}
-                          />
-                          {product.status === "available"
-                            ? "Shipped"
-                            : product.status === "unavailable"
-                              ? "Cancelled"
-                              : product.status === "draft"
-                                ? "Draft"
-                                : "Pending"}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center justify-end gap-3.5">
-                          <button
-                            className="text-[#667185] hover:text-[#292d32] transition-colors"
-                            onClick={() => handleEdit(product)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold ${style.bg} ${style.text}`}
                           >
-                            <Pencil className="size-[18px]" strokeWidth={2.5} />
-                          </button>
-                          <button
-                            className="text-[#667185] hover:text-[#F04438] transition-colors"
-                            onClick={() => handleDeleteClick(product)}
-                          >
-                            <Trash2 className="size-[18px]" strokeWidth={2.5} />
-                          </button>
-                          <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 18 18"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
+                            <span
+                              className={`size-1.5 rounded-full ${style.dot}`}
+                            />
+                            {style.label}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center justify-end gap-3.5">
+                            <button
+                              className="text-[#667185] hover:text-[#292d32] transition-colors"
+                              onClick={() => handleEdit(product)}
                             >
-                              <path
-                                d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
+                              <Pencil
+                                className="size-[18px]"
+                                strokeWidth={2.5}
                               />
-                            </svg>
-                          </button>
-                          <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 18 18"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
+                            </button>
+                            <button
+                              className="text-[#667185] hover:text-[#F04438] transition-colors"
+                              onClick={() => handleDeleteClick(product)}
                             >
-                              <path
-                                d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
+                              <Trash2
+                                className="size-[18px]"
+                                strokeWidth={2.5}
                               />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            </button>
+                            <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
+                              <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 18 18"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+                            <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
+                              <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 18 18"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -410,96 +452,77 @@ export default function ProductsPage() {
                 <p className="text-sm">Add your first product to get started</p>
               </div>
             ) : (
-              products.map((product) => (
-                <div
-                  key={product._id}
-                  className="border border-[#e7e8e9] rounded-lg p-4"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <img
-                      src={
-                        product.images && product.images.length > 0
-                          ? product.images[0]
-                          : "/placeholder.svg"
-                      }
-                      alt={product.name}
-                      className="size-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-[#292d32] mb-1">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-[#667185]">
-                        {product.category || "-"}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                        product.status === "available"
-                          ? "bg-[#e5f8ed] text-[#009a49]"
-                          : product.status === "unavailable"
-                            ? "bg-[#ffe7cc] text-[#ad3307]"
-                            : product.status === "draft"
-                              ? "bg-[#f0f0f5] text-[#667185]"
-                              : "bg-[#fff8e5] text-[#f1a20e]"
-                      }`}
-                    >
-                      <span
-                        className={`size-1.5 rounded-full ${
-                          product.status === "available"
-                            ? "bg-[#009a49]"
-                            : product.status === "unavailable"
-                              ? "bg-[#ad3307]"
-                              : product.status === "draft"
-                                ? "bg-[#667185]"
-                                : "bg-[#f1a20e]"
-                        }`}
+              products.map((product) => {
+                const style = getStatusStyle(product.status);
+                return (
+                  <div
+                    key={product._id}
+                    className="border border-[#e7e8e9] rounded-lg p-4"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <img
+                        src={
+                          product.images && product.images.length > 0
+                            ? product.images[0]
+                            : "/placeholder.svg"
+                        }
+                        alt={product.name}
+                        className="size-16 rounded-lg object-cover"
                       />
-                      {product.status === "available"
-                        ? "Available"
-                        : product.status === "unavailable"
-                          ? "Unavailable"
-                          : product.status === "draft"
-                            ? "Draft"
-                            : "Out of Stock"}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
-                    <div>
-                      <span className="text-[#667185]">Price:</span>
-                      <span className="ml-1 text-[#292d32] font-medium">
-                        ₦{product.price?.toLocaleString() || "0"}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-[#292d32] mb-1">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-[#667185]">
+                          {product.category || "—"}
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                      >
+                        <span
+                          className={`size-1.5 rounded-full ${style.dot}`}
+                        />
+                        {style.label}
                       </span>
                     </div>
-                    <div>
-                      <span className="text-[#667185]">Stock:</span>
-                      <span className="ml-1 text-[#292d32]">
-                        {product.quantity || 0}
-                      </span>
+                    <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+                      <div>
+                        <span className="text-[#667185]">Price:</span>
+                        <span className="ml-1 text-[#292d32] font-medium">
+                          ₦{product.price?.toLocaleString() || "0"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[#667185]">Stock:</span>
+                        <span className="ml-1 text-[#292d32]">
+                          {product.quantity ?? 0}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 text-[#667185] hover:text-[#292d32]"
+                        onClick={() => handleEdit(product)}
+                      >
+                        <Pencil className="size-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 text-[#667185] hover:text-[#ad3307]"
+                        onClick={() => handleDeleteClick(product)}
+                      >
+                        <Trash2 className="size-4 mr-1" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 text-[#667185] hover:text-[#292d32]"
-                      onClick={() => handleEdit(product)}
-                    >
-                      <Pencil className="size-4 mr-1" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 text-[#667185] hover:text-[#ad3307]"
-                      onClick={() => handleDeleteClick(product)}
-                    >
-                      <Trash2 className="size-4 mr-1" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
