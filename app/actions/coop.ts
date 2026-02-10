@@ -374,3 +374,20 @@ export async function createCooperative(
     return { success: false, error: message };
   }
 }
+
+/**
+ * Helper function to get the DAW cooperative ID dynamically.
+ * This avoids hardcoding the cooperative ID in components.
+ */
+export async function getDawCooperativeId(): Promise<string | null> {
+  try {
+    const result = await fetchDAWCooperative();
+    if (result.success && result.data?.cooperative?._id) {
+      return result.data.cooperative._id;
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch DAW cooperative ID:", error);
+    return null;
+  }
+}

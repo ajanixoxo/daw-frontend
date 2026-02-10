@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useFetchMembers } from "@/hooks/useMember";
+import { getDawCooperativeId } from "@/app/actions/coop";
 
 // const members = [
 //   {
@@ -131,7 +132,13 @@ export function MembersList() {
   const { members, fetchAllMembers, loading, error } = useFetchMembers();
 
   useEffect(() => {
-    fetchAllMembers("6940311dd9b9141819c58938");
+    const loadMembers = async () => {
+      const cooperativeId = await getDawCooperativeId();
+      if (cooperativeId) {
+        fetchAllMembers(cooperativeId);
+      }
+    };
+    loadMembers();
   }, []);
   console.log("members", members);
 
