@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Share2, Upload, Loader2, Store, ImageIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Share2,
+  Upload,
+  Loader2,
+  Store,
+  ImageIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,10 +76,13 @@ export default function EditShopPage() {
 
     const formData = new FormData();
     if (storeName !== shop.name) formData.append("name", storeName);
-    if (description !== shop.description) formData.append("description", description);
+    if (description !== shop.description)
+      formData.append("description", description);
     if (category !== shop.category) formData.append("category", category);
-    if (phone !== (shop.contact_number || "")) formData.append("contact_number", phone);
-    if (businessAddress !== (shop.business_address || "")) formData.append("business_address", businessAddress);
+    if (phone !== (shop.contact_number || ""))
+      formData.append("contact_number", phone);
+    if (businessAddress !== (shop.business_address || ""))
+      formData.append("business_address", businessAddress);
     if (logoFile) formData.append("shopLogo", logoFile);
     if (bannerFile) formData.append("shopBanner", bannerFile);
 
@@ -82,7 +92,7 @@ export default function EditShopPage() {
         onSuccess: () => {
           router.push("/sellers/shop");
         },
-      }
+      },
     );
   };
 
@@ -102,8 +112,12 @@ export default function EditShopPage() {
       <main className="p-6 lg:p-8 flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4 text-center">
           <Store className="w-12 h-12 text-[#98A2B3]" />
-          <h2 className="text-xl font-semibold text-[#101828]">No Shop Found</h2>
-          <p className="text-sm text-[#667085]">Create a shop first before editing.</p>
+          <h2 className="text-xl font-semibold text-[#101828]">
+            No Shop Found
+          </h2>
+          <p className="text-sm text-[#667085]">
+            Create a shop first before editing.
+          </p>
           <Button
             onClick={() => router.push("/sellers/shop/create")}
             className="bg-[#f10e7c] text-white hover:bg-[#d90d6a]"
@@ -120,12 +134,12 @@ export default function EditShopPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
-          <Button
+          <button
             onClick={() => router.back()}
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[#f0f2f5] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-[#1d1d2a]" />
-          </Button>
+          </button>
           <div>
             <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">
               {shop.name}
@@ -146,13 +160,17 @@ export default function EditShopPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Shop Information */}
           <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Shop Information</h2>
+            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+              Shop Information
+            </h2>
 
             <div className="space-y-5">
               {/* Store Name & Category */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Store Name</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Store Name
+                  </label>
                   <Input
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
@@ -160,7 +178,9 @@ export default function EditShopPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Category</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Category
+                  </label>
                   <Input
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
@@ -171,7 +191,9 @@ export default function EditShopPage() {
 
               {/* Shop Description */}
               <div>
-                <label className="block text-[14px] font-medium text-[#344054] mb-2">Shop Description</label>
+                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                  Shop Description
+                </label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -183,7 +205,9 @@ export default function EditShopPage() {
               {/* Phone & Business Address */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Phone Number</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Phone Number
+                  </label>
                   <Input
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -191,7 +215,9 @@ export default function EditShopPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Business Address</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Business Address
+                  </label>
                   <Input
                     value={businessAddress}
                     onChange={(e) => setBusinessAddress(e.target.value)}
@@ -203,25 +229,28 @@ export default function EditShopPage() {
           </div>
 
           {/* Store Branding */}
-          <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Store Branding</h2>
+          <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_3px_rgba(16,24,40,0.05)]">
+            <h2 className="text-[20px] font-bold text-[#101828] mb-8 tracking-tight">
+              Store Branding
+            </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
               {/* Store Logo */}
-              <div>
-                <label className="block text-[14px] font-medium text-[#344054] mb-3">Store Logo</label>
-                <div className="relative">
-                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#f2e8ed] flex items-center justify-center">
+              <div className="md:col-span-3">
+                <label className="block text-[15px] font-bold text-[#101828] mb-4">
+                  Store Logo
+                </label>
+                <div className="space-y-4">
+                  <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#E6B9C8] border-none flex items-center justify-center group transition-all duration-300">
                     {logoPreview ? (
                       <Image
                         src={logoPreview}
                         alt="Store Logo"
-                        width={300}
-                        height={300}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     ) : (
-                      <Store className="w-12 h-12 text-[#c4a0b3]" />
+                      <Store className="w-12 h-12 text-white/50" />
                     )}
                   </div>
                   <input
@@ -231,46 +260,46 @@ export default function EditShopPage() {
                     onChange={handleLogoChange}
                     className="hidden"
                   />
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => logoInputRef.current?.click()}
-                    className="mt-3 flex items-center gap-2 text-[14px] text-[#344054] hover:text-[#f10e7c] font-medium transition-colors"
+                    className="w-full h-12 bg-[#F9FAFB] text-[#101828] hover:bg-[#F2F4F7] font-bold rounded-xl border-none transition-all text-[15px]"
                   >
-                    <Upload className="w-4 h-4" />
                     Upload New Logo
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {/* Store Banner */}
-              <div>
-                <label className="block text-[14px] font-medium text-[#344054] mb-3">Store Banner</label>
-                <div className="w-full aspect-square rounded-lg bg-[#f2e8ed] flex items-center justify-center overflow-hidden relative">
+              <div className="md:col-span-9">
+                <label className="block text-[15px] font-bold text-[#101828] mb-4">
+                  Store Banner
+                </label>
+                <div className="relative w-full aspect-[3/1] rounded-2xl bg-[#E6B9C8] flex items-center justify-center overflow-hidden group">
                   {bannerPreview ? (
                     <Image
                       src={bannerPreview}
                       alt="Store Banner"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
-                  ) : (
-                    <ImageIcon className="w-12 h-12 text-[#c4a0b3]" />
-                  )}
+                  ) : null}
+
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerChange}
+                    className="hidden"
+                  />
+
+                  <Button
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="relative z-10 h-12 px-10 bg-[#F9FAFB] text-[#101828] hover:bg-white shadow-sm font-bold rounded-2xl transition-all border-none text-[16px]"
+                  >
+                    Choose File
+                  </Button>
                 </div>
-                <input
-                  ref={bannerInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerChange}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => bannerInputRef.current?.click()}
-                  className="mt-3 flex items-center gap-2 text-[14px] text-[#344054] hover:text-[#f10e7c] font-medium transition-colors"
-                >
-                  <Upload className="w-4 h-4" />
-                  Upload New Banner
-                </button>
               </div>
             </div>
           </div>
@@ -280,25 +309,37 @@ export default function EditShopPage() {
         <div className="space-y-8">
           {/* Shop Status */}
           <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Shop Status</h2>
+            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+              Shop Status
+            </h2>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#667185]">Status</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a] capitalize">{shop.status}</span>
+                <span className="text-[15px] font-medium text-[#1d1d2a] capitalize">
+                  {shop.status}
+                </span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#667185]">Products</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a]">{productCount}</span>
+                <span className="text-[15px] font-medium text-[#1d1d2a]">
+                  {productCount}
+                </span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#667185]">Category</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a]">{shop.category || "N/A"}</span>
+                <span className="text-[15px] font-medium text-[#1d1d2a]">
+                  {shop.category || "N/A"}
+                </span>
               </div>
               {shop.is_member_shop && (
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-[14px] text-[#667185]">Member Shop</span>
-                  <span className="text-[15px] font-medium text-[#f10e7c]">DAW Cooperative</span>
+                  <span className="text-[14px] text-[#667185]">
+                    Member Shop
+                  </span>
+                  <span className="text-[15px] font-medium text-[#f10e7c]">
+                    DAW Cooperative
+                  </span>
                 </div>
               )}
             </div>

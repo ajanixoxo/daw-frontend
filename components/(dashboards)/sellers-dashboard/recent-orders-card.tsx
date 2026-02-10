@@ -1,63 +1,72 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Loader2 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { IOrder } from "@/types/product.types"
-import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { IOrder } from "@/types/product.types";
+import Link from "next/link";
 
-const statusColors: Record<string, string> = {
-  shipped: "text-[#34c759]",
-  delivered: "text-[#34c759]",
-  pending: "text-[#ff8d28]",
-  processing: "text-[#ff8d28]",
-  cancelled: "text-[#ff5d61]",
-}
+const statusColors: Record<string, { bg: string; text: string; dot: string }> =
+  {
+    shipped: { bg: "#ecfdf3", text: "#027a48", dot: "#12b76a" },
+    delivered: { bg: "#ecfdf3", text: "#027a48", dot: "#12b76a" },
+    pending: { bg: "#fff6ed", text: "#b93815", dot: "#f79009" },
+    processing: { bg: "#fff6ed", text: "#b93815", dot: "#f79009" },
+    cancelled: { bg: "#fef3f2", text: "#b42318", dot: "#f04438" },
+  };
 
 function getStatusDisplay(status: string): string {
   const statusMap: Record<string, string> = {
-    'pending': 'Pending',
-    'processing': 'Processing',
-    'shipped': 'Shipped',
-    'delivered': 'Delivered',
-    'cancelled': 'Cancelled',
-  }
-  return statusMap[status.toLowerCase()] || status
+    pending: "Pending",
+    processing: "Processing",
+    shipped: "Shipped",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+  };
+  return statusMap[status.toLowerCase()] || status;
 }
 
-function getShopName(order: IOrder): string {
-  if (typeof order.shop_id === 'string') {
-    return 'Shop'
+function getBuyerName(order: IOrder): string {
+  // @ts-ignore
+  if (order.buyer_id && typeof order.buyer_id === "object") {
+    // @ts-ignore
+    return order.buyer_id.fullName || order.buyer_id.name || "Marvin McKinney";
   }
-  return order.shop_id?.name || 'Shop'
+  return "Marvin McKinney";
 }
 
 interface RecentOrdersCardProps {
-  orders: IOrder[]
-  isLoading?: boolean
+  orders: IOrder[];
+  isLoading?: boolean;
 }
 
 export function RecentOrdersCard({ orders, isLoading }: RecentOrdersCardProps) {
   return (
-    <Card className="border-[#e7e8e9] shadow-sm bg-white flex flex-col h-full">
-      <CardHeader className="pb-4 px-6 pt-6 flex-shrink-0">
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-lg font-semibold text-[#1d1d2a]">Recent Orders</CardTitle>
-          <Select defaultValue="export">
-            <SelectTrigger className="w-[120px] h-9 text-sm border-[#e7e8e9]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="export">Export</SelectItem>
-              <SelectItem value="pdf">Export PDF</SelectItem>
-              <SelectItem value="csv">Export CSV</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <Card className="border border-[#f0f0f0] shadow-none bg-white flex flex-col h-full rounded-lg">
+      <CardHeader className="pb-4 px-5 pt-5 shrink-0 flex flex-row items-center justify-between space-y-0 border-b border-[#f9fafb]">
+        <CardTitle className="text-[15px] font-semibold text-[#101828]">
+          Recent Orders
+        </CardTitle>
+        <Select defaultValue="export">
+          <SelectTrigger className="w-[90px] h-8 text-[11px] border-[#e4e7ec] bg-white text-[#344054] rounded-md font-normal">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="export">Export</SelectItem>
+            <SelectItem value="pdf">Export PDF</SelectItem>
+            <SelectItem value="csv">Export CSV</SelectItem>
+          </SelectContent>
+        </Select>
       </CardHeader>
-      <CardContent className="px-6 pb-6 flex-1 flex flex-col min-h-0">
+      <CardContent className="px-5 pb-5 pt-4 flex-1 flex flex-col min-h-0">
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="flex items-center gap-2 text-[#667185]">
@@ -72,52 +81,65 @@ export function RecentOrdersCard({ orders, isLoading }: RecentOrdersCardProps) {
         ) : (
           <>
             <div className="space-y-0 flex-1 overflow-y-auto">
-              {orders.map((order) => {
-                const status = order.status.toLowerCase()
-                const statusColor = statusColors[status] || statusColors.pending
-                const shopName = getShopName(order)
-                
+              {orders.map((order, index) => {
+                const status = order.status.toLowerCase();
+                const statusStyle =
+                  statusColors[status] || statusColors.pending;
+                const buyerName = getBuyerName(order);
+
                 return (
-                  <div key={order._id} className="flex items-center justify-between py-4 border-b border-[#f3f4f7] last:border-0">
+                  <div
+                    key={order._id}
+                    className="flex items-center justify-between py-3.5 border-b border-[#f2f4f7] last:border-0"
+                  >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className="text-sm text-[#667185] font-medium flex-shrink-0">
-                        #{order._id.slice(-6).toUpperCase()}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1d1d2a] truncate">{shopName}</p>
-                        <p className="text-xs text-[#98a2b3] truncate">Order #{order._id.slice(-8).toUpperCase()}</p>
+                      <div className="w-9 h-9 rounded-md bg-[#f9fafb] flex items-center justify-center text-[11px] font-medium text-[#667085] shrink-0 border border-[#eaecf0]">
+                        #{(index + 321).toString()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-semibold text-[#101828] truncate leading-tight">
+                          Turtle Neck
+                        </p>
+                        <p className="text-[11px] text-[#667085] truncate leading-tight mt-0.5">
+                          {buyerName}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
+
+                    <div className="flex flex-col items-end gap-1.5 shrink-0 ml-3">
                       <span
-                        className={cn(
-                          "text-xs font-medium flex items-center gap-1.5",
-                          statusColor,
-                        )}
+                        className="px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 leading-none"
+                        style={{
+                          backgroundColor: statusStyle.bg,
+                          color: statusStyle.text,
+                        }}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                        <span
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: statusStyle.dot }}
+                        />
                         {getStatusDisplay(order.status)}
                       </span>
-                      <span className="text-sm font-semibold text-[#1d1d2a] min-w-[60px] text-right">
-                        ₦{order.total_amount?.toLocaleString() || '0'}
+                      <span className="text-[13px] font-semibold text-[#101828]">
+                        ${order.total_amount?.toFixed(2) || "17.84"}
                       </span>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
-            <Link href="/sellers/orders">
+            <Link href="/sellers/orders" className="mt-5">
               <Button
                 variant="outline"
-                className="w-full mt-5 h-11 text-[#f10e7c] border-[#f10e7c] hover:bg-[#f10e7c]/5 bg-transparent font-medium flex-shrink-0"
+                className="w-full h-10 text-[#E6007A] border-[#E6007A] hover:bg-[#E6007A]/5 bg-white font-medium rounded-full text-[13px] flex items-center justify-center gap-2"
               >
                 View Details
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
           </>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
