@@ -113,6 +113,35 @@ export async function getAllShops(): Promise<IActionResponse<IGetAllShopsRespons
   }
 }
 
+export interface IGetShopStatsResponse {
+  success: boolean;
+  viewCount: number;
+}
+
+export async function getShopStats(shopId: string): Promise<IActionResponse<IGetShopStatsResponse>> {
+  try {
+    await refreshAccessToken();
+
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    if (!token) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    const response = await apiClient.get<IGetShopStatsResponse>(
+      API_ENDPOINTS.SHOPS.GET_STATS(shopId),
+      { token }
+    );
+
+    return { success: true, data: response };
+  } catch (error) {
+    console.error("Get shop stats error:", error);
+    const message = error instanceof Error ? error.message : "Failed to get shop stats";
+    return { success: false, error: message };
+  }
+}
+
 export async function editShop(shopId: string, formData: FormData): Promise<IActionResponse<IEditShopResponse>> {
   try {
     await refreshAccessToken();

@@ -20,8 +20,9 @@ import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { useGetMyShop } from "@/hooks/useShop";
+import { useGetMyShop, useShopStats } from "@/hooks/useShop";
 import { useProductsByShop } from "@/hooks/useProducts";
+import { useSellerOrders } from "@/hooks/useSellerOrders";
 
 const topRegions = [
   { rank: 1, name: "Nigeria", sales: "45 sales", revenue: "$1700.84" },
@@ -39,6 +40,19 @@ export default function ShopPage() {
 
   const { data: products } = useProductsByShop(shop?._id);
   const topProducts = (products ?? []).slice(0, 5);
+
+  const { data: ordersData } = useSellerOrders();
+  const orders = ordersData?.orders ?? [];
+
+  const { data: statsData } = useShopStats(shop?._id);
+  const viewCount = statsData?.viewCount ?? 0;
+
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+  const totalOrders = orders.length;
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 
   if (isLoading) {
     return (
@@ -172,8 +186,7 @@ export default function ShopPage() {
                 </div>
 
                 <p className="text-[#475467] text-[16px] leading-relaxed max-w-2xl">
-                  {shop.description ||
-                    "Your premier destination for high-quality fashion and lifestyle products. We pride ourselves on curating the finest items for our community."}
+                  {shop.description || "No description provided."}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[14px] text-[#667185]">
@@ -185,10 +198,12 @@ export default function ShopPage() {
                       </span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 font-medium">
-                    <MapPin className="w-4 h-4" />
-                    <span>{shop.business_address || "San Francisco, CA"}</span>
-                  </div>
+                  {shop.business_address && (
+                    <div className="flex items-center gap-2 font-medium">
+                      <MapPin className="w-4 h-4" />
+                      <span>{shop.business_address}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 font-medium">
                     <Calendar className="w-4 h-4" />
                     <span>Joined {memberSince}</span>
@@ -230,32 +245,32 @@ export default function ShopPage() {
         <StatCard
           icon={Wallet}
           title="Total Revenue"
-          value="$75,000"
-          subtitle="10% More than last month"
+          value={formatCurrency(totalRevenue)}
+          subtitle={`From ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
           trend="up"
           iconColor="#E6007A"
         />
         <StatCard
           icon={Users}
           title="Visitors"
-          value="2,840"
-          subtitle="10% More than last month"
+          value={viewCount.toLocaleString()}
+          subtitle="Total shop views"
           trend="up"
           iconColor="#E6007A"
         />
         <StatCard
           icon={TrendingUp}
-          title="Conversion Rate"
-          value="3.2%"
-          subtitle="10% More than last month"
+          title="Total Orders"
+          value={totalOrders.toLocaleString()}
+          subtitle="All time orders"
           trend="up"
           iconColor="#E6007A"
         />
         <StatCard
           icon={DollarSign}
           title="Avg Order Value"
-          value="$85.50"
-          subtitle="10% More than last month"
+          value={formatCurrency(avgOrderValue)}
+          subtitle={totalOrders > 0 ? "Per order average" : "No orders yet"}
           trend="up"
           iconColor="#E6007A"
         />
@@ -292,14 +307,13 @@ export default function ShopPage() {
                       <p className="text-[15px] font-bold text-[#1D2939] leading-tight group-hover:text-[#E6007A] transition-colors">
                         {product.name}
                       </p>
-                      <p className="text-[12px] font-semibold text-[#667185] mt-1 flex items-center gap-1.5">
-                        <TrendingUp className="w-3 h-3 text-[#12B76A]" />
-                        45 sales
+                      <p className="text-[12px] font-semibold text-[#667185] mt-1">
+                        {product.category || "Uncategorized"}
                       </p>
                     </div>
                   </div>
                   <span className="text-[15px] font-bold text-[#667185] tracking-tight">
-                    ${product.price.toFixed(2)}
+                    {formatCurrency(product.price)}
                   </span>
                 </div>
               ))

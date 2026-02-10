@@ -27,8 +27,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAddToCart } from "@/hooks/useCart";
+import { clientApiClient, API_ENDPOINTS } from "@/lib/api/client-client";
 import Header from "@/components/Header";
 import Footer from "@/components/landing-page/cooperatives/Footer";
 
@@ -45,6 +46,13 @@ export default function ShopDetailsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("products");
+
+  // Track shop view on mount (fire-and-forget)
+  useEffect(() => {
+    if (shopId) {
+      clientApiClient.post(API_ENDPOINTS.SHOPS.TRACK_VIEW(shopId)).catch(() => {});
+    }
+  }, [shopId]);
 
   if (isShopLoading) {
     return (
