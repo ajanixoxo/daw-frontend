@@ -13,7 +13,7 @@ export function DashboardHeader() {
           Dashboard
         </h1>
         <p className="mt-1 text-sm text-[#838794]">
-          Get an Overview of your store activity here
+          Manage your cooperative members and track performance
         </p>
       </div>
       <div className="flex flex-wrap gap-3">
@@ -24,16 +24,12 @@ export function DashboardHeader() {
           <UserPlus className="h-4 w-4" />
           Invite Members
         </Button>
-        <Button className="gap-2 bg-[#1d1d2a] text-white hover:bg-[#33363e]">
-          <Plus className="h-4 w-4" />
-          Add Product
-        </Button>
         <Button
           onClick={() => router.push("/cooperatives/create/create-tier")}
           className="gap-2 bg-[#1d1d2a] text-white hover:bg-[#33363e]"
         >
           <Plus className="h-4 w-4" />
-          Create-tier
+          Create Tier
         </Button>
       </div>
     </div>

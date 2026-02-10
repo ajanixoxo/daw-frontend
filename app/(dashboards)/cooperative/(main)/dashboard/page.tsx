@@ -1,8 +1,8 @@
 import { DashboardHeader } from '@/components/(dashboards)/cooperative-dashboard/dashboard/dashboard-header'
-import { RecentOrders } from '@/components/(dashboards)/cooperative-dashboard/dashboard/recent-orders'
+import { RecentSignins } from '@/components/(dashboards)/cooperative-dashboard/dashboard/recent-signins'
 import { RevenueChart } from '@/components/(dashboards)/cooperative-dashboard/dashboard/revenue-chart'
 import { StatsCards } from '@/components/(dashboards)/cooperative-dashboard/dashboard/stats-cards'
-import { TopProducts } from '@/components/(dashboards)/cooperative-dashboard/dashboard/top-products'
+import { TopMembers } from '@/components/(dashboards)/cooperative-dashboard/dashboard/top-members'
 import React from 'react'
 
 const page = () => {
@@ -12,10 +12,10 @@ const page = () => {
         <DashboardHeader />
         <StatsCards />
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_400px]">
-          {/* <RevenueChart />
-          <TopProducts /> */}
+          <RevenueChart />
+          <TopMembers />
         </div>
-        <RecentOrders />
+        <RecentSignins />
       </div>
     </div>
   )

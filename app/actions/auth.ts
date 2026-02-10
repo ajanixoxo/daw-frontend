@@ -34,27 +34,27 @@ export async function createServerSession(
 
     cookieStore.set("userId", data.userId || "", {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 1 day
     });
 
     cookieStore.set("email", data.email || "", {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 1 day
     });
 
     cookieStore.set("role", data.role || "buyer", {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 1 day
     });
 
     cookieStore.set("isVerified", String(data.isVerified), {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 1 day
     });
 
     cookieStore.set("accessToken", data.accessToken, {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 24, // 1 day
     });
 
     cookieStore.set("refreshToken", data.refreshToken || "", {
