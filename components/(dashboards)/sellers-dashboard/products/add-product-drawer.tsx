@@ -10,13 +10,13 @@ import { AddCategoryModal } from "./add-category-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/custom-drawer";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -348,21 +348,21 @@ export function AddProductDrawer({
         open={categoryModalOpen}
         onOpenChange={setCategoryModalOpen}
       />
-      <Sheet open={open} onOpenChange={setOpen}>
+      <Drawer open={open} onOpenChange={setOpen}>
         {!isControlled && (
-          <SheetTrigger asChild>
+          <DrawerTrigger asChild>
             <Button className="gap-2 bg-[#000000] hover:bg-[#1a1a1a] text-white h-11 px-5 rounded-xl font-bold text-[14px]">
               <Plus className="size-4" />
               Add Product
             </Button>
-          </SheetTrigger>
+          </DrawerTrigger>
         )}
-        <SheetContent
+        <DrawerContent
           side="right"
-          className="w-full sm:max-w-[580px] h-full overflow-hidden p-0 flex flex-col gap-0"
+          className="w-full sm:max-w-[580px] h-full p-0 gap-0"
         >
           {/* Header with back arrow and status */}
-          <SheetHeader className="bg-white border-b border-[#e7e8e9] px-6 py-4 flex-row items-center justify-between shrink-0 space-y-0 text-left">
+          <DrawerHeader className="bg-white border-b border-[#e7e8e9] px-6 py-4 flex-row items-center justify-between shrink-0 space-y-0 text-left">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -388,17 +388,17 @@ export function AddProductDrawer({
                 </svg>
               </Button>
               <div>
-                <SheetTitle className="text-xl font-bold text-[#292d32]">
+                <DrawerTitle className="text-xl font-bold text-[#292d32]">
                   {isEditMode ? "Edit Product" : "Add Products"}
-                </SheetTitle>
-                <SheetDescription className="text-sm text-[#667185] mt-0.5">
+                </DrawerTitle>
+                <DrawerDescription className="text-sm text-[#667185] mt-0.5">
                   {isEditMode
                     ? "Update the product details below"
                     : "Follow the steps to create a new Product"}
-                </SheetDescription>
+                </DrawerDescription>
               </div>
             </div>
-          </SheetHeader>
+          </DrawerHeader>
 
           {/* Form Content */}
           <form
@@ -810,8 +810,8 @@ export function AddProductDrawer({
               )}
             </Button>
           </form>
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }

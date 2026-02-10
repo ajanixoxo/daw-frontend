@@ -9,6 +9,10 @@ import {
   Pencil,
   Trash2,
   Loader2,
+  Package,
+  CircleCheck,
+  TriangleAlert,
+  PackageX,
 } from "lucide-react";
 import { useSellerProducts, useDeleteProduct } from "@/hooks/useSellerProducts";
 import { Button } from "@/components/ui/button";
@@ -162,7 +166,7 @@ export default function ProductsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <StatCard
-          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
+          icon={<Package className="size-4 text-[#E6007A]" />}
           label="Total Products"
           value={productsLoading ? "..." : `₦${totalProducts * 10}`}
           change="10%"
@@ -170,20 +174,20 @@ export default function ProductsPage() {
           trend="up"
         />
         <StatCard
-          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
+          icon={<CircleCheck className="size-4 text-[#E6007A]" />}
           label="Active Products"
           value={productsLoading ? "..." : activeProducts.toString()}
           changeLabel="Cards Issued"
           trend="up"
         />
         <StatCard
-          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
+          icon={<TriangleAlert className="size-4 text-[#E6007A]" />}
           label="Low Stock"
           value={productsLoading ? "..." : lowStockProducts.toString()}
           changeLabel="Requires Attention"
         />
         <StatCard
-          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
+          icon={<PackageX className="size-4 text-[#E6007A]" />}
           label="Out of Stock"
           value={productsLoading ? "..." : outOfStockProducts.toString()}
           changeLabel="Requires Attention"
