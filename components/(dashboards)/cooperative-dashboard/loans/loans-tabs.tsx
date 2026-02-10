@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ActiveLoansTable } from "./active-loans-table"
 import { LoanApplicationsTable } from "./loan-applications-table"
+import { PendingApplicationsTable } from "./pending-applications-table"
 import { LoanSettings } from "./loan-settings"
 
 const tabs = ["Pending Applications", "Loan Applications", "Active Loans", "Loan Settings"]
@@ -28,8 +29,8 @@ export function LoansTabs() {
 
       {activeTab === "Active Loans" && <ActiveLoansTable />}
       {activeTab === "Loan Applications" && <LoanApplicationsTable />}
+      {activeTab === "Pending Applications" && <PendingApplicationsTable />}
       {activeTab === "Loan Settings" && <LoanSettings />}
-      {activeTab === "Pending Applications" && <ActiveLoansTable />}
     </div>
   )
 }
