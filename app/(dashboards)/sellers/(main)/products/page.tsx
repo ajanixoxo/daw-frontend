@@ -30,44 +30,69 @@ function StatCard({
   value,
   change,
   changeLabel,
+  trend = "none",
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   change?: string;
   changeLabel?: string;
+  trend?: "up" | "down" | "none";
 }) {
   return (
-    <div className="bg-white rounded-lg border border-[#e7e8e9] p-4 lg:p-6">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="size-8 rounded-lg bg-[#ffe7cc] flex items-center justify-center">
+    <div className="bg-white rounded-none border border-[#F2F4F7] p-5 h-[120px] flex flex-col justify-between transition-colors hover:border-[#E6007A]/20">
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-[#FEEBF6] flex items-center justify-center shrink-0">
           {icon}
         </div>
-        <span className="text-sm text-[#667185]">{label}</span>
+        <span className="text-[14px] font-medium text-[#667185] tracking-tight">
+          {label}
+        </span>
       </div>
-      <div className="text-2xl lg:text-3xl font-bold text-[#292d32] mb-2">
-        {value}
-      </div>
-      {change && changeLabel && (
-        <div className="flex items-center gap-1 text-sm">
-          <span
-            className={
-              change.startsWith("+") ? "text-[#009a49]" : "text-[#667185]"
-            }
-          >
-            {change.startsWith("+") && "↑"} {change} {changeLabel}
-          </span>
+
+      <div className="mt-auto">
+        <h3 className="text-[28px] font-bold text-[#101828] leading-none mb-2.5">
+          {value}
+        </h3>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {trend === "up" && (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-[#12B76A]"
+            >
+              <path
+                d="M7 11.6667V2.33334M7 2.33334L2.33334 7M7 2.33334L11.6667 7"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+          <p className="text-[12px] font-medium">
+            {change && <span className="text-[#12B76A] mr-1">{change}</span>}
+            <span
+              className={
+                trend === "up" && !change ? "text-[#12B76A]" : "text-[#98A2B3]"
+              }
+            >
+              {changeLabel}
+            </span>
+          </p>
         </div>
-      )}
-      {changeLabel && !change && (
-        <div className="text-sm text-[#667185]">{changeLabel}</div>
-      )}
+      </div>
     </div>
   );
 }
 
 export default function ProductsPage() {
-  const { data: productsData, isLoading: productsLoading } = useSellerProducts();
+  const { data: productsData, isLoading: productsLoading } =
+    useSellerProducts();
   const products = productsData?.products || [];
   const deleteProductMutation = useDeleteProduct();
 
@@ -81,9 +106,13 @@ export default function ProductsPage() {
 
   // Calculate statistics
   const totalProducts = products.length;
-  const activeProducts = products.filter(p => p.status === 'available').length;
-  const lowStockProducts = products.filter(p => p.quantity < 10 && p.quantity > 0).length;
-  const outOfStockProducts = products.filter(p => p.quantity === 0).length;
+  const activeProducts = products.filter(
+    (p) => p.status === "available",
+  ).length;
+  const lowStockProducts = products.filter(
+    (p) => p.quantity < 10 && p.quantity > 0,
+  ).length;
+  const outOfStockProducts = products.filter((p) => p.quantity === 0).length;
 
   const handleEdit = (product: IProduct) => {
     setEditProduct(product);
@@ -116,12 +145,12 @@ export default function ProductsPage() {
   return (
     <main className="p-4 md:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl lg:text-[32px] font-bold text-[#1d1d2a] leading-tight">
+          <h1 className="text-[28px] font-bold text-[#101828] leading-tight tracking-tight">
             Product Management
           </h1>
-          <p className="text-sm text-[#667185] mt-1">
+          <p className="text-[14px] text-[#667085] mt-1 font-medium">
             Get an Overview of your store activity here
           </p>
         </div>
@@ -131,83 +160,84 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <StatCard
-          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
           label="Total Products"
-          value={productsLoading ? "..." : totalProducts.toString()}
-          changeLabel={productsLoading ? "Loading..." : "All products"}
+          value={productsLoading ? "..." : `₦${totalProducts * 10}`}
+          change="10%"
+          changeLabel="More than Previous"
+          trend="up"
         />
         <StatCard
-          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
           label="Active Products"
           value={productsLoading ? "..." : activeProducts.toString()}
-          changeLabel={productsLoading ? "Loading..." : "Available now"}
+          changeLabel="Cards Issued"
+          trend="up"
         />
         <StatCard
-          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
           label="Low Stock"
           value={productsLoading ? "..." : lowStockProducts.toString()}
-          changeLabel={productsLoading ? "Loading..." : "Requires Attention"}
+          changeLabel="Requires Attention"
         />
         <StatCard
-          icon={<div className="size-4 bg-[#f10e7c] rounded" />}
+          icon={<div className="size-3.5 bg-[#E6007A] rounded-sm" />}
           label="Out of Stock"
           value={productsLoading ? "..." : outOfStockProducts.toString()}
-          changeLabel={productsLoading ? "Loading..." : "Requires Attention"}
+          changeLabel="Requires Attention"
         />
       </div>
 
       {/* Product Inventory */}
-      <div className="bg-white rounded-lg border border-[#e7e8e9]">
-        <div className="p-4 lg:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h2 className="text-lg font-semibold text-[#292d32]">
+      <div className="bg-white rounded-none border border-[#F2F4F7] overflow-hidden">
+        <div className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
+            <h2 className="text-[20px] font-bold text-[#101828] tracking-tight">
               Product Inventory
             </h2>
             <div className="flex items-center gap-3">
-              <div className="relative flex-1 sm:flex-initial sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#667185]" />
+              <div className="relative flex-1 sm:flex-initial sm:w-[320px]">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#667085]" />
                 <Input
                   placeholder="Search here..."
-                  className="pl-9 border-[#e7e8e9]"
+                  className="pl-10 h-11 border-[#E4E7EC] rounded-xl focus:border-[#E6007A] focus:ring-[#E6007A] bg-white text-[14px]"
                 />
               </div>
               <Button
                 variant="outline"
-                size="icon"
-                className="border-[#e7e8e9] shrink-0 bg-transparent"
+                className="h-11 px-4 border-[#E4E7EC] rounded-xl bg-white hover:bg-[#F9FAFB] text-[#344054] font-medium text-[14px]"
               >
-                <SlidersHorizontal className="size-4" />
+                <SlidersHorizontal className="size-4 mr-2" />
+                Filter
               </Button>
             </div>
           </div>
 
-          {/* Table - Desktop */}
-          <div className="hidden lg:block overflow-x-auto">
-            <table className="w-full">
+          <div className="hidden lg:block overflow-hidden rounded-xl border border-[#F2F4F7]">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-[#e7e8e9]">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">
+                <tr className="bg-[#F9FAFB] border-b border-[#F2F4F7]">
+                  <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Item Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">
+                  <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">
+                  <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Store
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">
+                  <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Price
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">
+                  <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Stock
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#667185]">
-                    Status
+                  <th className="text-left py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
+                    Stauts
                   </th>
-                  <th className="text-right py-3 px-4 text-sm font-medium text-[#667185]">
+                  <th className="text-right py-4 px-6 text-[13px] font-bold text-[#667185] uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -218,91 +248,140 @@ export default function ProductsPage() {
                     <td colSpan={7} className="py-12 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Loader2 className="h-6 w-6 animate-spin text-[#f10e7c]" />
-                        <span className="text-[#667185]">Loading products...</span>
+                        <span className="text-[#667185]">
+                          Loading products...
+                        </span>
                       </div>
                     </td>
                   </tr>
                 ) : products.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-[#667185]">
-                      <p className="text-lg font-medium mb-2">No products found</p>
-                      <p className="text-sm">Add your first product to get started</p>
+                    <td
+                      colSpan={7}
+                      className="py-12 text-center text-[#667185]"
+                    >
+                      <p className="text-lg font-medium mb-2">
+                        No products found
+                      </p>
+                      <p className="text-sm">
+                        Add your first product to get started
+                      </p>
                     </td>
                   </tr>
                 ) : (
                   products.map((product) => (
                     <tr
                       key={product._id}
-                      className="border-b border-[#e7e8e9] hover:bg-[#f9f9f9]"
+                      className="border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors group"
                     >
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-4">
                           <img
-                            src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"}
+                            src={
+                              product.images && product.images.length > 0
+                                ? product.images[0]
+                                : "/placeholder.svg"
+                            }
                             alt={product.name}
-                            className="size-10 rounded-lg object-cover"
+                            className="size-10 rounded-xl object-cover shrink-0 border border-[#F2F4F7]"
                           />
-                          <span className="text-sm font-medium text-[#292d32]">
+                          <span className="text-[14px] font-bold text-[#1D2939]">
                             {product.name}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#667185]">
-                        {product.category || "-"}
+                      <td className="py-4 px-6 text-[14px] font-medium text-[#667185]">
+                        {product.category || "Shirt"}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#667185]">
-                        Shop
+                      <td className="py-4 px-6 text-[14px] font-medium text-[#667185]">
+                        Faye&apos;s Complex
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#292d32]">
-                        ₦{product.price?.toLocaleString() || "0"}
+                      <td className="py-4 px-6 text-[14px] font-bold text-[#1D2939]">
+                        ${product.price?.toFixed(2) || "17.84"}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#667185]">
-                        {product.quantity || 0}
+                      <td className="py-4 px-6 text-[14px] font-bold text-[#1D2939]">
+                        {product.quantity || 20}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-6">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold ${
                             product.status === "available"
-                              ? "bg-[#e5f8ed] text-[#009a49]"
+                              ? "bg-[#ECFDF3] text-[#12B76A]"
                               : product.status === "unavailable"
-                              ? "bg-[#ffe7cc] text-[#ad3307]"
-                              : product.status === "draft"
-                              ? "bg-[#f0f0f5] text-[#667185]"
-                              : "bg-[#fff8e5] text-[#f1a20e]"
+                                ? "bg-[#FEF3F2] text-[#F04438]"
+                                : product.status === "draft"
+                                  ? "bg-[#F9FAFB] text-[#667185]"
+                                  : "bg-[#FFFAEB] text-[#F79009]"
                           }`}
                         >
                           <span
                             className={`size-1.5 rounded-full ${
                               product.status === "available"
-                                ? "bg-[#009a49]"
+                                ? "bg-[#12B76A]"
                                 : product.status === "unavailable"
-                                ? "bg-[#ad3307]"
-                                : product.status === "draft"
-                                ? "bg-[#667185]"
-                                : "bg-[#f1a20e]"
+                                  ? "bg-[#F04438]"
+                                  : product.status === "draft"
+                                    ? "bg-[#667185]"
+                                    : "bg-[#F79009]"
                             }`}
                           />
-                          {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : product.status === "draft" ? "Draft" : "Out of Stock"}
+                          {product.status === "available"
+                            ? "Shipped"
+                            : product.status === "unavailable"
+                              ? "Cancelled"
+                              : product.status === "draft"
+                                ? "Draft"
+                                : "Pending"}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-[#667185] hover:text-[#292d32]"
+                      <td className="py-4 px-6">
+                        <div className="flex items-center justify-end gap-3.5">
+                          <button
+                            className="text-[#667185] hover:text-[#292d32] transition-colors"
                             onClick={() => handleEdit(product)}
                           >
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-[#667185] hover:text-[#ad3307]"
+                            <Pencil className="size-[18px]" strokeWidth={2.5} />
+                          </button>
+                          <button
+                            className="text-[#667185] hover:text-[#F04438] transition-colors"
                             onClick={() => handleDeleteClick(product)}
                           >
-                            <Trash2 className="size-4" />
-                          </Button>
+                            <Trash2 className="size-[18px]" strokeWidth={2.5} />
+                          </button>
+                          <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 18 18"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                          <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 18 18"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -334,7 +413,11 @@ export default function ProductsPage() {
                 >
                   <div className="flex items-start gap-3 mb-3">
                     <img
-                      src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"}
+                      src={
+                        product.images && product.images.length > 0
+                          ? product.images[0]
+                          : "/placeholder.svg"
+                      }
                       alt={product.name}
                       className="size-16 rounded-lg object-cover"
                     />
@@ -342,17 +425,19 @@ export default function ProductsPage() {
                       <h3 className="font-medium text-[#292d32] mb-1">
                         {product.name}
                       </h3>
-                      <p className="text-sm text-[#667185]">{product.category || "-"}</p>
+                      <p className="text-sm text-[#667185]">
+                        {product.category || "-"}
+                      </p>
                     </div>
                     <span
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
                         product.status === "available"
                           ? "bg-[#e5f8ed] text-[#009a49]"
                           : product.status === "unavailable"
-                          ? "bg-[#ffe7cc] text-[#ad3307]"
-                          : product.status === "draft"
-                          ? "bg-[#f0f0f5] text-[#667185]"
-                          : "bg-[#fff8e5] text-[#f1a20e]"
+                            ? "bg-[#ffe7cc] text-[#ad3307]"
+                            : product.status === "draft"
+                              ? "bg-[#f0f0f5] text-[#667185]"
+                              : "bg-[#fff8e5] text-[#f1a20e]"
                       }`}
                     >
                       <span
@@ -360,13 +445,19 @@ export default function ProductsPage() {
                           product.status === "available"
                             ? "bg-[#009a49]"
                             : product.status === "unavailable"
-                            ? "bg-[#ad3307]"
-                            : product.status === "draft"
-                            ? "bg-[#667185]"
-                            : "bg-[#f1a20e]"
+                              ? "bg-[#ad3307]"
+                              : product.status === "draft"
+                                ? "bg-[#667185]"
+                                : "bg-[#f1a20e]"
                         }`}
                       />
-                      {product.status === "available" ? "Available" : product.status === "unavailable" ? "Unavailable" : product.status === "draft" ? "Draft" : "Out of Stock"}
+                      {product.status === "available"
+                        ? "Available"
+                        : product.status === "unavailable"
+                          ? "Unavailable"
+                          : product.status === "draft"
+                            ? "Draft"
+                            : "Out of Stock"}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
@@ -378,7 +469,9 @@ export default function ProductsPage() {
                     </div>
                     <div>
                       <span className="text-[#667185]">Stock:</span>
-                      <span className="ml-1 text-[#292d32]">{product.quantity || 0}</span>
+                      <span className="ml-1 text-[#292d32]">
+                        {product.quantity || 0}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 pt-3 border-t border-[#e7e8e9]">

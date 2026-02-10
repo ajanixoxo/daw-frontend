@@ -9,7 +9,14 @@ import { useShopCategories } from "@/hooks/useCategories";
 import { AddCategoryModal } from "./add-category-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -53,9 +60,7 @@ export function AddProductDrawer({
 
   const [internalOpen, setInternalOpen] = useState(false);
   const open = isControlled ? controlledOpen : internalOpen;
-  const setOpen = isControlled
-    ? (onOpenChange || (() => {}))
-    : setInternalOpen;
+  const setOpen = isControlled ? onOpenChange || (() => {}) : setInternalOpen;
 
   const [productStatus, setProductStatus] = useState("Active");
   const [name, setName] = useState("");
@@ -248,13 +253,18 @@ export function AddProductDrawer({
 
       if (name !== initialValues.name) dirty.name = name;
       if (category !== initialValues.category) dirty.category = category;
-      if (description !== initialValues.description) dirty.description = description;
+      if (description !== initialValues.description)
+        dirty.description = description;
       if (price !== initialValues.price) dirty.price = parseFloat(price);
-      if (quantity !== initialValues.quantity) dirty.quantity = parseInt(quantity, 10);
+      if (quantity !== initialValues.quantity)
+        dirty.quantity = parseInt(quantity, 10);
       if (productStatus !== initialValues.status) dirty.status = statusValue;
-      if (productFeatures !== initialValues.productFeatures) dirty.productFeatures = productFeatures;
-      if (careInstruction !== initialValues.careInstruction) dirty.careInstruction = careInstruction;
-      if (returnPolicy !== initialValues.returnPolicy) dirty.returnPolicy = returnPolicy;
+      if (productFeatures !== initialValues.productFeatures)
+        dirty.productFeatures = productFeatures;
+      if (careInstruction !== initialValues.careInstruction)
+        dirty.careInstruction = careInstruction;
+      if (returnPolicy !== initialValues.returnPolicy)
+        dirty.returnPolicy = returnPolicy;
 
       const filledVariants = variants
         .filter((v) => v.values.length > 0)
@@ -266,7 +276,8 @@ export function AddProductDrawer({
       // Images: always send if changed
       const currentExistingJson = JSON.stringify(existingImages);
       const imagesChanged =
-        currentExistingJson !== initialValues.images || newImageFiles.length > 0;
+        currentExistingJson !== initialValues.images ||
+        newImageFiles.length > 0;
 
       if (imagesChanged) {
         dirty.existingImages = existingImages;
@@ -295,7 +306,9 @@ export function AddProductDrawer({
       // Add mode
       const shopId = getShopId();
       if (!shopId || shopId.includes("[object Object]")) {
-        alert("Shop ID not found or invalid. Please refresh the page and try again.");
+        alert(
+          "Shop ID not found or invalid. Please refresh the page and try again.",
+        );
         return;
       }
 
@@ -338,7 +351,7 @@ export function AddProductDrawer({
       <Sheet open={open} onOpenChange={setOpen}>
         {!isControlled && (
           <SheetTrigger asChild>
-            <Button className="gap-2 bg-[#292d32] hover:bg-[#1d2739] text-white">
+            <Button className="gap-2 bg-[#000000] hover:bg-[#1a1a1a] text-white h-11 px-5 rounded-xl font-bold text-[14px]">
               <Plus className="size-4" />
               Add Product
             </Button>
@@ -349,7 +362,7 @@ export function AddProductDrawer({
           className="w-full sm:max-w-[580px] h-full overflow-hidden p-0 flex flex-col gap-0"
         >
           {/* Header with back arrow and status */}
-          <div className="bg-white border-b border-[#e7e8e9] px-6 py-4 flex items-center justify-between shrink-0">
+          <SheetHeader className="bg-white border-b border-[#e7e8e9] px-6 py-4 flex-row items-center justify-between shrink-0 space-y-0 text-left">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -375,21 +388,31 @@ export function AddProductDrawer({
                 </svg>
               </Button>
               <div>
-                <h2 className="text-xl font-bold text-[#292d32]">
+                <SheetTitle className="text-xl font-bold text-[#292d32]">
                   {isEditMode ? "Edit Product" : "Add Products"}
-                </h2>
-                <p className="text-sm text-[#667185] mt-0.5">
+                </SheetTitle>
+                <SheetDescription className="text-sm text-[#667185] mt-0.5">
                   {isEditMode
                     ? "Update the product details below"
                     : "Follow the steps to create a new Product"}
-                </p>
+                </SheetDescription>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-[#667185]">Status *</span>
+          </SheetHeader>
+
+          {/* Form Content */}
+          <form
+            onSubmit={handleSubmit}
+            className="flex-1 overflow-y-auto min-h-0 px-6 py-6 space-y-6"
+          >
+            {/* Product Status */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-[#292d32]">
+                Product Status *
+              </Label>
               <Select value={productStatus} onValueChange={setProductStatus}>
-                <SelectTrigger className="w-[120px] h-9 border-[#e7e8e9]">
-                  <SelectValue />
+                <SelectTrigger className="w-full h-11 border-[#e7e8e9] rounded-lg">
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Active">Active</SelectItem>
@@ -398,400 +421,395 @@ export function AddProductDrawer({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          {/* Form Content */}
-          <div className="flex-1 overflow-y-auto min-h-0">
-            <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
-              {/* Image Upload Area */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-[#292d32]">
-                  Product Images{" "}
-                  <span className="text-[#667185] font-normal">
-                    ({totalImages}/{MAX_IMAGES})
-                  </span>
-                </Label>
+            {/* Image Upload Area */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-[#292d32]">
+                Product Images{" "}
+                <span className="text-[#667185] font-normal">
+                  ({totalImages}/{MAX_IMAGES})
+                </span>
+              </Label>
 
-                {/* Previews */}
-                {(existingImages.length > 0 || newImagePreviews.length > 0) && (
-                  <div className="grid grid-cols-4 gap-3">
-                    {/* Existing images (URLs from server) */}
-                    {existingImages.map((src, i) => (
-                      <div
-                        key={`existing-${i}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-[#e7e8e9] group"
-                      >
-                        <img
-                          src={src}
-                          alt={`Image ${i + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingImage(i)}
-                          className="absolute top-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="size-3.5" />
-                        </button>
-                      </div>
-                    ))}
-
-                    {/* New image previews */}
-                    {newImagePreviews.map((src, i) => (
-                      <div
-                        key={`new-${i}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-[#e7e8e9] group"
-                      >
-                        <img
-                          src={src}
-                          alt={`Preview ${i + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeNewImage(i)}
-                          className="absolute top-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="size-3.5" />
-                        </button>
-                      </div>
-                    ))}
-
-                    {/* Add more slot */}
-                    {totalImages < MAX_IMAGES && (
+              {/* Previews */}
+              {(existingImages.length > 0 || newImagePreviews.length > 0) && (
+                <div className="grid grid-cols-4 gap-3">
+                  {/* Existing images (URLs from server) */}
+                  {existingImages.map((src, i) => (
+                    <div
+                      key={`existing-${i}`}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-[#e7e8e9] group"
+                    >
+                      <img
+                        src={src}
+                        alt={`Image ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="aspect-square rounded-lg border-2 border-dashed border-[#e7e8e9] bg-[#f9f9f9] flex items-center justify-center hover:border-[#f10e7c] hover:bg-[#fff5f9] transition-colors"
+                        onClick={() => removeExistingImage(i)}
+                        className="absolute top-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <Plus className="size-6 text-[#667185]" />
+                        <X className="size-3.5" />
                       </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Drop zone (shown when no images at all) */}
-                {totalImages === 0 && (
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors cursor-pointer ${
-                      isDragging
-                        ? "border-[#f10e7c] bg-[#fff5f9]"
-                        : "border-[#e7e8e9] bg-[#f9f9f9]"
-                    }`}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="size-12 rounded-full bg-white flex items-center justify-center border border-[#e7e8e9]">
-                        <ImageIcon className="size-5 text-[#667185]" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-[#667185]">
-                          Drag & drop your images or{" "}
-                          <span className="text-[#292d32] font-medium underline">
-                            Browse
-                          </span>
-                        </p>
-                        <p className="text-xs text-[#667185] mt-1">
-                          JPG, PNG, WebP, GIF. Max 10MB each. Up to {MAX_IMAGES}{" "}
-                          images.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  multiple
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-              </div>
-
-              {/* Title and Category Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="name"
-                    className="text-sm font-medium text-[#292d32]"
-                  >
-                    Product Name *
-                  </Label>
-                  <Input
-                    id="name"
-                    placeholder="Enter Product Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="border-[#e7e8e9] h-11"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="category-select"
-                    className="text-sm font-medium text-[#292d32]"
-                  >
-                    Category
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="border-[#e7e8e9] h-11 flex-1">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoriesLoading ? (
-                          <SelectItem value="_loading" disabled>
-                            Loading...
-                          </SelectItem>
-                        ) : categories.length === 0 ? (
-                          <SelectItem value="_empty" disabled>
-                            No categories yet. Create one first.
-                          </SelectItem>
-                        ) : (
-                          categories.map((cat) => (
-                            <SelectItem key={cat._id} value={cat.name}>
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="size-3 rounded-full shrink-0"
-                                  style={{ backgroundColor: cat.color }}
-                                />
-                                {cat.name}
-                              </div>
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="size-11 shrink-0 border-[#e7e8e9] hover:bg-[#fff5f9] hover:border-[#f10e7c]"
-                      onClick={() => setCategoryModalOpen(true)}
-                    >
-                      <Plus className="size-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="description"
-                  className="text-sm font-medium text-[#292d32]"
-                >
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Write here..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="border-[#e7e8e9] min-h-[120px] resize-none"
-                />
-              </div>
-
-              {/* Price and Quantity Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="price"
-                    className="text-sm font-medium text-[#292d32]"
-                  >
-                    Price *
-                  </Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Enter Price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="border-[#e7e8e9] h-11"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="quantity"
-                    className="text-sm font-medium text-[#292d32]"
-                  >
-                    Quantity *
-                  </Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    min="0"
-                    placeholder="Enter Quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    className="border-[#e7e8e9] h-11"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Variants Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-[#292d32]">
-                    Variants
-                  </Label>
-                </div>
-
-                {/* List of active variants */}
-                <div className="space-y-3">
-                  {variants.map((variant) => (
-                    <div
-                      key={variant.type}
-                      className="p-4 border border-[#e7e8e9] rounded-lg bg-white space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#292d32]">
-                          {variant.type}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeVariantType(variant.type)}
-                          className="h-6 w-6 p-0 text-[#667185] hover:text-red-500"
-                          type="button"
-                        >
-                          <X className="size-4" />
-                        </Button>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        {variant.values.map((val) => (
-                          <div
-                            key={val}
-                            className="px-3 py-1 bg-[#f9f9f9] text-[#292d32] text-sm rounded-md border border-[#e7e8e9] flex items-center gap-2"
-                          >
-                            {val}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                removeVariantValue(variant.type, val)
-                              }
-                              className="text-[#667185] hover:text-red-500"
-                            >
-                              <X className="size-3" />
-                            </button>
-                          </div>
-                        ))}
-                        <Input
-                          className="h-8 w-32 border-none bg-transparent placeholder:text-gray-400 focus-visible:ring-0 p-0 text-sm shadow-none"
-                          placeholder="+ Add value..."
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              addVariantValue(
-                                variant.type,
-                                e.currentTarget.value,
-                              );
-                              e.currentTarget.value = "";
-                            }
-                          }}
-                        />
-                      </div>
                     </div>
                   ))}
-                </div>
 
-                {/* Add Variant Dropdown */}
-                <Select onValueChange={handleAddVariantType} value="">
-                  <SelectTrigger className="w-full h-12 border border-[#e7e8e9] bg-white rounded-lg px-4 flex items-center justify-between hover:bg-[#f9f9f9] transition-colors">
-                    <div className="flex items-center gap-2 text-[#292d32]">
-                      <Plus className="size-5" />
-                      <span>Add variants like color or size</span>
+                  {/* New image previews */}
+                  {newImagePreviews.map((src, i) => (
+                    <div
+                      key={`new-${i}`}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-[#e7e8e9] group"
+                    >
+                      <img
+                        src={src}
+                        alt={`Preview ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeNewImage(i)}
+                        className="absolute top-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="size-3.5" />
+                      </button>
                     </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Color">Color</SelectItem>
-                    <SelectItem value="Size">Size</SelectItem>
-                    <SelectItem value="Material">Material</SelectItem>
-                    <SelectItem value="Style">Style</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  ))}
 
-              {/* Product Features */}
+                  {/* Add more slot */}
+                  {totalImages < MAX_IMAGES && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="aspect-square rounded-lg border-2 border-dashed border-[#e7e8e9] bg-[#f9f9f9] flex items-center justify-center hover:border-[#f10e7c] hover:bg-[#fff5f9] transition-colors"
+                    >
+                      <Plus className="size-6 text-[#667185]" />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Drop zone (shown when no images at all) */}
+              {totalImages === 0 && (
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors cursor-pointer ${
+                    isDragging
+                      ? "border-[#f10e7c] bg-[#fff5f9]"
+                      : "border-[#e7e8e9] bg-[#f9f9f9]"
+                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="size-12 rounded-full bg-white flex items-center justify-center border border-[#e7e8e9]">
+                      <ImageIcon className="size-5 text-[#667185]" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-[#667185]">
+                        Drag & drop your images or{" "}
+                        <span className="text-[#292d32] font-medium underline">
+                          Browse
+                        </span>
+                      </p>
+                      <p className="text-xs text-[#667185] mt-1">
+                        JPG, PNG, WebP, GIF. Max 10MB each. Up to {MAX_IMAGES}{" "}
+                        images.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                multiple
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+            </div>
+
+            {/* Title and Category Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
-                  htmlFor="product-features"
+                  htmlFor="name"
                   className="text-sm font-medium text-[#292d32]"
                 >
-                  Product Features
+                  Product Name *
                 </Label>
-                <Textarea
-                  id="product-features"
-                  placeholder="Write here..."
-                  value={productFeatures}
-                  onChange={(e) => setProductFeatures(e.target.value)}
-                  className="border-[#e7e8e9] min-h-[100px] resize-none"
+                <Input
+                  id="name"
+                  placeholder="Enter Product Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="border-[#e7e8e9] h-11"
+                  required
                 />
               </div>
-
-              {/* Care Instruction */}
               <div className="space-y-2">
                 <Label
-                  htmlFor="care-instruction"
+                  htmlFor="category-select"
                   className="text-sm font-medium text-[#292d32]"
                 >
-                  Care Instruction
+                  Category
                 </Label>
-                <Textarea
-                  id="care-instruction"
-                  placeholder="Write here..."
-                  value={careInstruction}
-                  onChange={(e) => setCareInstruction(e.target.value)}
-                  className="border-[#e7e8e9] min-h-[100px] resize-none"
-                />
+                <div className="flex items-center gap-2">
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="border-[#e7e8e9] h-11 flex-1">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoriesLoading ? (
+                        <SelectItem value="_loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : categories.length === 0 ? (
+                        <SelectItem value="_empty" disabled>
+                          No categories yet. Create one first.
+                        </SelectItem>
+                      ) : (
+                        categories.map((cat) => (
+                          <SelectItem key={cat._id} value={cat.name}>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="size-3 rounded-full shrink-0"
+                                style={{ backgroundColor: cat.color }}
+                              />
+                              {cat.name}
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="size-11 shrink-0 border-[#e7e8e9] hover:bg-[#fff5f9] hover:border-[#f10e7c]"
+                    onClick={() => setCategoryModalOpen(true)}
+                  >
+                    <Plus className="size-4" />
+                  </Button>
+                </div>
               </div>
+            </div>
 
-              {/* Return Policy */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="return-policy"
-                  className="text-sm font-medium text-[#292d32]"
-                >
-                  Return Policy
-                </Label>
-                <Textarea
-                  id="return-policy"
-                  placeholder="Write here..."
-                  value={returnPolicy}
-                  onChange={(e) => setReturnPolicy(e.target.value)}
-                  className="border-[#e7e8e9] min-h-[100px] resize-none"
-                />
-              </div>
-
-              {/* Save Button */}
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="w-full bg-[#f10e7c] hover:bg-[#d00c6a] text-white h-12 text-base font-medium disabled:opacity-50"
+            {/* Description */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="description"
+                className="text-sm font-medium text-[#292d32]"
               >
-                {isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditMode ? "Updating..." : "Adding..."}
-                  </>
-                ) : isEditMode ? (
-                  "Update Product"
-                ) : (
-                  "Save"
-                )}
-              </Button>
-            </form>
-          </div>
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                placeholder="Write here..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="border-[#e7e8e9] min-h-[120px] resize-none"
+              />
+            </div>
+
+            {/* Price and Quantity Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="price"
+                  className="text-sm font-medium text-[#292d32]"
+                >
+                  Price *
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Enter Price"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="border-[#e7e8e9] h-11"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="quantity"
+                  className="text-sm font-medium text-[#292d32]"
+                >
+                  Quantity *
+                </Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="0"
+                  placeholder="Enter Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="border-[#e7e8e9] h-11"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Variants Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-[#292d32]">
+                  Variants
+                </Label>
+              </div>
+
+              {/* List of active variants */}
+              <div className="space-y-3">
+                {variants.map((variant) => (
+                  <div
+                    key={variant.type}
+                    className="p-4 border border-[#e7e8e9] rounded-lg bg-white space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-[#292d32]">
+                        {variant.type}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeVariantType(variant.type)}
+                        className="h-6 w-6 p-0 text-[#667185] hover:text-red-500"
+                        type="button"
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {variant.values.map((val) => (
+                        <div
+                          key={val}
+                          className="px-3 py-1 bg-[#f9f9f9] text-[#292d32] text-sm rounded-md border border-[#e7e8e9] flex items-center gap-2"
+                        >
+                          {val}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeVariantValue(variant.type, val)
+                            }
+                            className="text-[#667185] hover:text-red-500"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </div>
+                      ))}
+                      <Input
+                        className="h-8 w-32 border-none bg-transparent placeholder:text-gray-400 focus-visible:ring-0 p-0 text-sm shadow-none"
+                        placeholder="+ Add value..."
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addVariantValue(
+                              variant.type,
+                              e.currentTarget.value,
+                            );
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Variant Dropdown */}
+              <Select onValueChange={handleAddVariantType} value="">
+                <SelectTrigger className="w-full h-12 border border-[#e7e8e9] bg-white rounded-lg px-4 flex items-center justify-between hover:bg-[#f9f9f9] transition-colors">
+                  <div className="flex items-center gap-2 text-[#292d32]">
+                    <Plus className="size-5" />
+                    <span>Add variants like color or size</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Color">Color</SelectItem>
+                  <SelectItem value="Size">Size</SelectItem>
+                  <SelectItem value="Material">Material</SelectItem>
+                  <SelectItem value="Style">Style</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Product Features */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="product-features"
+                className="text-sm font-medium text-[#292d32]"
+              >
+                Product Features
+              </Label>
+              <Textarea
+                id="product-features"
+                placeholder="Write here..."
+                value={productFeatures}
+                onChange={(e) => setProductFeatures(e.target.value)}
+                className="border-[#e7e8e9] min-h-[100px] resize-none"
+              />
+            </div>
+
+            {/* Care Instruction */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="care-instruction"
+                className="text-sm font-medium text-[#292d32]"
+              >
+                Care Instruction
+              </Label>
+              <Textarea
+                id="care-instruction"
+                placeholder="Write here..."
+                value={careInstruction}
+                onChange={(e) => setCareInstruction(e.target.value)}
+                className="border-[#e7e8e9] min-h-[100px] resize-none"
+              />
+            </div>
+
+            {/* Return Policy */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="return-policy"
+                className="text-sm font-medium text-[#292d32]"
+              >
+                Return Policy
+              </Label>
+              <Textarea
+                id="return-policy"
+                placeholder="Write here..."
+                value={returnPolicy}
+                onChange={(e) => setReturnPolicy(e.target.value)}
+                className="border-[#e7e8e9] min-h-[100px] resize-none"
+              />
+            </div>
+
+            {/* Save Button */}
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full bg-[#E6007A] hover:bg-[#d00c6a] text-white h-12 text-base font-medium disabled:opacity-50"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isEditMode ? "Updating..." : "Adding..."}
+                </>
+              ) : isEditMode ? (
+                "Update Product"
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </form>
         </SheetContent>
       </Sheet>
     </>

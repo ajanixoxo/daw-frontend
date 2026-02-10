@@ -275,7 +275,7 @@ export default function EditShopPage() {
                 <label className="block text-[15px] font-bold text-[#101828] mb-4">
                   Store Banner
                 </label>
-                <div className="relative w-full aspect-[3/1] rounded-2xl bg-[#E6B9C8] flex items-center justify-center overflow-hidden group">
+                <div className="relative w-full aspect-3/1 rounded-2xl bg-[#E6B9C8] flex items-center justify-center overflow-hidden group">
                   {bannerPreview ? (
                     <Image
                       src={bannerPreview}

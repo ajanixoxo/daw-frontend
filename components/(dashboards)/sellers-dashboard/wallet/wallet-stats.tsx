@@ -29,7 +29,7 @@ export function WalletStats({ data }: WalletStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Total Balance Card */}
-      <Card className="border-0 bg-gradient-to-r from-[#DB005F] to-[#791F56] text-white overflow-hidden relative shadow-md">
+      <Card className="border-0 bg-linear-to-r from-[#DB005F] to-[#791F56] text-white overflow-hidden relative shadow-md">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
         <CardContent className="p-6 flex flex-col justify-between h-full min-h-[160px] relative z-10">
           <div>
