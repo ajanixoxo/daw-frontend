@@ -23,22 +23,82 @@ interface RevenueChartProps {
   orders: IOrder[];
 }
 
-const DEMO_DATA = [
-  { month: "January", value: 200000 },
-  { month: "February", value: 280000 },
-  { month: "March", value: 160000 },
-  { month: "April", value: 240000 },
-  { month: "May", value: 160000 },
-  { month: "July", value: 240000 },
-  { month: "August", value: 280000 },
-  { month: "September", value: 320000 },
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
+function computeMonthlyRevenue(orders: IOrder[]) {
+  const now = new Date();
+  const months: { month: string; value: number }[] = [];
+
+  for (let i = 7; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      month: MONTH_NAMES[d.getMonth()],
+      value: 0,
+    });
+  }
+
+  for (const order of orders) {
+    const orderDate = new Date(order.createdAt);
+    const entry = months.find((m) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - 7, 1);
+      for (let i = 0; i < 8; i++) {
+        const check = new Date(d.getFullYear(), d.getMonth() + i, 1);
+        if (
+          check.getMonth() === orderDate.getMonth() &&
+          check.getFullYear() === orderDate.getFullYear() &&
+          MONTH_NAMES[check.getMonth()] === m.month
+        ) {
+          return true;
+        }
+      }
+      return false;
+    });
+    if (entry) {
+      entry.value += order.total_amount || 0;
+    }
+  }
+
+  return months;
+}
+
+function computeYAxisTicks(maxValue: number): number[] {
+  if (maxValue === 0) return [0, 50000, 100000, 150000, 200000, 250000];
+  const step = Math.ceil(maxValue / 5 / 1000) * 1000;
+  const ticks: number[] = [];
+  for (let i = 0; i <= 5; i++) {
+    ticks.push(step * i);
+  }
+  return ticks;
+}
+
 export function RevenueChart({ orders }: RevenueChartProps) {
-  const chartData = useMemo(() => {
-    if (orders.length === 0) return DEMO_DATA;
-    return DEMO_DATA;
-  }, [orders]);
+  const chartData = useMemo(() => computeMonthlyRevenue(orders), [orders]);
+
+  const totalRevenue = useMemo(
+    () => orders.reduce((sum, o) => sum + (o.total_amount || 0), 0),
+    [orders],
+  );
+
+  const yTicks = useMemo(() => {
+    const maxVal = Math.max(...chartData.map((d) => d.value), 0);
+    return computeYAxisTicks(maxVal);
+  }, [chartData]);
+
+  const formatCurrency = (amount: number) =>
+    `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 0 })}`;
 
   return (
     <Card className="border border-[#f0f0f0] shadow-none bg-white flex flex-col h-full rounded-lg">
@@ -49,13 +109,10 @@ export function RevenueChart({ orders }: RevenueChartProps) {
               TOTAL REVENUE
             </p>
             <p className="text-[32px] font-bold text-[#101828] leading-none mb-2.5">
-              $0
-            </p>
-            <p className="text-[11px] text-[#f04438] font-normal">
-              (+43%) than last Year
+              {formatCurrency(totalRevenue)}
             </p>
           </div>
-          <Select defaultValue="this-month">
+          <Select defaultValue="this-year">
             <SelectTrigger className="w-[115px] h-8 text-[11px] border-[#e4e7ec] rounded-md bg-white font-normal text-[#344054]">
               <SelectValue />
             </SelectTrigger>
@@ -68,7 +125,7 @@ export function RevenueChart({ orders }: RevenueChartProps) {
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-5 pt-6 flex-1 min-h-0">
-        <div className="h-full w-full">
+        <div className="w-full min-h-[350px] h-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -91,8 +148,10 @@ export function RevenueChart({ orders }: RevenueChartProps) {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#98a2b3", fontSize: 11, fontWeight: 400 }}
-                tickFormatter={(value) => `${value / 1000}k`}
-                ticks={[0, 50000, 100000, 150000, 200000, 250000, 300000]}
+                tickFormatter={(value) =>
+                  value >= 1000 ? `${value / 1000}k` : `${value}`
+                }
+                ticks={yTicks}
                 dx={-5}
               />
               <Bar

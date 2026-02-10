@@ -5,14 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IOrder } from "@/types/product.types";
+import { IShop } from "@/types/shop.types";
 
-// Helper functions (same as before)
 const statusColors: Record<string, string> = {
   shipped: "text-[#34c759] bg-[#d1fadf]",
   delivered: "text-[#34c759] bg-[#d1fadf]",
   pending: "text-[#ff8d28] bg-[#fffaeb]",
   processing: "text-[#ff8d28] bg-[#fffaeb]",
+  in_transit: "text-[#3b82f6] bg-[#eff6ff]",
   cancelled: "text-[#ff5d61] bg-[#fef3f2]",
+  disputed: "text-[#ff5d61] bg-[#fef3f2]",
 };
 
 function getStatusDisplay(status: string): string {
@@ -22,6 +24,8 @@ function getStatusDisplay(status: string): string {
     shipped: "Shipped",
     delivered: "Delivered",
     cancelled: "Cancelled",
+    in_transit: "In Transit",
+    disputed: "Disputed",
   };
   return statusMap[status.toLowerCase()] || status;
 }
@@ -36,12 +40,30 @@ function formatDate(dateString: string): string {
 }
 
 function getBuyerName(order: IOrder): string {
-  // @ts-ignore
   if (order.buyer_id && typeof order.buyer_id === "object") {
-    // @ts-ignore
-    return order.buyer_id.fullName || order.buyer_id.name || "Customer";
+    const buyer = order.buyer_id as { _id: string; [key: string]: any };
+    return (
+      buyer.fullName ||
+      [buyer.firstName, buyer.lastName].filter(Boolean).join(" ") ||
+      buyer.name ||
+      "Customer"
+    );
   }
   return "Customer";
+}
+
+function getShopName(order: IOrder): string {
+  if (order.shop_id && typeof order.shop_id === "object") {
+    return (order.shop_id as IShop).name || "Shop";
+  }
+  return "Shop";
+}
+
+function getItemName(order: IOrder): string {
+  if (order.items && order.items.length > 0) {
+    return order.items[0].product_name;
+  }
+  return "—";
 }
 
 interface RecentOrdersTableProps {
@@ -106,6 +128,12 @@ export function RecentOrdersTable({
                     Processing...
                   </td>
                 </tr>
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-[#667185]">
+                    No orders yet
+                  </td>
+                </tr>
               ) : (
                 orders.slice(0, 10).map((order) => {
                   const status = order.status.toLowerCase();
@@ -118,7 +146,7 @@ export function RecentOrdersTable({
                       className="border-b border-[#f3f4f7] last:border-0 hover:bg-gray-50/50 transition-colors"
                     >
                       <td className="py-4 px-6 text-sm text-[#1d1d2a] font-medium">
-                        #{orders.indexOf(order) + 1}
+                        #{order._id.slice(-6).toUpperCase()}
                       </td>
                       <td className="py-4 px-6 text-sm text-[#1d1d2a]">
                         {order._id.slice(-8).toUpperCase()}
@@ -130,13 +158,13 @@ export function RecentOrdersTable({
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="py-4 px-6 text-sm text-[#1d1d2a]">
-                        Faye's Complex
+                        {getShopName(order)}
                       </td>
                       <td className="py-4 px-6 text-sm text-[#1d1d2a] font-medium">
-                        Turtleneck
+                        {getItemName(order)}
                       </td>
                       <td className="py-4 px-6 text-sm text-[#1d1d2a]">
-                        ₦{order.total_amount?.toLocaleString() || "17.84"}
+                        ₦{order.total_amount?.toLocaleString() || "0"}
                       </td>
                       <td className="py-4 px-6">
                         <span

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card";
 import { RevenueChart } from "@/components/(dashboards)/sellers-dashboard/revenue-chart";
-import { RecentOrdersCard } from "@/components/(dashboards)/sellers-dashboard/recent-orders-card";
 import { RecentOrdersTable } from "@/components/(dashboards)/sellers-dashboard/recent-orders-table";
 import {
   Select,
@@ -17,17 +16,27 @@ import { useSellerProducts } from "@/hooks/useSellerProducts";
 import { useSellerOrders } from "@/hooks/useSellerOrders";
 
 export default function DashboardPage() {
-  const [isMounted, setIsMounted] = useState(false);
-  const { data: productsData, isLoading: productsLoading } =
-    useSellerProducts();
+  const { data: productsData } = useSellerProducts();
   const { data: ordersData, isLoading: ordersLoading } = useSellerOrders();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const products = productsData?.products || [];
   const orders = ordersData?.orders || [];
+
+  const stats = useMemo(() => {
+    const totalSales = orders.reduce(
+      (sum, order) => sum + (order.total_amount || 0),
+      0,
+    );
+    return {
+      totalSales,
+      totalOrders: orders.length,
+      totalProducts: products.length,
+      totalEarnings: totalSales,
+    };
+  }, [orders, products]);
+
+  const formatCurrency = (amount: number) =>
+    `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 0 })}`;
 
   return (
     <main className="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6 bg-[#fafafa]">
@@ -62,46 +71,39 @@ export default function DashboardPage() {
         <StatCard
           icon={FileText}
           title="Sales"
-          value="$500"
-          subtitleHighlight="10%"
-          subtitle="More than Previous"
+          value={formatCurrency(stats.totalSales)}
+          subtitleHighlight={`${stats.totalOrders}`}
+          subtitle="Total Orders"
           trend="up"
           iconColor="#E6007A"
         />
         <StatCard
           icon={Copy}
           title="Total Orders"
-          value="12"
-          subtitle="Cards Issued"
+          value={String(stats.totalOrders)}
+          subtitle="Orders Placed"
           trend="up"
           iconColor="#E6007A"
         />
         <StatCard
           icon={Box}
-          title="Total Product"
-          value="65"
-          subtitle="Requires Attention"
+          title="Total Products"
+          value={String(stats.totalProducts)}
+          subtitle="Listed Products"
           iconColor="#E6007A"
         />
         <StatCard
           icon={Users}
-          title="Total Earning"
-          value="$500"
-          subtitle="With access to Cards"
+          title="Total Earnings"
+          value={formatCurrency(stats.totalEarnings)}
+          subtitle="Revenue Earned"
           iconColor="#E6007A"
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-6">
-        <div className="xl:col-span-2 min-h-[480px]">
-          <RevenueChart orders={orders} />
-        </div>
-        <div className="xl:col-span-1 min-h-[480px]">
-          <RecentOrdersCard
-            orders={orders.slice(0, 6)}
-            isLoading={ordersLoading}
-          />
-        </div>
+      {/* Revenue Chart - Full Width */}
+      <div className="min-h-[480px]">
+        <RevenueChart orders={orders} />
       </div>
 
       {/* Recent Orders Table */}
