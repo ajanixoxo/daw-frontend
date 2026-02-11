@@ -8,16 +8,31 @@ export interface ISessionData {
 }
 
 export interface IMember {
-  emailSecondary: any;
-  description: any;
-  userId: any;
-  _id: string | null | undefined;
-  memberId: string;
+  emailSecondary?: string;
+  description?: string;
+  userId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    roles: string[];
+    status: string;
+    avatar?: string;
+  } | string;
+  _id: string;
+  memberId?: string;
   cooperativeId: string;
   status: string;
   joinDate?: string;
+  createdAt?: string;
   monthlyContribution?: number;
-  subscriptionTierId?: string;
+  subscriptionTierId?: {
+    _id: string;
+    name: string;
+    monthlyContribution: number;
+    description?: string;
+  } | string;
 }
 
 export interface IShopInfo {

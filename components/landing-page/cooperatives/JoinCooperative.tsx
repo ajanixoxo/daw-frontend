@@ -8,8 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useCooperative } from "@/hooks/useJoinCooperative";
 import { useProfile } from "@/hooks/useProfile";
 import { useRouter } from "next/navigation";
-
-const COOPERATIVE_ID = "6940311dd9b9141819c58938";
+import { getDawCooperativeId } from "@/app/actions/coop";
 
 const JoinCooperative = () => {
   const {
@@ -26,6 +25,7 @@ const JoinCooperative = () => {
   console.log("user", user);
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
+  const [cooperativeId, setCooperativeId] = useState<string>("");
 
   const [formDetails, setFormDetails] = useState({
     name: "",
@@ -35,12 +35,20 @@ const JoinCooperative = () => {
     country: "",
     category: "",
     userId: "",
-    cooperativeId: COOPERATIVE_ID,
+    cooperativeId: "",
     subscriptionTierId: "",
   });
 
   useEffect(() => {
-    loadCooperativeById(COOPERATIVE_ID);
+    const loadCoopId = async () => {
+      const id = await getDawCooperativeId();
+      if (id) {
+        setCooperativeId(id);
+        setFormDetails((prev) => ({ ...prev, cooperativeId: id }));
+        loadCooperativeById(id);
+      }
+    };
+    loadCoopId();
   }, []);
 
   useEffect(() => {

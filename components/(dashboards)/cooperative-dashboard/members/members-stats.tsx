@@ -4,12 +4,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useFetchMembers } from "@/hooks/useMember";
 import { Users, ShoppingBag, Clock, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
+import { getDawCooperativeId } from "@/app/actions/coop";
 
 export function MembersStats() {
   const { members, fetchAllMembers, loading } = useFetchMembers();
 
   useEffect(() => {
-    fetchAllMembers("6940311dd9b9141819c58938");
+    const loadMembers = async () => {
+      const cooperativeId = await getDawCooperativeId();
+      if (cooperativeId) {
+        fetchAllMembers(cooperativeId);
+      }
+    };
+    loadMembers();
   }, []);
 
   const totalMembers = members.length;

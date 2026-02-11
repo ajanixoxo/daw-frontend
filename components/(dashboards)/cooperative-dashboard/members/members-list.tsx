@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,114 +11,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useFetchMembers } from "@/hooks/useMember";
-
-// const members = [
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Cancelled",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Pending",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Pending",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "DAW001",
-//     name: "Amina Hassan",
-//     email: "princewillfavour17@gmail.com",
-//     role: "Seller",
-//     regDate: "7 Apr, 2025",
-//     totalSales: "$127.70",
-//     status: "Pending",
-//   },
-//   {
-//     id: "20",
-//     name: "Lagos Artisan Network",
-//     description: "Supporting local artisans...",
-//     email: "Favour Princewill",
-//     emailSecondary: "princewillfavour17@gmail.com",
-//     role: "Lagos, NG",
-//     regDate: "$120,000.00",
-//     totalSales: "Shirt",
-//     status: "Cancelled",
-//   },
-//   {
-//     id: "20",
-//     name: "Lagos Artisan Network",
-//     description: "Supporting local artisans...",
-//     email: "Favour Princewill",
-//     emailSecondary: "princewillfavour17@gmail.com",
-//     role: "Lagos, NG",
-//     regDate: "$120,000.00",
-//     totalSales: "Shirt",
-//     status: "Shipped",
-//   },
-//   {
-//     id: "20",
-//     name: "Lagos Artisan Network",
-//     description: "Supporting local artisans...",
-//     email: "Favour Princewill",
-//     emailSecondary: "princewillfavour17@gmail.com",
-//     role: "Lagos, NG",
-//     regDate: "$120,000.00",
-//     totalSales: "Shirt",
-//     status: "Pending",
-//   },
-// ];
+import { Badge } from "@/components/ui/badge";
+import {
+  getAllCooperativeMembers,
+  CooperativeMember,
+} from "@/app/actions/cooperative-dashboard";
 
 const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Shipped":
-      return "bg-[#e7f6ec] text-[#009a49]";
-    case "Cancelled":
+  switch (status?.toLowerCase()) {
+    case "active":
+      return "bg-[#d4f4dd] text-[#009a49]";
+    case "suspended":
       return "bg-[#ffeaea] text-[#d92d20]";
-    case "Pending":
+    case "invited":
       return "bg-[#fff4e6] text-[#f5b546]";
     default:
       return "bg-gray-100 text-gray-600";
@@ -126,14 +31,60 @@ const getStatusColor = (status: string) => {
 };
 
 export function MembersList() {
+  const [members, setMembers] = useState<CooperativeMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { members, fetchAllMembers, loading, error } = useFetchMembers();
-
   useEffect(() => {
-    fetchAllMembers("6940311dd9b9141819c58938");
+    const fetchMembers = async () => {
+      try {
+        setLoading(true);
+        const result = await getAllCooperativeMembers();
+
+        if (result.success && result.data) {
+          setMembers(result.data);
+        } else {
+          throw new Error(result.error || "Failed to fetch members");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMembers();
   }, []);
-  console.log("members", members);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // Filter members based on search query
+  const filteredMembers = members.filter((member) => {
+    const fullName = `${member.firstName} ${member.lastName}`.toLowerCase();
+    const email = member.email.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return fullName.includes(query) || email.includes(query);
+  });
+
+  if (error) {
+    return (
+      <Card className="border-[#e4e7ec] bg-white">
+        <CardContent className="p-6">
+          <p className="text-sm text-red-600">
+            Error loading members: {error}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-[#e4e7ec] bg-white">
@@ -147,7 +98,7 @@ export function MembersList() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#838794]" />
               <Input
                 type="text"
-                placeholder="Search here..."
+                placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="border-[#e4e7ec] pl-10 focus-visible:ring-[#f10e7c]"
@@ -170,22 +121,19 @@ export function MembersList() {
             <thead className="border-b border-[#e4e7ec] bg-[#f9fafb]">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  DAW-ID
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
                   Name
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
                   Email
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Role
+                  Subscription Tier
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
+                  Contribution
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
                   Reg. Date
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Total Sales
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
                   Status
@@ -194,59 +142,71 @@ export function MembersList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e4e7ec]">
-              {members.length > 0 ? (
-                members.map((member) => (
-                  <tr key={member._id} className="hover:bg-[#f9fafb]">
-                    {/* DAW ID */}
-                    <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.userId?._id}
+              {loading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-32 bg-gray-200 rounded" />
                     </td>
-
-                    {/* Name */}
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-40 bg-gray-200 rounded" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-20 bg-gray-200 rounded" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-24 bg-gray-200 rounded" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-24 bg-gray-200 rounded" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-6 w-16 bg-gray-200 rounded-full" />
+                    </td>
+                    <td className="px-6 py-4" />
+                  </tr>
+                ))
+              ) : filteredMembers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-sm text-[#838794]"
+                  >
+                    No members found
+                  </td>
+                </tr>
+              ) : (
+                filteredMembers.map((member) => (
+                  <tr key={member.memberId} className="hover:bg-[#f9fafb]">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-sm font-medium text-[#973bfe]">
-                          {member.userId?.firstName?.[0]}
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fce8f1] text-sm font-medium text-[#f10e7c]">
+                          {member.firstName?.[0] || "M"}
                         </div>
                         <p className="text-sm font-medium text-[#1d1d2a]">
-                          {member.userId?.firstName} {member.userId?.lastName}
+                          {member.firstName} {member.lastName}
                         </p>
                       </div>
                     </td>
-
-                    {/* Email */}
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.userId?.email}
+                      {member.email}
                     </td>
-
-                    {/* Role */}
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.userId?.roles?.join(", ")}
+                      {member.subscriptionTier}
                     </td>
-
-                    <td className="text-[#1d1d2a]">
-                      {member.joinDate
-                        ? new Date(member.joinDate).toLocaleDateString()
-                        : "—"}
-                    </td>
-
                     <td className="px-6 py-4 text-sm font-medium text-[#1d1d2a]">
-                      ₹{member.monthlyContribution}
+                      ₦{member.monthlyContribution.toLocaleString()}
                     </td>
-
+                    <td className="px-6 py-4 text-sm text-[#1d1d2a]">
+                      {formatDate(member.joinDate)}
+                    </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
-                          member.status === "active"
-                            ? "bg-[#e7f6ec] text-[#009a49]"
-                            : "bg-[#ffeaea] text-[#d92d20]"
-                        }`}
+                      <Badge
+                        className={`${getStatusColor(member.status)} hover:${getStatusColor(member.status)}`}
                       >
-                        <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
                         {member.status}
-                      </span>
+                      </Badge>
                     </td>
-
                     <td className="px-6 py-4">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -269,111 +229,80 @@ export function MembersList() {
                     </td>
                   </tr>
                 ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="px-6 py-4 text-center text-sm text-[#838794]"
-                  >
-                    No Members Available
-                  </td>
-                </tr>
               )}
             </tbody>
           </table>
         </div>
 
-        <div className="divide-y divide-[#e4e7ec] lg:hidden">
-          {members.map((member, index) => (
-            <div key={member._id ?? index} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-sm font-medium text-[#973bfe]">
-                    {member.userId?.firstName?.[0] ?? "M"}
-                  </div>
-
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[#1d1d2a]">
-                      {member.userId?.firstName} {member.userId?.lastName}
-                    </p>
-
-                    {member.description && (
-                      <p className="text-xs text-[#838794]">
-                        {member.description}
-                      </p>
-                    )}
-
-                    <p className="mt-1 text-xs text-[#838794]">
-                      {member.userId?.email}
-                    </p>
-
-                    {member.emailSecondary && (
-                      <p className="text-xs text-[#838794]">
-                        {member.emailSecondary}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                    <DropdownMenuItem>Edit Member</DropdownMenuItem>
-
-                    {member.userId.status !== "active" && (
-                      <DropdownMenuItem>Appprove Member</DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-[#838794]">ID: </span>
-                  <span className="text-[#1d1d2a]">{member.userId?._id}</span>
-                </div>
-
-                <div>
-                  <span className="text-[#838794]">Role: </span>
-                  <span className="text-[#1d1d2a]">
-                    {member.userId?.roles?.join(", ")}
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-[#838794]">Date: </span>
-                  <span className="text-[#1d1d2a]">
-                    {member.joinDate
-                      ? new Date(member.joinDate).toLocaleDateString()
-                      : "—"}
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-[#838794]">Sales: </span>
-                  <span className="font-medium text-[#1d1d2a]">
-                    ₹{member.monthlyContribution}
-                  </span>
+        {/* Mobile Card View */}
+        <div className="space-y-4 p-4 lg:hidden">
+          {loading ? (
+            [...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-[#e4e7ec] p-4 animate-pulse"
+              >
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded" />
+                  <div className="h-3 w-40 bg-gray-200 rounded" />
+                  <div className="h-3 w-24 bg-gray-200 rounded" />
                 </div>
               </div>
-
-              <div className="mt-3">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                    member.status
-                  )}`}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
-                  {member.status}
-                </span>
-              </div>
+            ))
+          ) : filteredMembers.length === 0 ? (
+            <div className="text-center py-8 text-sm text-[#838794]">
+              No members found
             </div>
-          ))}
+          ) : (
+            filteredMembers.map((member) => (
+              <div
+                key={member.memberId}
+                className="rounded-lg border border-[#e4e7ec] p-4"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fce8f1] text-sm font-medium text-[#f10e7c]">
+                      {member.firstName?.[0] || "M"}
+                    </div>
+                    <span className="text-sm font-medium text-[#1d1d2a]">
+                      {member.firstName} {member.lastName}
+                    </span>
+                  </div>
+                  <Badge
+                    className={`${getStatusColor(member.status)} hover:${getStatusColor(member.status)}`}
+                  >
+                    {member.status}
+                  </Badge>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[#838794]">Email:</span>
+                    <span className="font-medium text-[#1d1d2a]">
+                      {member.email}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#838794]">Tier:</span>
+                    <span className="font-medium text-[#1d1d2a]">
+                      {member.subscriptionTier}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#838794]">Contribution:</span>
+                    <span className="font-medium text-[#1d1d2a]">
+                      ₦{member.monthlyContribution.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#838794]">Reg. Date:</span>
+                    <span className="font-medium text-[#1d1d2a]">
+                      {formatDate(member.joinDate)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </CardContent>
     </Card>
