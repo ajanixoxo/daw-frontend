@@ -22,12 +22,14 @@ export function MembersStats() {
   const totalMembers = members.length;
 
   const activeSellers = members.filter((m) =>
-    m.userId?.roles?.includes("seller")
+    typeof m.userId !== "string" && m.userId?.roles?.includes("seller")
   ).length;
 
   const pendingInvites = members.filter(
-    (m) => m.userId?.status !== "active"
+    (m) => typeof m.userId !== "string" && m.userId?.status === "invited"
   ).length;
+
+
 
   const stats = [
     {
