@@ -169,6 +169,7 @@ export interface CooperativeMember {
   subscriptionTier: string;
   monthlyContribution: number;
   status: string;
+  roles: string[];
 }
 
 /**
@@ -216,7 +217,9 @@ export async function getAllCooperativeMembers(): Promise<
       subscriptionTier: member.subscriptionTierId?.name || "N/A",
       monthlyContribution: member.subscriptionTierId?.monthlyContribution || 0,
       status: member.status || "active",
+      roles: member.userId?.roles || [],
     }));
+
 
     return {
       success: true,
