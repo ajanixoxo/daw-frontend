@@ -4,16 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-const data = [
-  { month: "Jan", value: 58 },
-  { month: "Feb", value: 65 },
-  { month: "Mar", value: 78 },
-  { month: "Apr", value: 80 },
-  { month: "May", value: 72 },
-  { month: "June", value: 38 },
-]
+interface SalesTrendProps {
+  data: { label: string; revenue: number; orders: number }[]
+}
 
-export function SalesTrend() {
+export function SalesTrend({ data }: SalesTrendProps) {
+  // Format chart data — revenue per month
+  const chartData = data.map((d) => ({
+    month: d.label,
+    value: d.revenue,
+  }))
+
+  // Compute a sensible Y-axis max (round up to nearest nice number)
+  const maxValue = Math.max(...chartData.map((d) => d.value), 0)
+  const yMax = maxValue > 0 ? Math.ceil(maxValue / 1000) * 1000 : 10000
+
   return (
     <Card>
       <CardHeader>
@@ -23,14 +28,14 @@ export function SalesTrend() {
         <ChartContainer
           config={{
             value: {
-              label: "Sales",
+              label: "Revenue (₦)",
               color: "#f10e7c",
             },
           }}
           className="h-[300px] w-full"
         >
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#f10e7c" stopOpacity={0.4} />
@@ -43,8 +48,8 @@ export function SalesTrend() {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#676767", fontSize: 12 }}
-                domain={[0, 100]}
-                ticks={[0, 20, 40, 60, 80, 100]}
+                domain={[0, yMax]}
+                tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v))}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Area

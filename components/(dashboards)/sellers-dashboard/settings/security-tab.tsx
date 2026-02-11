@@ -1,99 +1,168 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Bell, Smartphone } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Bell, Smartphone } from "lucide-react";
 
 export function SecurityTab() {
-  const [smsAuth, setSmsAuth] = useState(true)
-  const [emailAuth, setEmailAuth] = useState(false)
+  const [smsAuth, setSmsAuth] = useState(true);
+  const [emailAuth, setEmailAuth] = useState(false);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Password & Authentication */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Password & Authentication</h2>
-        <div className="space-y-4">
+      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
+        <h2 className="text-[18px] font-bold text-[#101828] mb-8">
+          Password & Authentication
+        </h2>
+
+        <div className="space-y-6">
           <div>
-            <Label htmlFor="current-password" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="current-password"
+              className="block text-[14px] font-bold text-[#344054] mb-2"
+            >
               Current Password
             </Label>
-            <Input id="current-password" type="password" className="mt-1.5" />
+            <Input
+              id="current-password"
+              type="password"
+              placeholder="Enter current password"
+              className="w-full h-12 px-4 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all"
+            />
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="new-password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="new-password"
+                className="block text-[14px] font-bold text-[#344054] mb-2"
+              >
                 New Password
               </Label>
-              <Input id="new-password" type="password" className="mt-1.5" />
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="Enter new password"
+                className="w-full h-12 px-4 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all"
+              />
             </div>
             <div>
-              <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="confirm-password"
+                className="block text-[14px] font-bold text-[#344054] mb-2"
+              >
                 Confirm Password
               </Label>
-              <Input id="confirm-password" type="password" className="mt-1.5" />
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="Confirm new password"
+                className="w-full h-12 px-4 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all"
+              />
             </div>
           </div>
-          <Button className="bg-[#f10e7c] hover:bg-[#d00c6a] text-white px-6">Update Password</Button>
+
+          <Button className="bg-[#E6007A] hover:bg-[#d0006e] text-white h-11 px-6 rounded-lg font-bold text-[14px] transition-all shadow-sm shadow-[#E6007A]/20">
+            Update Password
+          </Button>
         </div>
       </section>
 
       {/* Two-Factor Authentication */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Two-Factor Authentication</h2>
-        <div className="space-y-6">
+      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
+        <h2 className="text-[18px] font-bold text-[#101828] mb-8">
+          Two-Factor Authentication
+        </h2>
+
+        <div className="space-y-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-medium text-gray-900">SMS Authentication</h3>
-              <p className="text-sm text-gray-500 mt-0.5">Receive codes via SMS</p>
+            <div className="space-y-1">
+              <h3 className="text-[15px] font-bold text-[#101828]">
+                SMS Authentication
+              </h3>
+              <p className="text-[13px] font-medium text-[#667185]">
+                Receive codes via SMS
+              </p>
             </div>
-            <Switch checked={smsAuth} onCheckedChange={setSmsAuth} className="data-[state=checked]:bg-[#f10e7c]" />
+            <Switch
+              checked={smsAuth}
+              onCheckedChange={setSmsAuth}
+              className="data-[state=checked]:bg-[#E6007A]"
+            />
           </div>
+
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-medium text-gray-900">Email Authentication</h3>
-              <p className="text-sm text-gray-500 mt-0.5">Receive codes via email</p>
+            <div className="space-y-1">
+              <h3 className="text-[15px] font-bold text-[#101828]">
+                Email Authentication
+              </h3>
+              <p className="text-[13px] font-medium text-[#667185]">
+                Receive codes via email
+              </p>
             </div>
-            <Switch checked={emailAuth} onCheckedChange={setEmailAuth} className="data-[state=checked]:bg-[#f10e7c]" />
+            <Switch
+              checked={emailAuth}
+              onCheckedChange={setEmailAuth}
+              className="data-[state=checked]:bg-[#E6007A]"
+            />
           </div>
         </div>
       </section>
 
       {/* Active Sessions */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Active Sessions</h2>
+      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
+        <h2 className="text-[18px] font-bold text-[#101828] mb-8">
+          Active Sessions
+        </h2>
+
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                <Smartphone className="w-5 h-5 text-gray-500" />
+          <div className="flex items-center justify-between p-5 border border-[#F2F4F7] rounded-xl hover:bg-[#F9FAFB] transition-colors group">
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-full bg-[#F9FAFB] border border-[#F2F4F7] flex items-center justify-center text-[#667185] group-hover:bg-white transition-colors">
+                <Smartphone className="size-5" />
               </div>
               <div>
-                <h3 className="text-base font-medium text-gray-900">Mobile App - iOS</h3>
-                <p className="text-sm text-gray-500">Last active: 2 hours ago</p>
+                <h3 className="text-[15px] font-bold text-[#101828]">
+                  Mobile App - iOS
+                </h3>
+                <p className="text-[13px] font-medium text-[#667185]">
+                  Last active: 2 hours ago
+                </p>
               </div>
             </div>
-            <span className="px-3 py-1 bg-[#f10e7c] text-white text-xs font-medium rounded-full">Current</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFF0F6] text-[#E6007A] text-[12px] font-bold">
+              <span className="size-1.5 rounded-full bg-[#E6007A]" />
+              Current
+            </div>
           </div>
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-gray-500" />
+
+          <div className="flex items-center justify-between p-5 border border-[#F2F4F7] rounded-xl hover:bg-[#F9FAFB] transition-colors group">
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-full bg-[#F9FAFB] border border-[#F2F4F7] flex items-center justify-center text-[#667185] group-hover:bg-white transition-colors">
+                <Bell className="size-5" />
               </div>
               <div>
-                <h3 className="text-base font-medium text-gray-900">Chrome Browser</h3>
-                <p className="text-sm text-gray-500">Lagos, Nigeria - 1 day ago</p>
+                <h3 className="text-[15px] font-bold text-[#101828]">
+                  Chrome Browser
+                </h3>
+                <p className="text-[13px] font-medium text-[#667185]">
+                  Lagos, Nigeria - 1 day ago
+                </p>
               </div>
             </div>
-            <Button variant="outline" className="text-gray-700 border-gray-300 bg-transparent">
+            <Button
+              variant="ghost"
+              className="h-10 px-6 rounded-lg bg-[#F2F4F7] text-[#1D2939] hover:bg-[#E4E7EC] font-bold text-[13px] transition-all"
+            >
               Revoke
             </Button>
           </div>
         </div>
       </section>
     </div>
-  )
+  );
 }

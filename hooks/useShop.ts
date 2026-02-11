@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createShop, getMyShop, editShop, getAllShops, getShop } from '@/app/actions/shop';
+import { createShop, getMyShop, editShop, getAllShops, getShop, getShopStats } from '@/app/actions/shop';
 import { ICreateShopRequest } from '@/types/shop.types';
 import { toast } from 'sonner';
 
@@ -67,6 +67,21 @@ export function useGetAllShops() {
       return response.data!;
     },
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useShopStats(shopId: string | undefined) {
+  return useQuery({
+    queryKey: ['shop-stats', shopId],
+    queryFn: async () => {
+      const response = await getShopStats(shopId!);
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+      return response.data!;
+    },
+    enabled: !!shopId,
+    staleTime: 2 * 60 * 1000,
   });
 }
 

@@ -1,44 +1,66 @@
-import { type LucideIcon, TrendingUp } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
+import { type LucideIcon, TrendingUp } from "lucide-react";
 
 interface StatCardProps {
-  icon: LucideIcon
-  title: string
-  value: string
-  subtitle: string
-  trend?: "up" | "neutral"
-  iconColor?: string
+  icon: LucideIcon;
+  title: string;
+  value: string;
+  subtitle: string;
+  subtitleHighlight?: string;
+  trend?: "up" | "down" | "none";
+  iconColor?: string;
 }
 
-export function StatCard({ icon: Icon, title, value, subtitle, trend, iconColor = "#f10e7c" }: StatCardProps) {
+export function StatCard({
+  icon: Icon,
+  title,
+  value,
+  subtitle,
+  subtitleHighlight,
+  trend = "none",
+  iconColor = "#E6007A",
+}: StatCardProps) {
   return (
-    <Card className="border-[#e7e8e9]">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${iconColor}15` }}
-            >
-              <Icon className="h-5 w-5" style={{ color: iconColor }} />
-            </div>
-            <span className="text-sm text-[#667185]">{title}</span>
-          </div>
+    <div className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
+      <div className="flex items-center gap-2">
+        <div
+          className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
+          style={{ backgroundColor: `${iconColor}12` }}
+        >
+          <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} />
         </div>
-        <div className="space-y-2">
-          <p className="text-3xl font-bold text-[#1d1d2a]">{value}</p>
-          <div className="flex items-center gap-1">
-            {trend === "up" && (
-              <>
-                <TrendingUp className="h-3 w-3 text-[#34c759]" />
-                <span className="text-xs text-[#34c759]">{subtitle}</span>
-              </>
+        <span className="text-[13px] font-medium text-[#667185] tracking-tight">
+          {title}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">
+          {value}
+        </h3>
+
+        <div className="flex items-center gap-1">
+          {trend === "up" && (
+            <TrendingUp
+              className="h-[12px] w-[12px] text-[#12B76A] shrink-0"
+              strokeWidth={2.5}
+            />
+          )}
+          <p className="text-[10px] font-medium">
+            {subtitleHighlight && (
+              <span className="text-[#12B76A] mr-1">{subtitleHighlight}</span>
             )}
-            {trend === "neutral" && <span className="text-xs text-[#667185]">{subtitle}</span>}
-            {!trend && <span className="text-xs text-[#667185]">{subtitle}</span>}
-          </div>
+            <span
+              className={
+                trend === "up" && !subtitleHighlight
+                  ? "text-[#12B76A]"
+                  : "text-[#98A2B3]"
+              }
+            >
+              {subtitle}
+            </span>
+          </p>
         </div>
-      </CardContent>
-    </Card>
-  )
+      </div>
+    </div>
+  );
 }

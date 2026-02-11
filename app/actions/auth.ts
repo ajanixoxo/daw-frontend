@@ -34,27 +34,27 @@ export async function createServerSession(
 
     cookieStore.set("userId", data.userId || "", {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24 * 30, // 30 days (match refresh token lifetime)
     });
 
     cookieStore.set("email", data.email || "", {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
     cookieStore.set("role", data.role || "buyer", {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
     cookieStore.set("isVerified", String(data.isVerified), {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
     cookieStore.set("accessToken", data.accessToken, {
       ...COOKIE_CONFIG,
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24, // 1 day (match backend JWT expiry)
     });
 
     cookieStore.set("refreshToken", data.refreshToken || "", {
@@ -399,8 +399,11 @@ export async function logoutUser(): Promise<IActionResponse> {
 
 export async function refreshAccessToken(): Promise<IActionResponse<ISessionData>> {
   try {
-    const session = await getServerSession();
-    const refreshToken = session?.refreshToken;
+    // Read refreshToken directly from the cookie store — NOT through
+    // getServerSession() which requires ALL cookies (including the
+    // accessToken that may have expired) to return a session.
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get("refreshToken")?.value;
 
     if (!refreshToken) {
       return { success: false, error: "No refresh token available" };
@@ -421,14 +424,24 @@ export async function refreshAccessToken(): Promise<IActionResponse<ISessionData
 
     const { token } = response;
 
-    // Update session with new tokens
+    // Read whatever session data we still have from cookies (some may
+    // have expired). Fall back to empty strings — createServerSession
+    // will re-set all cookies with fresh maxAge values.
+    const userId = cookieStore.get("userId")?.value || "";
+    const email = cookieStore.get("email")?.value || "";
+    const role = cookieStore.get("role")?.value || "buyer";
+    const isVerified = cookieStore.get("isVerified")?.value === "true";
+
     const updatedSessionData: ISessionData = {
-      ...session!,
+      userId,
+      email,
+      role,
+      isVerified,
       accessToken: token.accessToken,
       refreshToken: token.refreshToken,
     };
 
-    // Update cookies with new tokens
+    // Update ALL cookies with new tokens and fresh maxAge
     const sessionResult = await createServerSession(updatedSessionData);
     if (!sessionResult.success) {
       throw new Error(sessionResult.error || "Failed to update session");

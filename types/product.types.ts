@@ -77,6 +77,13 @@ export interface ICartResponse {
 
 import { IShop } from "./shop.types";
 
+export interface IOrderItem {
+  product_name: string;
+  quantity: number;
+  price_at_purchase: number;
+  subtotal: number;
+}
+
 export interface IOrder {
   _id: string;
   buyer_id: string | { _id: string; [key: string]: any };
@@ -85,7 +92,8 @@ export interface IOrder {
   discount: number;
   escrow_status: "pending" | "completed" | "released" | "refunded";
   payment_status: "paid" | "unpaid" | "partial";
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "in_transit" | "disputed";
+  items?: IOrderItem[];
   createdAt: string;
   updatedAt: string;
   __v?: number;

@@ -1,7 +1,7 @@
 "use client"
 
-import { Search, SlidersHorizontal, Package, Clock, Truck, CheckCircle2, ArrowUp, MoreVertical, Loader2 } from "lucide-react"
-import { Card } from "@/components/ui/card"
+import { Search, SlidersHorizontal, Package, Clock, Truck, CheckCircle2, MoreVertical, Loader2 } from "lucide-react"
+import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -196,62 +196,36 @@ export default function OrdersPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Track Orders Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <Package className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Total Orders</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">{totalOrders}</p>
-                <p className="text-[#667185] text-xs">All time orders</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Pending Orders Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <Clock className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Pending Orders</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">{pendingOrders}</p>
-                <p className="text-[#667185] text-xs">Needs processing</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Shipped Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <Truck className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Shipped</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">{shippedOrders}</p>
-                <p className="text-[#667185] text-xs">On the way</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Delivered Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <CheckCircle2 className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Delivered</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">{deliveredOrders}</p>
-                <p className="text-[#667185] text-xs">Completed orders</p>
-              </div>
-            </div>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            icon={Package}
+            title="Total Orders"
+            value={String(totalOrders)}
+            subtitle="Orders Placed"
+            trend="up"
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={Clock}
+            title="Pending Orders"
+            value={String(pendingOrders)}
+            subtitle="Needs Processing"
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={Truck}
+            title="Shipped"
+            value={String(shippedOrders)}
+            subtitle="On The Way"
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={CheckCircle2}
+            title="Delivered"
+            value={String(deliveredOrders)}
+            subtitle="Completed Orders"
+            iconColor="#E6007A"
+          />
         </div>
 
         {/* Recent Orders Section */}
