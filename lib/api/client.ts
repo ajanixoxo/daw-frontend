@@ -179,6 +179,8 @@ export const API_ENDPOINTS = {
     EDIT_SHOP: (shopId: string) => `/marketplace/edit/shops/${shopId}`,
     SELLER_DOCUMENTS_ME: "/marketplace/seller-documents/me",
     GET_ALL_SHOPS: "/marketplace/get/shops",
+    TRACK_VIEW: (shopId: string) => `/marketplace/shops/${shopId}/views`,
+    GET_STATS: (shopId: string) => `/marketplace/shops/${shopId}/stats`,
   },
   KYC: {
     VERIFY_NIN: "/kyc/verify-nin",

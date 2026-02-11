@@ -36,7 +36,11 @@ interface AddCategoryModalProps {
   trigger?: React.ReactNode;
 }
 
-export function AddCategoryModal({ open: controlledOpen, onOpenChange, trigger }: AddCategoryModalProps) {
+export function AddCategoryModal({
+  open: controlledOpen,
+  onOpenChange,
+  trigger,
+}: AddCategoryModalProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#f10e7c");
   const [categoryName, setCategoryName] = useState("");
@@ -44,7 +48,7 @@ export function AddCategoryModal({ open: controlledOpen, onOpenChange, trigger }
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
-  const setOpen = isControlled ? (onOpenChange || (() => {})) : setInternalOpen;
+  const setOpen = isControlled ? onOpenChange || (() => {}) : setInternalOpen;
 
   const addCategoryMutation = useAddCategory();
 
@@ -70,7 +74,7 @@ export function AddCategoryModal({ open: controlledOpen, onOpenChange, trigger }
   const defaultTrigger = (
     <Button
       variant="outline"
-      className="gap-2 border-[#e7e8e9] text-[#292d32] hover:bg-[#f9f9f9] bg-transparent"
+      className="gap-2 border-[#E4E7EC] text-[#344054] hover:bg-[#F9FAFB] bg-white h-11 px-4 rounded-xl font-bold text-[14px] shadow-sm"
     >
       <Plus className="size-4" />
       Add Category
@@ -80,9 +84,7 @@ export function AddCategoryModal({ open: controlledOpen, onOpenChange, trigger }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && (
-        <DialogTrigger asChild>
-          {trigger || defaultTrigger}
-        </DialogTrigger>
+        <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       )}
       <DialogContent className="max-w-md">
         <DialogHeader>

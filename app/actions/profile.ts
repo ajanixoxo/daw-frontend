@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
 import { IActionResponse, IUser } from "@/types/auth.types";
 
 interface IProfileResponse {
@@ -11,6 +11,7 @@ interface IProfileResponse {
 
 export async function getUserProfile(): Promise<IActionResponse<IUser>> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 
@@ -44,6 +45,7 @@ export async function getSellerDocumentsMe(): Promise<
   IActionResponse<{ hasDocuments: boolean }>
 > {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 

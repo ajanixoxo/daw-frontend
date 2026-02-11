@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
 import type {
   IAddToCartRequest,
   IAddToCartResponse,
@@ -14,6 +14,7 @@ export async function addToCart(
   data: IAddToCartRequest
 ): Promise<IActionResponse<IAddToCartResponse>> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 
@@ -53,6 +54,7 @@ export async function addToCart(
 
 export async function getCart(): Promise<IActionResponse<ICartResponse>> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 
@@ -79,6 +81,7 @@ export async function updateCartItem(
   quantity: number
 ): Promise<IActionResponse<IAddToCartResponse>> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 
@@ -108,6 +111,7 @@ export async function updateCartItem(
 
 export async function removeCartItem(itemId: string): Promise<IActionResponse> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 

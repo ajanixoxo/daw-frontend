@@ -33,6 +33,7 @@ const allNavItems = [
   { icon: ShoppingCart, label: "Orders", href: "/sellers/orders" },
   { icon: HandCoins, label: "Contribution", href: "/sellers/contribution", memberOnly: true },
   { icon: Wallet, label: "Loans", href: "/sellers/loans", memberOnly: true },
+   { icon: Wallet, label: "Wallet", href: "/sellers/wallet", memberOnly: true },
   { icon: BarChart3, label: "Analytics", href: "/sellers/analytics" },
   { icon: Settings, label: "Settings", href: "/sellers/settings" },
 ]

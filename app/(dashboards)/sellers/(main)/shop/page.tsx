@@ -20,8 +20,9 @@ import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { useGetMyShop } from "@/hooks/useShop";
+import { useGetMyShop, useShopStats } from "@/hooks/useShop";
 import { useProductsByShop } from "@/hooks/useProducts";
+import { useSellerOrders } from "@/hooks/useSellerOrders";
 
 const topRegions = [
   { rank: 1, name: "Nigeria", sales: "45 sales", revenue: "$1700.84" },
@@ -40,6 +41,19 @@ export default function ShopPage() {
   const { data: products } = useProductsByShop(shop?._id);
   const topProducts = (products ?? []).slice(0, 5);
 
+  const { data: ordersData } = useSellerOrders();
+  const orders = ordersData?.orders ?? [];
+
+  const { data: statsData } = useShopStats(shop?._id);
+  const viewCount = statsData?.viewCount ?? 0;
+
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+  const totalOrders = orders.length;
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+
   if (isLoading) {
     return (
       <main className="p-6 lg:p-8 bg-[#f9fafb] min-h-screen flex items-center justify-center">
@@ -56,7 +70,9 @@ export default function ShopPage() {
       <main className="p-6 lg:p-8 bg-[#f9fafb] min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
           <Store className="w-12 h-12 text-[#98A2B3]" />
-          <h2 className="text-xl font-semibold text-[#101828]">No Shop Found</h2>
+          <h2 className="text-xl font-semibold text-[#101828]">
+            No Shop Found
+          </h2>
           <p className="text-sm text-[#667085] max-w-md">
             You haven&apos;t created a shop yet. Create one to start selling.
           </p>
@@ -128,11 +144,11 @@ export default function ShopPage() {
       </div>
 
       {/* Shop Profile Card */}
-      <div className="bg-white rounded-2xl border border-[#EAECF0] p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-8 items-start">
+      <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_3px_rgba(16,24,40,0.05)]">
+        <div className="flex flex-col md:flex-row gap-10 items-start">
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <div className="h-32 w-32 rounded-2xl bg-[#f2e8ed] flex items-center justify-center overflow-hidden">
+          <div className="relative group">
+            <div className="h-32 w-32 rounded-2xl bg-[#F9FAFB] border border-[#F2F4F7] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-md">
               {shop.logo_url ? (
                 <Image
                   src={shop.logo_url}
@@ -142,82 +158,79 @@ export default function ShopPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Store className="w-12 h-12 text-[#f10e7c]" />
+                <Store className="w-12 h-12 text-[#E6007A]" />
               )}
             </div>
           </div>
 
           {/* Profile Details */}
-          <div className="flex-1 w-full pt-1">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-              <div className="space-y-4">
+          <div className="flex-1 w-full">
+            <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+              <div className="space-y-5">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h2 className="text-2xl font-bold text-[#101828]">
+                  <h2 className="text-[28px] font-bold text-[#101828] leading-tight tracking-tight">
                     {shop.name}
                   </h2>
-                  {shop.status === "active" && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-[#ECFDF3] text-[#027A48] hover:bg-[#ECFDF3] border-none font-medium px-2.5 py-0.5 rounded-full text-xs"
-                    >
-                      Active
-                    </Badge>
-                  )}
-                  {shop.is_member_shop && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-[#fcebf5] text-[#f10e7c] hover:bg-[#fcebf5] border-none font-medium px-2.5 py-0.5 rounded-full text-xs"
-                    >
-                      DAW Member
-                    </Badge>
-                  )}
-                </div>
-
-                <p className="text-[#475467] text-[15px]">
-                  {shop.description || "No description provided"}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[#475467]">
-                  {shop.category && (
-                    <div className="flex items-center gap-1.5">
-                      <Star className="w-4 h-4 text-[#FDB022] fill-[#FDB022]" />
-                      <span className="font-medium text-[#101828]">{shop.category}</span>
-                    </div>
-                  )}
-                  {shop.business_address && (
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-[#98A2B3]" />
-                      <span>{shop.business_address}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-[#98A2B3]" />
-                    <span>Member since {memberSince}</span>
+                  <div className="flex gap-2">
+                    {shop.status === "active" && (
+                      <span className="bg-[#ECFDF3] text-[#027A48] font-semibold px-3 py-1 rounded-full text-[12px]">
+                        Active
+                      </span>
+                    )}
+                    {shop.is_member_shop && (
+                      <span className="bg-[#FEEBF6] text-[#E6007A] font-semibold px-3 py-1 rounded-full text-[12px]">
+                        DAW Member
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 pt-2">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-[#f10e7c]" />
-                    <span className="font-bold text-[#101828]">{productCount}</span>
-                    <span className="text-[#475467] text-sm">Products</span>
+                <p className="text-[#475467] text-[16px] leading-relaxed max-w-2xl">
+                  {shop.description || "No description provided."}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[14px] text-[#667185]">
+                  {shop.category && (
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-[#FDB022] fill-[#FDB022]" />
+                      <span className="font-semibold text-[#101828]">
+                        {shop.category}
+                      </span>
+                    </div>
+                  )}
+                  {shop.business_address && (
+                    <div className="flex items-center gap-2 font-medium">
+                      <MapPin className="w-4 h-4" />
+                      <span>{shop.business_address}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 font-medium">
+                    <Calendar className="w-4 h-4" />
+                    <span>Joined {memberSince}</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <Package className="w-4 h-4" />
+                    <span className="text-[#101828] font-bold">
+                      {productCount}
+                    </span>
+                    <span>Products</span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons - Right Aligned on Desktop */}
-              <div className="flex items-center gap-2 mt-1 self-start">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-[#667085] hover:text-[#f10e7c] hover:bg-[#fff5f9] rounded-full h-10 w-10"
+                  className="bg-white border border-[#F2F4F7] text-[#667185] hover:text-[#E6007A] hover:bg-[#FEEBF6] rounded-xl h-11 w-11 shadow-sm transition-all"
                 >
                   <Heart className="w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-[#667085] hover:text-[#f10e7c] hover:bg-[#fff5f9] rounded-full h-10 w-10"
+                  className="bg-white border border-[#F2F4F7] text-[#667185] hover:text-[#E6007A] hover:bg-[#FEEBF6] rounded-xl h-11 w-11 shadow-sm transition-all"
                 >
                   <Share2 className="w-5 h-5" />
                 </Button>
@@ -228,125 +241,132 @@ export default function ShopPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={Wallet}
           title="Total Revenue"
-          value="$75,000"
-          subtitle="10% More than last month"
+          value={formatCurrency(totalRevenue)}
+          subtitleHighlight={`${totalOrders}`}
+          subtitle="Total Orders"
           trend="up"
-          iconColor="#f10e7c"
+          iconColor="#E6007A"
         />
         <StatCard
           icon={Users}
           title="Visitors"
-          value="2,840"
-          subtitle="10% More than last month"
+          value={viewCount.toLocaleString()}
+          subtitle="Unique Visitors"
           trend="up"
-          iconColor="#f10e7c"
+          iconColor="#E6007A"
         />
         <StatCard
           icon={TrendingUp}
-          title="Conversion Rate"
-          value="3.2%"
-          subtitle="10% More than last month"
+          title="Total Orders"
+          value={totalOrders.toLocaleString()}
+          subtitle="Orders Placed"
           trend="up"
-          iconColor="#f10e7c"
+          iconColor="#E6007A"
         />
         <StatCard
           icon={DollarSign}
           title="Avg Order Value"
-          value="$85.5"
-          subtitle="10% More than last month"
-          trend="up"
-          iconColor="#f10e7c"
+          value={formatCurrency(avgOrderValue)}
+          subtitle="Per Order"
+          iconColor="#E6007A"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Top Products */}
-        <div className="bg-white rounded-xl border border-[#EAECF0] overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-[#EAECF0] flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#101828]">
+        <div className="bg-white rounded-2xl p-7 shadow-[0px_2px_4px_rgba(16,24,40,0.04)] border border-[#F2F4F7]">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-[20px] font-bold text-[#101828] tracking-tight">
               Top Products
             </h2>
+            <Button
+              variant="ghost"
+              className="text-[13px] font-semibold text-[#E6007A] hover:bg-[#FEEBF6]"
+            >
+              View All
+            </Button>
           </div>
-          <div className="divide-y divide-[#EAECF0]">
+          <div className="space-y-4">
             {topProducts.length > 0 ? (
               topProducts.map((product, index) => (
                 <div
                   key={product._id}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-[#F9FAFB] transition-colors group"
+                  className="flex items-center justify-between p-4 bg-[#F9FAFB] rounded-xl group transition-all duration-300 hover:bg-white hover:shadow-[0px_4px_12px_rgba(16,24,40,0.06)] hover:translate-x-1"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#F2F4F7] text-xs font-medium text-[#475467] group-hover:bg-white group-hover:shadow-sm transition-all">
-                      #{index + 1}
+                  <div className="flex items-center gap-5">
+                    <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-[#F2F4F7] shadow-sm shrink-0 transition-transform group-hover:scale-110">
+                      <span className="text-[14px] font-black text-[#101828]">
+                        #{index + 1}
+                      </span>
                     </div>
-                    {product.images?.[0] && (
-                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#F2F4F7] flex-shrink-0">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
                     <div>
-                      <p className="text-sm font-medium text-[#101828] leading-tight">
+                      <p className="text-[15px] font-bold text-[#1D2939] leading-tight group-hover:text-[#E6007A] transition-colors">
                         {product.name}
                       </p>
-                      <p className="text-xs text-[#667085] mt-1">
-                        {product.quantity} in stock
+                      <p className="text-[12px] font-semibold text-[#667185] mt-1">
+                        {product.category || "Uncategorized"}
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-[#344054]">
-                    ${product.price.toFixed(2)}
+                  <span className="text-[15px] font-bold text-[#667185] tracking-tight">
+                    {formatCurrency(product.price)}
                   </span>
                 </div>
               ))
             ) : (
-              <div className="px-6 py-8 text-center">
-                <Package className="w-8 h-8 text-[#98A2B3] mx-auto mb-2" />
-                <p className="text-sm text-[#667085]">No products yet</p>
+              <div className="py-12 text-center bg-[#F9FAFB] rounded-2xl border border-dashed border-[#EAECF0]">
+                <Package className="w-10 h-10 text-[#98A2B3] mx-auto mb-3" />
+                <p className="text-[14px] font-medium text-[#667085]">
+                  No products yet in your catalog
+                </p>
               </div>
             )}
           </div>
         </div>
 
         {/* Top Regions */}
-        <div className="bg-white rounded-xl border border-[#EAECF0] overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-[#EAECF0] flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#101828]">
+        <div className="bg-white rounded-2xl p-7 shadow-[0px_2px_4px_rgba(16,24,40,0.04)] border border-[#F2F4F7]">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-[20px] font-bold text-[#101828] tracking-tight">
               Top Regions
             </h2>
+            <Button
+              variant="ghost"
+              className="text-[13px] font-semibold text-[#E6007A] hover:bg-[#FEEBF6]"
+            >
+              Details
+            </Button>
           </div>
-          <div className="divide-y divide-[#EAECF0]">
+          <div className="space-y-4">
             {topRegions.map((region) => (
               <div
                 key={region.rank}
-                className="flex items-center justify-between px-6 py-4 hover:bg-[#F9FAFB] transition-colors group"
+                className="flex items-center justify-between p-4 bg-[#F9FAFB] rounded-xl transition-all duration-300 hover:bg-white hover:shadow-[0px_4px_12px_rgba(16,24,40,0.06)]"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#F2F4F7] text-xs font-medium text-[#475467] group-hover:bg-white group-hover:shadow-sm transition-all">
-                    #{region.rank}
+                <div className="flex items-center gap-5">
+                  <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-[#F2F4F7] shadow-sm shrink-0">
+                    <span className="text-[14px] font-black text-[#101828]">
+                      #{region.rank}
+                    </span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-[#101828] leading-tight">
+                    <p className="text-[15px] font-bold text-[#1D2939] leading-tight">
                       {region.name}
                     </p>
-                    <p className="text-xs text-[#667085] mt-1">
+                    <p className="text-[12px] font-semibold text-[#667185] mt-1">
                       {region.sales}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] text-[#98A2B3] uppercase tracking-wide font-medium">
+                  <p className="text-[11px] text-[#98A2B3] uppercase tracking-[0.05em] font-bold leading-tight">
                     Revenue
                   </p>
-                  <p className="text-sm font-medium text-[#344054]">
+                  <p className="text-[15px] font-black text-[#101828] mt-1">
                     {region.revenue}
                   </p>
                 </div>
