@@ -1,8 +1,6 @@
 "use client"
 
 import type { ReactNode } from "react";
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface AnalyticsStatCardProps {
   icon: ReactNode;
@@ -12,15 +10,27 @@ interface AnalyticsStatCardProps {
   className?: string;
 }
 
-export function AnalyticsStatCard({ icon, label, value, subtitle, className }: AnalyticsStatCardProps) {
+export function AnalyticsStatCard({ icon, label, value, subtitle }: AnalyticsStatCardProps) {
   return (
-    <Card className={cn("bg-analytics-bg border-none shadow-none p-4 flex flex-col gap-3", className)}>
+    <div className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
       <div className="flex items-center gap-2">
-        {icon}
-        <span className="analytics-stat-label text-analytics-stat-text">{label}</span>
+        <div className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0 bg-[#E6007A]/[0.07]">
+          {icon}
+        </div>
+        <span className="text-[13px] font-medium text-[#667185] tracking-tight">
+          {label}
+        </span>
       </div>
-      <div className="analytics-stat-value text-analytics-header-text">{value}</div>
-      {subtitle && <div className="analytics-stat-change">{subtitle}</div>}
-    </Card>
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">
+          {value}
+        </h3>
+        {subtitle && (
+          <div className="text-[10px] font-medium">
+            {subtitle}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

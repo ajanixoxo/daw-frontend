@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoadingStats ? (
           Array(4).fill(0).map((_, i) => (
             <Skeleton key={i} className="h-[120px] w-full rounded-xl" />
@@ -44,9 +44,9 @@ export default function AdminDashboardPage() {
               label="Pending Approvals"
               value={statsData?.pendingApprovals.value ?? 0}
               subtitle={
-                <div className="flex items-center gap-1 text-stat-increase-color">
-                  <ArrowUpIcon width={12} height={12} color="#009a49" />
-                  <span>{formatPercentageChange(12.5)}</span> {/* Static % for now */}
+                <div className="flex items-center gap-1">
+                  <ArrowUpIcon width={12} height={12} color="#12B76A" />
+                  <span className="text-[#12B76A]">{formatPercentageChange(12.5)}</span>
                 </div>
               }
             />
@@ -55,9 +55,9 @@ export default function AdminDashboardPage() {
               label="Active Users"
               value={formatNumber(statsData?.activeUsers.value ?? 0)}
               subtitle={
-                <div className="flex items-center gap-1 text-stat-increase-color">
-                  <ArrowUpIcon width={12} height={12} color="#009a49" />
-                  <span className="text-stat-text-secondary">Total Active Users</span>
+                <div className="flex items-center gap-1">
+                  <ArrowUpIcon width={12} height={12} color="#12B76A" />
+                  <span className="text-[#98A2B3]">Total Active Users</span>
                 </div>
               }
             />
@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
               label="Total Loans Disbursed"
               value={formatCurrency(statsData?.loans.value ?? 0)}
               subtitle={
-                <span className="text-stat-text-secondary">Total Value</span>
+                <span className="text-[#98A2B3]">Total Value</span>
               }
             />
             <StatCard
@@ -74,7 +74,7 @@ export default function AdminDashboardPage() {
               label="Active Products"
               value={formatNumber(statsData?.products.total ?? 0)}
               subtitle={
-                <span className="text-stat-text-secondary">In All Shops</span>
+                <span className="text-[#98A2B3]">In All Shops</span>
               }
             />
           </>

@@ -1,13 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { useFetchMembers } from "@/hooks/useMember";
 import { Users, ShoppingBag, Clock, TrendingUp } from "lucide-react";
-import { useEffect } from "react";
 
 export function MemberStats() {
-  // const { members, fetchAllMembers, loading } = useFetchMembers();
-
   const stats = [
     {
       title: "Total Members",
@@ -15,8 +10,6 @@ export function MemberStats() {
       change: "Updated live",
       changeType: "positive",
       icon: Users,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
     },
     {
       title: "Active Sellers",
@@ -24,8 +17,6 @@ export function MemberStats() {
       change: "Verified sellers",
       changeType: "positive",
       icon: ShoppingBag,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
     },
     {
       title: "Pending Invites",
@@ -33,50 +24,44 @@ export function MemberStats() {
       change: "Requires attention",
       changeType: "neutral",
       icon: Clock,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
     },
   ];
 
-  //   if (loading) return <p>Loading stats...</p>;
-
   return (
-    <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {stats.map((stat) => (
-        <Card key={stat.title} className="border-[#e4e7ec] bg-white p-0">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="text-sm text-[#838794]">{stat.title}</p>
-                <p className="mt-2 text-3xl font-bold text-[#1d1d2a]">
-                  {stat.value}
-                </p>
-                <div
-                  className={`mt-3 flex items-center gap-1 text-xs ${
-                    stat.changeType === "positive"
-                      ? "text-[#009a49]"
-                      : "text-[#838794]"
-                  }`}
-                >
-                  {stat.changeType === "positive" && (
-                    <TrendingUp className="h-3 w-3" />
-                  )}
-                  <span>{stat.change}</span>
-                </div>
-              </div>
-
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg"
-                style={{ backgroundColor: stat.iconBg }}
-              >
-                <stat.icon
-                  className="h-5 w-5"
-                  style={{ color: stat.iconColor }}
-                />
-              </div>
+        <div key={stat.title} className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
+              style={{ backgroundColor: "#E6007A12" }}
+            >
+              <stat.icon className="h-3.5 w-3.5 text-[#E6007A]" />
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-[13px] font-medium text-[#667185] tracking-tight">
+              {stat.title}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-0.5">
+            <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">
+              {stat.value}
+            </h3>
+            <div className="flex items-center gap-1">
+              {stat.changeType === "positive" && (
+                <TrendingUp
+                  className="h-[12px] w-[12px] text-[#12B76A] shrink-0"
+                  strokeWidth={2.5}
+                />
+              )}
+              <p className="text-[10px] font-medium">
+                <span className={stat.changeType === "positive" ? "text-[#12B76A]" : "text-[#98A2B3]"}>
+                  {stat.change}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );
