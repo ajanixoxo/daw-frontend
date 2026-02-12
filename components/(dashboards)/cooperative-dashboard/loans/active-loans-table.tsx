@@ -3,12 +3,22 @@
 import { useEffect, useState } from "react"
 import { Search, SlidersHorizontal } from "lucide-react"
 import { getActiveLoans, LoanRecord } from "@/app/actions/loans"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function ActiveLoansTable() {
   const [loans, setLoans] = useState<LoanRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
 
   useEffect(() => {
     const fetchLoans = async () => {
@@ -49,9 +59,20 @@ export function ActiveLoansTable() {
     return "Overdue"
   }
 
-  const filteredLoans = loans.filter((l) =>
-    l.member.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredLoans = loans.filter((l) => {
+    const matchesSearch = l.member.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === "all" || l.status.toLowerCase() === statusFilter
+    // Combine "approved" and "disbursed" as "active" if needed, or keep separate
+    // For now, simple matching. If user wants "Active" to mean both, we can adjust.
+    // Let's assume the dropdown has "approved" and "overdue" specific values.
+    
+    // Improved logic for grouped statuses if needed:
+    if (statusFilter === "active") {
+        return matchesSearch && (l.status === "approved" || l.status === "disbursed")
+    }
+    
+    return matchesSearch && matchesStatus
+  })
 
   if (error) {
     return (
@@ -76,10 +97,25 @@ export function ActiveLoansTable() {
               className="w-full rounded-lg border border-[#e4e7ec] bg-white py-2.5 pl-10 pr-4 text-sm text-[#222222] placeholder:text-[#838794] focus:border-[#f10e7c] focus:outline-none"
             />
           </div>
-          <button className="flex items-center justify-center gap-2 rounded-lg border border-[#e4e7ec] bg-white px-4 py-2.5 text-sm font-medium text-[#222222] transition-colors hover:bg-[#f5f5f5]">
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center justify-center gap-2 rounded-lg border border-[#e4e7ec] bg-white px-4 py-2.5 text-sm font-medium text-[#222222] transition-colors hover:bg-[#f5f5f5]">
+                <SlidersHorizontal className="h-4 w-4" />
+                Filter
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup value={statusFilter} onValueChange={setStatusFilter}>
+                <DropdownMenuRadioItem value="all">All Loans</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="active">Active (Approved/Disbursed)</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="pending">Pending</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="overdue">Overdue</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="completed">Completed</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { Search } from "lucide-react"
 import { getPendingApplications, approveLoanAction, rejectLoanAction, LoanRecord } from "@/app/actions/loans"
 
 export function PendingApplicationsTable() {
@@ -61,10 +61,6 @@ export function PendingApplicationsTable() {
               className="w-full rounded-lg border border-[#e4e7ec] bg-white py-2.5 pl-10 pr-4 text-sm text-[#222222] placeholder:text-[#838794] focus:border-[#f10e7c] focus:outline-none"
             />
           </div>
-          <button className="flex items-center justify-center gap-2 rounded-lg border border-[#e4e7ec] bg-white px-4 py-2.5 text-sm font-medium text-[#222222] transition-colors hover:bg-[#f5f5f5]">
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
-          </button>
         </div>
       </div>
 

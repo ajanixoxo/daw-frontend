@@ -11,6 +11,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -37,6 +41,7 @@ export function MembersList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -72,12 +77,16 @@ export function MembersList() {
     });
   };
 
-  // Filter members based on search query
+  // Filter members based on search query and status
   const filteredMembers = members.filter((member) => {
     const fullName = `${member.firstName} ${member.lastName}`.toLowerCase();
     const email = member.email.toLowerCase();
     const query = searchQuery.toLowerCase();
-    return fullName.includes(query) || email.includes(query);
+    
+    const matchesSearch = fullName.includes(query) || email.includes(query);
+    const matchesStatus = statusFilter === "all" || member.status?.toLowerCase() === statusFilter;
+    
+    return matchesSearch && matchesStatus;
   });
 
   if (error) {
@@ -110,13 +119,27 @@ export function MembersList() {
                 className="border-[#e4e7ec] pl-10 focus-visible:ring-[#f10e7c]"
               />
             </div>
-            <Button
-              variant="outline"
-              className="border-[#e4e7ec] bg-white hover:bg-[#f5f5f5]"
-            >
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              Filter
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-[#e4e7ec] bg-white hover:bg-[#f5f5f5]"
+                >
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  Filter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup value={statusFilter} onValueChange={setStatusFilter}>
+                  <DropdownMenuRadioItem value="all">All Statuses</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="active">Active</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="suspended">Suspended</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="invited">Invited</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
