@@ -1,15 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Smartphone } from "lucide-react";
+import { Bell, Smartphone, Loader2 } from "lucide-react";
+import { useFormState, useFormStatus } from "react-dom";
+import { updateSellerPassword } from "@/app/actions/settings";
+import { toast } from "sonner";
+
+const initialState = {
+  success: false,
+  message: "",
+  error: "",
+};
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button 
+      disabled={pending}
+      className="bg-[#E6007A] hover:bg-[#d0006e] text-white h-11 px-6 rounded-lg font-bold text-[14px] transition-all shadow-sm shadow-[#E6007A]/20"
+    >
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Updating...
+        </>
+      ) : (
+        "Update Password"
+      )}
+    </Button>
+  );
+}
 
 export function SecurityTab() {
   const [smsAuth, setSmsAuth] = useState(true);
   const [emailAuth, setEmailAuth] = useState(false);
+  const [state, formAction] = useFormState(updateSellerPassword, initialState);
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.message || "Password updated successfully");
+      // Optional: Reset form fields manually or let the server action/redirect handle it. 
+      // For password fields inside a form action, standard HTML form reset works if using useRef, but usually explicit reset is tricky with just useFormState.
+      // However, successful update usually means we good.
+      const form = document.querySelector('form');
+      if (form) form.reset();
+    } else if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
 
   return (
     <div className="space-y-6">
@@ -19,18 +62,20 @@ export function SecurityTab() {
           Password & Authentication
         </h2>
 
-        <div className="space-y-6">
+        <form action={formAction} className="space-y-6">
           <div>
             <Label
-              htmlFor="current-password"
+              htmlFor="currentPassword"
               className="block text-[14px] font-bold text-[#344054] mb-2"
             >
               Current Password
             </Label>
             <Input
-              id="current-password"
+              id="currentPassword"
+              name="currentPassword"
               type="password"
               placeholder="Enter current password"
+              required
               className="w-full h-12 px-4 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all"
             />
           </div>
@@ -38,38 +83,40 @@ export function SecurityTab() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label
-                htmlFor="new-password"
+                htmlFor="newPassword"
                 className="block text-[14px] font-bold text-[#344054] mb-2"
               >
                 New Password
               </Label>
               <Input
-                id="new-password"
+                id="newPassword"
+                name="newPassword"
                 type="password"
                 placeholder="Enter new password"
+                required
                 className="w-full h-12 px-4 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all"
               />
             </div>
             <div>
               <Label
-                htmlFor="confirm-password"
+                htmlFor="confirmNewPassword"
                 className="block text-[14px] font-bold text-[#344054] mb-2"
               >
                 Confirm Password
               </Label>
               <Input
-                id="confirm-password"
+                id="confirmNewPassword"
+                name="confirmNewPassword"
                 type="password"
                 placeholder="Confirm new password"
+                required
                 className="w-full h-12 px-4 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all"
               />
             </div>
           </div>
 
-          <Button className="bg-[#E6007A] hover:bg-[#d0006e] text-white h-11 px-6 rounded-lg font-bold text-[14px] transition-all shadow-sm shadow-[#E6007A]/20">
-            Update Password
-          </Button>
-        </div>
+          <SubmitButton />
+        </form>
       </section>
 
       {/* Two-Factor Authentication */}
