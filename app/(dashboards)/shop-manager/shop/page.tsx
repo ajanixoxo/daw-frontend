@@ -50,7 +50,7 @@ export default function ShopPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <ShopStatsCard
             icon={Package}
             label="Total Revenue"

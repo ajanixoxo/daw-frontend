@@ -21,7 +21,7 @@ export default function EarningsPage() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Total Earnings"
               value="₦328,000"

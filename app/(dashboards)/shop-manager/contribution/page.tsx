@@ -15,7 +15,7 @@ export default function ContributionPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <ContributionStatsCard label="Current Tier" value="Silver" subtitle="Contribution: UGX 25,000" />
           <ContributionStatsCard label="Total Contributions" value="$145,000" subtitle="From 4 payments" />
           <ContributionStatsCard label="Last Payment" value="15/10/2025" subtitle="$50,000" />

@@ -33,7 +33,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <AnalyticsStatsCard title="Total Revenue" value="$328,000" subtitle="10% from last month" trend="up" />
           <AnalyticsStatsCard title="Total Order" value="96" subtitle="Monthly growth" trend="neutral" />
           <AnalyticsStatsCard title="Store Visitors" value="2,800" subtitle="10% this month" trend="up" />

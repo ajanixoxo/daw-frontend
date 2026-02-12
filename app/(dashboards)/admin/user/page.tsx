@@ -44,7 +44,7 @@ export default function UserManagementPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoadingStats ? (
           Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-[120px] w-full rounded-xl" />)
         ) : (
@@ -54,9 +54,9 @@ export default function UserManagementPage() {
               label="Total User"
               value={formatNaira(statsData?.activeUsers.value || 0)} // activeUsers matches Total Users logic
               subtitle={
-                <div className="flex items-center gap-1 text-stat-increase-color">
-                  <ArrowUpIcon width={12} height={12} color="#009a49" />
-                  <span>{formatPercentageChange(statsData?.totalUser?.percentageChange || 12.5)}</span>
+                <div className="flex items-center gap-1">
+                  <ArrowUpIcon width={12} height={12} color="#12B76A" />
+                  <span className="text-[#12B76A]">{formatPercentageChange(statsData?.totalUser?.percentageChange || 12.5)}</span>
                 </div>
               }
             />
@@ -65,9 +65,9 @@ export default function UserManagementPage() {
               label="Number of Sellers"
               value={statsData?.numberOfSellers?.value || 0}
               subtitle={
-                <div className="flex items-center gap-1 text-stat-increase-color">
-                  <ArrowUpIcon width={12} height={12} color="#009a49" />
-                  <span className="text-user-mgmt-stat-text">{statsData?.numberOfSellers?.subtitle || "Total Sellers"}</span>
+                <div className="flex items-center gap-1">
+                  <ArrowUpIcon width={12} height={12} color="#12B76A" />
+                  <span className="text-[#98A2B3]">{statsData?.numberOfSellers?.subtitle || "Total Sellers"}</span>
                 </div>
               }
             />
@@ -76,7 +76,7 @@ export default function UserManagementPage() {
               label="Number oF categories"
               value={statsData?.numberOfCategories?.value || 0}
               subtitle={
-                <span className="text-user-mgmt-stat-text">{statsData?.numberOfCategories?.subtitle || "Active Categories"}</span>
+                <span className="text-[#98A2B3]">{statsData?.numberOfCategories?.subtitle || "Active Categories"}</span>
               }
             />
           </>

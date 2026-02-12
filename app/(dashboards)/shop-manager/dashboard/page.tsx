@@ -22,7 +22,7 @@ export default function ShopManagerPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <ShopStatsCard title="Sales" value="₦100" change="+10% More than Previous" trend="up" icon={DollarSign} />
           <ShopStatsCard title="Total Orders" value="12" change="Cards issued" trend="neutral" icon={ShoppingCart} />
           <ShopStatsCard title="Total Product" value="65" change="Requires Attention" trend="warning" icon={Box} />

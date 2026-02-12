@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoadingStats ? (
           Array(4).fill(0).map((_, i) => <Skeleton key={i} className="h-[120px] w-full rounded-xl" />)
         ) : (
@@ -96,10 +96,9 @@ export default function AnalyticsPage() {
               label="Active Users"
               value={stats.activeUsers.value}
               subtitle={
-                <div className="flex items-center gap-1 text-stat-increase-color">
-                  <ArrowUpIcon width={12} height={12} color="#009a49" />
-                  {/* Using static change for now as stats API structure for percentageChange varies */}
-                  <span>{formatPercentageChange(12.5)}</span>
+                <div className="flex items-center gap-1">
+                  <ArrowUpIcon width={12} height={12} color="#12B76A" />
+                  <span className="text-[#12B76A]">{formatPercentageChange(12.5)}</span>
                 </div>
               }
             />
@@ -108,9 +107,9 @@ export default function AnalyticsPage() {
               label="Cooperatives"
               value={stats.cooperatives.total}
               subtitle={
-                <div className="flex items-center gap-1 text-stat-increase-color">
-                  <ArrowUpIcon width={12} height={12} color="#009a49" />
-                  <span className="text-analytics-stat-text">Total Cooperatives</span>
+                <div className="flex items-center gap-1">
+                  <ArrowUpIcon width={12} height={12} color="#12B76A" />
+                  <span className="text-[#98A2B3]">Total Cooperatives</span>
                 </div>
               }
             />
@@ -119,7 +118,7 @@ export default function AnalyticsPage() {
               label="Total Products"
               value={stats.totalProducts.total}
               subtitle={
-                <span className="text-analytics-stat-text">Active Products</span>
+                <span className="text-[#98A2B3]">Active Products</span>
               }
             />
             <AnalyticsStatCard
@@ -127,7 +126,7 @@ export default function AnalyticsPage() {
               label="Pending Approvals"
               value={stats.pendingApprovals.value}
               subtitle={
-                <span className="text-analytics-stat-text">Require Action</span>
+                <span className="text-[#98A2B3]">Require Action</span>
               }
             />
           </>
