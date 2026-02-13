@@ -11,6 +11,19 @@ interface IJoinCooperativeResponse {
   subscriptionTierId: string;
   status: "active" | "pending";
   joinedAt: string;
+  user?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    roles: string[];
+    isVerified: boolean;
+    status: string;
+    shop?: { _id: string; name: string }[];
+    member?: { _id: string; cooperativeId: string }[];
+    avatar?: string;
+  };
 }
 
 interface IFetchMemberResponse {
@@ -92,7 +105,7 @@ export async function joinCooperative(data: {
 export async function cooperativeJoinWithSellerOnboard(
   formData: FormData
 ): Promise<
-  IActionResponse<{ member: unknown; shop: unknown; message: string }>
+  IActionResponse<{ member: unknown; shop: unknown; message: string; user?: { _id: string; roles: string[]; member?: unknown[] } }>
 > {
   try {
     const session = await getServerSession();
@@ -136,6 +149,7 @@ export async function cooperativeJoinWithSellerOnboard(
         member: data.member,
         shop: data.shop,
         message: data?.message || "Success",
+        user: data.user as any,
       },
       message: data?.message || "Success",
     };
