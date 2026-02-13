@@ -99,6 +99,7 @@ export function InviteMembersDrawer({
       // 2. Send invitations
       let successCount = 0;
       let failCount = 0;
+      const errors: string[] = [];
 
       // Import dynamically to avoid server reference in client component if strict
       const { inviteMember } = await import("@/app/actions/invitations");
@@ -115,24 +116,40 @@ export function InviteMembersDrawer({
           successCount++;
         } else {
           console.error(`Failed to invite ${email}:`, result.error);
+          errors.push(`${email}: ${result.error}`);
           failCount++;
         }
       }
 
       // 3. Feedback
-      if (successCount > 0) {
-        toast.success(`Successfully sent ${successCount} invitation(s)`);
-        if (failCount > 0) {
-          toast.warning(`Failed to send ${failCount} invitation(s). Check console for details.`);
+      if (emailsToInvite.length === 1) {
+        // Single invite case
+        if (successCount === 1) {
+          toast.success(`Invitation sent to ${emailsToInvite[0]}`);
+          // Reset form
+          setEmailAddress("");
+          setFile(null);
+          setCustomMessage("");
+          onOpenChange(false);
+        } else {
+          toast.error(errors[0]?.split(": ")[1] || "Failed to send invitation");
         }
-        
-        // Reset form
-        setEmailAddress("");
-        setFile(null);
-        setCustomMessage("");
-        onOpenChange(false);
       } else {
-        toast.error("Failed to send invitations. Please try again.");
+        // Bulk invite case
+        if (successCount > 0) {
+          toast.success(`Successfully sent ${successCount} invitation(s)`);
+          if (failCount > 0) {
+            toast.warning(`Failed to send ${failCount} invitation(s). First error: ${errors[0]}`);
+          }
+          
+          // Reset form
+          setEmailAddress("");
+          setFile(null);
+          setCustomMessage("");
+          onOpenChange(false);
+        } else {
+          toast.error(`Failed to send invitations. First error: ${errors[0]}`);
+        }
       }
 
     } catch (error) {

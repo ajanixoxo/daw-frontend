@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -33,14 +35,15 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
     onOpenChange(false)
   }
 
+  const router = useRouter()
+
   const handleCreateContribution = async () => {
     if (!contributionName || !type || !amount) {
-      setError("Please fill in all required fields")
+      toast.error("Please fill in all required fields")
       return
     }
 
     setSubmitting(true)
-    setError(null)
 
     try {
       const result = await createContributionTypeAction({
@@ -52,14 +55,14 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
       })
 
       if (result.success) {
+        toast.success("Contribution type created successfully")
         handleCancel()
-        // Trigger page refresh to show the new type
-        window.location.reload()
+        router.refresh()
       } else {
-        setError(result.error || "Failed to create contribution type")
+        toast.error(result.error || "Failed to create contribution type")
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      toast.error(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setSubmitting(false)
     }
@@ -88,12 +91,6 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
         </SheetHeader>
 
         <div className="mt-8 space-y-6">
-          {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
           {/* Contribution Name */}
           <div className="space-y-2">
             <Label htmlFor="contribution-name" className="text-sm font-medium text-[#1d1d2a]">

@@ -52,13 +52,13 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
-  isVerified: boolean;
+  phone?: string;
+  isVerified?: boolean;
   kyc_status?: string;
   roles: string[];
-  status: string;
-  shop?: IShopInfo[]; // Array of shop objects with shopId
-  member?: IMember[]; // Array of member objects with cooperativeId
+  status?: string;
+  shop?: any[];
+  member?: any[];
   createdAt?: string;
   updatedAt?: string;
   avatar?: string; // <- add this line

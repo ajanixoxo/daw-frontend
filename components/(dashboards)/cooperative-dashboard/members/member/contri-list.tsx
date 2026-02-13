@@ -125,28 +125,48 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export function ContributionList() {
+export function ContributionList({ memberId }: { memberId?: string }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [contributions, setContributions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // const { members, fetchAllMembers, loading, error } = useFetchMembers();
+  useEffect(() => {
+    const fetchContributions = async () => {
+      if (!memberId) return;
+      try {
+        setLoading(true);
+        // Dynamically import to avoid circular dependencies if any, though likely safe
+        const { getMemberContributions } = await import("@/app/actions/contributions");
+        const result = await getMemberContributions(memberId);
+        if (result.success && result.data) {
+          setContributions(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch member contributions", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContributions();
+  }, [memberId]);
 
-  // useEffect(() => {
-  //   fetchAllMembers("6940311dd9b9141819c58938");
-  // }, []);
-  // console.log("members", members);
+  const filteredContributions = contributions.filter((c) =>
+    c.type?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Card className="border-[#e4e7ec] bg-white">
       <CardHeader className="border-b border-[#e4e7ec] px-4 py-4 sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg font-semibold text-[#1d1d2a]">
-            Member List
+            Contribution History
           </CardTitle>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#838794]" />
               <Input
                 type="text"
-                placeholder="Search here..."
+                placeholder="Search type..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="border-[#e4e7ec] pl-10 focus-visible:ring-[#f10e7c]"
@@ -163,199 +183,68 @@ export function ContributionList() {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        {/* Desktop Table View */}
         <div className="hidden overflow-x-auto lg:block">
           <table className="w-full">
             <thead className="border-b border-[#e4e7ec] bg-[#f9fafb]">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  DAW-ID
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Name
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Email
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Role
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Reg. Date
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Total Sales
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">
-                  Status
-                </th>
-                <th className="px-6 py-4"></th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">Type</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">Amount</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">Date</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-[#838794]">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e4e7ec]">
-              {members.length > 0 ? (
-                members.map((member, index) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center">Loading...</td>
+                </tr>
+              ) : filteredContributions.length > 0 ? (
+                filteredContributions.map((contribution, index) => (
                   <tr key={index} className="hover:bg-[#f9fafb]">
-                    <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.id}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-sm font-medium text-[#973bfe]">
-                          M
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-[#1d1d2a]">
-                            {member.name}
-                          </p>
-                          {member.description && (
-                            <p className="text-xs text-[#838794]">
-                              {member.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-sm text-[#1d1d2a]">{member.email}</p>
-                        {member.emailSecondary && (
-                          <p className="text-xs text-[#838794]">
-                            {member.emailSecondary}
-                          </p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.role}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.regDate}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-[#1d1d2a]">
-                      {member.totalSales}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                          member.status
-                        )}`}
-                      >
+                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">{contribution.type}</td>
+                     <td className="px-6 py-4 text-sm font-medium text-[#1d1d2a]">₦{contribution.amount?.toLocaleString()}</td>
+                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
+                       {new Date(contribution.date).toLocaleDateString()}
+                     </td>
+                     <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(contribution.status)}`}>
                         <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
-                        {member.status}
+                        {contribution.status}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Member</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            Remove Member
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={8}
-                    className="px-6 py-4 text-center text-sm text-[#838794]"
-                  >
-                    No Members Available
-                  </td>
+                  <td colSpan={4} className="px-6 py-4 text-center text-sm text-[#838794]">No Contributions Found</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-
-        {/* Mobile Card View */}
+        
+        {/* Mobile View */}
         <div className="divide-y divide-[#e4e7ec] lg:hidden">
-          {members.map((member, index) => (
-            <div key={index} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-sm font-medium text-[#973bfe]">
-                    M
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[#1d1d2a]">
-                      {member.name}
-                    </p>
-                    {member.description && (
-                      <p className="text-xs text-[#838794]">
-                        {member.description}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-[#838794]">
-                      {member.email}
-                    </p>
-                    {member.emailSecondary && (
-                      <p className="text-xs text-[#838794]">
-                        {member.emailSecondary}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                    <DropdownMenuItem>Edit Member</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
-                      Remove Member
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          {loading ? (
+             <div className="p-4 text-center">Loading...</div>
+          ) : filteredContributions.length > 0 ? (
+            filteredContributions.map((contribution, index) => (
+              <div key={index} className="p-4">
+                 <div className="flex justify-between mb-2">
+                    <span className="font-medium text-[#1d1d2a]">{contribution.type}</span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(contribution.status)}`}>
+                        {contribution.status}
+                    </span>
+                 </div>
+                 <div className="flex justify-between text-sm text-[#838794]">
+                    <span>₦{contribution.amount?.toLocaleString()}</span>
+                    <span>{new Date(contribution.date).toLocaleDateString()}</span>
+                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-[#838794]">ID: </span>
-                  <span className="text-[#1d1d2a]">{member.id}</span>
-                </div>
-                <div>
-                  <span className="text-[#838794]">Role: </span>
-                  <span className="text-[#1d1d2a]">{member.role}</span>
-                </div>
-                <div>
-                  <span className="text-[#838794]">Date: </span>
-                  <span className="text-[#1d1d2a]">{member.regDate}</span>
-                </div>
-                <div>
-                  <span className="text-[#838794]">Sales: </span>
-                  <span className="font-medium text-[#1d1d2a]">
-                    {member.totalSales}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                    member.status
-                  )}`}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
-                  {member.status}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="p-4 text-center text-sm text-[#838794]">No Contributions Found</div>
+          )}
         </div>
       </CardContent>
     </Card>
