@@ -174,3 +174,24 @@ export async function rejectLoanAction(id: string): Promise<IActionResponse<Loan
     return { success: false, error: message };
   }
 }
+
+export async function getMemberLoans(memberId: string): Promise<IActionResponse<LoanRecord[]>> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.get<LoanRecord[]>(
+      `/api/loans/member/${memberId}`,
+      { token }
+    );
+
+    const rawData = response as any;
+    const data = Array.isArray(rawData) ? rawData : rawData.data || [];
+
+    return { success: true, data: data, message: "Member loans fetched" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch member loans";
+    return { success: false, error: message };
+  }
+}

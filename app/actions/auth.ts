@@ -161,7 +161,7 @@ export async function loginUser(
       userId: user._id,
       email: user.email,
       role: user.roles && user.roles.length > 0 ? user.roles[0] : "buyer",
-      isVerified: typeof token === "string" ? false : user.isVerified,
+      isVerified: typeof token === "string" ? false : (user.isVerified ?? false),
       accessToken: accessToken,
       refreshToken: refreshToken,
     };

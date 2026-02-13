@@ -3,12 +3,22 @@
 import { useEffect, useState } from "react"
 import { Search, SlidersHorizontal } from "lucide-react"
 import { getAllLoanApplications, approveLoanAction, rejectLoanAction, LoanRecord } from "@/app/actions/loans"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function LoanApplicationsTable() {
   const [applications, setApplications] = useState<LoanRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
 
   const fetchApplications = async () => {
     try {
@@ -60,10 +70,13 @@ export function LoanApplicationsTable() {
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
-  const filteredApps = applications.filter((a) =>
-    a.member.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    a.purpose.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredApps = applications.filter((a) => {
+    const query = searchQuery.toLowerCase()
+    const matchesSearch = a.member.toLowerCase().includes(query) || a.purpose.toLowerCase().includes(query)
+    const matchesStatus = statusFilter === "all" || a.status.toLowerCase() === statusFilter
+    
+    return matchesSearch && matchesStatus
+  })
 
   if (error) {
     return <div className="rounded-xl bg-white p-6 shadow-sm"><p className="text-sm text-red-600">Error: {error}</p></div>
@@ -84,10 +97,25 @@ export function LoanApplicationsTable() {
               className="w-full rounded-lg border border-[#e4e7ec] bg-white py-2.5 pl-10 pr-4 text-sm text-[#222222] placeholder:text-[#838794] focus:border-[#f10e7c] focus:outline-none"
             />
           </div>
-          <button className="flex items-center justify-center gap-2 rounded-lg border border-[#e4e7ec] bg-white px-4 py-2.5 text-sm font-medium text-[#222222] transition-colors hover:bg-[#f5f5f5]">
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center justify-center gap-2 rounded-lg border border-[#e4e7ec] bg-white px-4 py-2.5 text-sm font-medium text-[#222222] transition-colors hover:bg-[#f5f5f5]">
+                <SlidersHorizontal className="h-4 w-4" />
+                Filter
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup value={statusFilter} onValueChange={setStatusFilter}>
+                <DropdownMenuRadioItem value="all">All Applications</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="pending">Pending</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="approved">Approved</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="rejected">Rejected</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="repaid">Repaid</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

@@ -1,19 +1,10 @@
-
 "use client";
 
 import React, { useState } from 'react';
 import { Wallet, CreditCard, FileText, TrendingUp, Check, ChevronRight } from 'lucide-react';
+import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card";
 
 // Types
-interface LoanData {
-  currentTier: string;
-  contribution: number;
-  availableCredit: number;
-  activeLoans: number;
-  remainingAmount: number;
-  interestRate: number;
-}
-
 interface LoanStatus {
   id: string;
   status: 'active' | 'completed';
@@ -42,7 +33,7 @@ const LoanManagement = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tiers' | 'history' | 'apply'>('overview');
 
   // Mock data
-  const loanData: LoanData = {
+  const loanData = {
     currentTier: 'Silver',
     contribution: 35000,
     availableCredit: 75000,
@@ -173,67 +164,52 @@ const LoanManagement = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#fafafa] p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Loan Management</h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">
+            <h1 className="text-[24px] font-bold text-[#101828] leading-tight">Loan Management</h1>
+            <p className="text-[13px] text-[#667085] mt-1 font-normal">
               Manage loan applications, approvals, and track repayments
             </p>
           </div>
-          <button className="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
-            <span className="text-lg">+</span>
+          <button className="bg-[#1d1d2a] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#1d1d2a]/90 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
+            <span className="text-lg leading-none">+</span>
             Apply for Loan
           </button>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-pink-600" />
-              </div>
-              <span className="text-sm text-gray-600">Current Tier</span>
-            </div>
-            <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{loanData.currentTier}</div>
-            <div className="text-sm text-gray-500">Contribution: ₦{loanData.contribution.toLocaleString()}</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-pink-600" />
-              </div>
-              <span className="text-sm text-gray-600">Available Credit</span>
-            </div>
-            <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">₦{loanData.availableCredit.toLocaleString()}</div>
-            <div className="text-sm text-gray-500">Max loan amount</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-pink-600" />
-              </div>
-              <span className="text-sm text-gray-600">Active Loans</span>
-            </div>
-            <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{loanData.activeLoans}</div>
-            <div className="text-sm text-gray-500">₦{loanData.remainingAmount.toLocaleString()} remaining</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-pink-600" />
-              </div>
-              <span className="text-sm text-gray-600">Interest Rate</span>
-            </div>
-            <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{loanData.interestRate}%</div>
-            <div className="text-sm text-gray-500">Annual percentage</div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            icon={Wallet}
+            title="Current Tier"
+            value={loanData.currentTier}
+            subtitle={`Contribution: ₦${loanData.contribution.toLocaleString()}`}
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={CreditCard}
+            title="Available Credit"
+            value={`₦${loanData.availableCredit.toLocaleString()}`}
+            subtitle="Max loan amount"
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={FileText}
+            title="Active Loans"
+            value={String(loanData.activeLoans)}
+            subtitle={`₦${loanData.remainingAmount.toLocaleString()} remaining`}
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="Interest Rate"
+            value={`${loanData.interestRate}%`}
+            subtitle="Annual percentage"
+            iconColor="#E6007A"
+          />
         </div>
 
         {/* Tabs */}

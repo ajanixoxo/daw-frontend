@@ -1,10 +1,29 @@
-export function ProfileForm() {
+import { IUser } from "@/types/auth.types";
+import { IShop } from "@/types/shop.types";
+
+interface ProfileFormProps {
+  user?: IUser & {
+        phone?: string;
+        member?: any[];
+  };
+  shop?: IShop | null; 
+}
+
+export function ProfileForm({ user, shop }: ProfileFormProps) {
+  console.log("[ProfileForm] User data:", user);
+  console.log("[ProfileForm] Member data:", user?.member);
+  if (user?.member && user.member.length > 0) {
+      console.log("[ProfileForm] First member cooperative:", user.member[2]);
+  }
+
   return (
     <div className="space-y-8">
+      {shop && <input type="hidden" name="shopId" value={shop._id} />}
+
       {/* Cooperative Profile Section */}
       <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
         <h2 className="text-[18px] font-bold text-[#101828] mb-8">
-          Cooperative Profile
+          Personal Profile
         </h2>
 
         <div className="space-y-6">
@@ -20,7 +39,8 @@ export function ProfileForm() {
               <input
                 type="text"
                 id="firstName"
-                defaultValue="Princewill"
+                name="firstName"
+                defaultValue={user?.firstName}
                 placeholder="Enter First Name"
                 className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
               />
@@ -35,7 +55,8 @@ export function ProfileForm() {
               <input
                 type="text"
                 id="lastName"
-                defaultValue="Favour"
+                name="lastName"
+                defaultValue={user?.lastName}
                 placeholder="Enter Last Name"
                 className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
               />
@@ -53,9 +74,9 @@ export function ProfileForm() {
             <input
               type="email"
               id="email"
-              defaultValue="princewillfavour17@gmail.com"
-              placeholder="Enter Email Address"
-              className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
+              disabled
+              defaultValue={user?.email}
+              className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] bg-gray-50 focus:outline-none text-[#101828] font-medium cursor-not-allowed"
             />
           </div>
 
@@ -71,7 +92,8 @@ export function ProfileForm() {
               <input
                 type="tel"
                 id="phone"
-                defaultValue="+234 9032235555"
+                name="phone"
+                defaultValue={user?.phone}
                 placeholder="Enter Phone Number"
                 className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
               />
@@ -86,29 +108,14 @@ export function ProfileForm() {
               <input
                 type="text"
                 id="dawId"
-                defaultValue="DAW-2025-001"
-                placeholder="Enter DAW ID"
-                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
+                disabled
+                defaultValue={user?._id?.toString().slice(-6).toUpperCase()} // Fallback generate ID lookalike
+                placeholder="DAW ID"
+                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] bg-gray-50 focus:outline-none text-[#101828] font-medium cursor-not-allowed"
               />
             </div>
           </div>
 
-          {/* Bio */}
-          <div>
-            <label
-              htmlFor="bio"
-              className="block text-[14px] font-bold text-[#344054] mb-2"
-            >
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              rows={4}
-              defaultValue="Passionate entrepreneur specializing in authentic African crafts and textiles. Member of Lagos Women's Cooperative since 2023."
-              placeholder="Tell us about yourself..."
-              className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium resize-none"
-            />
-          </div>
         </div>
       </div>
 
@@ -130,7 +137,8 @@ export function ProfileForm() {
             <input
               type="text"
               id="businessName"
-              defaultValue="Faye's Complex"
+              name="businessName"
+              defaultValue={shop?.name}
               placeholder="Enter Business Name"
               className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
             />
@@ -148,7 +156,8 @@ export function ProfileForm() {
               <input
                 type="text"
                 id="businessType"
-                defaultValue="Clothing & Jewellery"
+                name="businessType"
+                defaultValue={shop?.category}
                 placeholder="Enter Business Type"
                 className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
               />
@@ -160,12 +169,19 @@ export function ProfileForm() {
               >
                 Cooperative
               </label>
+               {/* Display Cooperative Name from Membership data if available, otherwise input */}
               <input
                 type="text"
                 id="cooperative"
-                defaultValue="Lagos Women's Cooperatives"
-                placeholder="Search Cooperatives..."
-                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
+                disabled
+                defaultValue={
+                  user?.member && user.member.length > 0 && 
+                  typeof user.member[0].cooperativeId === 'object' && 
+                  'name' in user.member[0].cooperativeId
+                    ? (user.member[0].cooperativeId as any).name 
+                    : "Not in a cooperative"
+                } 
+                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] bg-gray-50 focus:outline-none text-[#101828] font-medium cursor-not-allowed"
               />
             </div>
           </div>
@@ -180,9 +196,28 @@ export function ProfileForm() {
             </label>
             <textarea
               id="businessAddress"
+              name="businessAddress"
               rows={4}
-              defaultValue="123 Market Street, Victoria Island, Lagos, Nigeria"
+              defaultValue={shop?.business_address || shop?.description} // Fallback to description if no address
               placeholder="Enter Business Address"
+              className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium resize-none"
+            />
+          </div>
+
+           {/* Description - Added missing field mapped in action */}
+           <div>
+            <label
+              htmlFor="description"
+              className="block text-[14px] font-bold text-[#344054] mb-2"
+            >
+              Shop Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={4}
+              defaultValue={shop?.description}
+              placeholder="Tell us about your shop..."
               className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium resize-none"
             />
           </div>
