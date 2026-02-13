@@ -58,7 +58,7 @@ export function usePendingCooperatives() {
     });
 }
 
-import { AnalyticsResponse } from "@/components/(dashboards)/admin-dashboard/analytics/types";
+import { AnalyticsResponse, UserAnalyticsResponse, CooperativeAnalyticsResponse, RevenueAnalyticsResponse } from "@/components/(dashboards)/admin-dashboard/analytics/types";
 
 export function useAdminAnalytics() {
     const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
@@ -67,11 +67,55 @@ export function useAdminAnalytics() {
         queryKey: ["admin", "analytics"],
         queryFn: async () => {
             const response = await apiClient.get<AnalyticsResponse>(
-                // API_ENDPOINTS.ADMIN.ANALYTICS - we haven't added this to client.ts yet, let's hardcode or update client.ts first?
-                // Better to update client.ts first to be consistent. But I can pass string too.
-                // Let's use string for now to save a step or update client.ts.
-                // Actually, clean code is better. I'll update client.ts first? No, I can jus use string "/api/admin/analytics" as I did for users.
                 "/api/admin/analytics",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useUserAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics", "users"],
+        queryFn: async () => {
+            const response = await apiClient.get<UserAnalyticsResponse>(
+                "/api/admin/analytics/users",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useCooperativeAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics", "cooperatives"],
+        queryFn: async () => {
+            const response = await apiClient.get<CooperativeAnalyticsResponse>(
+                "/api/admin/analytics/cooperatives",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useRevenueAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics", "revenue"],
+        queryFn: async () => {
+            const response = await apiClient.get<RevenueAnalyticsResponse>(
+                "/api/admin/analytics/revenue",
                 { token: accessToken }
             );
             return response.data;
