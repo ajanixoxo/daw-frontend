@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const getStatusColor = (status: string) => {
 };
 
 export function MembersList() {
+  const router = useRouter();
   const [members, setMembers] = useState<CooperativeMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +45,10 @@ export function MembersList() {
         const result = await getAllCooperativeMembers();
 
         if (result.success && result.data) {
+          console.log("MembersList fetched members:", result.data.length);
+          if (result.data.length > 0) {
+            console.log("First member:", result.data[0]);
+          }
           setMembers(result.data);
         } else {
           throw new Error(result.error || "Failed to fetch members");
@@ -219,9 +225,38 @@ export function MembersList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Member</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem
+                            disabled={!member.memberId}
+                            onClick={() => {
+                              if (member.memberId) {
+                                router.push(`/cooperative/members/${member.memberId}`);
+                              } else {
+                                console.error("Cannot navigate, memberId is missing", member);
+                              }
+                            }}
+                          >
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-600 focus:text-red-600"
+                            onClick={async () => {
+                              if (!member.memberId) return;
+                              if (confirm("Are you sure you want to remove this member? This action cannot be undone.")) {
+                                try {
+                                  const { removeMemberAction } = await import("@/app/actions/cooperative-dashboard");
+                                  const result = await removeMemberAction(member.memberId);
+                                  if (result.success) {
+                                    // Optionally refresh list or remove from state
+                                    setMembers(prev => prev.filter(m => m.memberId !== member.memberId));
+                                  } else {
+                                    alert(result.error);
+                                  }
+                                } catch (err) {
+                                  alert("Failed to remove member");
+                                }
+                              }
+                            }}
+                          >
                             Remove Member
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -257,7 +292,14 @@ export function MembersList() {
             filteredMembers.map((member) => (
               <div
                 key={member.memberId}
-                className="rounded-lg border border-[#e4e7ec] p-4"
+                className="rounded-lg border border-[#e4e7ec] p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => {
+                   if (member.memberId) {
+                     router.push(`/cooperative/members/${member.memberId}`);
+                   } else {
+                     console.error("Cannot navigate, memberId is missing", member);
+                   }
+                }}
               >
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">

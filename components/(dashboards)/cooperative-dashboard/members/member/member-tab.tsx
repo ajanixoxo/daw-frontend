@@ -1,27 +1,45 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { ContributionList } from "./contri-list";
+import { LoanList } from "./loan-list";
 
-const tabs = ["Contribution", "Loan History"];
-
-export function MemberTabs() {
-  const [activeTab, setActiveTab] = useState("Contribution");
+export function MemberTabs({ memberId }: { memberId: string }) {
+  const [activeTab, setActiveTab] = useState("contributions");
 
   return (
-    <div className="mb-6 flex w-full flex-wrap gap-2 sm:gap-3">
-      {tabs.map((tab) => (
-        <button
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={` flex-1 rounded-lg px-6 py-3 text-sm font-medium transition-colors ${
-            activeTab === tab
-              ? "bg-[#f10e7c] text-white"
-              : "bg-white text-[#838794] hover:bg-[#f5f5f5]"
+    <div>
+      <div className="mb-6 flex box-border w-full gap-4 bg-white">
+        <Button
+          variant="ghost"
+          className={`h-auto rounded-none w-1/2 cursor-pointer px-4 py-2 text-sm font-medium bg-transparent ${
+            activeTab === "contributions"
+              ? "bg-[#f10e7c] text-white rounded-lg"
+              : "border-transparent text-[#838794] "
           }`}
+          onClick={() => setActiveTab("contributions")}
         >
-          {tab}
-        </button>
-      ))}
+          Contributions
+        </Button>
+        <Button
+          variant="ghost"
+          className={`h-auto rounded-none w-1/2 cursor-pointer px-4 py-2 text-sm font-medium bg-transparent ${
+            activeTab === "loans"
+              ? "bg-[#f10e7c] text-white rounded-lg"
+              : "border-transparent text-[#838794] "
+          }`}
+          onClick={() => setActiveTab("loans")}
+        >
+          Loan History
+        </Button>
+      </div>
+
+      {activeTab === "contributions" ? (
+        <ContributionList memberId={memberId} />
+      ) : (
+        <LoanList memberId={memberId} />
+      )}
     </div>
   );
 }

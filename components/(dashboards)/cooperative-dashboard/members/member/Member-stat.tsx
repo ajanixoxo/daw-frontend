@@ -1,67 +1,67 @@
 "use client";
 
-import { Users, ShoppingBag, Clock, TrendingUp } from "lucide-react";
+import { Users, ShoppingBag, TrendingUp } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-export function MemberStats() {
-  const stats = [
+export function MemberStats({
+  stats,
+}: {
+  stats: {
+    totalContributions: number;
+    contributionsCount: number;
+    totalLoans: number;
+    activeLoans: number;
+  };
+}) {
+  const statItems = [
     {
-      title: "Total Members",
-      value: 12,
-      change: "Updated live",
+      title: "Total Contributions",
+      value: `₦${stats.totalContributions.toLocaleString()}`,
+      change: `${stats.contributionsCount} transactions`,
       changeType: "positive",
       icon: Users,
     },
     {
-      title: "Active Sellers",
-      value: 12,
-      change: "Verified sellers",
-      changeType: "positive",
-      icon: ShoppingBag,
-    },
-    {
-      title: "Pending Invites",
-      value: 12,
-      change: "Requires attention",
+      title: "Active Loans",
+      value: stats.activeLoans,
+      change: `${stats.totalLoans} total loans`,
       changeType: "neutral",
-      icon: Clock,
+      icon: ShoppingBag,
     },
   ];
 
   return (
-    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {stats.map((stat) => (
-        <div key={stat.title} className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
-              style={{ backgroundColor: "#E6007A12" }}
-            >
-              <stat.icon className="h-3.5 w-3.5 text-[#E6007A]" />
+    <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {statItems.map((stat) => (
+        <Card key={stat.title} className="border-[#e4e7ec] bg-white p-0">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-[#838794]">{stat.title}</p>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-2xl font-bold text-[#1d1d2a]">
+                    {stat.value}
+                  </span>
+                </div>
+                <div
+                  className={`mt-2 flex items-center gap-1 text-xs ${
+                    stat.changeType === "positive"
+                      ? "text-[#009a49]"
+                      : "text-[#838794]"
+                  }`}
+                >
+                  {stat.changeType === "positive" && (
+                    <TrendingUp className="h-3 w-3" />
+                  )}
+                  <span>{stat.change}</span>
+                </div>
+              </div>
+              <div className="rounded-full bg-[#f9fafb] p-2">
+                 <stat.icon className="h-4 w-4 text-[#667185]" />
+              </div>
             </div>
-            <span className="text-[13px] font-medium text-[#667185] tracking-tight">
-              {stat.title}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-0.5">
-            <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">
-              {stat.value}
-            </h3>
-            <div className="flex items-center gap-1">
-              {stat.changeType === "positive" && (
-                <TrendingUp
-                  className="h-[12px] w-[12px] text-[#12B76A] shrink-0"
-                  strokeWidth={2.5}
-                />
-              )}
-              <p className="text-[10px] font-medium">
-                <span className={stat.changeType === "positive" ? "text-[#12B76A]" : "text-[#98A2B3]"}>
-                  {stat.change}
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
