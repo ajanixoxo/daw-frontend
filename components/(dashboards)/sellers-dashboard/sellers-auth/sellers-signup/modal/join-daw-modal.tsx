@@ -6,24 +6,26 @@ import { useRouter } from 'next/navigation';
 interface DAWModalProps {
   isOpen: boolean;
   onClose: () => void;
+  dismissLabel?: string;
+  isAlreadySeller?: boolean;
 }
 
-export default function DAWModal({ isOpen, onClose }: DAWModalProps) {
+export default function DAWModal({ isOpen, onClose, dismissLabel = "Maybe Later", isAlreadySeller = false }: DAWModalProps) {
   const router = useRouter();
 
   if (!isOpen) return null;
 
   const handleJoinDAW = () => {
-    router.push('/cooperative/cooperative-signup'); // Adjust this path to your DAW page route
+    router.push('/cooperative/cooperative-signup');
     onClose();
   };
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — no dismiss on click for existing sellers */}
       <div
         className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-50 z-40 transition-opacity"
-        onClick={onClose}
+        onClick={isAlreadySeller ? undefined : onClose}
       />
 
       {/* Modal */}
@@ -36,10 +38,12 @@ export default function DAWModal({ isOpen, onClose }: DAWModalProps) {
             {/* Header Section */}
             <div style={{ backgroundColor: '#f10e7c' }} className="px-8 py-10 text-white">
               <h2 className="text-3xl font-bold mb-3">
-                Join DAW Today!
+                {isAlreadySeller ? "You're Already a Seller!" : "Join DAW Today!"}
               </h2>
               <p className="text-lg opacity-95">
-                Unlock exclusive offers and benefits reserved just for our DAW members.
+                {isAlreadySeller
+                  ? "Your account already has a seller profile and shop. Join the DAW cooperative to unlock even more benefits."
+                  : "Unlock exclusive offers and benefits reserved just for our DAW members."}
               </p>
             </div>
 
@@ -61,20 +65,38 @@ export default function DAWModal({ isOpen, onClose }: DAWModalProps) {
               </ul>
 
               {/* Action Buttons */}
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={handleJoinDAW}
                   style={{ backgroundColor: '#f10e7c' }}
-                  className="flex-1 text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity duration-200"
+                  className="w-full text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity duration-200"
                 >
                   Join DAW
                 </button>
-                <button
-                  onClick={onClose}
-                  className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                >
-                  Maybe Later
-                </button>
+
+                {isAlreadySeller ? (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => router.push('/sellers/dashboard')}
+                      className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                    >
+                      My Dashboard
+                    </button>
+                    <button
+                      onClick={() => router.push('/')}
+                      className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                    >
+                      Homepage
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={onClose}
+                    className="w-full bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                  >
+                    {dismissLabel}
+                  </button>
+                )}
               </div>
             </div>
           </div>

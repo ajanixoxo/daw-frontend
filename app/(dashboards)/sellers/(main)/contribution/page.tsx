@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 
 const paymentHistory = [
   {
@@ -84,53 +85,35 @@ export default function ContributionPage() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-[#000000] mb-1">Contribution</h1>
-          <p className="text-[#454953] text-sm">Make contributions and view your payment history</p>
+          <h1 className="text-[24px] font-bold text-[#101828] leading-tight">Contribution</h1>
+          <p className="text-[13px] text-[#667085] mt-1 font-normal">Make contributions and view your payment history</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {/* Current Tier Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <CreditCard className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Current Tier</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">Silver</p>
-                <p className="text-[#667185] text-xs">Contribution: UGX 25,000</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Total Contributions Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <DollarSign className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Total Contributions</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">$145,000</p>
-                <p className="text-[#667185] text-xs">From 4 payments</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Last Payment Card */}
-          <Card className="bg-white border-0 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#ffedf6] p-2.5 rounded-lg">
-                <Calendar className="w-5 h-5 text-[#f10e7c]" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[#667185] text-sm mb-1">Last Payment</p>
-                <p className="text-3xl font-bold text-[#000000] mb-2">15/10/2025</p>
-                <p className="text-[#667185] text-xs">$50,000</p>
-              </div>
-            </div>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            icon={CreditCard}
+            title="Current Tier"
+            value="Silver"
+            subtitle="Contribution: ₦25,000"
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={DollarSign}
+            title="Total Contributions"
+            value="₦145,000"
+            subtitleHighlight="4"
+            subtitle="Payments"
+            trend="up"
+            iconColor="#E6007A"
+          />
+          <StatCard
+            icon={Calendar}
+            title="Last Payment"
+            value="15/10/2025"
+            subtitle="₦50,000"
+            iconColor="#E6007A"
+          />
         </div>
 
         {/* Make a Contribution Section */}

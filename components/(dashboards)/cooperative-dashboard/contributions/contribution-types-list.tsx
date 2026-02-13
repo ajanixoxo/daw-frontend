@@ -112,22 +112,6 @@ export function ContributionTypesList() {
                       <button className="rounded-lg bg-[#f0f2f5] px-4 py-2 text-sm font-medium text-[#676767] transition-colors hover:bg-[#e4e7ec]">
                         Review
                       </button>
-                      {ct.status === "pending" && (
-                        <>
-                          <button
-                            onClick={() => handleStatusUpdate(ct._id, "active")}
-                            className="rounded-lg bg-[#009a49] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#008040]"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleStatusUpdate(ct._id, "rejected")}
-                            className="rounded-lg bg-[#ff383c] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#e0282c]"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
                     </div>
                   </td>
                 </tr>

@@ -9,12 +9,12 @@ interface ContributionsTabsProps {
 
 export function ContributionsTabs({ activeTab, onTabChange }: ContributionsTabsProps) {
   return (
-    <div className="mb-6 flex flex-wrap gap-2 sm:gap-3">
+    <div className="mb-6 flex flex-1 bg-white  gap-2 sm:gap-3 w-full">
       {tabs.map((tab) => (
         <button
           key={tab}
           onClick={() => onTabChange(tab)}
-          className={`rounded-lg px-6 py-3 text-sm font-medium transition-colors ${
+          className={`rounded-lg px-6 py-3 text-sm font-medium transition-colors w-full ${
             activeTab === tab ? "bg-[#f10e7c] text-white" : "bg-white text-[#838794] hover:bg-[#f5f5f5]"
           }`}
         >
