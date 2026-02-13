@@ -221,4 +221,16 @@ export const API_ENDPOINTS = {
     DASHBOARD_STATS: "/api/admin/dashboard/stats",
     PENDING_COOPERATIVES: "/api/admin/cooperatives/pending",
   },
+  WALLET: {
+    CREATE_STATIC: "/api/wallet/create/static/Account",
+    GET_ACCOUNT: "/api/wallet/get/account",
+    GET_BANKS: "/api/wallet/banks",
+    PAYOUT: "/api/wallet/transfer/money",
+    LEDGER: "/api/wallet/ledger",
+    UPDATE_PIN: "/api/wallet/update-pin",
+    ACCOUNT_LOOKUP: "/api/wallet/account-lookup",
+    CHARGE: "/api/wallet/charge",
+    PROFILE: "/auth/profile",
+  },
+
 } as const;
