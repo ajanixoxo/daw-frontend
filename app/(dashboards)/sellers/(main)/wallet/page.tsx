@@ -29,14 +29,18 @@ export default function WalletPage() {
 
       console.log("Client: Account Fetch Result:", accResult);
 
-      if (accResult.success && accResult.data) {
+      if (accResult.success && accResult.data && accResult.data.accountNo) {
         setAccount(accResult.data);
-        if (accResult.data.accountNo) {
-          setShowSetup(false);
-        }
-      } else {
+        setShowSetup(false);
+      } else if (accResult.success) {
+        // Successful API call but no account exists
         setAccount(null);
         setShowSetup(true);
+      } else {
+        // API call failed - don't automatically show setup, show error or retry
+        setAccount(null);
+        setShowSetup(false);
+        toast.error(accResult.error || "Failed to fetch wallet info");
       }
 
       if (ledgerResult.success && ledgerResult.data) {
@@ -117,13 +121,15 @@ export default function WalletPage() {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="outline"
-            className="gap-2 border-[#e7e8e9] text-[#1d1d2a]"
-            onClick={() => setShowSetup(true)}
-          >
-            Create Wallet Account
-          </Button>
+          {!account?.accountNo && (
+            <Button
+              variant="outline"
+              className="gap-2 border-[#e7e8e9] text-[#1d1d2a]"
+              onClick={() => setShowSetup(true)}
+            >
+              Create Wallet Account
+            </Button>
+          )}
           <WithdrawFundsDrawer onSuccess={() => fetchData()}>
             <Button className="gap-2 bg-[#1d1d2a] hover:bg-[#1d1d2a]/90 text-white rounded-lg px-6 h-10 w-full sm:w-auto">
               <ArrowUpRight className="h-4 w-4" />

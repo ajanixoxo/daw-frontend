@@ -10,6 +10,8 @@ import type {
     IBank,
     IWithdrawRequest,
     ILedgerEntry,
+    IAdminWalletResponse,
+    IAdminPayoutRequest,
 } from "@/types/wallet.types";
 
 export async function createStaticAccount(
@@ -70,15 +72,16 @@ export async function getWalletAccount(): Promise<IActionResponse<IWalletBankAcc
 
         console.log("profile data extracted userObj", userObj);
 
+        // Map data from multiple potential sources to be robust
         return {
             success: true,
             message: response.message || "Wallet fetched successfully",
             data: {
-                accountId: walletData.accountId,
-                accountNo: walletData.accountNo,
-                accountName: walletData.accountName,
-                bankName: walletData.bankName,
-                bankCode: walletData.bankCode,
+                accountId: walletData.accountId || userObj.accountId,
+                accountNo: walletData.accountNo || userObj.accountNo || userObj.account_no,
+                accountName: walletData.accountName || userObj.accountName || userObj.account_name,
+                bankName: walletData.bankName || userObj.bankName || userObj.bank_name,
+                bankCode: walletData.bankCode || userObj.bankCode || userObj.bank_code,
                 accountBalance: userObj.account_Balance || userObj.accountBalance || walletData.account_Balance || walletData.accountBalance || 0,
                 pendingAmount: userObj.pending_amount || userObj.pendingAmount || walletData.pending_amount || walletData.pendingAmount || 0,
                 walletBalance: userObj.wallet_balance || userObj.walletBalance || walletData.wallet_balance || walletData.walletBalance || 0,
@@ -213,6 +216,108 @@ export async function getLedger(): Promise<IActionResponse<ILedgerEntry[]>> {
         return {
             success: false,
             error: error instanceof Error ? error.message : "Failed to fetch ledger",
+        };
+    }
+}
+
+export async function getAdminWallet(): Promise<IActionResponse<IAdminWalletResponse>> {
+    try {
+        const session = await getServerSession();
+        if (!session?.accessToken) throw new Error("Authentication required");
+
+        const response = await apiClient.get<IWalletResponse<IAdminWalletResponse>>(
+            API_ENDPOINTS.WALLET.ADMIN_GET_WALLET,
+            { token: session.accessToken }
+        );
+
+        const walletData = (response.data || response.responseData || response) as IAdminWalletResponse;
+
+        return {
+            success: true,
+            message: response.message || "Admin wallet fetched successfully",
+            data: walletData,
+        };
+    } catch (error) {
+        console.error("Get admin wallet error:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to fetch admin wallet",
+        };
+    }
+}
+
+export async function processAdminPayout(
+    data: IAdminPayoutRequest
+): Promise<IActionResponse> {
+    try {
+        const session = await getServerSession();
+        if (!session?.accessToken) throw new Error("Authentication required");
+
+        const response = await apiClient.post<IWalletResponse<any>>(
+            API_ENDPOINTS.WALLET.ADMIN_PAYOUT,
+            data,
+            { token: session.accessToken }
+        );
+
+        return {
+            success: true,
+            message: response.message || "Payout initiated successfully",
+            data: response.data || response.responseData,
+        };
+    } catch (error) {
+        console.error("Admin payout error:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Payout failed",
+        };
+    }
+}
+
+export async function updateWalletPin(pin: string): Promise<IActionResponse> {
+    try {
+        const session = await getServerSession();
+        if (!session?.accessToken) throw new Error("Authentication required");
+
+        const response = await apiClient.put<IWalletResponse<any>>(
+            API_ENDPOINTS.WALLET.UPDATE_PIN,
+            { pin },
+            { token: session.accessToken }
+        );
+
+        return {
+            success: true,
+            message: response.message || "Wallet PIN updated successfully",
+        };
+    } catch (error) {
+        console.error("Update wallet PIN error:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to update PIN",
+        };
+    }
+}
+
+export async function getPayoutCharge(amount: number): Promise<IActionResponse<any>> {
+    try {
+        const session = await getServerSession();
+        if (!session?.accessToken) throw new Error("Authentication required");
+
+        const response = await apiClient.post<IWalletResponse<any>>(
+            API_ENDPOINTS.WALLET.CHARGE,
+            { amount, transferType: "WalletToAccount" },
+            { token: session.accessToken }
+        );
+
+        return {
+            success: true,
+            message: response.message || "Charge fetched successfully",
+            data: response.data || response.responseData,
+        };
+    } catch (error) {
+        console.error("Get payout charge error:", error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to fetch charge",
         };
     }
 }
