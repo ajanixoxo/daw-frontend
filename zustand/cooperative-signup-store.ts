@@ -4,14 +4,10 @@ import { persist } from 'zustand/middleware';
 interface PersonalInfo {
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone: string;
   email: string;
-  businessName: string;
-  country: string;
-  currency: string;
   password: string;
   confirmPassword: string;
-  document: File | null;
 }
 
 export interface DAWTier {
@@ -31,12 +27,11 @@ export interface CooperativeShopInfo {
   shopBanner: File | null;
 }
 
-/** Documents for 5-step flow (buyer/guest). NIN not asked separately (on uploaded ID doc). */
+/** Documents for 5-step flow (buyer/guest). NIN for KYC, passport required, CAC optional. */
 export interface CooperativeDocumentsInfo {
-  idDocument: File | null;
-  proofOfResidence: File | null;
-  businessCac: File | null;
+  nin: string;
   passportPhotograph: File | null;
+  businessCac: File | null;
 }
 
 type PrefilledFields = Partial<Record<keyof PersonalInfo, boolean>>;
@@ -62,7 +57,7 @@ interface SignupState {
   updateDocuments: (data: Partial<CooperativeDocumentsInfo>) => void;
   setMembershipTier: (tier: number) => void;
   /** Prefill personal info from profile; marks those fields as prefilled so they can be disabled */
-  setPreloadedPersonalInfo: (profile: { firstName?: string; lastName?: string; email?: string; phone?: string; shop?: { name?: string }[] }) => void;
+  setPreloadedPersonalInfo: (profile: { firstName?: string; lastName?: string; email?: string; phone?: string }) => void;
   setHasSellerDocuments: (value: boolean) => void;
   setDAWCooperative: (cooperativeId: string, tiers: DAWTier[]) => void;
   reset: () => void;
@@ -76,14 +71,10 @@ export const useCooperativeSignupStore = create<SignupState>()(
         personalInfo: {
           firstName: '',
           lastName: '',
-          phoneNumber: '',
+          phone: '',
           email: '',
-          businessName: '',
-          country: '',
-          currency: '',
           password: '',
           confirmPassword: '',
-          document: null,
         },
         membershipTier: null,
         shopInfo: {
@@ -96,10 +87,9 @@ export const useCooperativeSignupStore = create<SignupState>()(
           shopBanner: null,
         },
         documents: {
-          idDocument: null,
-          proofOfResidence: null,
-          businessCac: null,
+          nin: '',
           passportPhotograph: null,
+          businessCac: null,
         },
       },
       prefilledFields: {},
@@ -149,12 +139,8 @@ export const useCooperativeSignupStore = create<SignupState>()(
             prefilled.email = true;
           }
           if (profile.phone != null && profile.phone !== '') {
-            updates.phoneNumber = profile.phone;
-            prefilled.phoneNumber = true;
-          }
-          if (profile.shop?.[0]?.name != null && profile.shop[0].name !== '') {
-            updates.businessName = profile.shop[0].name;
-            prefilled.businessName = true;
+            updates.phone = profile.phone;
+            prefilled.phone = true;
           }
           return {
             formData: {
@@ -174,14 +160,10 @@ export const useCooperativeSignupStore = create<SignupState>()(
             personalInfo: {
               firstName: '',
               lastName: '',
-              phoneNumber: '',
+              phone: '',
               email: '',
-              businessName: '',
-              country: '',
-              currency: '',
               password: '',
               confirmPassword: '',
-              document: null,
             },
             membershipTier: null,
             shopInfo: {
@@ -194,10 +176,9 @@ export const useCooperativeSignupStore = create<SignupState>()(
               shopBanner: null,
             },
             documents: {
-              idDocument: null,
-              proofOfResidence: null,
-              businessCac: null,
+              nin: '',
               passportPhotograph: null,
+              businessCac: null,
             },
           },
           prefilledFields: {},
@@ -208,27 +189,21 @@ export const useCooperativeSignupStore = create<SignupState>()(
     }),
     {
       name: 'cooperative-signup-storage',
-      // skip hydration for `document` field as File objects don't persist well in localStorage. 
-      // Actually, persist can handle simple objects, but Files are tricky. 
-      // For now, simple persistence is fine, understanding document might be lost on refresh.
+      // File objects don't persist well in localStorage — null them out in partialize.
       partialize: (state) => ({
         currentStep: state.currentStep,
         formData: {
           ...state.formData,
-          personalInfo: {
-            ...state.formData.personalInfo,
-            document: null,
-          },
+          personalInfo: state.formData.personalInfo,
           shopInfo: {
             ...state.formData.shopInfo,
             shopLogo: null,
             shopBanner: null,
           },
           documents: {
-            idDocument: null,
-            proofOfResidence: null,
-            businessCac: null,
+            nin: state.formData.documents.nin,
             passportPhotograph: null,
+            businessCac: null,
           },
         },
       }),

@@ -100,7 +100,7 @@ export async function joinCooperative(data: {
  * Combined: guest/buyer → create user (if guest) + seller onboard + join DAW cooperative.
  * Client builds FormData with: personal (firstName, lastName, email, phone, password?, confirmPassword?);
  * shop (name, description, category, contactNumber, businessAddress, shopLogo?, shopBanner?);
- * documents (idDocument, proofOfResidence, businessCac, passportPhotograph); cooperativeId, subscriptionTierId.
+ * documents (nin, passportPhotograph, businessCac?); cooperativeId, subscriptionTierId.
  */
 export async function cooperativeJoinWithSellerOnboard(
   formData: FormData
@@ -122,7 +122,7 @@ export async function cooperativeJoinWithSellerOnboard(
       member?: unknown;
       shop?: unknown;
       token?: string; // guest temp token for /auth/verify/email
-      user?: { _id: string; email: string; roles?: string[] };
+      user?: { _id: string; email: string; roles?: string[]; shop?: unknown; member?: unknown[] };
     };
     if (!res.ok) {
       const msg =
