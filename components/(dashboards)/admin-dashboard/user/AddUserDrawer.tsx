@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/custom-drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -180,35 +181,41 @@ export function AddUserDrawer({ userId, mode = 'create', open: controlledOpen, o
 
   const isPending = inviteMutation.isPending || updateMutation.isPending;
 
-  const drawerContent = (
-    <SheetContent
-      side="right"
-      className="w-full sm:max-w-[500px] p-0 border-l-0 sm:border-l flex flex-col h-full"
-      style={{
-        backdropFilter: "blur(16px)",
-      }}
-    >
-      <div className="flex flex-col h-full">
+  return (
+    <Drawer open={open} onOpenChange={(isOpen) => {
+      setOpen(isOpen);
+      if (!isOpen) resetForm();
+    }}>
+      {(trigger || mode === 'create') && (
+        <DrawerTrigger asChild>
+          {trigger || (
+            <Button className="bg-user-mgmt-button-bg text-user-mgmt-button-text hover:bg-black/90 rounded-xl px-6 py-3 h-12 gap-1">
+              <PlusIcon width={14} height={14} color="#ffffff" />
+              <span className="user-mgmt-button-text">Add User</span>
+            </Button>
+          )}
+        </DrawerTrigger>
+      )}
+
+      <DrawerContent side="right" className="w-full sm:max-w-[500px]">
         {/* Header - Fixed at top */}
-        <div className="px-6 pt-6 pb-2">
-          <SheetHeader className="space-y-4 text-left p-0">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              <SheetTitle className="text-2xl font-medium">
-                {mode === 'edit' ? 'Edit User' : 'Add New User'}
-              </SheetTitle>
-            </div>
-            <SheetDescription className="text-gray-500 text-sm">
-              {mode === 'edit'
-                ? 'Update user information and settings.'
-                : 'Create a new user account. An invitation email will be sent to the provided email address.'}
-            </SheetDescription>
-          </SheetHeader>
-        </div>
+        <DrawerHeader className="px-6 pt-6 pb-2">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <DrawerTitle className="text-2xl font-medium">
+              {mode === 'edit' ? 'Edit User' : 'Add New User'}
+            </DrawerTitle>
+          </div>
+          <DrawerDescription className="text-gray-500 text-sm mt-2">
+            {mode === 'edit'
+              ? 'Update user information and settings.'
+              : 'Create a new user account. An invitation email will be sent to the provided email address.'}
+          </DrawerDescription>
+        </DrawerHeader>
 
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -272,7 +279,7 @@ export function AddUserDrawer({ userId, mode = 'create', open: controlledOpen, o
               <div className="space-y-2">
                 <Label className="text-base font-medium text-gray-700">User Role *</Label>
                 <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                  <SelectTrigger className="h-12 border-gray-200 bg-white text-gray-500">
+                  <SelectTrigger className="h-12 w-full border-gray-200 bg-white text-gray-500">
                     <SelectValue placeholder="Select user role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -288,7 +295,7 @@ export function AddUserDrawer({ userId, mode = 'create', open: controlledOpen, o
                 <div className="space-y-2">
                   <Label className="text-base font-medium text-gray-700">Status</Label>
                   <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                    <SelectTrigger className="h-12 border-gray-200 bg-white">
+                    <SelectTrigger className="h-12 w-full border-gray-200 bg-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -318,7 +325,7 @@ export function AddUserDrawer({ userId, mode = 'create', open: controlledOpen, o
         </div>
 
         {/* Footer - Fixed at bottom */}
-        <div className="p-6 border-t border-gray-100 bg-white/50 backdrop-blur-sm mt-auto">
+        <DrawerFooter className="p-6 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
           <Button
             className="w-full bg-[#f10e7c] hover:bg-[#d60c6e] text-white h-12 rounded-full text-base font-medium"
             onClick={handleSubmit}
@@ -328,35 +335,8 @@ export function AddUserDrawer({ userId, mode = 'create', open: controlledOpen, o
               ? (mode === 'edit' ? "Updating..." : "Sending Invitation...")
               : (mode === 'edit' ? "Update User" : "Send Invitation")}
           </Button>
-        </div>
-      </div>
-    </SheetContent>
-  );
-
-  // If trigger is provided, render with trigger
-  if (trigger || mode === 'create') {
-    return (
-      <Sheet open={open} onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) resetForm();
-      }}>
-        <SheetTrigger asChild>
-          {trigger || (
-            <Button className="bg-user-mgmt-button-bg text-user-mgmt-button-text hover:bg-black/90 rounded-xl px-6 py-3 h-12 gap-1">
-              <PlusIcon width={14} height={14} color="#ffffff" />
-              <span className="user-mgmt-button-text">Add User</span>
-            </Button>
-          )}
-        </SheetTrigger>
-        {drawerContent}
-      </Sheet>
-    );
-  }
-
-  // Otherwise, render as controlled component (for edit mode)
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      {drawerContent}
-    </Sheet>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }
