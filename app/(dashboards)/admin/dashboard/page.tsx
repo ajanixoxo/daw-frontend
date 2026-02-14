@@ -9,19 +9,46 @@ import DocumentTextIcon from "@/components/icons/DocumentTextIcon";
 import ArrowUpIcon from "@/components/icons/ArrowUpIcon";
 import CardsIcon from "@/components/icons/CardsIcon";
 import ProfileTwoUserIcon from "@/components/icons/ProfileTwoUserIcon";
-import { useDashboardStats, usePendingCooperatives } from "@/hooks/useAdminDashboard"; // Updated hook import
+import { useDashboardStats, usePendingCooperatives } from "@/hooks/useAdminDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
+import { getLedger } from "@/app/actions/wallet";
+import { ILedgerEntry } from "@/types/wallet.types";
+import { ActivityStatus } from "@/components/(dashboards)/admin-dashboard/dashboard/enums";
+import { ActivityItem as ActivityItemType } from "@/components/(dashboards)/admin-dashboard/dashboard/schema";
 
 export default function AdminDashboardPage() {
   const { data: statsData, isLoading: isLoadingStats } = useDashboardStats();
   const { data: pendingCoopsData, isLoading: isLoadingPending } = usePendingCooperatives();
+  const [ledger, setLedger] = useState<ILedgerEntry[]>([]);
+  const [isLoadingLedger, setIsLoadingLedger] = useState(true);
 
-  // Fallback to mock data for recent activities until API is ready
-  const { recentActivities, pendingApprovals: mockPendingApprovals } = mockRootProps;
+  useEffect(() => {
+    async function fetchLedger() {
+      try {
+        const result = await getLedger();
+        if (result.success && result.data) {
+          setLedger(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch ledger for dashboard:", error);
+      } finally {
+        setIsLoadingLedger(false);
+      }
+    }
+    fetchLedger();
+  }, []);
 
-  // Use API Pending Coops if available, else fallback logic (or empty array)
-  // Converting API cooperative structure to table structure if differences exist
+  // Use API Pending Coops if available, else empty array
   const pendingApprovals = pendingCoopsData || [];
+
+  // Map ledger entries to activity items
+  const recentActivities: ActivityItemType[] = ledger.slice(0, 5).map(item => ({
+    id: item._id,
+    description: item.narration || `${item.type} of ${item.amount}`,
+    status: ActivityStatus.PENDING, // Mapping all to pending as status enum is limited
+    timestamp: new Date(item.transactionDate),
+  }));
 
   return (
     <div className="p-4 lg:p-6 space-y-8">
@@ -82,23 +109,27 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Main Content - Table and Activity Panel */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-[1fr_395px] gap-5"> */}
-      {isLoadingPending ? (
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_395px] gap-5">
+        <div className="space-y-6">
+          {isLoadingPending ? (
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ) : (
+            <PendingApprovalsTable approvals={pendingApprovals as unknown as any} />
+          )}
         </div>
-      ) : (
-        // Passing the real data. Need to ensure PendingApprovalsTable can accept this type.
-        // Since I don't see PendingApprovalsTable definition, I assume it might need some adaptation 
-        // or I pass 'any' for now if types mismatch, but strictly we should verify type.
-        // For now passing it directly as `approvals` which usually expects an array.
-        // TODO: Transform Cooperative[] to ApprovalItem[] properly
-        <PendingApprovalsTable approvals={pendingApprovals as unknown as any} />
-      )}
-      {/* <RecentActivityPanel activities={recentActivities} /> */}
-      {/* </div> */}
+
+        <div className="space-y-6">
+          {isLoadingLedger ? (
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          ) : (
+            <RecentActivityPanel activities={recentActivities} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

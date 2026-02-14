@@ -12,6 +12,13 @@ export interface IWalletBankAccount {
     accountBalance?: number;
     pendingAmount?: number;
     walletBalance?: number;
+    walletId?: string;
+}
+
+export interface IAdminWalletResponse {
+    walletID: string;
+    currentBalance: number;
+    availableBalance?: number;
 }
 
 
@@ -36,6 +43,14 @@ export interface IWithdrawRequest {
     recipient_bank_code: string;
     amount: number;
     narration: string;
+}
+
+export interface IAdminPayoutRequest {
+    pin: string;
+    amount: number;
+    bankCode: string;
+    accountNumber: string;
+    accountName: string;
 }
 
 export interface ILedgerEntry {
