@@ -35,12 +35,12 @@ const SellersSignup: FC = () => {
   const steps = isAuthenticated
     ? [
         { id: 1, label: "Shop Info" },
-        { id: 2, label: "Documents Upload" },
+        { id: 2, label: "KYC & Documents" },
       ]
     : [
         { id: 0, label: "Personal Info" },
         { id: 1, label: "Shop Info" },
-        { id: 2, label: "Documents Upload" },
+        { id: 2, label: "KYC & Documents" },
       ];
 
   return (

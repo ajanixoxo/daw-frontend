@@ -13,7 +13,7 @@ interface StepperProps {
 const FIVE_STEP_LABELS = [
   "Personal Info",
   "Shop Info",
-  "Documents",
+  "KYC & Documents",
   "Membership",
   "Finish",
 ];

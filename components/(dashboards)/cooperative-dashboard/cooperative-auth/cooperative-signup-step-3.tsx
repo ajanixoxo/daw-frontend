@@ -21,7 +21,7 @@ export function CooperativeSignupStep3() {
     useCooperativeSignupStore();
   const { personalInfo, membershipTier } = formData;
   const shopInfo = formData.shopInfo ?? { shopName: "", description: "", category: "", contactNumber: "", businessAddress: "", shopLogo: null, shopBanner: null };
-  const documents = formData.documents ?? { idDocument: null, proofOfResidence: null, businessCac: null, passportPhotograph: null };
+  const documents = formData.documents ?? { nin: "", passportPhotograph: null, businessCac: null };
   const { data: profile } = useProfile();
   const updateUser = useAuthStore((s) => s.updateUser);
   const queryClient = useQueryClient();
@@ -83,7 +83,7 @@ export function CooperativeSignupStep3() {
           fd.append("firstName", personalInfo.firstName.trim());
           fd.append("lastName", (personalInfo.lastName ?? "").trim());
           fd.append("email", personalInfo.email.trim());
-          fd.append("phone", personalInfo.phoneNumber.trim());
+          fd.append("phone", personalInfo.phone.trim());
           fd.append("password", personalInfo.password);
           fd.append("confirmPassword", personalInfo.confirmPassword);
         }
@@ -96,27 +96,12 @@ export function CooperativeSignupStep3() {
         fd.append("subscriptionTierId", subscriptionTierId);
         if (shopInfo.shopLogo) fd.append("shopLogo", shopInfo.shopLogo);
         if (shopInfo.shopBanner) fd.append("shopBanner", shopInfo.shopBanner);
-        if (documents.idDocument) fd.append("idDocument", documents.idDocument);
-        if (documents.proofOfResidence) fd.append("proofOfResidence", documents.proofOfResidence);
-        if (documents.businessCac) fd.append("businessCac", documents.businessCac);
+        if (documents.nin) fd.append("nin", documents.nin.trim());
         if (documents.passportPhotograph) fd.append("passportPhotograph", documents.passportPhotograph);
+        if (documents.businessCac) fd.append("businessCac", documents.businessCac);
 
         const res = await cooperativeJoinWithSellerOnboard(fd);
         if (res.success) {
-          if (isLoggedIn) {
-            // Sync updated roles into Zustand → localStorage
-            if (res.data?.user) {
-              updateUser({
-                roles: res.data.user.roles,
-                ...(res.data.user.member ? { member: res.data.user.member as any } : {}),
-              });
-            }
-            // Invalidate caches so sidebar/UI picks up new role immediately
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ["seller-profile"] }),
-              queryClient.invalidateQueries({ queryKey: ["profile"] }),
-            ]);
-          }
           toast.success(
             isLoggedIn
               ? "Seller onboarded and joined DAW cooperative."
@@ -124,6 +109,13 @@ export function CooperativeSignupStep3() {
           );
           reset();
           router.push(isLoggedIn ? "/sellers/shop" : "/otp?mode=signup");
+          // Sync roles AFTER navigation starts to prevent flash of "already member" card
+          if (isLoggedIn && res.data?.user) {
+            updateUser({ roles: res.data.user.roles });
+            queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["my-shop"] });
+          }
           return;
         }
         setSubmitError(res.error ?? "Failed to complete registration");
@@ -134,23 +126,16 @@ export function CooperativeSignupStep3() {
       if (isLoggedIn) {
         const res = await joinCooperative({ cooperativeId, subscriptionTierId });
         if (res.success) {
-          // Sync updated roles from backend into Zustand → localStorage
-          if (res.data?.user) {
-            updateUser({
-              roles: res.data.user.roles,
-              ...(res.data.user.member ? { member: res.data.user.member as any } : {}),
-            });
-          }
-
-          // Invalidate all profile caches so sidebar/UI picks up "member" role immediately
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ["seller-profile"] }),
-            queryClient.invalidateQueries({ queryKey: ["profile"] }),
-          ]);
-
           toast.success("You have joined the DAW cooperative.");
           reset();
           router.push("/sellers/shop");
+          // Sync roles AFTER navigation starts to prevent flash of "already member" card
+          if (res.data?.user) {
+            updateUser({ roles: res.data.user.roles });
+          }
+          queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+          queryClient.invalidateQueries({ queryKey: ["my-shop"] });
           return;
         }
         setSubmitError(res.error ?? "Failed to join cooperative");
@@ -158,9 +143,9 @@ export function CooperativeSignupStep3() {
         return;
       }
 
-      const { email, password, confirmPassword, firstName, lastName, phoneNumber } =
+      const { email, password, confirmPassword, firstName, lastName, phone } =
         personalInfo;
-      if (!email?.trim() || !password || !confirmPassword?.trim() || !firstName?.trim() || !phoneNumber?.trim()) {
+      if (!email?.trim() || !password || !confirmPassword?.trim() || !firstName?.trim() || !phone?.trim()) {
         toast.error("Please fill in email, password, confirm password, first name, and phone.");
         setIsSubmitting(false);
         return;
@@ -182,7 +167,7 @@ export function CooperativeSignupStep3() {
         confirmPassword: confirmPassword.trim(),
         firstName: firstName.trim(),
         lastName: (lastName ?? "").trim(),
-        phone: phoneNumber.trim(),
+        phone: phone.trim(),
         cooperativeId,
         subscriptionTierId,
       });
@@ -242,17 +227,13 @@ export function CooperativeSignupStep3() {
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Phone:</p>
-            <p className="text-sm text-gray-600">{personalInfo.phoneNumber}</p>
+            <p className="text-sm text-gray-600">{personalInfo.phone}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-[#222]">Business/Shop Name:</p>
+            <p className="text-sm font-medium text-[#222]">Shop Name:</p>
             <p className="text-sm text-gray-600">
-              {isBuyerOrGuestFlow ? shopInfo.shopName : personalInfo.businessName}
+              {shopInfo.shopName}
             </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-[#222]">Country:</p>
-            <p className="text-sm text-gray-600">{personalInfo.country}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Membership Tier:</p>

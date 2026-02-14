@@ -51,7 +51,6 @@ export default function CooperativeSignupPage() {
       lastName: profile.lastName,
       email: profile.email,
       phone: profile.phone,
-      shop: profile.shop,
     });
     getSellerDocumentsMe().then((res) => {
       if (res.success && res.data?.hasDocuments) {

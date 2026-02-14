@@ -103,20 +103,20 @@ export default function ShopPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
+          {/* <Button
             variant="outline"
             className="bg-white border-[#D0D5DD] text-[#344054] h-10 px-4 rounded-lg font-medium text-sm hover:bg-[#F9FAFB]"
           >
             <Users className="w-4 h-4 mr-2" />
             Request Shop Manager
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             variant="outline"
             className="bg-white border-[#D0D5DD] text-[#344054] h-10 px-4 rounded-lg font-medium text-sm hover:bg-[#F9FAFB]"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share Shop
-          </Button>
+          </Button> */}
           <Button
             onClick={() => router.push("/sellers/shop/edit")}
             className="bg-[#000000] text-white h-10 px-4 rounded-lg font-medium text-sm hover:bg-[#1a1a1a]"
