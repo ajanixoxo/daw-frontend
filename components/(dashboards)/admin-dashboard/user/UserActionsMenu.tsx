@@ -39,9 +39,9 @@ export function UserActionsMenu({ userId, userName }: UserActionsMenuProps) {
           <DropdownMenuItem onClick={() => setDetailsOpen(true)}>
             View Details
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditOpen(true)}>
+          {/* <DropdownMenuItem onClick={() => setEditOpen(true)}>
             Edit User
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-red-600">
             Delete User
           </DropdownMenuItem>

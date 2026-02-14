@@ -2,7 +2,6 @@ import { DashboardHeader } from '@/components/(dashboards)/cooperative-dashboard
 import { RecentSignins } from '@/components/(dashboards)/cooperative-dashboard/dashboard/recent-signins'
 import { RevenueChart } from '@/components/(dashboards)/cooperative-dashboard/dashboard/revenue-chart'
 import { StatsCards } from '@/components/(dashboards)/cooperative-dashboard/dashboard/stats-cards'
-import { TopMembers } from '@/components/(dashboards)/cooperative-dashboard/dashboard/top-members'
 import React from 'react'
 
 const page = () => {
@@ -11,9 +10,8 @@ const page = () => {
       <div className="container mx-auto px-4 py-6 lg:px-8 lg:py-8">
         <DashboardHeader />
         <StatsCards />
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_400px]">
+        <div className="mt-6">
           <RevenueChart />
-          <TopMembers />
         </div>
         <RecentSignins />
       </div>

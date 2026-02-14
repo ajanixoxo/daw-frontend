@@ -73,7 +73,7 @@ export function RecentSignins() {
         <CardTitle className="text-lg font-bold text-[#1d1d2a]">
           Recent Sign-ins (4 Most Recent)
         </CardTitle>
-        <Button
+        {/* <Button
           variant="outline"
           size="sm"
           className="gap-2 border-[#e4e7ec] bg-transparent"
@@ -81,7 +81,7 @@ export function RecentSignins() {
         >
           <Download className="h-4 w-4" />
           Export
-        </Button>
+        </Button> */}
       </CardHeader>
       <CardContent className="p-0">
         {/* Desktop Table View */}

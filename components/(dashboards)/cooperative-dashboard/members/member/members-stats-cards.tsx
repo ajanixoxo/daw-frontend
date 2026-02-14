@@ -1,12 +1,12 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  ShoppingBag, 
-  FileText, 
-  CheckCircle, 
+import {
+  ShoppingBag,
+  FileText,
+  CheckCircle,
   CreditCard,
-  TrendingUp 
+  TrendingUp,
+  type LucideIcon,
 } from "lucide-react";
 
 interface MemberStatsCardsProps {
@@ -21,82 +21,102 @@ interface MemberStatsCardsProps {
   };
 }
 
+interface StatItemProps {
+  icon: LucideIcon;
+  title: string;
+  value: string | number;
+  subtitle: string;
+  subtitleHighlight?: string;
+  trend?: "up" | "none";
+  iconColor?: string;
+}
+
+function StatItem({
+  icon: Icon,
+  title,
+  value,
+  subtitle,
+  subtitleHighlight,
+  trend = "none",
+  iconColor = "#E6007A",
+}: StatItemProps) {
+  return (
+    <div className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
+      <div className="flex items-center gap-2">
+        <div
+          className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
+          style={{ backgroundColor: `${iconColor}12` }}
+        >
+          <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} />
+        </div>
+        <span className="text-[13px] font-medium text-[#667185] tracking-tight">
+          {title}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">
+          {value}
+        </h3>
+
+        <div className="flex items-center gap-1">
+          {trend === "up" && (
+            <TrendingUp
+              className="h-[12px] w-[12px] text-[#12B76A] shrink-0"
+              strokeWidth={2.5}
+            />
+          )}
+          <p className="text-[10px] font-medium">
+            {subtitleHighlight && (
+              <span className="text-[#12B76A] mr-1">{subtitleHighlight}</span>
+            )}
+            <span className="text-[#98A2B3]">{subtitle}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MemberStatsCards({ stats }: MemberStatsCardsProps) {
-  const statItems = [
-    {
-      title: "Total Sales",
-      value: `₦${(stats.totalSales || 0).toLocaleString()}`,
-      change: "10% More than last month",
-      changeType: "positive",
-      icon: ShoppingBag,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
-    },
-    {
-      title: "Products Listed",
-      value: stats.productsListed || 0,
-      change: "10% More than last month",
-      changeType: "positive",
-      icon: FileText,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
-    },
-    {
-      title: "Orders Completed",
-      value: stats.ordersCompleted || 0,
-      change: "10% More than last month",
-      changeType: "positive",
-      icon: CheckCircle,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
-    },
-    {
-      title: "Contributions Paid",
-      value: `₦${(stats.totalContributions || 0).toLocaleString()}`,
-      change: "10% More than last month",
-      changeType: "positive",
-      icon: CreditCard,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
-    },
-  ];
+  const formatCurrency = (amount: number) =>
+    `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 0 })}`;
 
   return (
-    <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {statItems.map((stat) => (
-        <Card key={stat.title} className="border-[#e4e7ec] bg-white p-0">
-          <CardContent className="p-4">
-            <div className="flex flex-col gap-4">
-              {/* Header: Icon + Title */}
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex h-8 w-8 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: stat.iconBg }}
-                >
-                  <stat.icon
-                    className="h-4 w-4"
-                    style={{ color: stat.iconColor }}
-                  />
-                </div>
-                <span className="text-sm text-[#838794]">{stat.title}</span>
-              </div>
-
-              {/* Value */}
-              <div>
-                <h3 className="text-2xl font-bold text-[#1d1d2a]">
-                  {stat.value}
-                </h3>
-              </div>
-
-              {/* Trend */}
-              <div className="flex items-center gap-1 text-xs text-[#009a49]">
-                <TrendingUp className="h-3 w-3" />
-                <span>{stat.change}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatItem
+        icon={ShoppingBag}
+        title="Total Sales"
+        value={formatCurrency(stats.totalSales || 0)}
+        subtitleHighlight={`${stats.ordersCompleted || 0}`}
+        subtitle="Total Orders"
+        trend="up"
+        iconColor="#E6007A"
+      />
+      <StatItem
+        icon={FileText}
+        title="Products Listed"
+        value={String(stats.productsListed || 0)}
+        subtitle="Listed Products"
+        trend="up"
+        iconColor="#E6007A"
+      />
+      <StatItem
+        icon={CheckCircle}
+        title="Orders Completed"
+        value={String(stats.ordersCompleted || 0)}
+        subtitle="Orders Fulfilled"
+        iconColor="#E6007A"
+      />
+      <StatItem
+        icon={CreditCard}
+        title="Contributions Paid"
+        value={formatCurrency(stats.totalContributions || 0)}
+        subtitleHighlight={`${stats.contributionsCount || 0}`}
+        subtitle="Payments Made"
+        trend="up"
+        iconColor="#E6007A"
+      />
     </div>
   );
 }

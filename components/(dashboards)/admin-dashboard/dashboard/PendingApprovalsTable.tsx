@@ -19,10 +19,10 @@ export function PendingApprovalsTable({ approvals }: PendingApprovalsTableProps)
     <Card className="border border-table-border rounded-[10px] shadow-none p-0 gap-0">
       <div className="flex items-center justify-between px-4 py-4 border-b border-table-border rounded-t-[16px] bg-white">
         <h2 className="text-lg font-semibold text-table-header-text">Pending Approvals</h2>
-        <Button variant="outline" size="sm" className="gap-1 border-input-border">
+        {/* <Button variant="outline" size="sm" className="gap-1 border-input-border">
           <ExportIcon width={17} height={18} color="#344054" />
           <span className="text-sm font-medium text-export-button-text">Export</span>
-        </Button>
+        </Button> */}
       </div>
       
       <div className="overflow-x-auto">
