@@ -24,13 +24,13 @@ export function DashboardHeader() {
           <UserPlus className="h-4 w-4" />
           Invite Members
         </Button>
-        <Button
+        {/* <Button
           onClick={() => router.push("/cooperatives/create/create-tier")}
           className="gap-2 bg-[#1d1d2a] text-white hover:bg-[#33363e]"
         >
           <Plus className="h-4 w-4" />
           Create Tier
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

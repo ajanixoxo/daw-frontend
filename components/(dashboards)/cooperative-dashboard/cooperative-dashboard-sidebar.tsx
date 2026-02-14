@@ -29,7 +29,7 @@ const navItems = [
   { icon: HandCoins, label: "Contribution", href: "/cooperative/contributions" },
   { icon: Wallet, label: "Loans", href: "/cooperative/loans" },
   // { icon: BarChart3, label: "Analytics", href: "/cooperative/analytics" },
-  { icon: Settings, label: "Settings", href: "/cooperative/settings" },
+  // { icon: Settings, label: "Settings", href: "/cooperative/settings" },
 ]
 
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {

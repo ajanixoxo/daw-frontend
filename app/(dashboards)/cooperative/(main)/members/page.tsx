@@ -9,7 +9,7 @@ export default function MembersPage() {
       <div className="container mx-auto px-4 py-6 lg:px-8 lg:py-8">
         <MembersHeader />
         <MembersStats />
-        <MembersTabs />
+        {/* <MembersTabs /> */}
         <MembersList />
       </div>
     </div>
