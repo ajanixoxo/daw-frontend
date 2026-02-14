@@ -17,13 +17,13 @@ export function DashboardHeader() {
         </p>
       </div>
       <div className="flex flex-wrap gap-3">
-        <Button
+        {/* <Button
           variant="outline"
           className="gap-2 border-[#e4e7ec] bg-white text-[#1d1d2a] hover:bg-[#f7f7f7]"
         >
           <UserPlus className="h-4 w-4" />
           Invite Members
-        </Button>
+        </Button> */}
         {/* <Button
           onClick={() => router.push("/cooperatives/create/create-tier")}
           className="gap-2 bg-[#1d1d2a] text-white hover:bg-[#33363e]"
