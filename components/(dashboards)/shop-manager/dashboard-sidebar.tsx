@@ -29,7 +29,7 @@ const navItems = [
     { icon: Wallet, label: "Loans", href: "/shop-manager/loans" },
   { icon: Package, label: "Wallet", href: "/shop-manager/wallet" },
   { icon: BarChart3, label: "Analytics", href: "/shop-manager/analytics" },
-  { icon: Settings, label: "Settings", href: "/shop-manager/settings" },
+  // { icon: Settings, label: "Settings", href: "/shop-manager/settings" },
 
   
 

@@ -25,7 +25,7 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/logistics/dashboard" },
   { icon: ShoppingBag, label: "Deliveries", href: "/logistics/deliveries" },
   { icon: HandCoins, label: "Earnings", href: "/logistics/earnings" },
-  { icon: Settings, label: "Settings", href: "/logistics/settings" },
+  // { icon: Settings, label: "Settings", href: "/logistics/settings" },
 ]
 
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
