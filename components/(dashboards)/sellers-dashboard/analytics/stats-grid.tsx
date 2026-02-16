@@ -1,20 +1,56 @@
-import { DollarSign, ShoppingCart, Users, TrendingUp } from "lucide-react"
-import { StatCard } from "@/components/(dashboards)/sellers-dashboard/analytics/stat-card"
+import { Wallet, ShoppingCart, Users, DollarSign } from "lucide-react"
+import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 
-export function StatsGrid() {
+interface StatsGridProps {
+  totalRevenue: number
+  totalOrders: number
+  viewCount: number
+  avgOrderValue: number
+}
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
+
+export function StatsGrid({ totalRevenue, totalOrders, viewCount, avgOrderValue }: StatsGridProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
+        icon={Wallet}
         title="Total Revenue"
-        value="$328,000"
-        change="+10%"
-        changeLabel="from last month"
-        icon={DollarSign}
+        value={formatCurrency(totalRevenue)}
+        subtitleHighlight={`${totalOrders}`}
+        subtitle="Total Orders"
         trend="up"
+        iconColor="#E6007A"
       />
-      <StatCard title="Total Order" value="96" changeLabel="Monthly growth" icon={ShoppingCart} />
-      <StatCard title="Store Visitors" value="2,800" change="+10%" changeLabel="this month" icon={Users} trend="up" />
-      <StatCard title="Conversion Rate" value="3.4%" changeLabel="This month" icon={TrendingUp} />
+      <StatCard
+        icon={ShoppingCart}
+        title="Total Orders"
+        value={String(totalOrders)}
+        subtitle="Orders Placed"
+        trend="up"
+        iconColor="#E6007A"
+      />
+      <StatCard
+        icon={Users}
+        title="Store Visitors"
+        value={viewCount.toLocaleString()}
+        subtitle="Unique Visitors"
+        trend="up"
+        iconColor="#E6007A"
+      />
+      <StatCard
+        icon={DollarSign}
+        title="Avg Order Value"
+        value={formatCurrency(avgOrderValue)}
+        subtitle="Per Order"
+        iconColor="#E6007A"
+      />
     </div>
   )
 }

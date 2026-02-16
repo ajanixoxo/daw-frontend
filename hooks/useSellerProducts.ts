@@ -7,26 +7,47 @@ import { getShopId } from './useSellerProfile';
 // Client-side function to add product using shop ID from localStorage
 async function addProductClient(data: Omit<IAddProductRequest, 'shop_id'>) {
   const shopId = getShopId();
-  
+
   if (!shopId) {
     throw new Error('Shop ID not found. Please create a shop first.');
   }
 
   // Ensure shopId is a string, not an object
   const shopIdString = String(shopId).trim();
-  
+
   if (!shopIdString || shopIdString === '[object Object]' || shopIdString.includes('[object Object]')) {
     throw new Error('Invalid shop ID. Please refresh the page and try again.');
   }
 
-  const payload: IAddProductRequest = {
-    ...data,
-    shop_id: shopIdString,
-  };
+  const formData = new FormData();
+  formData.append('shop_id', shopIdString);
+  formData.append('name', data.name);
+  formData.append('quantity', String(data.quantity));
+  formData.append('price', String(data.price));
+  if (data.description) formData.append('description', data.description);
+  if (data.category) formData.append('category', data.category);
+  if (data.status) formData.append('status', data.status);
+  if (data.variants && data.variants.length > 0) {
+    formData.append('variants', JSON.stringify(data.variants));
+  }
+  if (data.productFeatures) formData.append('productFeatures', data.productFeatures);
+  if (data.careInstruction) formData.append('careInstruction', data.careInstruction);
+  if (data.returnPolicy) formData.append('returnPolicy', data.returnPolicy);
+
+  if (data.images && data.images.length > 0) {
+    data.images.forEach((file) => {
+      formData.append('images', file);
+    });
+  }
 
   const response = await clientApiClient.post<IAddProductResponse>(
     API_ENDPOINTS.MARKETPLACE.ADD_PRODUCT,
-    payload
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
   );
 
   return response;
@@ -50,6 +71,94 @@ export function useAddProduct() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to add product');
+    },
+  });
+}
+
+export interface IEditProductData {
+  name?: string;
+  quantity?: number;
+  price?: number;
+  description?: string;
+  category?: string;
+  status?: "available" | "unavailable" | "draft" | "out_of_stock";
+  images?: File[];
+  existingImages?: string[];
+  variants?: { type: string; values: string[] }[];
+  productFeatures?: string;
+  careInstruction?: string;
+  returnPolicy?: string;
+}
+
+export function useEditProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ productId, data }: { productId: string; data: IEditProductData }) => {
+      const formData = new FormData();
+
+      if (data.name !== undefined) formData.append('name', data.name);
+      if (data.quantity !== undefined) formData.append('quantity', String(data.quantity));
+      if (data.price !== undefined) formData.append('price', String(data.price));
+      if (data.description !== undefined) formData.append('description', data.description);
+      if (data.category !== undefined) formData.append('category', data.category);
+      if (data.status !== undefined) formData.append('status', data.status);
+      if (data.variants !== undefined) formData.append('variants', JSON.stringify(data.variants));
+      if (data.productFeatures !== undefined) formData.append('productFeatures', data.productFeatures);
+      if (data.careInstruction !== undefined) formData.append('careInstruction', data.careInstruction);
+      if (data.returnPolicy !== undefined) formData.append('returnPolicy', data.returnPolicy);
+      if (data.existingImages !== undefined) formData.append('existingImages', JSON.stringify(data.existingImages));
+
+      if (data.images && data.images.length > 0) {
+        data.images.forEach((file) => {
+          formData.append('images', file);
+        });
+      }
+
+      const response = await clientApiClient.patch<IAddProductResponse>(
+        API_ENDPOINTS.MARKETPLACE.EDIT_PRODUCT(productId),
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+
+      if (!response.success) {
+        throw new Error('Failed to update product');
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['seller-products'] });
+      toast.success('Product updated successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update product');
+    },
+  });
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (productId: string) => {
+      const response = await clientApiClient.delete<{ success: boolean; message: string }>(
+        API_ENDPOINTS.MARKETPLACE.DELETE_PRODUCT(productId)
+      );
+      if (!response.success) {
+        throw new Error('Failed to delete product');
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['seller-products'] });
+      toast.success('Product deleted successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete product');
     },
   });
 }
@@ -91,4 +200,3 @@ export function useSellerProducts() {
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }
-

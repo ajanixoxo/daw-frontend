@@ -4,13 +4,23 @@ import { UserStatus, UserStatusColor } from "./enums";
 import { cn } from "@/lib/utils";
 
 interface StatusBadgeProps {
-  status: UserStatus;
+  status: string;
   className?: string;
 }
 
+// Map string status to UserStatus enum
+const mapToUserStatus = (status: string): UserStatus => {
+  const normalized = status.toLowerCase();
+  if (normalized === 'shipped' || normalized === 'active') return UserStatus.SHIPPED;
+  if (normalized === 'cancelled' || normalized === 'inactive') return UserStatus.CANCELLED;
+  return UserStatus.PENDING;
+};
+
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const getStatusColor = (status: UserStatus): string => {
-    switch (status) {
+  const userStatus = mapToUserStatus(status);
+
+  const getStatusColor = (s: UserStatus): string => {
+    switch (s) {
       case UserStatus.SHIPPED:
         return UserStatusColor.SHIPPED;
       case UserStatus.CANCELLED:
@@ -22,8 +32,8 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     }
   };
 
-  const getStatusBgColor = (status: UserStatus): string => {
-    switch (status) {
+  const getStatusBgColor = (s: UserStatus): string => {
+    switch (s) {
       case UserStatus.SHIPPED:
         return "bg-user-mgmt-status-shipped-bg";
       case UserStatus.PENDING:
@@ -33,15 +43,15 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     }
   };
 
-  const statusColor = getStatusColor(status);
+  const statusColor = getStatusColor(userStatus);
 
   return (
-    <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-[72px]", getStatusBgColor(status), className)}>
-      <div 
-        className="w-2 h-2 rounded-full" 
+    <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-[72px]", getStatusBgColor(userStatus), className)}>
+      <div
+        className="w-2 h-2 rounded-full"
         style={{ backgroundColor: statusColor }}
       />
-      <span className="user-mgmt-status-text" style={{ color: statusColor }}>
+      <span className="user-mgmt-status-text capitalize" style={{ color: statusColor }}>
         {status}
       </span>
     </div>

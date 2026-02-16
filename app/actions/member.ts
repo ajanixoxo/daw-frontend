@@ -1,13 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 export async function approveMember(
   memberId: string
 ): Promise<IActionResponse> {
   try {
+    await refreshAccessToken();
     const session = await getServerSession();
     const token = session?.accessToken;
 

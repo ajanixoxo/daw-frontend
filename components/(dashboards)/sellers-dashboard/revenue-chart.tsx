@@ -1,53 +1,119 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
-import { IOrder } from "@/types/product.types"
-import { useMemo } from "react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
+import { IOrder } from "@/types/product.types";
+import { useMemo } from "react";
 
 interface RevenueChartProps {
-  orders: IOrder[]
+  orders: IOrder[];
+}
+
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+function computeMonthlyRevenue(orders: IOrder[]) {
+  const now = new Date();
+  const months: { month: string; value: number }[] = [];
+
+  for (let i = 7; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      month: MONTH_NAMES[d.getMonth()],
+      value: 0,
+    });
+  }
+
+  for (const order of orders) {
+    const orderDate = new Date(order.createdAt);
+    const entry = months.find((m) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - 7, 1);
+      for (let i = 0; i < 8; i++) {
+        const check = new Date(d.getFullYear(), d.getMonth() + i, 1);
+        if (
+          check.getMonth() === orderDate.getMonth() &&
+          check.getFullYear() === orderDate.getFullYear() &&
+          MONTH_NAMES[check.getMonth()] === m.month
+        ) {
+          return true;
+        }
+      }
+      return false;
+    });
+    if (entry) {
+      entry.value += order.total_amount || 0;
+    }
+  }
+
+  return months;
+}
+
+function computeYAxisTicks(maxValue: number): number[] {
+  if (maxValue === 0) return [0, 50000, 100000, 150000, 200000, 250000];
+  const step = Math.ceil(maxValue / 5 / 1000) * 1000;
+  const ticks: number[] = [];
+  for (let i = 0; i <= 5; i++) {
+    ticks.push(step * i);
+  }
+  return ticks;
 }
 
 export function RevenueChart({ orders }: RevenueChartProps) {
-  // Calculate monthly revenue from orders
-  const chartData = useMemo(() => {
-    const monthlyRevenue: Record<string, number> = {}
-    
-    orders.forEach((order) => {
-      const date = new Date(order.createdAt)
-      const monthKey = date.toLocaleDateString('en-US', { month: 'short' })
-      const amount = order.total_amount || 0
-      
-      if (monthlyRevenue[monthKey]) {
-        monthlyRevenue[monthKey] += amount
-      } else {
-        monthlyRevenue[monthKey] = amount
-      }
-    })
-    
-    // Convert to array format for chart
-    return Object.entries(monthlyRevenue)
-      .map(([month, value]) => ({ month, value }))
-      .sort((a, b) => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        return months.indexOf(a.month) - months.indexOf(b.month)
-      })
-  }, [orders])
-  
-  const totalRevenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
+  const chartData = useMemo(() => computeMonthlyRevenue(orders), [orders]);
+
+  const totalRevenue = useMemo(
+    () => orders.reduce((sum, o) => sum + (o.total_amount || 0), 0),
+    [orders],
+  );
+
+  const yTicks = useMemo(() => {
+    const maxVal = Math.max(...chartData.map((d) => d.value), 0);
+    return computeYAxisTicks(maxVal);
+  }, [chartData]);
+
+  const formatCurrency = (amount: number) =>
+    `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 0 })}`;
+
   return (
-    <Card className="border-[#e7e8e9] shadow-sm bg-white flex flex-col h-full">
-      <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
+    <Card className="border border-[#f0f0f0] shadow-none bg-white flex flex-col h-full rounded-lg">
+      <CardHeader className="pb-4 px-6 pt-5 shrink-0 border-b border-[#f9fafb]">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <p className="text-[11px] text-[#98a2b3] uppercase tracking-wider font-medium mb-2">TOTAL REVENUE</p>
-            <p className="text-[28px] font-bold text-[#1d1d2a] leading-none mb-2">₦{totalRevenue.toLocaleString()}</p>
-            <p className="text-xs text-[#ff5d61] font-medium">(+4.3%) than last Year</p>
+            <p className="text-[10px] text-[#98a2b3] uppercase tracking-[0.5px] font-medium mb-2 leading-none">
+              TOTAL REVENUE
+            </p>
+            <p className="text-[32px] font-bold text-[#101828] leading-none mb-2.5">
+              {formatCurrency(totalRevenue)}
+            </p>
           </div>
-          <Select defaultValue="this-month">
-            <SelectTrigger className="w-[140px] h-9 text-sm border-[#e7e8e9]">
+          <Select defaultValue="this-year">
+            <SelectTrigger className="w-[115px] h-8 text-[11px] border-[#e4e7ec] rounded-md bg-white font-normal text-[#344054]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -58,30 +124,46 @@ export function RevenueChart({ orders }: RevenueChartProps) {
           </Select>
         </div>
       </CardHeader>
-      <CardContent className="px-6 pb-6 pt-4 flex-1 min-h-0">
-        <div className="h-full w-full">
+      <CardContent className="px-4 pb-5 pt-6 flex-1 min-h-0">
+        <div className="w-full min-h-[350px] h-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData.length > 0 ? chartData : [{ month: 'No Data', value: 0 }]} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="0" stroke="#f3f4f7" vertical={false} />
+            <BarChart
+              data={chartData}
+              margin={{ top: 0, right: 10, left: -30, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="0"
+                stroke="#f2f4f7"
+                vertical={false}
+              />
               <XAxis
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#98a2b3", fontSize: 13 }}
-                dy={10}
+                tick={{ fill: "#98a2b3", fontSize: 11, fontWeight: 400 }}
+                dy={12}
+                interval={0}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#98a2b3", fontSize: 13 }}
-                tickFormatter={(value) => `${value / 1000}k`}
-                ticks={[0, 50000, 100000, 150000, 200000, 250000, 300000]}
+                tick={{ fill: "#98a2b3", fontSize: 11, fontWeight: 400 }}
+                tickFormatter={(value) =>
+                  value >= 1000 ? `${value / 1000}k` : `${value}`
+                }
+                ticks={yTicks}
+                dx={-5}
               />
-              <Bar dataKey="value" fill="#f10e7c" radius={[6, 6, 0, 0]} barSize={32} />
+              <Bar
+                dataKey="value"
+                fill="#E6007A"
+                radius={[100, 100, 0, 0]}
+                barSize={24}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

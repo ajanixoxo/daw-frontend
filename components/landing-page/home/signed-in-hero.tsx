@@ -281,7 +281,7 @@ export function HeroSection() {
       image: "/banner2.png",
       title: "Expand your business\nreach by becoming a Seller",
       cta: "Become a Seller",
-      link: "/marketplace",
+      link: "/sellers/sellers-signup",
       textColor: "text-white",
       overlay: "bg-gradient-to-r from-black/60 via-black/40 to-transparent",
       logoColor: "#e91e8c", // Keep pink logo or make white? contrast check. Pink usually works on dark if bright enough.
@@ -307,7 +307,7 @@ export function HeroSection() {
   }, [banners.length]);
 
   return (
-    <section className="px-4 md:px-8 lg:px-16 py-8 lg:py-32">
+    <section className="max-w-[1440px] mx-auto px-5 lg:px-[84px] py-8 lg:pt-32 lg:pb-16">
       <Header />
       <div className="relative mt-12 md:mt-4 rounded-3xl overflow-hidden min-h-[400px] md:min-h-[480px] lg:min-h-[520px] group">
         {/* Slider Container */}

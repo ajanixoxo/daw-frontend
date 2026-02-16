@@ -13,9 +13,11 @@ import {
   Settings,
   X,
   Menu,
+  LogOut,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSellerProfile } from "@/hooks/useSellerProfile"
+import { useLogout } from "@/hooks/useAuth"
 
 interface DashboardSidebarProps {
   isOpen: boolean
@@ -29,26 +31,34 @@ const allNavItems = [
   { icon: ShoppingBag, label: "Shop", href: "/sellers/shop" },
   { icon: Package, label: "Products", href: "/sellers/products" },
   { icon: ShoppingCart, label: "Orders", href: "/sellers/orders" },
-  { icon: HandCoins, label: "Contribution", href: "/sellers/contribution", hideIfMember: true },
-  { icon: Wallet, label: "Loans", href: "/sellers/loans", hideIfMember: true },
-  { icon: BarChart3, label: "Analytics", href: "/sellers/analytics", hideIfMember: true },
+  { icon: HandCoins, label: "Contribution", href: "/sellers/contribution", memberOnly: true },
+  { icon: Wallet, label: "Loans", href: "/sellers/loans", memberOnly: true },
+   { icon: Wallet, label: "Wallet", href: "/sellers/wallet", memberOnly: true },
+  { icon: BarChart3, label: "Analytics", href: "/sellers/analytics" },
   { icon: Settings, label: "Settings", href: "/sellers/settings" },
 ]
 
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
   const pathname = usePathname()
   const { data: user } = useSellerProfile()
+  const { logout, isLoading: isLoggingOut } = useLogout()
 
-  // Check if user has member data with cooperativeId
-  const hasMemberWithCooperative = user?.member && 
-    Array.isArray(user.member) && 
-    user.member.length > 0 && 
-    user.member.some(m => m.cooperativeId)
+  const handleLogout = async () => {
+    await logout()
+  }
 
-  // Filter nav items based on member status
+  // Check if user is a cooperative member (by role or member data)
+  const isMember =
+    user?.roles?.includes("member") ||
+    user?.roles?.includes("cooperative") ||
+    (user?.member &&
+      Array.isArray(user.member) &&
+      user.member.length > 0 &&
+      user.member.some((m: { cooperativeId?: string }) => m.cooperativeId))
+
+  // Filter nav items: memberOnly items only show for cooperative members
   const navItems = allNavItems.filter(item => {
-    // Hide items marked with hideIfMember if user has member/cooperative data
-    if (item.hideIfMember && hasMemberWithCooperative) {
+    if (item.memberOnly && !isMember) {
       return false
     }
     return true
@@ -131,6 +141,24 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
               })}
             </ul>
           </nav>
+
+          {/* Logout Button */}
+          <div className="px-4 py-4 border-t border-[#e7e8e9]">
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                "text-red-600 hover:bg-red-50",
+                isCollapsed && "justify-center px-2",
+              )}
+              title={isCollapsed ? "Logout" : undefined}
+              aria-label="Logout"
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">{isLoggingOut ? "Logging out..." : "Logout"}</span>}
+            </button>
+          </div>
         </div>
       </aside>
     </>

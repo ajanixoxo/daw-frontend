@@ -10,13 +10,13 @@ import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export function LearnGrowCourses() {
   return (
-    <section className="py-16 md:py-24 px-4 md:px-8 lg:px-16 bg-white overflow-hidden">
+    <section className="py-16 md:py-24 bg-white overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="max-w-7xl mx-auto"
+        className="max-w-[1440px] mx-auto px-5 lg:px-[84px]"
       >
         {/* Header */}
         <div className="mb-12 md:mb-16">

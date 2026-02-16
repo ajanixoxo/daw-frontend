@@ -1,58 +1,50 @@
 "use client";
 
+import { Users, ShoppingBag, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useFetchMembers } from "@/hooks/useMember";
-import { Users, ShoppingBag, Clock, TrendingUp } from "lucide-react";
-import { useEffect } from "react";
 
-export function MemberStats() {
-  // const { members, fetchAllMembers, loading } = useFetchMembers();
-
-  const stats = [
+export function MemberStats({
+  stats,
+}: {
+  stats: {
+    totalContributions: number;
+    contributionsCount: number;
+    totalLoans: number;
+    activeLoans: number;
+  };
+}) {
+  const statItems = [
     {
-      title: "Total Members",
-      value: 12,
-      change: "Updated live",
+      title: "Total Contributions",
+      value: `₦${stats.totalContributions.toLocaleString()}`,
+      change: `${stats.contributionsCount} transactions`,
       changeType: "positive",
       icon: Users,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
     },
     {
-      title: "Active Sellers",
-      value: 12,
-      change: "Verified sellers",
-      changeType: "positive",
-      icon: ShoppingBag,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
-    },
-    {
-      title: "Pending Invites",
-      value: 12,
-      change: "Requires attention",
+      title: "Active Loans",
+      value: stats.activeLoans,
+      change: `${stats.totalLoans} total loans`,
       changeType: "neutral",
-      icon: Clock,
-      iconBg: "#ffedf6",
-      iconColor: "#f10e7c",
+      icon: ShoppingBag,
     },
   ];
 
-  //   if (loading) return <p>Loading stats...</p>;
-
   return (
     <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {stats.map((stat) => (
+      {statItems.map((stat) => (
         <Card key={stat.title} className="border-[#e4e7ec] bg-white p-0">
           <CardContent className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm text-[#838794]">{stat.title}</p>
-                <p className="mt-2 text-3xl font-bold text-[#1d1d2a]">
-                  {stat.value}
-                </p>
+                <p className="text-sm font-medium text-[#838794]">{stat.title}</p>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-2xl font-bold text-[#1d1d2a]">
+                    {stat.value}
+                  </span>
+                </div>
                 <div
-                  className={`mt-3 flex items-center gap-1 text-xs ${
+                  className={`mt-2 flex items-center gap-1 text-xs ${
                     stat.changeType === "positive"
                       ? "text-[#009a49]"
                       : "text-[#838794]"
@@ -64,15 +56,8 @@ export function MemberStats() {
                   <span>{stat.change}</span>
                 </div>
               </div>
-
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg"
-                style={{ backgroundColor: stat.iconBg }}
-              >
-                <stat.icon
-                  className="h-5 w-5"
-                  style={{ color: stat.iconColor }}
-                />
+              <div className="rounded-full bg-[#f9fafb] p-2">
+                 <stat.icon className="h-4 w-4 text-[#667185]" />
               </div>
             </div>
           </CardContent>

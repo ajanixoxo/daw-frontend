@@ -1,12 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { ArrowLeft } from "lucide-react"
+import { createContributionTypeAction } from "@/app/actions/contributions"
 
 interface CreateContributionDrawerProps {
   open: boolean
@@ -19,21 +22,50 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
   const [frequency, setFrequency] = useState("")
   const [amount, setAmount] = useState("")
   const [loanEligibility, setLoanEligibility] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleCancel = () => {
-    // Reset form
     setContributionName("")
     setType("")
     setFrequency("")
     setAmount("")
     setLoanEligibility("")
+    setError(null)
     onOpenChange(false)
   }
 
-  const handleCreateContribution = () => {
-    console.log("[v0] Creating contribution...")
-    // Handle create contribution logic
-    onOpenChange(false)
+  const router = useRouter()
+
+  const handleCreateContribution = async () => {
+    if (!contributionName || !type || !amount) {
+      toast.error("Please fill in all required fields")
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      const result = await createContributionTypeAction({
+        name: contributionName,
+        type,
+        frequency: frequency || (type === "recurring" ? "monthly" : "n/a"),
+        amount: parseFloat(amount),
+        loanEligibilityMonths: loanEligibility ? parseInt(loanEligibility) : 3,
+      })
+
+      if (result.success) {
+        toast.success("Contribution type created successfully")
+        handleCancel()
+        router.refresh()
+      } else {
+        toast.error(result.error || "Failed to create contribution type")
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -87,11 +119,10 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
                 <SelectValue placeholder="Select Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="monthly-savings">Monthly Savings</SelectItem>
-                <SelectItem value="target-savings">Target Savings</SelectItem>
-                <SelectItem value="investment-pool">Investment Pool</SelectItem>
-                <SelectItem value="emergency-fund">Emergency Fund</SelectItem>
-                <SelectItem value="loan-repayment">Loan Repayment</SelectItem>
+                <SelectItem value="recurring">Recurring</SelectItem>
+                <SelectItem value="target-based">Target-based</SelectItem>
+                <SelectItem value="investment">Investment</SelectItem>
+                <SelectItem value="one-time">One-time</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -126,7 +157,7 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
             </Label>
             <Input
               id="amount"
-              type="text"
+              type="number"
               placeholder="Enter Amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -137,12 +168,12 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
           {/* Loan Eligibility Requirements */}
           <div className="space-y-2">
             <Label htmlFor="loan-eligibility" className="text-sm font-medium text-[#1d1d2a]">
-              Loan Eligibility Requirements
+              Loan Eligibility (months of contributions)
             </Label>
             <Input
               id="loan-eligibility"
-              type="text"
-              placeholder="e.g 3 months of contributions"
+              type="number"
+              placeholder="e.g 3"
               value={loanEligibility}
               onChange={(e) => setLoanEligibility(e.target.value)}
               className="h-12 border-[#e4e7ec] bg-white text-[#1d1d2a] placeholder:text-[#9c9faa] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
@@ -154,15 +185,17 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
             <Button
               variant="outline"
               onClick={handleCancel}
+              disabled={submitting}
               className="h-12 flex-1 border-[#e4e7ec] bg-[#e8e8e8] text-[#1d1d2a] hover:bg-[#d8d8d8]"
             >
               Cancel
             </Button>
             <Button
               onClick={handleCreateContribution}
+              disabled={submitting}
               className="h-12 flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a]"
             >
-              Create Contribution
+              {submitting ? "Creating..." : "Create Contribution"}
             </Button>
           </div>
         </div>

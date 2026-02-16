@@ -10,7 +10,7 @@ type MemberProfileProps = {
   memberSince: string;
   email: string;
   phone: string;
-  status: "Active Seller" | "Inactive" | "Pending";
+  status: string;
 };
 
 export function MemberProfile({
@@ -64,13 +64,14 @@ export function MemberProfile({
       </div>
 
       {/* RIGHT */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col  items-center gap-8">
         {/* Status */}
         <span className="rounded-full bg-pink-100 px-4 py-1 text-sm font-medium text-pink-600">
-          {status}
+          {status} Seller
         </span>
 
-        {/* Actions */}
+{/* <div className="space-x-3"> 
+  
         <button className="rounded-lg border border-[#e4e7ec] p-2 hover:bg-[#f9fafb]">
           <Heart className="h-5 w-5 text-[#475467]" />
         </button>
@@ -78,6 +79,9 @@ export function MemberProfile({
         <button className="rounded-lg border border-[#e4e7ec] p-2 hover:bg-[#f9fafb]">
           <Share2 className="h-5 w-5 text-[#475467]" />
         </button>
+        
+        </div>
+        */}
       </div>
     </div>
   );

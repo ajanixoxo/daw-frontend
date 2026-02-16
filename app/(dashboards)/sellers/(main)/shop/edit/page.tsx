@@ -1,29 +1,132 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowLeft, Share2, Globe, Edit, Copy } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { useState, useEffect, useRef } from "react";
+import {
+  ArrowLeft,
+  Share2,
+  Upload,
+  Loader2,
+  Store,
+  ImageIcon,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useGetMyShop, useEditShop } from "@/hooks/useShop";
+import Image from "next/image";
 
 export default function EditShopPage() {
-  const router = useRouter()
-  const [storeName, setStoreName] = useState("Faye's Complex")
-  const [storeSlug, setStoreSlug] = useState("fayes-complex")
-  const [description, setDescription] = useState(
-    "Authentic African handcrafted items including clothings, jewelry, and home décor. Empowering women artisans across Nigeria.",
-  )
-  const [phone, setPhone] = useState("+234 90322353555")
-  const [email, setEmail] = useState("princewillfavour1@gmail.com")
-  const [copied, setCopied] = useState(false)
+  const router = useRouter();
+  const { data: shopData, isLoading } = useGetMyShop();
+  const shop = shopData?.shop;
+  const productCount = shopData?.productCount ?? 0;
+  const editShopMutation = useEditShop();
 
-  const storeUrl = `https://daw.app/${storeSlug}`
+  const [storeName, setStoreName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [phone, setPhone] = useState("");
+  const [businessAddress, setBusinessAddress] = useState("");
 
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText(storeUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  // File upload state
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  // Populate form with existing shop data
+  useEffect(() => {
+    if (shop) {
+      setStoreName(shop.name || "");
+      setDescription(shop.description || "");
+      setCategory(shop.category || "");
+      setPhone(shop.contact_number || "");
+      setBusinessAddress(shop.business_address || "");
+      if (shop.logo_url) setLogoPreview(shop.logo_url);
+      if (shop.banner_url) setBannerPreview(shop.banner_url);
+    }
+  }, [shop]);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setLogoPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBannerFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setBannerPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = () => {
+    if (!shop?._id) return;
+
+    const formData = new FormData();
+    if (storeName !== shop.name) formData.append("name", storeName);
+    if (description !== shop.description)
+      formData.append("description", description);
+    if (category !== shop.category) formData.append("category", category);
+    if (phone !== (shop.contact_number || ""))
+      formData.append("contact_number", phone);
+    if (businessAddress !== (shop.business_address || ""))
+      formData.append("business_address", businessAddress);
+    if (logoFile) formData.append("shopLogo", logoFile);
+    if (bannerFile) formData.append("shopBanner", bannerFile);
+
+    editShopMutation.mutate(
+      { shopId: shop._id, formData },
+      {
+        onSuccess: () => {
+          router.push("/sellers/shop");
+        },
+      },
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <main className="p-6 lg:p-8 flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#f10e7c]" />
+          <p className="text-sm text-[#667085]">Loading shop details...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!shop) {
+    return (
+      <main className="p-6 lg:p-8 flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Store className="w-12 h-12 text-[#98A2B3]" />
+          <h2 className="text-xl font-semibold text-[#101828]">
+            No Shop Found
+          </h2>
+          <p className="text-sm text-[#667085]">
+            Create a shop first before editing.
+          </p>
+          <Button
+            onClick={() => router.push("/sellers/shop/create")}
+            className="bg-[#f10e7c] text-white hover:bg-[#d90d6a]"
+          >
+            Create Shop
+          </Button>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -31,15 +134,19 @@ export default function EditShopPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
-          <Button
+          <button
             onClick={() => router.back()}
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[#f0f2f5] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-[#1d1d2a]" />
-          </Button>
+          </button>
           <div>
-            <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">Faye&apos;s Complex</h1>
-            <p className="text-[14px] text-[#667185] leading-relaxed">Manage your store settings and information</p>
+            <h1 className="text-[28px] lg:text-[32px] font-bold text-[#000000] leading-tight">
+              {shop.name}
+            </h1>
+            <p className="text-[14px] text-[#667185] leading-relaxed">
+              Manage your store settings and information
+            </p>
           </div>
         </div>
         <Button className="bg-[#000000] text-white hover:bg-[#1a1a1a] h-11 px-5 rounded-lg font-medium text-[14px] flex-shrink-0">
@@ -53,13 +160,17 @@ export default function EditShopPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Shop Information */}
           <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Shop Information</h2>
+            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+              Shop Information
+            </h2>
 
             <div className="space-y-5">
-              {/* Store Name & URL */}
+              {/* Store Name & Category */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Store Name</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Store Name
+                  </label>
                   <Input
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
@@ -67,21 +178,22 @@ export default function EditShopPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Store URL</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px] text-[#667185] whitespace-nowrap">daw.app/</span>
-                    <Input
-                      value={storeSlug}
-                      onChange={(e) => setStoreSlug(e.target.value)}
-                      className="h-11 border-[#d0d5dd] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
-                    />
-                  </div>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Category
+                  </label>
+                  <Input
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="h-11 border-[#d0d5dd] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
+                  />
                 </div>
               </div>
 
               {/* Shop Description */}
               <div>
-                <label className="block text-[14px] font-medium text-[#344054] mb-2">Shop Description</label>
+                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                  Shop Description
+                </label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -90,10 +202,12 @@ export default function EditShopPage() {
                 />
               </div>
 
-              {/* Phone & Email */}
+              {/* Phone & Business Address */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Phone Number</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Phone Number
+                  </label>
                   <Input
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -101,11 +215,12 @@ export default function EditShopPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-[#344054] mb-2">Email</label>
+                  <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                    Business Address
+                  </label>
                   <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={businessAddress}
+                    onChange={(e) => setBusinessAddress(e.target.value)}
                     className="h-11 border-[#d0d5dd] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
                   />
                 </div>
@@ -114,35 +229,73 @@ export default function EditShopPage() {
           </div>
 
           {/* Store Branding */}
-          <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Store Branding</h2>
+          <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_3px_rgba(16,24,40,0.05)]">
+            <h2 className="text-[20px] font-bold text-[#101828] mb-8 tracking-tight">
+              Store Branding
+            </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
               {/* Store Logo */}
-              <div>
-                <label className="block text-[14px] font-medium text-[#344054] mb-3">Store Logo</label>
-                <div className="relative">
-                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#e4baca]">
-
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-jGgLZj9vmgNyqApIPPBE0FtK9ciuuq.png"
-                      alt="Store Logo"
-                      className="w-full h-full object-cover"
-                    />
+              <div className="md:col-span-3">
+                <label className="block text-[15px] font-bold text-[#101828] mb-4">
+                  Store Logo
+                </label>
+                <div className="space-y-4">
+                  <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#E6B9C8] border-none flex items-center justify-center group transition-all duration-300">
+                    {logoPreview ? (
+                      <Image
+                        src={logoPreview}
+                        alt="Store Logo"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Store className="w-12 h-12 text-white/50" />
+                    )}
                   </div>
-                  <button className="mt-3 text-[14px] text-[#344054] hover:text-[#f10e7c] font-medium transition-colors">
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="ghost"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="w-full h-12 bg-[#F9FAFB] text-[#101828] hover:bg-[#F2F4F7] font-bold rounded-xl border-none transition-all text-[15px]"
+                  >
                     Upload New Logo
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {/* Store Banner */}
-              <div>
-                <label className="block text-[14px] font-medium text-[#344054] mb-3">Store Banner</label>
-                <div className="w-full aspect-square rounded-lg bg-[#e4baca] flex items-center justify-center">
+              <div className="md:col-span-9">
+                <label className="block text-[15px] font-bold text-[#101828] mb-4">
+                  Store Banner
+                </label>
+                <div className="relative w-full aspect-3/1 rounded-2xl bg-[#E6B9C8] flex items-center justify-center overflow-hidden group">
+                  {bannerPreview ? (
+                    <Image
+                      src={bannerPreview}
+                      alt="Store Banner"
+                      fill
+                      className="object-cover"
+                    />
+                  ) : null}
+
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerChange}
+                    className="hidden"
+                  />
+
                   <Button
-                    variant="outline"
-                    className="bg-white border-[#d0d5dd] text-[#344054] hover:bg-[#f9fafb] h-11 px-5 rounded-lg font-medium text-[14px]"
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="relative z-10 h-12 px-10 bg-[#F9FAFB] text-[#101828] hover:bg-white shadow-sm font-bold rounded-2xl transition-all border-none text-[16px]"
                   >
                     Choose File
                   </Button>
@@ -152,69 +305,71 @@ export default function EditShopPage() {
           </div>
         </div>
 
-        {/* Right Column - Shop Status & Profile Photo */}
+        {/* Right Column - Shop Status & Actions */}
         <div className="space-y-8">
           {/* Shop Status */}
           <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Shop Status</h2>
+            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">
+              Shop Status
+            </h2>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#667185]">Status</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a]">Active</span>
+                <span className="text-[15px] font-medium text-[#1d1d2a] capitalize">
+                  {shop.status}
+                </span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#667185]">Products</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a]">12</span>
+                <span className="text-[15px] font-medium text-[#1d1d2a]">
+                  {productCount}
+                </span>
               </div>
               <div className="flex items-center justify-between py-2">
-                <span className="text-[14px] text-[#667185]">Total Orders</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a]">45</span>
+                <span className="text-[14px] text-[#667185]">Category</span>
+                <span className="text-[15px] font-medium text-[#1d1d2a]">
+                  {shop.category || "N/A"}
+                </span>
               </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-[14px] text-[#667185]">Store Views</span>
-                <span className="text-[15px] font-medium text-[#1d1d2a]">1,234</span>
-              </div>
+              {shop.is_member_shop && (
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-[14px] text-[#667185]">
+                    Member Shop
+                  </span>
+                  <span className="text-[15px] font-medium text-[#f10e7c]">
+                    DAW Cooperative
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Profile Photo */}
-          <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
-            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Profile Photo</h2>
-
+          {/* Store URL - Commented out as requested */}
+          {/* <div className="bg-white rounded-xl border border-[#e7e8e9] p-6">
+            <h2 className="text-[18px] font-semibold text-[#1d1d2a] mb-6">Store URL</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-[14px] font-medium text-[#344054] mb-2">Store URL</label>
                 <div className="flex items-center gap-2">
                   <Input value={storeUrl} readOnly className="h-11 border-[#d0d5dd] bg-[#f9fafb] text-[#667185]" />
-                  <button
-                    onClick={handleCopyUrl}
-                    className="flex items-center justify-center w-11 h-11 rounded-lg border border-[#d0d5dd] hover:bg-[#f9fafb] transition-colors flex-shrink-0"
-                  >
+                  <button className="flex items-center justify-center w-11 h-11 rounded-lg border border-[#d0d5dd] hover:bg-[#f9fafb] transition-colors flex-shrink-0">
                     <Copy className="h-[18px] w-[18px] text-[#667185]" />
                   </button>
                 </div>
-                {copied && <p className="text-[12px] text-[#10b981] mt-1">Copied to clipboard!</p>}
               </div>
-
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  className="border border-[#d0d5dd] text-[#344054] hover:bg-[#f9fafb] h-11 rounded-lg font-medium text-[14px] bg-transparent"
-                >
+                <Button variant="outline" className="border border-[#d0d5dd] text-[#344054] hover:bg-[#f9fafb] h-11 rounded-lg font-medium text-[14px] bg-transparent">
                   <Globe className="h-[18px] w-[18px] mr-2" />
                   Visit
                 </Button>
-                <Button
-                  variant="outline"
-                  className="border border-[#d0d5dd] text-[#344054] hover:bg-[#f9fafb] h-11 rounded-lg font-medium text-[14px] bg-transparent"
-                >
+                <Button variant="outline" className="border border-[#d0d5dd] text-[#344054] hover:bg-[#f9fafb] h-11 rounded-lg font-medium text-[14px] bg-transparent">
                   <Edit className="h-[18px] w-[18px] mr-2" />
                   Customize
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="flex items-center gap-3">
@@ -225,12 +380,23 @@ export default function EditShopPage() {
             >
               Cancel
             </Button>
-            <Button className="flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a] h-11 rounded-lg font-medium text-[14px]">
-              Save Changes
+            <Button
+              onClick={handleSave}
+              disabled={editShopMutation.isPending}
+              className="flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a] h-11 rounded-lg font-medium text-[14px]"
+            >
+              {editShopMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </div>
         </div>
       </div>
     </main>
-  )
+  );
 }

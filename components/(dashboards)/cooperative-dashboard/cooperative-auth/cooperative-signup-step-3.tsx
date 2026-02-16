@@ -12,6 +12,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuthStore } from "@/zustand/store";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function CooperativeSignupStep3() {
   const router = useRouter();
@@ -21,6 +23,8 @@ export function CooperativeSignupStep3() {
   const shopInfo = formData.shopInfo ?? { shopName: "", description: "", category: "", contactNumber: "", businessAddress: "", shopLogo: null, shopBanner: null };
   const documents = formData.documents ?? { idDocument: null, proofOfResidence: null, businessCac: null, passportPhotograph: null };
   const { data: profile } = useProfile();
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const queryClient = useQueryClient();
   const [agreed, setAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -99,6 +103,20 @@ export function CooperativeSignupStep3() {
 
         const res = await cooperativeJoinWithSellerOnboard(fd);
         if (res.success) {
+          if (isLoggedIn) {
+            // Sync updated roles into Zustand → localStorage
+            if (res.data?.user) {
+              updateUser({
+                roles: res.data.user.roles,
+                ...(res.data.user.member ? { member: res.data.user.member as any } : {}),
+              });
+            }
+            // Invalidate caches so sidebar/UI picks up new role immediately
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: ["seller-profile"] }),
+              queryClient.invalidateQueries({ queryKey: ["profile"] }),
+            ]);
+          }
           toast.success(
             isLoggedIn
               ? "Seller onboarded and joined DAW cooperative."
@@ -116,6 +134,20 @@ export function CooperativeSignupStep3() {
       if (isLoggedIn) {
         const res = await joinCooperative({ cooperativeId, subscriptionTierId });
         if (res.success) {
+          // Sync updated roles from backend into Zustand → localStorage
+          if (res.data?.user) {
+            updateUser({
+              roles: res.data.user.roles,
+              ...(res.data.user.member ? { member: res.data.user.member as any } : {}),
+            });
+          }
+
+          // Invalidate all profile caches so sidebar/UI picks up "member" role immediately
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["seller-profile"] }),
+            queryClient.invalidateQueries({ queryKey: ["profile"] }),
+          ]);
+
           toast.success("You have joined the DAW cooperative.");
           reset();
           router.push("/sellers/shop");
@@ -156,9 +188,9 @@ export function CooperativeSignupStep3() {
       });
 
       if (res.success) {
-        toast.success("Account created and joined. Please log in.");
+        toast.success("Account created and joined. Please verify your email with the OTP sent.");
         reset();
-        router.push("/login");
+        router.push("/otp?mode=signup");
         return;
       }
       setSubmitError(res.error ?? "Failed to join cooperative");

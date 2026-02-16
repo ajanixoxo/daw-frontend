@@ -58,7 +58,7 @@ export function PopularProducts() {
 
   if (error) {
     return (
-      <section className="py-12 px-4 md:px-8 lg:px-16 max-w-[1400px] mx-auto">
+      <section className="py-12 px-5 lg:px-[84px] max-w-[1440px] mx-auto">
         <div className="text-center py-16">
           <p className="text-[#6b6b6b] text-lg">
             Failed to load products. Please try again later.
@@ -69,7 +69,7 @@ export function PopularProducts() {
   }
 
   return (
-    <section className="py-12 px-4 md:px-8 lg:px-16 max-w-[1400px] mx-auto overflow-hidden">
+    <section className="py-12 max-w-[1440px] mx-auto px-5 lg:px-[84px] overflow-hidden">
       <motion.div
         variants={staggerContainer(0.1, 0)}
         initial="hidden"

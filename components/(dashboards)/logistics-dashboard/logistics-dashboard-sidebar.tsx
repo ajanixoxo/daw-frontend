@@ -9,8 +9,10 @@ import {
   Settings,
   X,
   Menu,
+  LogOut,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLogout } from "@/hooks/useAuth"
 
 interface DashboardSidebarProps {
   isOpen: boolean
@@ -23,11 +25,16 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/logistics/dashboard" },
   { icon: ShoppingBag, label: "Deliveries", href: "/logistics/deliveries" },
   { icon: HandCoins, label: "Earnings", href: "/logistics/earnings" },
-  { icon: Settings, label: "Settings", href: "/logistics/settings" },
+  // { icon: Settings, label: "Settings", href: "/logistics/settings" },
 ]
 
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const { logout, isLoading: isLoggingOut } = useLogout()
+
+  const handleLogout = async () => {
+    await logout()
+  }
 
   return (
     <>
@@ -106,6 +113,24 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
               })}
             </ul>
           </nav>
+
+          {/* Logout Button */}
+          <div className="px-4 py-4 border-t border-[#e7e8e9]">
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                "text-red-600 hover:bg-red-50",
+                isCollapsed && "justify-center px-2",
+              )}
+              title={isCollapsed ? "Logout" : undefined}
+              aria-label="Logout"
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">{isLoggingOut ? "Logging out..." : "Logout"}</span>}
+            </button>
+          </div>
         </div>
       </aside>
     </>

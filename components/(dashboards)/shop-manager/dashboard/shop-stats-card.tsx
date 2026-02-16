@@ -1,5 +1,4 @@
 import { type LucideIcon, TrendingUp } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
 
 interface ShopStatsCardProps {
   title: string
@@ -11,28 +10,46 @@ interface ShopStatsCardProps {
 
 export function ShopStatsCard({ title, value, change, trend, icon: Icon }: ShopStatsCardProps) {
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-primary/10">
-                <Icon className="h-3 w-3 text-primary" />
-              </div>
-              {title}
-            </div>
-            <div className="text-3xl font-bold text-foreground">{value}</div>
-          </div>
-        </div>
+    <div className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
+      <div className="flex items-center gap-2">
         <div
-          className={`mt-3 flex items-center gap-1 text-xs ${
-            trend === "up" ? "text-success" : trend === "warning" ? "text-warning" : "text-muted-foreground"
-          }`}
+          className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
+          style={{ backgroundColor: "#E6007A12" }}
         >
-          {trend === "up" && <TrendingUp className="h-3 w-3" />}
-          {change}
+          <Icon className="h-3.5 w-3.5 text-[#E6007A]" />
         </div>
-      </CardContent>
-    </Card>
+        <span className="text-[13px] font-medium text-[#667185] tracking-tight">
+          {title}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">
+          {value}
+        </h3>
+
+        <div className="flex items-center gap-1">
+          {trend === "up" && (
+            <TrendingUp
+              className="h-[12px] w-[12px] text-[#12B76A] shrink-0"
+              strokeWidth={2.5}
+            />
+          )}
+          <p className="text-[10px] font-medium">
+            <span
+              className={
+                trend === "up"
+                  ? "text-[#12B76A]"
+                  : trend === "warning"
+                    ? "text-[#F79009]"
+                    : "text-[#98A2B3]"
+              }
+            >
+              {change}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -15,7 +15,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard title="Total Shipment" value="5300" change="+12% from last month" trend="up" icon={Package} />
           <StatsCard title="Active Shipment" value="1300" change="Cards issued" trend="neutral" icon={Package} />
           <StatsCard title="Rating" value="4.8" change="Based on 85 reviews" trend="neutral" icon={Star} />

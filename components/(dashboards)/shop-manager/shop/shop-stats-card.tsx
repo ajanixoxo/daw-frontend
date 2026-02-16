@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { ArrowUp } from "lucide-react"
+import { TrendingUp } from "lucide-react"
 
 interface ShopStatsCardProps {
   icon: LucideIcon
@@ -21,22 +21,36 @@ export function ShopStatsCard({
   showTrend = true,
 }: ShopStatsCardProps) {
   return (
-    <div className="rounded-xl border border-[#e4e7ec] bg-white p-6">
-      <div className="mb-4 flex items-center gap-2">
-        <div className="rounded-lg bg-[#fccfe5] p-2">
-          <Icon className="h-5 w-5 text-[#f10e7c]" />
+    <div className="bg-white border border-[#F0F2F5] flex flex-col justify-between h-[120px] w-full p-4 transition-colors hover:border-[#E6007A]/20">
+      <div className="flex items-center gap-2">
+        <div
+          className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
+          style={{ backgroundColor: "#E6007A12" }}
+        >
+          <Icon className="h-3.5 w-3.5 text-[#E6007A]" />
         </div>
-        <span className="text-sm text-[#667185]">{label}</span>
+        <span className="text-[13px] font-medium text-[#667185] tracking-tight">{label}</span>
       </div>
-      <div className="mb-2 text-3xl font-bold text-[#1c1c1c]">{value}</div>
-      {showTrend && trend && trendLabel && (
-        <div className="flex items-center gap-1 text-sm text-[#009a49]">
-          <ArrowUp className="h-4 w-4" />
-          <span className="font-medium">{trend}</span>
-          <span className="text-[#667185]">{trendLabel}</span>
+
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-[26px] font-bold text-[#101828] leading-none tracking-tight">{value}</h3>
+
+        <div className="flex items-center gap-1">
+          {showTrend && trend && (
+            <TrendingUp
+              className="h-[12px] w-[12px] text-[#12B76A] shrink-0"
+              strokeWidth={2.5}
+            />
+          )}
+          <p className="text-[10px] font-medium">
+            {showTrend && trend && (
+              <span className="text-[#12B76A] mr-1">{trend}</span>
+            )}
+            {trendLabel && <span className="text-[#98A2B3]">{trendLabel}</span>}
+            {subtitle && <span className="text-[#98A2B3]">{subtitle}</span>}
+          </p>
         </div>
-      )}
-      {subtitle && <div className="text-sm text-[#667185]">{subtitle}</div>}
+      </div>
     </div>
   )
 }

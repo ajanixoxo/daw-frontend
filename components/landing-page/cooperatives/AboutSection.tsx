@@ -7,15 +7,15 @@ import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export default function AboutSection() {
   return (
-    <section className="bg-[#FFFFFF] flex items-center justify-center px-4 sm:px-6 lg:px-21 overflow-hidden">
+    <section className="bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="w-full max-w-[1440px] py-16 sm:py-20 lg:py-[60px]"
+        className="w-full max-w-[1440px] px-5 lg:px-[84px] py-16 sm:py-20 lg:py-[60px]"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-[30px] items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-24 items-center">
           {/* Left Column - Content */}
           <motion.div
             variants={fadeIn("right", 0.2)}

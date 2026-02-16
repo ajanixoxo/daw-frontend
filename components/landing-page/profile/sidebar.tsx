@@ -29,10 +29,10 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     sessionData?.role === "vendor"
 
     
-    const isCooperative =
+    const isMember =
+      user?.roles?.includes("member") ||
       user?.roles?.includes("cooperative") ||
-      user?.roles?.includes("cooperative") ||
-      sessionData?.role === "cooperative" ||
+      sessionData?.role === "member" ||
       sessionData?.role === "cooperative";
 
     return (
@@ -79,7 +79,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                   </Link>
                 </li>
               )}
-              {isCooperative && (
+              {isMember && (
                 <li className="shrink-0 lg:shrink">
                   <Link
                     href="/cooperative/dashboard"

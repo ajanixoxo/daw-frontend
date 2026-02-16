@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer } from "@/lib/animations";
 
@@ -9,190 +10,90 @@ export function OurSDGs() {
       number: 1,
       title: "NO POVERTY",
       icon: (
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="12" cy="8" r="4" fill="#f10e7c" />
-          <circle cx="28" cy="8" r="4" fill="#f10e7c" />
-          <circle cx="20" cy="16" r="4" fill="#f10e7c" />
-          <circle cx="12" cy="24" r="3" fill="#f10e7c" />
-          <circle cx="28" cy="24" r="3" fill="#f10e7c" />
-          <circle cx="20" cy="32" r="3" fill="#f10e7c" />
-        </svg>
+        <Image
+          src="/people.svg"
+          alt="No Poverty Icon"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
       ),
     },
     {
       number: 4,
       title: "QUALITY EDUCATION",
       icon: (
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect x="8" y="6" width="24" height="28" rx="2" fill="#f10e7c" />
-          <rect x="12" y="12" width="10" height="3" rx="1" fill="#fce4ec" />
-          <rect x="12" y="18" width="16" height="2" rx="1" fill="#fce4ec" />
-          <rect x="12" y="23" width="14" height="2" rx="1" fill="#fce4ec" />
-        </svg>
+        <Image
+          src="/book.svg"
+          alt="Quality Education Icon"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
       ),
     },
     {
       number: 5,
       title: "GENDER EQUALITY",
       icon: (
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            cx="20"
-            cy="14"
-            r="8"
-            stroke="#f10e7c"
-            strokeWidth="3"
-            fill="none"
-          />
-          <line
-            x1="20"
-            y1="22"
-            x2="20"
-            y2="34"
-            stroke="#f10e7c"
-            strokeWidth="3"
-          />
-          <line
-            x1="14"
-            y1="28"
-            x2="26"
-            y2="28"
-            stroke="#f10e7c"
-            strokeWidth="3"
-          />
-          <line
-            x1="28"
-            y1="6"
-            x2="34"
-            y2="6"
-            stroke="#f10e7c"
-            strokeWidth="3"
-          />
-          <line
-            x1="34"
-            y1="6"
-            x2="34"
-            y2="12"
-            stroke="#f10e7c"
-            strokeWidth="3"
-          />
-          <line
-            x1="28"
-            y1="12"
-            x2="34"
-            y2="6"
-            stroke="#f10e7c"
-            strokeWidth="3"
-          />
-        </svg>
+        <Image
+          src="/equal.svg"
+          alt="Gender Equality Icon"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
       ),
     },
     {
       number: 8,
       title: "DECENT WORK AND ECONOMIC GROWTH",
       icon: (
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect x="6" y="20" width="8" height="16" rx="1" fill="#f10e7c" />
-          <rect x="16" y="12" width="8" height="24" rx="1" fill="#f10e7c" />
-          <rect x="26" y="4" width="8" height="32" rx="1" fill="#f10e7c" />
-        </svg>
+        <Image
+          src="/chart.svg"
+          alt="Economic Growth Icon"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
       ),
     },
     {
       number: 9,
       title: "INDUSTRY, INNOVATION AND INFRASTRUCTURE",
       icon: (
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M20 4L36 14V30L20 36L4 30V14L20 4Z" fill="#f10e7c" />
-          <path
-            d="M20 4L36 14L20 20L4 14L20 4Z"
-            fill="#fce4ec"
-            fillOpacity="0.3"
-          />
-          <path d="M20 20V36" stroke="#fce4ec" strokeWidth="1" />
-          <path d="M4 14L20 20" stroke="#fce4ec" strokeWidth="1" />
-        </svg>
+        <Image
+          src="/box.svg"
+          alt="Industry Icon"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
       ),
     },
     {
       number: 10,
       title: "REDUCED INEQUALITIES",
       icon: (
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="10" cy="10" r="4" fill="#f10e7c" />
-          <line
-            x1="10"
-            y1="14"
-            x2="10"
-            y2="24"
-            stroke="#f10e7c"
-            strokeWidth="2"
-          />
-          <circle cx="30" cy="10" r="4" fill="#f10e7c" />
-          <line
-            x1="30"
-            y1="14"
-            x2="30"
-            y2="24"
-            stroke="#f10e7c"
-            strokeWidth="2"
-          />
-          <path
-            d="M6 28L20 22L34 28"
-            stroke="#f10e7c"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-          <rect x="18" y="30" width="4" height="6" fill="#f10e7c" />
-        </svg>
+        <Image
+          src="/reduced.svg"
+          alt="Reduced Inequalities Icon"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
       ),
     },
   ];
 
   return (
-    <section className="bg-[#fff5f9] py-16 md:py-24 overflow-hidden">
+    <section className="bg-[#fff5f9] py-12 md:py-16 overflow-hidden">
       <motion.div
         variants={staggerContainer(0.1, 0.1)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="mx-auto max-w-6xl px-4"
+        className="mx-auto max-w-[1440px] px-5 lg:px-[84px]"
       >
         {/* Header */}
         <div className="mb-12 text-center">

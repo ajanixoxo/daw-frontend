@@ -6,13 +6,13 @@ import { fadeIn, staggerContainer } from "@/lib/animations";
 
 export default function WhyDAWSection() {
   return (
-    <section className="bg-[#FFEFF7] flex items-center justify-center px-4 sm:px-6 lg:px-28 overflow-hidden">
+    <section className="bg-[#FFEFF7] flex items-center justify-center overflow-hidden">
       <motion.div
         variants={staggerContainer(0.2, 0)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="w-full max-w-[1440px] py-16 sm:py-20 lg:py-[82px]"
+        className="w-full max-w-[1440px] px-5 lg:px-[84px] py-16 sm:py-20 lg:py-[82px]"
       >
         <div className="flex flex-col gap-12 sm:gap-14 lg:gap-[60px]">
           {/* Header */}
@@ -65,7 +65,7 @@ export default function WhyDAWSection() {
             <motion.div variants={fadeIn("up", 0.3)}>
               <Link
                 href="/sellers/sellers-signup"
-                className="flex flex-col justify-between p-6 sm:p-8 rounded-[20px] bg-[#FFFFFF] min-h-[291px] h-full hover:border-2 hover:border-[#F10E7C] shadow-sm hover:shadow-lg transition-all cursor-pointer hover:-translate-y-1 block"
+                className="flex flex-col justify-between p-6 sm:p-8 rounded-[20px] bg-[#FFFFFF] min-h-[291px] h-full hover:border-2 hover:border-[#F10E7C] shadow-sm hover:shadow-lg transition-all cursor-pointer hover:-translate-y-1"
               >
                 <svg
                   width="45"

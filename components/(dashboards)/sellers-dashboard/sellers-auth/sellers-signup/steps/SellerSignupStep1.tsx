@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { useSellerSignupStore } from "@/zustand/seller-signup-store";
 
 const SellerSignupStep1: FC = () => {
@@ -38,6 +38,18 @@ const SellerSignupStep1: FC = () => {
     if (e.target.files && e.target.files[0]) {
       updateShopInfo({ [field]: e.target.files[0] });
     }
+  };
+
+  const handleClearFile = (
+    e: React.MouseEvent,
+    field: "shopLogo" | "shopBanner",
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateShopInfo({ [field]: null });
+    // Reset the file input
+    const input = document.getElementById(field) as HTMLInputElement;
+    if (input) input.value = "";
   };
 
   const handleNext = (e: React.FormEvent) => {
@@ -221,11 +233,27 @@ const SellerSignupStep1: FC = () => {
                   id="shopLogo"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "shopLogo")}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="h-32 rounded-lg border border-dashed border-input-border bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-                  <Upload className="w-6 h-6 text-[#b6b8c0]" />
-                  <p className="text-xs text-[#1a1a1a]">
+                <div
+                  className={`h-32 rounded-lg border border-dashed ${shopInfo.shopLogo ? "border-green-500 bg-green-50/50" : "border-input-border"} bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors relative`}
+                >
+                  {shopInfo.shopLogo && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleClearFile(e, "shopLogo")}
+                      className="absolute top-2 right-2 z-20 p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                      title="Remove file"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <Upload
+                    className={`w-6 h-6 ${shopInfo.shopLogo ? "text-green-500" : "text-[#b6b8c0]"}`}
+                  />
+                  <p
+                    className={`text-xs ${shopInfo.shopLogo ? "text-green-600 font-medium" : "text-[#1a1a1a]"}`}
+                  >
                     {shopInfo.shopLogo ? shopInfo.shopLogo.name : "Upload Logo"}
                   </p>
                 </div>
@@ -243,11 +271,27 @@ const SellerSignupStep1: FC = () => {
                   id="shopBanner"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "shopBanner")}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="h-32 rounded-lg border border-dashed border-input-border bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-                  <Upload className="w-6 h-6 text-[#b6b8c0]" />
-                  <p className="text-xs text-[#1a1a1a]">
+                <div
+                  className={`h-32 rounded-lg border border-dashed ${shopInfo.shopBanner ? "border-green-500 bg-green-50/50" : "border-input-border"} bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors relative`}
+                >
+                  {shopInfo.shopBanner && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleClearFile(e, "shopBanner")}
+                      className="absolute top-2 right-2 z-20 p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                      title="Remove file"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <Upload
+                    className={`w-6 h-6 ${shopInfo.shopBanner ? "text-green-500" : "text-[#b6b8c0]"}`}
+                  />
+                  <p
+                    className={`text-xs ${shopInfo.shopBanner ? "text-green-600 font-medium" : "text-[#1a1a1a]"}`}
+                  >
                     {shopInfo.shopBanner
                       ? shopInfo.shopBanner.name
                       : "Upload Banner"}

@@ -14,6 +14,7 @@ import { PopularProducts } from "@/components/landing-page/home/popular-products
 import { useAuthSync } from "@/hooks/useAuthSync";
 import { BecomeASellerBanner } from "@/components/landing-page/home/become-a-seller-banner";
 import WhyDAWSection from "@/components/landing-page/home/why-daw";
+import { FeaturedShops } from "@/components/landing-page/home/featured-shops";
 
 export default function Home() {
   // This hook automatically syncs auth state between client and server
@@ -41,16 +42,21 @@ export default function Home() {
       {isAuthenticated && isVerified && (
         <>
           <HeroSection />
+          <FeaturedShops />
           <PopularProducts />
         </>
       )}
-      {!isAuthenticated && <Hero />}
-      <CooperativePlatform />
-      <WhyDAWSection />
+      {!isAuthenticated && (
+        <>
+          <Hero />
+          <CooperativePlatform />
+          <WhyDAWSection />
+        </>
+      )}
       {/* <MembershipPricing /> */}
       <Testimonials />
       <MarketplaceProducts />
-      {isAuthenticated && isVerified && <BecomeASellerBanner />}
+      <BecomeASellerBanner />
       <LearnGrowCourses />
       <CTASection />
       <Footer />

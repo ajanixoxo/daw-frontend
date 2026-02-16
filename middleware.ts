@@ -11,14 +11,23 @@ export function middleware(request: NextRequest) {
     "/product", // This will match /product/[id]
     "/checkout",
     "/payment",
+    "/cooperative", // Cooperative dashboard routes
+    "/admin", // Admin dashboard routes
   ];
+
+  // Public exceptions: routes under protected prefixes that guests can access
+  const publicExceptions = ["/cooperative/cooperative-signup"];
+
+  const isPublicException = publicExceptions.some((route) =>
+    pathname.startsWith(route)
+  );
 
   // Check if the current path starts with any of the protected routes
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
 
-  if (isProtectedRoute) {
+  if (isProtectedRoute && !isPublicException) {
     const accessToken = request.cookies.get("accessToken")?.value;
     const refreshToken = request.cookies.get("refreshToken")?.value;
 

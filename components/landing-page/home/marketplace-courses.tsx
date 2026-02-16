@@ -21,8 +21,8 @@ export function MarketplaceProducts() {
   }
 
   return (
-    <section className="py-16 md:py-24 px-4 md:px-8 lg:px-16 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-16 md:py-24 bg-white">
+      <div className="max-w-[1440px] mx-auto px-5 lg:px-[84px]">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className=" text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-4">

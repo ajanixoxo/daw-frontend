@@ -11,6 +11,19 @@ interface IJoinCooperativeResponse {
   subscriptionTierId: string;
   status: "active" | "pending";
   joinedAt: string;
+  user?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    roles: string[];
+    isVerified: boolean;
+    status: string;
+    shop?: { _id: string; name: string }[];
+    member?: { _id: string; cooperativeId: string }[];
+    avatar?: string;
+  };
 }
 
 interface IFetchMemberResponse {
@@ -92,7 +105,7 @@ export async function joinCooperative(data: {
 export async function cooperativeJoinWithSellerOnboard(
   formData: FormData
 ): Promise<
-  IActionResponse<{ member: unknown; shop: unknown; message: string }>
+  IActionResponse<{ member: unknown; shop: unknown; message: string; user?: { _id: string; roles: string[]; member?: unknown[] } }>
 > {
   try {
     const session = await getServerSession();
@@ -136,6 +149,7 @@ export async function cooperativeJoinWithSellerOnboard(
         member: data.member,
         shop: data.shop,
         message: data?.message || "Success",
+        user: data.user as any,
       },
       message: data?.message || "Success",
     };
@@ -158,15 +172,29 @@ export async function guestJoinCooperative(data: {
   subscriptionTierId: string;
 }): Promise<IActionResponse<IJoinCooperativeResponse>> {
   try {
-    const response = await apiClient.post<IJoinCooperativeResponse>(
-      API_ENDPOINTS.COOPERATIVES.JOIN_GUEST,
-      data
-    );
+    const response = await apiClient.post<
+      IJoinCooperativeResponse & {
+        token?: string;
+        user?: { _id: string; email: string; roles?: string[] };
+      }
+    >(API_ENDPOINTS.COOPERATIVES.JOIN_GUEST, data);
+
+    // Create session so OTP verification page can call /auth/verify/email
+    if (response.token && response.user?._id && response.user?.email) {
+      await createServerSession({
+        userId: response.user._id,
+        email: response.user.email,
+        role: response.user.roles?.[0] || "buyer",
+        isVerified: false,
+        accessToken: response.token,
+        refreshToken: "",
+      });
+    }
 
     return {
       success: true,
       data: response,
-      message: "Account created and joined cooperative. Please log in.",
+      message: "Account created and joined cooperative. Please verify your email.",
     };
   } catch (error) {
     const message =
@@ -358,5 +386,22 @@ export async function createCooperative(
       error instanceof Error ? error.message : "Failed to create cooperative";
 
     return { success: false, error: message };
+  }
+}
+
+/**
+ * Helper function to get the DAW cooperative ID dynamically.
+ * This avoids hardcoding the cooperative ID in components.
+ */
+export async function getDawCooperativeId(): Promise<string | null> {
+  try {
+    const result = await fetchDAWCooperative();
+    if (result.success && result.data?.cooperative?._id) {
+      return result.data.cooperative._id;
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch DAW cooperative ID:", error);
+    return null;
   }
 }

@@ -1,47 +1,171 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { ArrowLeft, Upload, UserPlus } from "lucide-react"
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { ArrowLeft, Upload, UserPlus, X } from "lucide-react";
 
 interface InviteMembersDrawerProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerProps) {
-  const [defaultRole, setDefaultRole] = useState("seller")
-  const [customMessage, setCustomMessage] = useState("")
-  const [emailAddress, setEmailAddress] = useState("")
-  const [file, setFile] = useState<File | null>(null)
+export function InviteMembersDrawer({
+  open,
+  onOpenChange,
+}: InviteMembersDrawerProps) {
+  const [defaultRole, setDefaultRole] = useState("seller");
+  const [customMessage, setCustomMessage] = useState(""); // Currently unused by backend, but kept in UI
+  const [emailAddress, setEmailAddress] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
+      setFile(e.target.files[0]);
     }
-  }
+  };
+
+  const parseCSV = async (file: File): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        if (!text) return resolve([]);
+        
+        // Split by newline or comma
+        const emails = text
+          .split(/[\n,]/)
+          .map((e) => e.trim())
+          .filter((e) => e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)); // Basic email regex
+        
+        resolve(emails);
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsText(file);
+    });
+  };
 
   const handleSaveDraft = () => {
-    console.log("[v0] Saving draft...")
-    // Handle save draft logic
-  }
+    toast.info("Draft saving not implemented yet");
+  };
 
-  const handleSendInvitation = () => {
-    console.log("[v0] Sending invitation...")
-    // Handle send invitation logic
-    onOpenChange(false)
-  }
+  const handleSendInvitation = async () => {
+    try {
+      setIsLoading(true);
+      let emailsToInvite: string[] = [];
+
+      // 1. Get emails from input or CSV
+      if (file) {
+        emailsToInvite = await parseCSV(file);
+        if (emailsToInvite.length === 0) {
+          toast.error("No valid emails found in CSV");
+          setIsLoading(false);
+          return;
+        }
+      } else if (emailAddress) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
+          toast.error("Please enter a valid email address");
+          setIsLoading(false);
+          return;
+        }
+        emailsToInvite = [emailAddress];
+      } else {
+        toast.error("Please enter an email or upload a CSV");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Send invitations
+      let successCount = 0;
+      let failCount = 0;
+      const errors: string[] = [];
+
+      // Import dynamically to avoid server reference in client component if strict
+      const { inviteMember } = await import("@/app/actions/invitations");
+
+      // Execute sequentially to avoid overwhelming server or hitting rate limits
+      for (const email of emailsToInvite) {
+        const result = await inviteMember({
+          email,
+          role: defaultRole as "seller" | "admin",
+          firstName: "Invited User", // backend handles generic names or we could parse from CSV if structure known
+        });
+
+        if (result.success) {
+          successCount++;
+        } else {
+          console.error(`Failed to invite ${email}:`, result.error);
+          errors.push(`${email}: ${result.error}`);
+          failCount++;
+        }
+      }
+
+      // 3. Feedback
+      if (emailsToInvite.length === 1) {
+        // Single invite case
+        if (successCount === 1) {
+          toast.success(`Invitation sent to ${emailsToInvite[0]}`);
+          // Reset form
+          setEmailAddress("");
+          setFile(null);
+          setCustomMessage("");
+          onOpenChange(false);
+        } else {
+          toast.error(errors[0]?.split(": ")[1] || "Failed to send invitation");
+        }
+      } else {
+        // Bulk invite case
+        if (successCount > 0) {
+          toast.success(`Successfully sent ${successCount} invitation(s)`);
+          if (failCount > 0) {
+            toast.warning(`Failed to send ${failCount} invitation(s). First error: ${errors[0]}`);
+          }
+          
+          // Reset form
+          setEmailAddress("");
+          setFile(null);
+          setCustomMessage("");
+          onOpenChange(false);
+        } else {
+          toast.error(`Failed to send invitations. First error: ${errors[0]}`);
+        }
+      }
+
+    } catch (error) {
+      console.error("Invitation error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full p-8 overflow-y-auto sm:max-w-[540px]">
+      <SheetContent
+        side="right"
+        className="w-full p-8 overflow-y-auto sm:max-w-[540px]"
+      >
         <SheetHeader className="text-left">
           <div className="flex items-center gap-3">
             <Button
@@ -53,7 +177,9 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <SheetTitle className="text-xl font-bold text-[#1d1d2a]">Invite Members</SheetTitle>
+              <SheetTitle className="text-xl font-bold text-[#1d1d2a]">
+                Invite Members
+              </SheetTitle>
               <SheetDescription className="text-sm text-[#838794]">
                 Send invitations to join your cooperative
               </SheetDescription>
@@ -64,7 +190,10 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
         <div className="mt-8 space-y-6">
           {/* Default Role */}
           <div className="space-y-2">
-            <Label htmlFor="default-role" className="text-sm font-medium text-[#1d1d2a]">
+            <Label
+              htmlFor="default-role"
+              className="text-sm font-medium text-[#1d1d2a]"
+            >
               Default Role
             </Label>
             <Select value={defaultRole} onValueChange={setDefaultRole}>
@@ -77,15 +206,17 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
               <SelectContent>
                 <SelectItem value="seller">Seller</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-                <SelectItem value="viewer">Viewer</SelectItem>
+                {/* Removed Manager/Viewer as per requirements */}
               </SelectContent>
             </Select>
           </div>
 
           {/* Custom Message */}
           <div className="space-y-2">
-            <Label htmlFor="custom-message" className="text-sm font-medium text-[#1d1d2a]">
+            <Label
+              htmlFor="custom-message"
+              className="text-sm font-medium text-[#1d1d2a]"
+            >
               Custom Message (Optional)
             </Label>
             <Textarea
@@ -99,7 +230,10 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
 
           {/* Add Recipients */}
           <div className="space-y-2">
-            <Label htmlFor="email-address" className="text-sm font-medium text-[#1d1d2a]">
+            <Label
+              htmlFor="email-address"
+              className="text-sm font-medium text-[#1d1d2a]"
+            >
               Add Recipients
             </Label>
             <div className="flex gap-2">
@@ -109,6 +243,7 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
                 placeholder="Email Address"
                 value={emailAddress}
                 onChange={(e) => setEmailAddress(e.target.value)}
+                disabled={!!file} // Disable if file selected
                 className="h-12 flex-1 border-[#e4e7ec] bg-white text-[#1d1d2a] placeholder:text-[#9c9faa] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
               />
               <Button
@@ -123,7 +258,7 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
 
           {/* File Upload */}
           <div className="space-y-2">
-            <div className="relative flex min-h-[140px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#e4e7ec] bg-[#f9f9f9] px-6 py-8 text-center transition-colors hover:border-[#f10e7c]">
+            <div className={`relative flex min-h-[140px] flex-col items-center justify-center rounded-lg border-2 border-dashed ${file ? 'border-[#f10e7c] bg-[#fdf2f8]' : 'border-[#e4e7ec] bg-[#f9f9f9]'} px-6 py-8 text-center transition-colors hover:border-[#f10e7c]`}>
               <input
                 type="file"
                 accept=".csv"
@@ -131,14 +266,22 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
                 className="absolute inset-0 cursor-pointer opacity-0"
                 id="csv-upload"
               />
-              <Upload className="mb-3 h-6 w-6 text-[#838794]" />
+              <Upload className={`mb-3 h-6 w-6 ${file ? 'text-[#f10e7c]' : 'text-[#838794]'}`} />
               <p className="text-sm text-[#838794]">
                 Upload a CSV file with email addresses or{" "}
-                <label htmlFor="csv-upload" className="cursor-pointer font-medium text-[#1d1d2a] hover:underline">
+                <label
+                  htmlFor="csv-upload"
+                  className="cursor-pointer font-medium text-[#1d1d2a] hover:underline"
+                >
                   Browse
                 </label>
               </p>
-              {file && <p className="mt-2 text-xs text-[#f10e7c]">Selected: {file.name}</p>}
+              {file && (
+                <div className="mt-2 flex items-center gap-2">
+                   <p className="text-xs text-[#f10e7c] font-medium">Selected: {file.name}</p>
+                   <button onClick={(e) => { e.preventDefault(); setFile(null); }} className="text-xs text-red-500 hover:underline">Remove</button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -151,12 +294,17 @@ export function InviteMembersDrawer({ open, onOpenChange }: InviteMembersDrawerP
             >
               Save as Draft
             </Button>
-            <Button onClick={handleSendInvitation} className="h-12 flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a]">
-              Send Invitation
+            <Button
+              onClick={handleSendInvitation}
+              disabled={isLoading}
+              className="h-12 flex-1 bg-[#f10e7c] text-white hover:bg-[#d90d6a]"
+            >
+              {isLoading ? "Sending..." : "Send Invitation"}
             </Button>
           </div>
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
+
