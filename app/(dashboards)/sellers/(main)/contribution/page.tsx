@@ -1,85 +1,108 @@
-import { Search, SlidersHorizontal, CreditCard, DollarSign, Calendar } from "lucide-react"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
+"use client";
 
-const paymentHistory = [
-  {
-    date: "Apr 12, 2025",
-    reference: "CTN001234",
-    method: "Mobile Money",
-    amount: "$25,000",
-    status: "Completed",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "CTN001234",
-    method: "Card",
-    amount: "$25,000",
-    status: "Completed",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "CTN001234",
-    method: "Bank Transfer",
-    amount: "$25,000",
-    status: "Completed",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "CTN001234",
-    method: "Card",
-    amount: "$25,000",
-    status: "Completed",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "CTN001234",
-    method: "Card",
-    amount: "$25,000",
-    status: "Completed",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "CTN001234",
-    method: "Card",
-    amount: "$25,000",
-    status: "Completed",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "Marvin McKinney",
-    method: "Turtleneck",
-    amount: "$17.84",
-    status: "Cancelled",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "Marvin McKinney",
-    method: "Turtleneck",
-    amount: "$17.84",
-    status: "Pending",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "Marvin McKinney",
-    method: "Turtleneck",
-    amount: "$17.84",
-    status: "Shipped",
-  },
-  {
-    date: "Apr 12, 2025",
-    reference: "Marvin McKinney",
-    method: "Turtleneck",
-    amount: "$17.84",
-    status: "Cancelled",
-  },
-]
+import { useEffect, useState } from "react";
+import { Search, SlidersHorizontal, CreditCard, DollarSign, Calendar, Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card";
+import { clientApiClient } from "@/lib/api/client-client";
+import { format } from "date-fns";
+
+interface ContributionSummary {
+  currentTier: string;
+  monthlyAmount: number;
+  lastContributionAmount: number;
+  lastContributionDate: string | null;
+  nextDueDate: string;
+  status: string;
+}
+
+interface ContributionHistoryItem {
+  _id: string;
+  month: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+  paidAt?: string;
+  contributionTypeId?: {
+    name: string;
+  };
+}
 
 export default function ContributionPage() {
+  const [summary, setSummary] = useState<ContributionSummary | null>(null);
+  const [history, setHistory] = useState<ContributionHistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [processingPayment, setProcessingPayment] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch Summary
+        const summaryRes = await clientApiClient.get<{ success: boolean; data: ContributionSummary }>("/api/contributions/summary");
+        console.log("Frontend Contribution Summary Response:", summaryRes); // DEBUG LOG
+        if (summaryRes.success) {
+          setSummary(summaryRes.data);
+        }
+
+        // Fetch History
+        const historyRes = await clientApiClient.get<ContributionHistoryItem[]>("/api/contributions/history");
+        // Check if historyRes is the array directly or inside data property
+        // Based on controller it returns res.json(list) which is array
+        if (Array.isArray(historyRes)) {
+          setHistory(historyRes);
+        } else if ((historyRes as any).success && Array.isArray((historyRes as any).data)) {
+           setHistory((historyRes as any).data);
+        }
+      } catch (error) {
+        console.error("Error fetching contribution data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handlePayment = async () => {
+    if (!summary) return;
+
+    try {
+      setProcessingPayment(true);
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const currentMonth = monthNames[new Date().getMonth()];
+
+      const res = await clientApiClient.post<{ success: boolean; paymentUrl: string }>("/api/contributions/pay", {
+        amount: summary.monthlyAmount,
+        month: currentMonth // Default to current month for now
+      });
+
+      if (res.success && res.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        alert("Failed to initiate payment");
+      }
+    } catch (error: any) {
+      console.error("Payment error:", error);
+      alert(error.message || "Payment processing failed");
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-pink-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f7f7f7] p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
@@ -94,24 +117,22 @@ export default function ContributionPage() {
           <StatCard
             icon={CreditCard}
             title="Current Tier"
-            value="Silver"
-            subtitle="Contribution: ₦25,000"
+            value={summary?.currentTier || "N/A"}
+            subtitle={`Contribution: ₦${summary?.monthlyAmount?.toLocaleString() || 0}`}
             iconColor="#E6007A"
           />
           <StatCard
             icon={DollarSign}
-            title="Total Contributions"
-            value="₦145,000"
-            subtitleHighlight="4"
-            subtitle="Payments"
-            trend="up"
+            title="Last Contribution"
+            value={`₦${summary?.lastContributionAmount?.toLocaleString() || 0}`}
+            subtitle={summary?.lastContributionDate ? format(new Date(summary.lastContributionDate), "MMM dd, yyyy") : "No payments yet"}
             iconColor="#E6007A"
           />
           <StatCard
             icon={Calendar}
-            title="Last Payment"
-            value="15/10/2025"
-            subtitle="₦50,000"
+            title="Next Due Date"
+            value={summary?.nextDueDate ? format(new Date(summary.nextDueDate), "MMM dd, yyyy") : "N/A"}
+            subtitle="Upcoming"
             iconColor="#E6007A"
           />
         </div>
@@ -120,7 +141,7 @@ export default function ContributionPage() {
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-[#000000] mb-1">Make a Contribution</h2>
           <p className="text-[#667185] text-sm mb-6">
-            Your contribution amount is fixed based on your Silver tier membership
+            Your contribution amount is fixed based on your {summary?.currentTier} tier membership
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -129,12 +150,12 @@ export default function ContributionPage() {
               <div className="mb-6">
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f0f2f5] rounded-full text-xs font-medium text-[#1d2739]">
                   <span className="w-2 h-2 rounded-full bg-[#1d2739]" />
-                  Silver Tier
+                  {summary?.currentTier} Tier
                 </span>
               </div>
 
               <div className="text-center mb-6">
-                <p className="text-5xl font-bold text-[#f10e7c] mb-2">$25,000</p>
+                <p className="text-5xl font-bold text-[#f10e7c] mb-2">₦{summary?.monthlyAmount?.toLocaleString()}</p>
                 <p className="text-[#667185] text-sm">Contribution Amount</p>
               </div>
 
@@ -142,7 +163,9 @@ export default function ContributionPage() {
                 <p className="text-[#667185] text-sm">This is your fixed monthly contribution amount</p>
                 <div className="text-right">
                   <p className="text-[#667185] text-xs mb-1">Due Date</p>
-                  <p className="text-[#1d2739] text-sm font-semibold">July 15, 2024</p>
+                  <p className="text-[#1d2739] text-sm font-semibold">
+                    {summary?.nextDueDate ? format(new Date(summary.nextDueDate), "MMM dd, yyyy") : "N/A"}
+                  </p>
                 </div>
               </div>
             </Card>
@@ -152,19 +175,28 @@ export default function ContributionPage() {
               <h3 className="text-lg font-semibold text-[#000000] mb-6">Payment Method</h3>
 
               <div className="space-y-4">
-                <Select>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                   <SelectTrigger className="w-full border-[#e4e7ec] text-[#667185]">
                     <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="mobile-money">Mobile Money</SelectItem>
-                    <SelectItem value="card">Card</SelectItem>
-                    <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="card">Card / Mobile Money (VigiPay)</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Button className="w-full bg-[#f10e7c] hover:bg-[#d00d6a] text-white py-6 text-base font-medium">
-                  Proceed to Payment
+                <Button 
+                    className="w-full bg-[#f10e7c] hover:bg-[#d00d6a] text-white py-6 text-base font-medium"
+                    onClick={handlePayment}
+                    disabled={processingPayment}
+                >
+                  {processingPayment ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                  ) : (
+                      "Proceed to Payment"
+                  )}
                 </Button>
               </div>
             </Card>
@@ -197,43 +229,53 @@ export default function ContributionPage() {
               <TableHeader>
                 <TableRow className="bg-[#f0f2f5] hover:bg-[#f0f2f5] border-b border-[#e4e7ec]">
                   <TableHead className="text-[#475367] font-medium text-xs">Date</TableHead>
-                  <TableHead className="text-[#475367] font-medium text-xs">Reference</TableHead>
-                  <TableHead className="text-[#475367] font-medium text-xs">Method</TableHead>
+                  <TableHead className="text-[#475367] font-medium text-xs">Description</TableHead>
                   <TableHead className="text-[#475367] font-medium text-xs">Amount</TableHead>
                   <TableHead className="text-[#475367] font-medium text-xs">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paymentHistory.map((payment, index) => (
-                  <TableRow key={index} className="border-b border-[#e4e7ec]">
-                    <TableCell className="text-[#1d2739] text-sm">{payment.date}</TableCell>
-                    <TableCell className="text-[#1d2739] text-sm">{payment.reference}</TableCell>
-                    <TableCell className="text-[#1d2739] text-sm">{payment.method}</TableCell>
-                    <TableCell className="text-[#1d2739] text-sm font-medium">{payment.amount}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          payment.status === "Completed" || payment.status === "Shipped"
-                            ? "bg-[#e7f6ec] text-[#009a49]"
-                            : payment.status === "Cancelled"
-                              ? "bg-[#ffece5] text-[#ad3307]"
-                              : "bg-[#ffe7cc] text-[#f56630]"
-                        }`}
-                      >
+                {history.length === 0 ? (
+                    <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                            No payment history found.
+                        </TableCell>
+                    </TableRow>
+                ) : (
+                    history.map((payment, index) => (
+                    <TableRow key={index} className="border-b border-[#e4e7ec]">
+                        <TableCell className="text-[#1d2739] text-sm">
+                            {format(new Date(payment.createdAt), "MMM dd, yyyy")}
+                        </TableCell>
+                        <TableCell className="text-[#1d2739] text-sm">
+                            {payment.contributionTypeId?.name || (payment.month ? `Contribution - ${payment.month}` : "Contribution")}
+                        </TableCell>
+                        <TableCell className="text-[#1d2739] text-sm font-medium">₦{payment.amount.toLocaleString()}</TableCell>
+                        <TableCell>
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            payment.status === "Completed" || payment.status === "Shipped"
-                              ? "bg-[#009a49]"
-                              : payment.status === "Cancelled"
-                                ? "bg-[#ad3307]"
-                                : "bg-[#f56630]"
-                          }`}
-                        />
-                        {payment.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            payment.status === "paid" || payment.status === "Completed"
+                                ? "bg-[#e7f6ec] text-[#009a49]"
+                                : payment.status === "missed"
+                                ? "bg-[#ffece5] text-[#ad3307]"
+                                : "bg-[#ffe7cc] text-[#f56630]"
+                            }`}
+                        >
+                            <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                                payment.status === "paid" || payment.status === "Completed"
+                                ? "bg-[#009a49]"
+                                : payment.status === "missed"
+                                    ? "bg-[#ad3307]"
+                                    : "bg-[#f56630]"
+                            }`}
+                            />
+                            {payment.status}
+                        </span>
+                        </TableCell>
+                    </TableRow>
+                    ))
+                )}
               </TableBody>
             </Table>
           </div>

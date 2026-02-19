@@ -1,519 +1,371 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Wallet, CreditCard, FileText, TrendingUp, Check, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Search, SlidersHorizontal, CreditCard, DollarSign, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { clientApiClient } from "@/lib/api/client-client";
+import { format } from "date-fns";
+import { toast } from "sonner"; // Assuming sonner
 
-// Types
-interface LoanStatus {
-  id: string;
-  status: 'active' | 'completed';
-  repaid: number;
-  remaining: number;
-  originalAmount: number;
-  dueDate: string;
-  purpose?: string;
+interface EligibilityData {
+  tierName: string;
+  maxLoanAmount: number;
+  interestRate: number;
+  maxDurationMonths: number;
+  eligibilityCriteria: any;
 }
 
-interface ContributionTier {
-  name: string;
-  description: string;
-  price: number;
-  isCurrent?: boolean;
-  features: string[];
+interface Loan {
+  _id: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+  repaymentAmount?: number;
+  dueDate?: string;
 }
 
-interface EligibilityCriteria {
-  title: string;
-  description: string;
-  status: 'passed' | 'advisory' | 'failed';
-}
+export default function LoansPage() {
+  const [activeTab, setActiveTab] = useState("my-loans");
+  const [loading, setLoading] = useState(true);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [eligibility, setEligibility] = useState<EligibilityData | null>(null);
+  
+  // Apply Form State
+  const [applyAmount, setApplyAmount] = useState("");
+  const [applyDuration, setApplyDuration] = useState("");
+  const [applyReason, setApplyReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-const LoanManagement = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'tiers' | 'history' | 'apply'>('overview');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch Loans
+        const loansRes = await clientApiClient.get<Loan[]>("/api/loans/history");
+         if (Array.isArray(loansRes)) {
+          setLoans(loansRes);
+        } else if ((loansRes as any).success && Array.isArray((loansRes as any).data)) {
+           setLoans((loansRes as any).data);
+        }
 
-  // Mock data
-  const loanData = {
-    currentTier: 'Silver',
-    contribution: 35000,
-    availableCredit: 75000,
-    activeLoans: 1,
-    remainingAmount: 5000,
-    interestRate: 6
-  };
+        // Fetch Eligibility
+        const eligibilityRes = await clientApiClient.get<{ success: boolean; data: EligibilityData }>("/api/loans/eligibility");
+        if (eligibilityRes.success) {
+          setEligibility(eligibilityRes.data);
+          // Set default duration if available
+          if (eligibilityRes.data.maxDurationMonths) {
+              setApplyDuration(eligibilityRes.data.maxDurationMonths.toString());
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching loan data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const currentLoan: LoanStatus = {
-    id: 'LN-001',
-    status: 'active',
-    repaid: 45000,
-    remaining: 5000,
-    originalAmount: 50000,
-    dueDate: 'July 15, 2024',
-    purpose: 'Inventory Purchase'
-  };
+    fetchData();
+  }, []);
 
-  const loanHistory: LoanStatus[] = [
-    {
-      id: 'LN-001',
-      status: 'active',
-      repaid: 45000,
-      remaining: 5000,
-      originalAmount: 50000,
-      dueDate: 'July 15, 2024',
-      purpose: 'Inventory Purchase'
-    },
-    {
-      id: 'LN-001',
-      status: 'active',
-      repaid: 45000,
-      remaining: 5000,
-      originalAmount: 50000,
-      dueDate: 'July 15, 2024',
-      purpose: 'Inventory Purchase'
+  const handleApply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!eligibility) return;
+
+    // Basic Validation
+    const amount = parseFloat(applyAmount);
+    if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
     }
-  ];
-
-  const tiers: ContributionTier[] = [
-    {
-      name: 'Basic',
-      description: 'Community access with basic features',
-      price: 5,
-      features: [
-        'Community forum access',
-        'Basic support',
-        'Digital marketplace browsing'
-      ]
-    },
-    {
-      name: 'Standard',
-      description: 'Enhanced access with moderate benefits',
-      price: 25,
-      isCurrent: true,
-      features: [
-        '5% transaction fee discount',
-        'Access to standard masterclasses',
-        'Priority support',
-        'All Basic features',
-        'Up to 10 product listing'
-      ]
-    },
-    {
-      name: 'Basic',
-      description: 'Community access with basic features',
-      price: 60,
-      features: [
-        'Preferred loan consideration',
-        '15% transaction fee discount',
-        'Access to all masterclasses',
-        'Dedicated agent support',
-        'All Standard features',
-        'Unlimited product listings'
-      ]
-    },
-    {
-      name: 'Basic',
-      description: 'Community access with basic features',
-      price: 120,
-      features: [
-        'Featured store placement',
-        '25% transaction fee discount',
-        'All Premium features',
-        'Business growth consulting',
-        'Export assistance'
-      ]
+    if (amount > eligibility.maxLoanAmount) {
+        alert(`Amount cannot exceed ₦${eligibility.maxLoanAmount.toLocaleString()}`);
+        return;
     }
-  ];
 
-  const eligibilityCriteria: EligibilityCriteria[] = [
-    {
-      title: 'Active Cooperative Member',
-      description: 'Member for 6+ months',
-      status: 'passed'
-    },
-    {
-      title: 'Minimum Contribution',
-      description: '₦35,000 contributed (Silver tier)',
-      status: 'passed'
-    },
-    {
-      title: 'No Active Default',
-      description: 'Clean repayment history',
-      status: 'passed'
-    },
-    {
-      title: 'Business Registration',
-      description: 'CAC registration recommended',
-      status: 'advisory'
+    try {
+      setSubmitting(true);
+      const res = await clientApiClient.post<{ success: boolean; data: any }>("/api/loans/apply", {
+        amount,
+        durationMonths: parseInt(applyDuration),
+        reason: applyReason
+      });
+
+      if (res.success) {
+        alert("Loan application submitted successfully!");
+        // Refresh loans
+        const loansRes = await clientApiClient.get<Loan[]>("/api/loans/history");
+        if (Array.isArray(loansRes)) {
+            setLoans(loansRes);
+        }
+        setActiveTab("my-loans");
+        setApplyAmount("");
+        setApplyReason("");
+      } else {
+        alert("Failed to apply for loan");
+      }
+    } catch (error: any) {
+      console.error("Loan application error:", error);
+      alert(error.message || "Loan application failed");
+    } finally {
+      setSubmitting(false);
     }
-  ];
-
-  const nextTier = {
-    name: 'Gold',
-    additionalRequired: 15000
   };
 
-  const getProgressPercentage = () => {
-    return (currentLoan.repaid / currentLoan.originalAmount) * 100;
-  };
+  const activeLoan = loans.find(l => l.status === "active" || l.status === "approved");
+  // Calculate total borrowed (sum of all approved/paid loans)
+  const totalBorrowed = loans
+    .filter(l => l.status === "paid" || l.status === "active" || l.status === "approved")
+    .reduce((sum, l) => sum + (l.amount || 0), 0);
 
-  const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'tiers', label: 'Contribution Tiers' },
-    { id: 'history', label: 'Loan History' },
-    { id: 'apply', label: 'Apply for Loan' }
-  ];
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-pink-600" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#f7f7f7] p-4 md:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-[24px] font-bold text-[#101828] leading-tight">Loan Management</h1>
-            <p className="text-[13px] text-[#667085] mt-1 font-normal">
-              Manage loan applications, approvals, and track repayments
-            </p>
-          </div>
-          <button className="bg-[#1d1d2a] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#1d1d2a]/90 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
-            <span className="text-lg leading-none">+</span>
-            Apply for Loan
-          </button>
+        <div className="mb-6">
+          <h1 className="text-[24px] font-bold text-[#101828] leading-tight">Loans</h1>
+          <p className="text-[13px] text-[#667085] mt-1 font-normal">Apply for loans and manage your loan history.</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <StatCard
-            icon={Wallet}
-            title="Current Tier"
-            value={loanData.currentTier}
-            subtitle={`Contribution: ₦${loanData.contribution.toLocaleString()}`}
+            icon={DollarSign}
+            title="Loan Eligibility"
+            value={eligibility ? `Up to ₦${eligibility.maxLoanAmount.toLocaleString()}` : "Checking..."}
+            subtitle={eligibility ? `${eligibility.tierName} Tier Limit` : "Loading..."}
             iconColor="#E6007A"
           />
           <StatCard
             icon={CreditCard}
-            title="Available Credit"
-            value={`₦${loanData.availableCredit.toLocaleString()}`}
-            subtitle="Max loan amount"
+            title="Active Loan"
+            value={activeLoan ? `₦${activeLoan.amount.toLocaleString()}` : "None"}
+            subtitle={activeLoan ? `Status: ${activeLoan.status}` : "No active loans"}
             iconColor="#E6007A"
           />
-          <StatCard
-            icon={FileText}
-            title="Active Loans"
-            value={String(loanData.activeLoans)}
-            subtitle={`₦${loanData.remainingAmount.toLocaleString()} remaining`}
-            iconColor="#E6007A"
-          />
-          <StatCard
-            icon={TrendingUp}
-            title="Interest Rate"
-            value={`${loanData.interestRate}%`}
-            subtitle="Annual percentage"
+           <StatCard
+            icon={Calendar}
+            title="Total Borrowed"
+            value={`₦${totalBorrowed.toLocaleString()}`}
+            subtitle="Lifetime total"
             iconColor="#E6007A"
           />
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm mb-6 overflow-x-auto">
-          <div className="flex min-w-max">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'overview' | 'tiers' | 'history' | 'apply')}
-                className={`flex-1 px-6 py-4 font-medium transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'text-white bg-pink-600'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-white border-b border-[#e4e7ec] p-0 w-full justify-start rounded-none h-auto">
+            <TabsTrigger
+              value="my-loans"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#f10e7c] data-[state=active]:text-[#f10e7c] px-6 py-3"
+            >
+              My Loans
+            </TabsTrigger>
+            <TabsTrigger
+              value="apply"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#f10e7c] data-[state=active]:text-[#f10e7c] px-6 py-3"
+            >
+              Apply for Loan
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Current Loan Status */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Current Loan Status</h2>
-                  <p className="text-sm text-gray-500 mt-1">Loan ID: {currentLoan.id}</p>
-                </div>
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  Active
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Repaid: ₦{currentLoan.repaid.toLocaleString()}</span>
-                  <span className="text-gray-600">Remaining: ₦{currentLoan.remaining.toLocaleString()}</span>
-                </div>
-                
-                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                  <div 
-                    className="bg-gradient-to-r from-pink-500 to-pink-600 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${getProgressPercentage()}%` }}
-                  />
-                </div>
-
-                <div className="flex justify-between pt-4 border-t border-gray-100">
-                  <div>
-                    <p className="text-sm text-gray-500">Original Amount</p>
-                    <p className="text-lg font-bold text-gray-900">₦{currentLoan.originalAmount.toLocaleString()}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Due Date</p>
-                    <p className="text-lg font-bold text-gray-900">{currentLoan.dueDate}</p>
-                  </div>
-                </div>
-
-                <button className="w-full bg-pink-600 text-white py-3 rounded-lg font-medium hover:bg-pink-700 transition-colors">
-                  Save
-                </button>
-              </div>
-            </div>
-
-            {/* Contribution Summary */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Contribution Summary</h2>
-              
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold text-gray-900 mb-2">₦{loanData.contribution.toLocaleString()}</div>
-                <p className="text-gray-600">Total Contributions</p>
-              </div>
-
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Current Tier: {loanData.currentTier}</span>
-                  <span className="font-medium text-gray-900">₦{loanData.contribution.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Next Tier: {nextTier.name}</span>
-                  <span className="font-medium text-gray-900">₦{nextTier.additionalRequired.toLocaleString()} more</span>
-                </div>
-              </div>
-
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-6">
-                <div 
-                  className="bg-gradient-to-r from-pink-500 to-pink-600 h-full rounded-full"
-                  style={{ width: `${(loanData.contribution / (loanData.contribution + nextTier.additionalRequired)) * 100}%` }}
-                />
-              </div>
-
-              <button className="w-full bg-gray-100 text-gray-900 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                Add Contribution
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'tiers' && (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {tiers.map((tier, index) => (
-                <div
-                  key={index}
-                  className={`rounded-xl p-6 ${
-                    tier.isCurrent
-                      ? 'bg-gradient-to-br from-pink-600 to-pink-700 text-white shadow-xl scale-105'
-                      : 'bg-white text-gray-900 shadow-sm'
-                  } transition-transform hover:scale-105`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className={`text-lg font-bold ${tier.isCurrent ? 'text-white' : 'text-gray-900'}`}>
-                      {tier.name}
-                    </h3>
-                    {tier.isCurrent && (
-                      <span className="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
-                        CURRENT
-                      </span>
-                    )}
-                  </div>
-                  
-                  <p className={`text-sm mb-6 ${tier.isCurrent ? 'text-pink-100' : 'text-gray-600'}`}>
-                    {tier.description}
-                  </p>
-
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold">${tier.price.toFixed(2)}</span>
-                      <span className={`text-sm ${tier.isCurrent ? 'text-pink-200' : 'text-gray-500'}`}>/month</span>
+          <div className="mt-6">
+            {/* My Loans Tab */}
+            <TabsContent value="my-loans">
+              <div className="bg-white rounded-lg shadow-sm">
+                 <div className="p-5 border-b border-[#e4e7ec] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 className="text-lg font-semibold text-[#000000]">Loan History</h2>
+                     <div className="flex items-center gap-3">
+                        <div className="relative flex-1 sm:flex-initial">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#667185]" />
+                            <Input
+                            placeholder="Search loans..."
+                            className="pl-9 pr-4 py-2 w-full sm:w-[280px] border-[#e4e7ec] text-sm"
+                            />
+                        </div>
                     </div>
-                  </div>
-
-                  <button
-                    className={`w-full py-3 rounded-lg font-medium transition-colors mb-6 ${
-                      tier.isCurrent
-                        ? 'bg-white/20 text-white hover:bg-white/30'
-                        : 'bg-gray-900 text-white hover:bg-gray-800'
-                    }`}
-                  >
-                    {tier.isCurrent ? 'Select' : index > 1 ? 'Upgrade' : 'Select'}
-                  </button>
-
-                  <div>
-                    <p className={`text-xs font-bold mb-3 ${tier.isCurrent ? 'text-pink-200' : 'text-pink-600'}`}>
-                      PLAN INCLUDES:
-                    </p>
-                    <ul className="space-y-2">
-                      {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${tier.isCurrent ? 'text-white' : 'text-green-600'}`} />
-                          <span className={tier.isCurrent ? 'text-pink-100' : 'text-gray-700'}>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {activeTab === 'history' && (
-          <div className="bg-white rounded-xl shadow-sm">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Loan History</h2>
-            </div>
-            
-            <div className="divide-y divide-gray-100">
-              {loanHistory.map((loan, index) => (
-                <div key={index} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-[#f0f2f5] hover:bg-[#f0f2f5] border-b border-[#e4e7ec]">
+                        <TableHead className="text-[#475367] font-medium text-xs">Date Applied</TableHead>
+                        <TableHead className="text-[#475367] font-medium text-xs">Amount</TableHead>
+                        <TableHead className="text-[#475367] font-medium text-xs">Status</TableHead>
+                        <TableHead className="text-[#475367] font-medium text-xs">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loans.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                                    No loans found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                          loans.map((loan) => (
+                            <TableRow key={loan._id} className="border-b border-[#e4e7ec]">
+                              <TableCell className="text-[#1d2739] text-sm">
+                                {format(new Date(loan.createdAt), "MMM dd, yyyy")}
+                              </TableCell>
+                              <TableCell className="text-[#1d2739] text-sm font-medium">₦{loan.amount.toLocaleString()}</TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`rounded-full px-2.5 py-0.5 text-xs font-medium shadow-none ${
+                                    loan.status === "active" || loan.status === "approved"
+                                      ? "bg-[#e7f6ec] text-[#009a49] hover:bg-[#e7f6ec]"
+                                      : loan.status === "pending"
+                                      ? "bg-[#fff8e5] text-[#b54708] hover:bg-[#fff8e5]"
+                                      : loan.status === "rejected"
+                                      ? "bg-[#ffece5] text-[#ad3307] hover:bg-[#ffece5]"
+                                      : "bg-[#f0f2f5] text-[#344054] hover:bg-[#f0f2f5]"
+                                  }`}
+                                >
+                                  {loan.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm" className="text-[#f10e7c] hover:text-[#d00d6a] hover:bg-[#fff0f7]">
+                                  View Details
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Apply Tab */}
+            <TabsContent value="apply">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                        <Card className="p-6 border-0 shadow-sm">
+                            <h3 className="text-lg font-semibold text-[#101828] mb-1">Apply for a New Loan</h3>
+                            <p className="text-[#667085] text-sm mb-6">Fill in the details below to request a loan.</p>
+
+                            <form onSubmit={handleApply} className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="amount">Loan Amount (₦)</Label>
+                                    <Input 
+                                        id="amount" 
+                                        type="number" 
+                                        placeholder="Enter amount" 
+                                        value={applyAmount}
+                                        onChange={(e) => setApplyAmount(e.target.value)}
+                                        max={eligibility?.maxLoanAmount}
+                                    />
+                                    {eligibility && (
+                                        <p className="text-xs text-[#667085]">
+                                            Maximum eligible amount: ₦{eligibility.maxLoanAmount.toLocaleString()}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="duration">Duration (Months)</Label>
+                                    <Select value={applyDuration} onValueChange={setApplyDuration}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select duration" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {[...Array(eligibility?.maxDurationMonths || 12)].map((_, i) => (
+                                                <SelectItem key={i + 1} value={(i + 1).toString()}>
+                                                    {i + 1} Month{(i + 1) !== 1 ? 's' : ''}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="reason">Reason for Loan</Label>
+                                    <Input 
+                                        id="reason" 
+                                        placeholder="e.g., Business expansion, Inventory" 
+                                        value={applyReason}
+                                        onChange={(e) => setApplyReason(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="bg-[#f0f9ff] border border-[#b2ddff] rounded-lg p-4 flex gap-3 text-[#0061af] text-sm">
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                    <div>
+                                        <p className="font-medium mb-1">Interest Rate</p>
+                                        <p>You will be charged an interest rate of {eligibility?.interestRate || 0}% for this loan.</p>
+                                    </div>
+                                </div>
+
+                                <Button 
+                                    type="submit" 
+                                    className="w-full bg-[#f10e7c] hover:bg-[#d00d6a] text-white py-6"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Submitting Application...
+                                        </>
+                                    ) : (
+                                        "Submit Application"
+                                    )}
+                                </Button>
+                            </form>
+                        </Card>
+                    </div>
+
                     <div>
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-gray-900">{loan.id}</h3>
-                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
-                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                          Active
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">{loan.purpose}</p>
+                        <Card className="p-6 border-0 shadow-sm bg-[#f9fafb]">
+                            <h3 className="font-semibold text-[#101828] mb-4">Eligibility Requirements</h3>
+                            <ul className="space-y-3 text-sm text-[#475367]">
+                                <li className="flex items-start gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#f10e7c] mt-2" />
+                                    Must be an active member for at least 3 months.
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#f10e7c] mt-2" />
+                                    No outstanding loans or overdue payments.
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#f10e7c] mt-2" />
+                                    Minimum monthly contribution must be met.
+                                </li>
+                            </ul>
+                            
+                            <div className="mt-8 pt-6 border-t border-[#e4e7ec]">
+                                <h4 className="font-medium text-[#101828] mb-2">Need Help?</h4>
+                                <p className="text-xs text-[#667085] mb-4">
+                                    Contact your cooperative admin for more information about loan policies.
+                                </p>
+                                <Button variant="outline" className="w-full text-[#344054] border-[#d0d5dd]">
+                                    Contact Support
+                                </Button>
+                            </div>
+                        </Card>
                     </div>
-                  </div>
-
-                  <div className="flex justify-between items-center text-sm mb-3">
-                    <span className="text-gray-600">Repaid: ₦{loan.repaid.toLocaleString()}</span>
-                    <span className="text-gray-600">Remaining: ₦{loan.remaining.toLocaleString()}</span>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-4">
-                    <div 
-                      className="bg-gradient-to-r from-pink-500 to-pink-600 h-full rounded-full"
-                      style={{ width: `${(loan.repaid / loan.originalAmount) * 100}%` }}
-                    />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row justify-between gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-500">Original Amount</span>
-                      <p className="font-bold text-gray-900">₦{loan.originalAmount.toLocaleString()}</p>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <span className="text-gray-500">Due Date</span>
-                      <p className="font-bold text-gray-900">{loan.dueDate}</p>
-                    </div>
-                  </div>
                 </div>
-              ))}
-            </div>
+            </TabsContent>
           </div>
-        )}
-
-        {activeTab === 'apply' && (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm">
-              <div className="mb-8">
-                <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
-                  <FileText className="w-6 h-6 text-pink-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Loan Eligibility Assessment</h2>
-                <p className="text-gray-600">Based on your profile and contribution history</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="text-center p-6 bg-pink-50 rounded-xl">
-                  <div className="text-5xl font-bold text-pink-600 mb-2">85%</div>
-                  <p className="text-gray-600 font-medium">ELIGIBILITY SCORE</p>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
-                    <div className="bg-gradient-to-r from-pink-500 to-pink-600 h-full rounded-full" style={{ width: '85%' }} />
-                  </div>
-                </div>
-
-                <div className="text-center p-6 bg-pink-50 rounded-xl">
-                  <div className="text-5xl font-bold text-gray-900 mb-2">$75.00</div>
-                  <p className="text-gray-600 font-medium">MAXIMUM LOAN</p>
-                </div>
-              </div>
-
-              <div className="mb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Eligibility Criteria</h3>
-                <div className="space-y-3">
-                  {eligibilityCriteria.map((criteria, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start gap-4 p-4 rounded-lg border border-gray-200 hover:border-pink-200 transition-colors"
-                    >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        criteria.status === 'passed'
-                          ? 'bg-pink-100'
-                          : criteria.status === 'advisory'
-                          ? 'bg-gray-100'
-                          : 'bg-red-100'
-                      }`}>
-                        <Check className={`w-5 h-5 ${
-                          criteria.status === 'passed'
-                            ? 'text-pink-600'
-                            : criteria.status === 'advisory'
-                            ? 'text-gray-600'
-                            : 'text-red-600'
-                        }`} />
-                      </div>
-                      
-                      <div className="flex-1">
-                        <h4 className="font-bold text-gray-900 mb-1">{criteria.title}</h4>
-                        <p className="text-sm text-gray-600">{criteria.description}</p>
-                      </div>
-
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        criteria.status === 'passed'
-                          ? 'bg-pink-100 text-pink-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {criteria.status === 'passed' ? 'Passed' : 'Advisory'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h4 className="font-bold text-gray-900 mb-3">Improve Your Profile</h4>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <ChevronRight className="w-4 h-4 mt-0.5 text-pink-600 flex-shrink-0" />
-                    <span>Complete business registration to access higher loan amounts</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ChevronRight className="w-4 h-4 mt-0.5 text-pink-600 flex-shrink-0" />
-                    <span>Increase contributions to unlock Gold tier benefits</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ChevronRight className="w-4 h-4 mt-0.5 text-pink-600 flex-shrink-0" />
-                    <span>Maintain consistent repayment history</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
+        </Tabs>
       </div>
     </div>
-  );
-};
-
-export default LoanManagement;
+  )
+}
