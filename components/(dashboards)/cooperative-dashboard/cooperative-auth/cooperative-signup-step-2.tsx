@@ -2,46 +2,71 @@
 
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { CheckCircle2, Check } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
 
 export function CooperativeSignupStep2() {
-  const { currentStep, formData, setMembershipTier, setStep } = useCooperativeSignupStore();
-  const { membershipTier } = formData;
+  const { currentStep, formData, setMembershipTier, setStep } =
+    useCooperativeSignupStore();
+  const { membershipTier, personalInfo } = formData;
+  const { data: profile } = useProfile();
 
-  const tiers = [
-    {
-      id: 1,
-      name: "Tier 1",
-      price: "$25,000",
-      features: [
-        "Access to shared workspace and tools",
-        "Collective purchasing power for materials",
-        "Access to loans for 6 months",
-        "Access to shared workspace and tools",
-      ],
-    },
-    {
-      id: 2,
-      name: "Tier 2",
-      price: "$30,000",
-      features: [
-        "Access to shared workspace and tools",
-        "Collective purchasing power for materials",
-        "Access to loans for 6 months",
-        "Access to shared workspace and tools",
-      ],
-    },
-    {
-      id: 3,
-      name: "Tier 3",
-      price: "$50,000",
-      features: [
-        "Access to shared workspace and tools",
-        "Collective purchasing power for materials",
-        "Access to loans for 6 months",
-        "Access to shared workspace and tools",
-      ],
-    },
-  ];
+  const userCountry = profile?.country || personalInfo?.country || "";
+  const isNigeria =
+    userCountry.toLowerCase() === "nigeria" ||
+    userCountry.toUpperCase() === "NG" ||
+    userCountry.toUpperCase() === "NGA";
+
+  const tiers = isNigeria
+    ? [
+        {
+          id: 1,
+          name: "Basic Tier",
+          price: "up to ₦1M",
+          features: [
+            "Quick Cash ₦20K",
+            "Gasoline ₦150K",
+            "School Fees ₦600K",
+            "Equipment ₦1M",
+          ],
+        },
+        {
+          id: 2,
+          name: "Standard Tier",
+          price: "up to ₦5M",
+          features: ["Business Expansion ₦3M", "Inventory ₦2M"],
+        },
+        {
+          id: 3,
+          name: "Premium Tier",
+          price: "up to ₦10M",
+          features: ["Major Equipment ₦10M"],
+        },
+      ]
+    : [
+        {
+          id: 1,
+          name: "Basic Tier",
+          price: "up to $2,000",
+          features: [
+            "Quick Cash $40",
+            "Gasoline $300",
+            "School Fees $1,200",
+            "Equipment $2,000",
+          ],
+        },
+        {
+          id: 2,
+          name: "Standard Tier",
+          price: "up to $6,000",
+          features: ["Business Expansion $3,600", "Inventory $2,400"],
+        },
+        {
+          id: 3,
+          name: "Premium Tier",
+          price: "up to $10,000",
+          features: ["Major Equipment $10k"],
+        },
+      ];
 
   const handleNext = () => {
     if (membershipTier) setStep(currentStep + 1);

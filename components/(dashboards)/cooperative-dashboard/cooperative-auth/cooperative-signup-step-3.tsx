@@ -244,15 +244,27 @@ export function CooperativeSignupStep3() {
     }
   };
 
-  const tiers = {
-    1: "$25,000",
-    2: "$30,000",
-    3: "$50,000",
-  };
+  const userCountry = profile?.country || personalInfo?.country || "";
+  const isNigeria =
+    userCountry.toLowerCase() === "nigeria" ||
+    userCountry.toUpperCase() === "NG" ||
+    userCountry.toUpperCase() === "NGA";
 
-  const tierPrice = membershipTier
-    ? tiers[membershipTier as keyof typeof tiers]
-    : "";
+  const tiersInfo = isNigeria
+    ? {
+        1: { name: "Basic Tier", price: "up to ₦1M" },
+        2: { name: "Standard Tier", price: "up to ₦5M" },
+        3: { name: "Premium Tier", price: "up to ₦10M" },
+      }
+    : {
+        1: { name: "Basic Tier", price: "up to $2,000" },
+        2: { name: "Standard Tier", price: "up to $6,000" },
+        3: { name: "Premium Tier", price: "up to $10,000" },
+      };
+
+  const selectedTier = membershipTier
+    ? tiersInfo[membershipTier as keyof typeof tiersInfo]
+    : { name: "None", price: "None" };
 
   return (
     <div className="w-full max-w-[600px]">
@@ -291,7 +303,7 @@ export function CooperativeSignupStep3() {
           <div>
             <p className="text-sm font-medium text-[#222]">Membership Tier:</p>
             <p className="text-sm text-gray-600">
-              Tier {membershipTier}: {tierPrice}
+              {selectedTier.name} ({selectedTier.price})
             </p>
           </div>
         </div>

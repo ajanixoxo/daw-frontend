@@ -105,7 +105,7 @@ const SellerSignupStep2: FC = () => {
     else if (!/^\d{11}$/.test(documents.nin.trim()))
       newErrors.nin = "NIN must be 11 digits";
     if (!documents.passportPhotograph)
-      newErrors.passportPhotograph = "Passport photograph is required";
+      newErrors.passportPhotograph = "Valid Identification is required";
 
     setErrors(newErrors);
     setSubmitError(null);
@@ -293,13 +293,13 @@ const SellerSignupStep2: FC = () => {
           )}
         </div>
 
-        {/* Passport Photograph */}
+        {/* Valid Identification */}
         <UploadBox
-          label="Passport Photograph *"
+          label="Valid Identification *"
           field="passportPhotograph"
           value={documents.passportPhotograph}
           onChange={(file) => updateDocuments({ passportPhotograph: file })}
-          description="Upload a clear passport photograph"
+          description="Upload a clear Valid Identification"
           error={errors.passportPhotograph}
         />
 
