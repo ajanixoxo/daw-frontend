@@ -303,9 +303,9 @@ const SellerSignupStep2: FC = () => {
           error={errors.passportPhotograph}
         />
 
-        {/* Business CAC (Optional) */}
+        {/*Business CAC * */}
         <UploadBox
-          label="Business CAC (Optional)"
+          label="Shop Branding *"
           field="businessCac"
           value={documents.businessCac}
           onChange={(file) => updateDocuments({ businessCac: file })}

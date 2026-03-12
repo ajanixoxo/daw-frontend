@@ -116,7 +116,8 @@ export function CooperativeSignupStepDocs() {
         {/* NIN Input */}
         <div className="space-y-2">
           <Label htmlFor="nin" className="text-sm font-medium text-[#222]">
-            National Identification Number (NIN) <span className="text-red-500">*</span>
+            National Identification Number (NIN){" "}
+            <span className="text-red-500">*</span>
           </Label>
           <Input
             id="nin"
@@ -146,9 +147,9 @@ export function CooperativeSignupStepDocs() {
           error={errors.passportPhotograph}
         />
 
-        {/* Business CAC (Optional) */}
+        {/*Business CAC * */}
         <UploadBox
-          label="Business CAC (Optional)"
+          label="Business CAC *"
           field="businessCac"
           value={documents.businessCac}
           onChange={(file) => updateDocuments({ businessCac: file })}
