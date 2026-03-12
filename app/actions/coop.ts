@@ -168,6 +168,8 @@ export async function guestJoinCooperative(data: {
   firstName: string;
   lastName?: string;
   phone: string;
+  country?: string;
+  currency?: string;
   cooperativeId: string;
   subscriptionTierId: string;
 }): Promise<IActionResponse<IJoinCooperativeResponse>> {

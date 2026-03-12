@@ -15,6 +15,9 @@ export function useWishlist() {
       console.log("Wishlist response:", response);
 
       if (!response.success) {
+        if (response.error === "Please login to view wishlist") {
+          return [];
+        }
         console.error("Failed to fetch wishlist:", response.error);
         throw new Error(response.error);
       }

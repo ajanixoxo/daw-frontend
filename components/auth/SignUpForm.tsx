@@ -13,6 +13,8 @@ import type { ISignupRequest } from "@/types/auth.types";
 import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/zustand/store";
 import { toast } from "sonner";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 interface InviteData {
   firstName: string;
@@ -53,6 +55,8 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
     password: "",
     confirmPassword: "",
     phone: "",
+    country: "",
+    currency: "USD", // Default to USD
   });
 
   // Pre-fill form data from invite
@@ -70,12 +74,25 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
 
   // Complete registration mutation
   const completeRegistrationMutation = useMutation({
-    mutationFn: async (data: { token: string; password: string; phone?: string }) => {
+    mutationFn: async (data: {
+      token: string;
+      password: string;
+      phone?: string;
+    }) => {
       return await apiClient.post<{
         success: boolean;
         message: string;
         data: {
-          user: { _id: string; firstName: string; lastName: string; email: string; phone: string; roles: string[]; isVerified: boolean; status: string };
+          user: {
+            _id: string;
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone: string;
+            roles: string[];
+            isVerified: boolean;
+            status: string;
+          };
           accessToken: string;
           refreshToken: string;
         };
@@ -88,22 +105,25 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
         const userData = response.data.user;
         const sessionData = {
           userId: userData._id,
-          role: userData.roles[0] || 'buyer',
+          role: userData.roles[0] || "buyer",
           email: userData.email,
           isVerified: userData.isVerified,
           accessToken: response.data.accessToken,
           refreshToken: response.data.refreshToken,
         };
-        login({
-          _id: userData._id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-          phone: userData.phone,
-          roles: userData.roles,
-          isVerified: userData.isVerified,
-          status: userData.status,
-        }, sessionData);
+        login(
+          {
+            _id: userData._id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            phone: userData.phone,
+            roles: userData.roles,
+            isVerified: userData.isVerified,
+            status: userData.status,
+          },
+          sessionData,
+        );
 
         // Redirect based on role
         const roles = userData.roles || [];
@@ -125,6 +145,18 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    setFormData((prev) => ({
+      ...prev,
+      phone: value,
+      country: countryName,
+      currency: isNigeria ? "NGN" : "USD",
     }));
   };
 
@@ -206,7 +238,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="firstName" className="auth-label text-(--text-dark)">
+          <Label htmlFor="firstName" className="auth-label text-text-dark">
             First Name
           </Label>
           <div className="relative">
@@ -218,12 +250,16 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
               value={formData.firstName}
               onChange={handleChange}
               disabled={isSubmitting || isInviteMode}
-              className={`h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder) ${isInviteMode ? "bg-gray-100 text-gray-600" : ""
-                }`}
+              className={`h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder ${
+                isInviteMode ? "bg-gray-100 text-gray-600" : ""
+              }`}
               aria-invalid={!!errors.firstName}
             />
             {isInviteMode && (
-              <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock
+                size={16}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
             )}
           </div>
           {errors.firstName && (
@@ -232,7 +268,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="lastName" className="auth-label text-(--text-dark)">
+          <Label htmlFor="lastName" className="auth-label text-text-dark">
             Last Name
           </Label>
           <div className="relative">
@@ -244,12 +280,16 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
               value={formData.lastName}
               onChange={handleChange}
               disabled={isSubmitting || isInviteMode}
-              className={`h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder) ${isInviteMode ? "bg-gray-100 text-gray-600" : ""
-                }`}
+              className={`h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder ${
+                isInviteMode ? "bg-gray-100 text-gray-600" : ""
+              }`}
               aria-invalid={!!errors.lastName}
             />
             {isInviteMode && (
-              <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock
+                size={16}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
             )}
           </div>
           {errors.lastName && (
@@ -259,7 +299,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email" className="auth-label text-(--text-dark)">
+        <Label htmlFor="email" className="auth-label text-text-dark">
           Email
         </Label>
         <div className="relative">
@@ -271,12 +311,16 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
             value={formData.email}
             onChange={handleChange}
             disabled={isSubmitting || isInviteMode}
-            className={`h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder) ${isInviteMode ? "bg-gray-100 text-gray-600" : ""
-              }`}
+            className={`h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder ${
+              isInviteMode ? "bg-gray-100 text-gray-600" : ""
+            }`}
             aria-invalid={!!errors.email}
           />
           {isInviteMode && (
-            <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Lock
+              size={16}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+            />
           )}
         </div>
         {errors.email && (
@@ -285,19 +329,19 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="phone" className="auth-label text-(--text-dark)">
+        <Label htmlFor="phone" className="auth-label text-text-dark">
           Phone Number
         </Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          placeholder="23409099987"
+        <PhoneInput
+          country={"ng"}
           value={formData.phone}
-          onChange={handleChange}
+          onChange={handlePhoneChange}
           disabled={isSubmitting}
-          className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 text-base placeholder:text-(--input-placeholder)"
-          aria-invalid={!!errors.phone}
+          containerClass="w-full"
+          inputClass="!w-full !h-12 !rounded-[40px] !border !border-input-border !bg-white !px-4 !pl-12 !text-base !placeholder:text-input-placeholder"
+          buttonClass="!border-none !bg-transparent !pl-4"
+          dropdownClass="!rounded-xl !shadow-lg"
+          placeholder="Enter phone number"
         />
         {errors.phone && (
           <span className="text-xs text-destructive">{errors.phone}</span>
@@ -305,7 +349,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password" className="auth-label text-(--text-dark)">
+        <Label htmlFor="password" className="auth-label text-text-dark">
           Password
         </Label>
         <div className="relative">
@@ -317,14 +361,14 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
             value={formData.password}
             onChange={handleChange}
             disabled={isSubmitting}
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
+            className="h-12 rounded-[40px] border border-input-border bg-white px-4 pr-12 text-base placeholder:text-input-placeholder"
             aria-invalid={!!errors.password}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             disabled={isSubmitting}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-dark transition-colors disabled:opacity-50"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -402,10 +446,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label
-          htmlFor="confirmPassword"
-          className="auth-label text-(--text-dark)"
-        >
+        <Label htmlFor="confirmPassword" className="auth-label text-text-dark">
           Confirm Password
         </Label>
         <div className="relative">
@@ -417,14 +458,14 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
             value={formData.confirmPassword}
             onChange={handleChange}
             disabled={isSubmitting}
-            className="h-12 rounded-[40px] border border-(--input-border) bg-white px-4 pr-12 text-base placeholder:text-(--input-placeholder)"
+            className="h-12 rounded-[40px] border border-input-border bg-white px-4 pr-12 text-base placeholder:text-input-placeholder"
             aria-invalid={!!errors.confirmPassword}
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             disabled={isSubmitting}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-dark) transition-colors disabled:opacity-50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-dark transition-colors disabled:opacity-50"
             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
           >
             {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -440,7 +481,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="h-12 rounded-[40px] bg-(--brand-pink) hover:bg-(--brand-pink)/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="h-12 rounded-[40px] bg-brand-pink hover:bg-brand-pink/90 text-white font-semibold text-base mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ letterSpacing: "-0.64px" }}
       >
         {isSubmitting

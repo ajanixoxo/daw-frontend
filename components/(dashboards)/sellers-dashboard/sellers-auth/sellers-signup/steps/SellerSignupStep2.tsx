@@ -128,7 +128,8 @@ const SellerSignupStep2: FC = () => {
         if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
         body.append("nin", documents.nin.trim());
         body.append("passportPhotograph", documents.passportPhotograph!);
-        if (documents.businessCac) body.append("businessCac", documents.businessCac);
+        if (documents.businessCac)
+          body.append("businessCac", documents.businessCac);
 
         const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.SELLER_ONBOARD}`;
         const res = await fetch(url, {
@@ -180,6 +181,8 @@ const SellerSignupStep2: FC = () => {
       body.append("phone", personalInfo.phone);
       body.append("password", personalInfo.password);
       body.append("confirmPassword", personalInfo.confirmPassword);
+      if (personalInfo.country) body.append("country", personalInfo.country);
+      if (personalInfo.currency) body.append("currency", personalInfo.currency);
       // Shop info fields
       body.append("name", shopInfo.shopName);
       body.append("description", shopInfo.description);
@@ -193,7 +196,8 @@ const SellerSignupStep2: FC = () => {
       // Document fields
       body.append("nin", documents.nin.trim());
       body.append("passportPhotograph", documents.passportPhotograph!);
-      if (documents.businessCac) body.append("businessCac", documents.businessCac);
+      if (documents.businessCac)
+        body.append("businessCac", documents.businessCac);
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.GUEST_SELLER_ONBOARD}`;
       const res = await fetch(url, {
@@ -233,13 +237,12 @@ const SellerSignupStep2: FC = () => {
       }
 
       toast.success(
-        "Account created! Please verify your email to complete signup."
+        "Account created! Please verify your email to complete signup.",
       );
       reset();
       router.push("/otp?mode=signup");
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Something went wrong.";
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
       setSubmitError(msg);
       toast.error(msg);
     } finally {
@@ -269,7 +272,8 @@ const SellerSignupStep2: FC = () => {
         {/* NIN Input */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="nin" className="text-sm font-medium text-[#1a1a1a]">
-            National Identification Number (NIN) <span className="text-red-500">*</span>
+            National Identification Number (NIN){" "}
+            <span className="text-red-500">*</span>
           </Label>
           <Input
             id="nin"

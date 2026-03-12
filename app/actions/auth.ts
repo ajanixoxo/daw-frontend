@@ -196,6 +196,8 @@ export async function signupUser(
       password: userData.password,
       confirmPassword: userData.confirmPassword,
       phone: userData.phone,
+      country: userData.country,
+      currency: userData.currency,
     };
     if (userData.roles != null) {
       payload.roles = [userData.roles];

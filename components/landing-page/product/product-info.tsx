@@ -25,6 +25,8 @@ import { useReviews } from "@/hooks/useReviews";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/zustand/store";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ProductInfoProps {
   product: IProduct;
@@ -46,6 +48,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const reviewCount = reviewsData?.pagination.total || 4; // Mock 4 if 0
   const averageRating = 4.5; // Mock 4.5
 
+  const { isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1 && newQuantity <= (product.quantity || 100)) {
@@ -54,6 +60,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   };
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to add items to cart");
+      const loginUrl = new URL("/auth", window.location.origin);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      router.push(loginUrl.pathname + loginUrl.search);
+      return;
+    }
+
     addToCart(
       { productId: product._id, quantity },
       {
@@ -68,6 +82,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   };
 
   const toggleWishlist = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to add items to wishlist");
+      const loginUrl = new URL("/auth", window.location.origin);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      router.push(loginUrl.pathname + loginUrl.search);
+      return;
+    }
+
     if (isInWishlist) {
       removeFromWishlist(product._id);
     } else {

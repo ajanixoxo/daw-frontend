@@ -76,15 +76,22 @@ export async function updateSellerProfile(prevState: any, formData: FormData): P
         // 1. Update User Profile
         const firstName = formData.get("firstName") as string;
         const lastName = formData.get("lastName") as string;
-        const phone = formData.get("phone") as string;
+        const rawPhone = formData.get("phone") as string;
+        const country = formData.get("country") as string;
+        const currency = formData.get("currency") as string;
         const profilePicture = formData.get("profilePicture") as File;
 
+        // Strip non-digits from phone number
+        const phone = rawPhone ? rawPhone.replace(/\D/g, "") : rawPhone;
+
         // Only call user update if there are user fields
-        if (firstName || lastName || phone || (profilePicture && profilePicture.size > 0)) {
+        if (firstName || lastName || phone || country || currency || (profilePicture && profilePicture.size > 0)) {
              const userFormData = new FormData();
              if (firstName) userFormData.append("firstName", firstName);
              if (lastName) userFormData.append("lastName", lastName);
              if (phone) userFormData.append("phone", phone);
+             if (country) userFormData.append("country", country);
+             if (currency) userFormData.append("currency", currency);
              if (profilePicture && profilePicture.size > 0) userFormData.append("profilePicture", profilePicture);
 
              const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
