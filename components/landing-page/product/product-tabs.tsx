@@ -276,7 +276,7 @@ export function ProductTabs({
                         className="border-b border-gray-100 last:border-0 pb-8 last:pb-0"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 uppercase flex items-center justify-center text-gray-500 font-bold bg-gray-100">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 uppercase flex items-center justify-center text-gray-500 font-bold">
                             {review.user_id?.firstName?.charAt(0) || "A"}
                           </div>
                           <div>

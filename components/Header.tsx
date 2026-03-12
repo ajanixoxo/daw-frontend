@@ -95,7 +95,7 @@ export default function Header({ theme = "dark" }: HeaderProps) {
               Home
             </Link>
             <Link
-              href="/marketplace"
+              href="/all-shops"
               className={cn(
                 "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
                 isScrolled
@@ -240,7 +240,7 @@ export default function Header({ theme = "dark" }: HeaderProps) {
               Home
             </Link>
             <Link
-              href="/marketplace"
+              href="/all-shops"
               className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
