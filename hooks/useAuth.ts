@@ -4,6 +4,8 @@ import { loginUser, signupUser, logoutUser, resendOtp } from "@/app/actions/auth
 import { getUserProfile } from "@/app/actions/profile";
 import type { ILoginRequest, ISignupRequest, ISessionData, IUser } from "@/types/auth.types";
 import { useAuthStore } from "@/zustand/store";
+import { useSellerSignupStore } from "@/zustand/seller-signup-store";
+import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { tokenManager } from "@/lib/api/client-client";
 
 interface UseLoginReturn {
@@ -206,6 +208,8 @@ export function useLogout(): UseLogoutReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { logout: clearAuthData } = useAuthStore();
+  const { reset: resetSellerSignup } = useSellerSignupStore();
+  const { reset: resetCooperativeSignup } = useCooperativeSignupStore();
 
   const logout = async () => {
     setIsLoading(true);
@@ -213,25 +217,26 @@ export function useLogout(): UseLogoutReturn {
 
     startTransition(async () => {
       try {
-        const result = await logoutUser();
-
-        if (!result.success) {
-          setError(result.error || "Logout failed");
-          setIsLoading(false);
-          return;
-        }
-
+        // Attempt server-side logout but don't let it block client-side clearing
+        await logoutUser();
+      } catch (err) {
+        console.error("Server logout failed, proceeding with client-side clear:", err);
+      } finally {
+        // PERMANENTLY clear all client-side state
         clearAuthData();
+        resetSellerSignup();
+        resetCooperativeSignup();
         
         // Clear tokens from localStorage
         tokenManager.clearTokens();
 
+        // Dispatch logout event for React Query cache clearing
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+        }
+
         router.push("/");
         router.refresh();
-        setIsLoading(false);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "An error occurred";
-        setError(message);
         setIsLoading(false);
       }
     });
