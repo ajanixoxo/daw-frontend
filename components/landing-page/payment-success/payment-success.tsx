@@ -2,57 +2,107 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { verifyPayment } from "@/app/actions/checkout";
+import { verifyPayment, verifyPaystackPayment, capturePaypalOrder } from "@/app/actions/checkout";
 import { getOrder } from "@/app/actions/order";
-import { IPaymentVerifyResponse } from "@/types/checkout.types";
 import { Loader2, Check, Download, Package, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
+// Normalised shape used by the UI regardless of provider
+interface NormalizedPayment {
+  orderId: string;
+  channel: string;
+  transactionReference: string;
+  amount: number;
+}
+
 export function PaymentSuccess() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const reference = searchParams.get("ref");
+
+  // Detect which provider returned based on URL params
+  const vigipayRef   = searchParams.get("ref");          // Vigipay
+  const paystackRef  = searchParams.get("reference");    // Paystack (appended by Paystack)
+  const paypalToken  = searchParams.get("token");        // PayPal order id (appended by PayPal)
+  const orderId      = searchParams.get("orderId");      // Paystack + PayPal pass this
+
   const [loading, setLoading] = useState(true);
-  const [paymentData, setPaymentData] = useState<IPaymentVerifyResponse | null>(
-    null
-  );
+  const [payment, setPayment] = useState<NormalizedPayment | null>(null);
   const [orderData, setOrderData] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!reference) {
-      setError("No reference found");
-      setLoading(false);
-      return;
-    }
-
-    const verify = async () => {
+    const run = async () => {
       try {
-        const result = await verifyPayment(reference);
-        if (result.success && result.data) {
-          setPaymentData(result.data);
-
-          // Try to fetch order details to get items
-          if (result.data.payment.orderId) {
-            const orderResult = await getOrder(result.data.payment.orderId);
-            if (orderResult.success) {
-              setOrderData(orderResult.data);
-            }
+        // ── Vigipay ──────────────────────────────────────────────────────────
+        if (vigipayRef) {
+          const result = await verifyPayment(vigipayRef);
+          if (!result.success || !result.data) {
+            setError(result.error || "Failed to verify payment");
+            return;
           }
-        } else {
-          setError(result.error || "Failed to verify payment");
+          const p = result.data.payment;
+          setPayment({
+            orderId: p.orderId,
+            channel: p.channel || "Vigipay",
+            transactionReference: p.transactionReference,
+            amount: p.amount,
+          });
+          const orderResult = await getOrder(p.orderId);
+          if (orderResult.success) setOrderData(orderResult.data);
+          return;
         }
-      } catch (err) {
+
+        // ── Paystack ─────────────────────────────────────────────────────────
+        if (paystackRef && orderId) {
+          const result = await verifyPaystackPayment(paystackRef);
+          if (!result.success || !result.data) {
+            setError(result.error || "Failed to verify Paystack payment");
+            return;
+          }
+          const orderResult = await getOrder(orderId);
+          const amount = orderResult.success ? (orderResult.data as any)?.order?.total_amount ?? 0 : 0;
+          setPayment({
+            orderId,
+            channel: "Paystack",
+            transactionReference: result.data.reference,
+            amount,
+          });
+          if (orderResult.success) setOrderData(orderResult.data);
+          return;
+        }
+
+        // ── PayPal ───────────────────────────────────────────────────────────
+        if (paypalToken && orderId) {
+          const result = await capturePaypalOrder(paypalToken);
+          if (!result.success || !result.data) {
+            setError(result.error || "Failed to capture PayPal payment");
+            return;
+          }
+          const orderResult = await getOrder(orderId);
+          const amount = orderResult.success ? (orderResult.data as any)?.order?.total_amount ?? 0 : 0;
+          setPayment({
+            orderId,
+            channel: "PayPal",
+            transactionReference: paypalToken,
+            amount,
+          });
+          if (orderResult.success) setOrderData(orderResult.data);
+          return;
+        }
+
+        setError("No payment reference found. Please contact support.");
+      } catch {
         setError("An unexpected error occurred");
       } finally {
         setLoading(false);
       }
     };
 
-    verify();
-  }, [reference]);
+    run();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (
@@ -63,7 +113,7 @@ export function PaymentSuccess() {
     );
   }
 
-  if (error || !paymentData) {
+  if (error || !payment) {
     return (
       <div className="flex flex-col items-center justify-center py-20 px-4">
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md w-full text-center">
@@ -87,7 +137,6 @@ export function PaymentSuccess() {
     );
   }
 
-  const { payment } = paymentData;
   const orderItems = (orderData as any)?.orderItems || [];
 
   return (

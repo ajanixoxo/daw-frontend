@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useCheckoutStore, useInitiatePayment } from "@/hooks/useCheckout";
+import {
+  useCheckoutStore,
+  useInitiatePayment,
+  useInitiatePaystackPayment,
+  useInitiatePaypalOrder,
+} from "@/hooks/useCheckout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -145,8 +150,11 @@ const LOGISTICS_OPTIONS = [
 export default function CheckoutPage() {
   const router = useRouter();
   const { orderData } = useCheckoutStore();
-  const { mutate: initiatePayment, isPending: isProcessingPayment } =
-    useInitiatePayment();
+  const { mutate: initiateVigipay, isPending: isPendingVigipay } = useInitiatePayment();
+  const { mutate: initiatePaystack, isPending: isPendingPaystack } = useInitiatePaystackPayment();
+  const { mutate: initiatePaypal, isPending: isPendingPaypal } = useInitiatePaypalOrder();
+
+  const isProcessingPayment = isPendingVigipay || isPendingPaystack || isPendingPaypal;
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -161,6 +169,7 @@ export default function CheckoutPage() {
     differentAddress: "",
   });
 
+  const [paymentMethod, setPaymentMethod] = useState<"vigipay" | "paystack" | "paypal">("paystack");
   // const [selectedLogistics, setSelectedLogistics] = useState(LOGISTICS_OPTIONS[1].id);
   const [promoCode, setPromoCode] = useState("");
 
@@ -187,17 +196,12 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = () => {
-    // Basic validation
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.streetAddress
-    ) {
+    if (!formData.fullName || !formData.email || !formData.streetAddress) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    const payload = {
+    const billingPayload = {
       description: `Checkout payment for order #${orderData.order._id}`,
       name: formData.fullName,
       orderId: orderData.order._id,
@@ -214,20 +218,45 @@ export default function CheckoutPage() {
       zipCode: formData.zipCode,
     };
 
-    initiatePayment(payload, {
-      onSuccess: (data) => {
-        toast.success("Payment initiated successfully");
-        if (data.redirectUrl) {
-          window.location.href = data.redirectUrl;
-        } else {
-          toast.error("No redirect URL returned");
-        }
-      },
-      onError: (error: any) => {
-        console.error("Payment failed:", error);
-        toast.error(error.message || "Failed to initiate payment");
-      },
-    });
+    const onError = (error: any) => {
+      console.error("Payment failed:", error);
+      toast.error(error.message || "Failed to initiate payment");
+    };
+
+    if (paymentMethod === "vigipay") {
+      initiateVigipay(billingPayload, {
+        onSuccess: (data) => {
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
+          } else {
+            toast.error("No redirect URL returned");
+          }
+        },
+        onError,
+      });
+    } else if (paymentMethod === "paystack") {
+      initiatePaystack(billingPayload, {
+        onSuccess: (data) => {
+          if (data.authorizationUrl) {
+            window.location.href = data.authorizationUrl;
+          } else {
+            toast.error("No Paystack authorization URL returned");
+          }
+        },
+        onError,
+      });
+    } else if (paymentMethod === "paypal") {
+      initiatePaypal(billingPayload, {
+        onSuccess: (data) => {
+          if (data.approvalUrl) {
+            window.location.href = data.approvalUrl;
+          } else {
+            toast.error("No PayPal approval URL returned");
+          }
+        },
+        onError,
+      });
+    }
   };
 
   return (
@@ -616,6 +645,41 @@ export default function CheckoutPage() {
                       <span className="font-medium">₦{deliveryCost.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</span>
                     </div>
                     */}
+                  </div>
+
+                  {/* Payment Method Selector */}
+                  <div className="mb-6">
+                    <p className="text-sm font-medium mb-3">Payment Method</p>
+                    <div className="space-y-2">
+                      {[
+                        { id: "paystack", label: "Paystack", sub: "Debit / Credit Card (NGN)" },
+                        { id: "paypal",   label: "PayPal",   sub: "International (USD)" },
+                        { id: "vigipay",  label: "Vigipay",  sub: "Bank Transfer (NGN)" },
+                      ].map((method) => (
+                        <button
+                          key={method.id}
+                          type="button"
+                          onClick={() => setPaymentMethod(method.id as "vigipay" | "paystack" | "paypal")}
+                          className={`w-full flex items-center justify-between border rounded-lg px-4 py-3 transition-colors text-left ${
+                            paymentMethod === method.id
+                              ? "border-[#F10E7C] bg-[#fff0f7]"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div>
+                            <p className="text-sm font-medium">{method.label}</p>
+                            <p className="text-xs text-muted-foreground">{method.sub}</p>
+                          </div>
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            paymentMethod === method.id ? "border-[#F10E7C]" : "border-gray-300"
+                          }`}>
+                            {paymentMethod === method.id && (
+                              <div className="w-2 h-2 rounded-full bg-[#F10E7C]" />
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="border-t border-gray-100 pt-4 mb-6">
