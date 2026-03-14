@@ -44,6 +44,7 @@ export interface IPaymentInitiateRequest {
   address: string[];
   DeliveryAddress: string;
   zipCode: string;
+  amount: number;
   logisticsInfo?: string;
 }
 

@@ -216,6 +216,7 @@ export default function CheckoutPage() {
           ? "Same as shipping address"
           : formData.differentAddress,
       zipCode: formData.zipCode,
+      amount: total,
     };
 
     const onError = (error: any) => {
