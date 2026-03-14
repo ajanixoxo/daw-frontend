@@ -105,7 +105,7 @@ const SellerSignupStep2: FC = () => {
     else if (!/^\d{11}$/.test(documents.nin.trim()))
       newErrors.nin = "NIN must be 11 digits";
     if (!documents.passportPhotograph)
-      newErrors.passportPhotograph = "Passport photograph is required";
+      newErrors.passportPhotograph = "Valid Identification is required";
 
     setErrors(newErrors);
     setSubmitError(null);
@@ -128,7 +128,8 @@ const SellerSignupStep2: FC = () => {
         if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
         body.append("nin", documents.nin.trim());
         body.append("passportPhotograph", documents.passportPhotograph!);
-        if (documents.businessCac) body.append("businessCac", documents.businessCac);
+        if (documents.businessCac)
+          body.append("businessCac", documents.businessCac);
 
         const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.SELLER_ONBOARD}`;
         const res = await fetch(url, {
@@ -180,6 +181,8 @@ const SellerSignupStep2: FC = () => {
       body.append("phone", personalInfo.phone);
       body.append("password", personalInfo.password);
       body.append("confirmPassword", personalInfo.confirmPassword);
+      if (personalInfo.country) body.append("country", personalInfo.country);
+      if (personalInfo.currency) body.append("currency", personalInfo.currency);
       // Shop info fields
       body.append("name", shopInfo.shopName);
       body.append("description", shopInfo.description);
@@ -193,7 +196,8 @@ const SellerSignupStep2: FC = () => {
       // Document fields
       body.append("nin", documents.nin.trim());
       body.append("passportPhotograph", documents.passportPhotograph!);
-      if (documents.businessCac) body.append("businessCac", documents.businessCac);
+      if (documents.businessCac)
+        body.append("businessCac", documents.businessCac);
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.GUEST_SELLER_ONBOARD}`;
       const res = await fetch(url, {
@@ -233,13 +237,12 @@ const SellerSignupStep2: FC = () => {
       }
 
       toast.success(
-        "Account created! Please verify your email to complete signup."
+        "Account created! Please verify your email to complete signup.",
       );
       reset();
       router.push("/otp?mode=signup");
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Something went wrong.";
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
       setSubmitError(msg);
       toast.error(msg);
     } finally {
@@ -269,7 +272,8 @@ const SellerSignupStep2: FC = () => {
         {/* NIN Input */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="nin" className="text-sm font-medium text-[#1a1a1a]">
-            National Identification Number (NIN) <span className="text-red-500">*</span>
+            National Identification Number (NIN){" "}
+            <span className="text-red-500">*</span>
           </Label>
           <Input
             id="nin"
@@ -289,19 +293,19 @@ const SellerSignupStep2: FC = () => {
           )}
         </div>
 
-        {/* Passport Photograph */}
+        {/* Valid Identification */}
         <UploadBox
-          label="Passport Photograph *"
+          label="Valid Identification *"
           field="passportPhotograph"
           value={documents.passportPhotograph}
           onChange={(file) => updateDocuments({ passportPhotograph: file })}
-          description="Upload a clear passport photograph"
+          description="Upload a clear Valid Identification"
           error={errors.passportPhotograph}
         />
 
-        {/* Business CAC (Optional) */}
+        {/*Business CAC * */}
         <UploadBox
-          label="Business CAC (Optional)"
+          label="Shop Branding *"
           field="businessCac"
           value={documents.businessCac}
           onChange={(file) => updateDocuments({ businessCac: file })}

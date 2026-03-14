@@ -8,6 +8,8 @@ interface PersonalInfo {
   email: string;
   password: string;
   confirmPassword: string;
+  country: string;
+  currency: string;
 }
 
 export interface DAWTier {
@@ -75,6 +77,8 @@ export const useCooperativeSignupStore = create<SignupState>()(
           email: '',
           password: '',
           confirmPassword: '',
+          country: '',
+          currency: 'USD',
         },
         membershipTier: null,
         shopInfo: {
@@ -164,6 +168,8 @@ export const useCooperativeSignupStore = create<SignupState>()(
               email: '',
               password: '',
               confirmPassword: '',
+              country: '',
+              currency: 'USD',
             },
             membershipTier: null,
             shopInfo: {

@@ -255,7 +255,7 @@ const LoanManagement = () => {
                 
                 <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                   <div 
-                    className="bg-gradient-to-r from-pink-500 to-pink-600 h-full rounded-full transition-all duration-500"
+                    className="bg-linear-to-r from-pink-500 to-pink-600 h-full rounded-full transition-all duration-500"
                     style={{ width: `${getProgressPercentage()}%` }}
                   />
                 </div>
@@ -319,7 +319,7 @@ const LoanManagement = () => {
                   key={index}
                   className={`rounded-xl p-6 ${
                     tier.isCurrent
-                      ? 'bg-gradient-to-br from-pink-600 to-pink-700 text-white shadow-xl scale-105'
+                      ? 'bg-linear-to-br from-pink-600 to-pink-700 text-white shadow-xl scale-105'
                       : 'bg-white text-gray-900 shadow-sm'
                   } transition-transform hover:scale-105`}
                 >

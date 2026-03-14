@@ -61,7 +61,9 @@ export interface IUser {
   member?: any[];
   createdAt?: string;
   updatedAt?: string;
-  avatar?: string; // <- add this line
+  avatar?: string;
+  country?: string;
+  currency?: string;
 }
 
 
@@ -78,6 +80,8 @@ export interface ISignupRequest {
   confirmPassword: string;
   phone: string;
   roles?: "buyer" | "seller";
+  country?: string;
+  currency?: string;
 }
 
 export interface ILoginResponse {

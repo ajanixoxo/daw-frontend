@@ -90,7 +90,7 @@ export default function ContributionPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             icon={CreditCard}
             title="Current Tier"
@@ -110,6 +110,13 @@ export default function ContributionPage() {
           <StatCard
             icon={Calendar}
             title="Last Payment"
+            value="15/10/2025"
+            subtitle="₦50,000"
+            iconColor="#E6007A"
+          />
+           <StatCard
+            icon={Calendar}
+            title="Next Payment"
             value="15/10/2025"
             subtitle="₦50,000"
             iconColor="#E6007A"
@@ -134,7 +141,7 @@ export default function ContributionPage() {
               </div>
 
               <div className="text-center mb-6">
-                <p className="text-5xl font-bold text-[#f10e7c] mb-2">$25,000</p>
+                <p className="text-5xl font-bold text-[#f10e7c] mb-2">₦25,000</p>
                 <p className="text-[#667185] text-sm">Contribution Amount</p>
               </div>
 
@@ -164,7 +171,7 @@ export default function ContributionPage() {
                 </Select>
 
                 <Button className="w-full bg-[#f10e7c] hover:bg-[#d00d6a] text-white py-6 text-base font-medium">
-                  Proceed to Payment
+                Contribute 
                 </Button>
               </div>
             </Card>

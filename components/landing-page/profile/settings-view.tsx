@@ -1,14 +1,76 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { updateUserProfile } from "@/app/actions/profile";
+import { toast } from "sonner";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 export function SettingsView() {
+  const { data: user, isLoading: profileLoading } = useProfile();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [accountForm, setAccountForm] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
+    country: "",
+    currency: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setAccountForm({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        country: user.country || "",
+        currency: user.currency || "",
+      });
+    }
+  }, [user]);
+
+  const handleAccountSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      // Strip any non-numeric characters before saving
+      const cleanPhone = accountForm.phone.replace(/\D/g, "");
+
+      const res = await updateUserProfile({
+        firstName: accountForm.firstName,
+        lastName: accountForm.lastName,
+        phone: cleanPhone,
+        country: accountForm.country,
+        currency: accountForm.currency,
+      });
+
+      if (res.success) {
+        toast.success("Profile updated successfully");
+      } else {
+        toast.error(res.error || "Failed to update profile");
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    setAccountForm({
+      ...accountForm,
+      phone: value,
+      country: countryName,
+      currency: isNigeria ? "NGN" : "USD",
+    });
+  };
 
   const [billingForm, setBillingForm] = useState({
     fullName: "",
@@ -35,57 +97,103 @@ export function SettingsView() {
           Account Settings
         </h2>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-              Full Name
+              First Name
             </label>
             <input
               type="text"
-              placeholder="John Doe"
-              value={accountForm.fullName}
+              placeholder="First Name"
+              value={accountForm.firstName}
               onChange={(e) =>
-                setAccountForm({ ...accountForm, fullName: e.target.value })
+                setAccountForm({ ...accountForm, firstName: e.target.value })
               }
               className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
             />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="hello@example.com"
-                value={accountForm.email}
-                onChange={(e) =>
-                  setAccountForm({ ...accountForm, email: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="Enter Number"
-                value={accountForm.phone}
-                onChange={(e) =>
-                  setAccountForm({ ...accountForm, phone: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Last Name
+            </label>
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={accountForm.lastName}
+              onChange={(e) =>
+                setAccountForm({ ...accountForm, lastName: e.target.value })
+              }
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
+            />
           </div>
-
-          <button className="px-6 py-2.5 bg-[#ec008c] text-white rounded-full font-medium hover:bg-[#d4007d] transition-colors mt-2">
-            Save Changes
-          </button>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="hello@example.com"
+              value={accountForm.email}
+              disabled
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none opacity-70 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Phone Number
+            </label>
+            <PhoneInput
+              country={"ng"}
+              value={accountForm.phone}
+              onChange={handlePhoneChange}
+              containerClass="w-full"
+              inputClass="!w-full !h-12 !rounded-full !border-none !bg-[#f5f5f5] !px-4 !pl-14 !text-[#1a1a1a]"
+              buttonClass="!border-none !bg-transparent !pl-3"
+              dropdownClass="!rounded-xl !shadow-lg text-sm"
+              countryCodeEditable={false}
+              enableSearch={true}
+              prefix="" // Ensure no dangling +
+              preserveOrder={["countryCode", "phoneNumber"]}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Country
+            </label>
+            <input
+              type="text"
+              value={accountForm.country}
+              disabled
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] outline-none opacity-70 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Currency
+            </label>
+            <input
+              type="text"
+              value={accountForm.currency}
+              disabled
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] outline-none opacity-70 cursor-not-allowed"
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={handleAccountSubmit}
+          disabled={isSubmitting || profileLoading}
+          className="px-6 py-2.5 bg-[#ec008c] text-white rounded-full font-medium hover:bg-[#d4007d] transition-colors mt-2 disabled:opacity-50 flex items-center gap-2"
+        >
+          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+          Save Changes
+        </button>
       </div>
 
       {/* Billing Address */}

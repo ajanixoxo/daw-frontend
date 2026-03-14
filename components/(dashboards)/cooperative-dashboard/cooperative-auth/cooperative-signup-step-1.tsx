@@ -8,15 +8,13 @@ import { Eye, EyeOff, Check } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { useProfile } from "@/hooks/useProfile";
 import { useRouter } from "next/navigation";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 export function CooperativeSignupStep1() {
   const router = useRouter();
-  const {
-    formData,
-    prefilledFields,
-    updatePersonalInfo,
-    setStep,
-  } = useCooperativeSignupStore();
+  const { formData, prefilledFields, updatePersonalInfo, setStep } =
+    useCooperativeSignupStore();
   const { data: profile } = useProfile();
   const { personalInfo } = formData;
   const isLoggedIn = !!profile;
@@ -29,6 +27,17 @@ export function CooperativeSignupStep1() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updatePersonalInfo({ [e.target.name]: e.target.value });
+  };
+
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    updatePersonalInfo({
+      phone: value,
+      country: countryName,
+      currency: isNigeria ? "NGN" : "USD",
+    });
   };
 
   const validateEmail = (email: string): boolean => {
@@ -162,21 +171,20 @@ export function CooperativeSignupStep1() {
           )}
         </div>
 
-        {/* Phone */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="phone" className="auth-label text-text-dark">
             Phone Number
           </Label>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="23409099987"
+          <PhoneInput
+            country={"ng"}
             value={personalInfo.phone}
-            onChange={handleChange}
+            onChange={handlePhoneChange}
             disabled={!!prefilledFields.phone}
-            className="h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder disabled:cursor-not-allowed disabled:opacity-90"
-            aria-invalid={!!errors.phone}
+            containerClass="w-full"
+            inputClass="!w-full !h-12 !rounded-[40px] !border !border-input-border !bg-white !px-4 !pl-12 !text-base !placeholder:text-input-placeholder disabled:cursor-not-allowed disabled:opacity-90"
+            buttonClass="!border-none !bg-transparent !pl-4"
+            dropdownClass="!rounded-xl !shadow-lg text-sm"
+            placeholder="Enter phone number"
           />
           {errors.phone && (
             <span className="text-xs text-destructive">{errors.phone}</span>
@@ -259,7 +267,10 @@ export function CooperativeSignupStep1() {
                         met: /[^A-Za-z0-9]/.test(personalInfo.password),
                       },
                     ].map((req, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 text-xs">
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 text-xs"
+                      >
                         {req.met ? (
                           <Check size={12} className="text-green-500" />
                         ) : (

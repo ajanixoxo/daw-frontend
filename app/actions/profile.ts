@@ -58,12 +58,43 @@ export async function getSellerDocumentsMe(): Promise<
       { token }
     );
 
-    return {
-      success: true,
-      data: { hasDocuments: response?.hasDocuments ?? false },
-    };
+    return { success: true, data: { hasDocuments: response?.hasDocuments ?? false } };
   } catch (error) {
     console.error("Get seller documents error:", error);
     return { success: true, data: { hasDocuments: false } };
+  }
+}
+
+export async function updateUserProfile(data: {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  country?: string;
+  currency?: string;
+}): Promise<IActionResponse<{ message: string; user: IUser }>> {
+  try {
+    await refreshAccessToken();
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    if (!token) {
+      return { success: false, error: "Please login" };
+    }
+
+    const response = await apiClient.patch<{
+      success: boolean;
+      message: string;
+      user: IUser;
+    }>(API_ENDPOINTS.AUTH.PROFILE, data, { token });
+
+    return {
+      success: true,
+      data: { message: response.message, user: response.user },
+      message: response.message,
+    };
+  } catch (error) {
+    console.error("Update profile error:", error);
+    const message = error instanceof Error ? error.message : "Failed to update profile";
+    return { success: false, error: message };
   }
 }

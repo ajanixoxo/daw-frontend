@@ -8,7 +8,6 @@ export function middleware(request: NextRequest) {
   const protectedRoutes = [
     "/profile",
     "/cart",
-    "/product", // This will match /product/[id]
     "/checkout",
     "/payment",
     "/cooperative", // Cooperative dashboard routes

@@ -196,6 +196,8 @@ export async function signupUser(
       password: userData.password,
       confirmPassword: userData.confirmPassword,
       phone: userData.phone,
+      country: userData.country,
+      currency: userData.currency,
     };
     if (userData.roles != null) {
       payload.roles = [userData.roles];
@@ -261,28 +263,18 @@ export async function verifyEmail(
       throw new Error(response.message || "Verification failed");
     }
 
-    // For sellers, keep the session so they can proceed to KYC
-    // For other users, destroy the session (they need to log in)
-    const isSeller = session.role === "seller";
+    // Update session to mark as verified but keep the token for all users
+    const updatedSession: ISessionData = {
+      ...session,
+      isVerified: true,
+    };
+    await createServerSession(updatedSession);
     
-    if (isSeller) {
-      // Update session to mark as verified but keep the token
-      const updatedSession: ISessionData = {
-        ...session,
-        isVerified: true,
-      };
-      await createServerSession(updatedSession);
-      
-      return { 
-        success: true, 
-        message: response.message || "Email verified successfully",
-        data: updatedSession
-      };
-    } else {
-      // For non-sellers, destroy session (they need to log in)
-      await destroyServerSession();
-      return { success: true, message: response.message || "Email verified successfully" };
-    }
+    return { 
+      success: true, 
+      message: response.message || "Email verified successfully",
+      data: updatedSession
+    };
   } catch (error) {
     console.error("Email Verification error:", error);
     const message = error instanceof Error ? error.message : "Failed to verify email";

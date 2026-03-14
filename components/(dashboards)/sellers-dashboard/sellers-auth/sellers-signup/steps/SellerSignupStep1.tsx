@@ -216,10 +216,10 @@ const SellerSignupStep1: FC = () => {
           </div>
         </div>
 
-        {/* Shop Branding (Optional) */}
+        {/* Shop Branding (required)  */}
         <div>
           <p className="text-sm font-medium text-[#1a1a1a] mb-4">
-            Shop Branding (Optional)
+            Shop Branding (required)
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Shop Logo */}

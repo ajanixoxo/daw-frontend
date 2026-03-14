@@ -17,11 +17,30 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export function CooperativeSignupStep3() {
   const router = useRouter();
-  const { currentStep, formData, dawCooperativeId, dawTiers, setDAWCooperative, setStep, reset } =
-    useCooperativeSignupStore();
+  const {
+    currentStep,
+    formData,
+    dawCooperativeId,
+    dawTiers,
+    setDAWCooperative,
+    setStep,
+    reset,
+  } = useCooperativeSignupStore();
   const { personalInfo, membershipTier } = formData;
-  const shopInfo = formData.shopInfo ?? { shopName: "", description: "", category: "", contactNumber: "", businessAddress: "", shopLogo: null, shopBanner: null };
-  const documents = formData.documents ?? { nin: "", passportPhotograph: null, businessCac: null };
+  const shopInfo = formData.shopInfo ?? {
+    shopName: "",
+    description: "",
+    category: "",
+    contactNumber: "",
+    businessAddress: "",
+    shopLogo: null,
+    shopBanner: null,
+  };
+  const documents = formData.documents ?? {
+    nin: "",
+    passportPhotograph: null,
+    businessCac: null,
+  };
   const { data: profile } = useProfile();
   const updateUser = useAuthStore((s) => s.updateUser);
   const queryClient = useQueryClient();
@@ -32,7 +51,9 @@ export function CooperativeSignupStep3() {
   const isLoggedIn = !!profile;
   const isBuyerOrGuestFlow =
     !profile ||
-    (profile && (!profile.shop || (Array.isArray(profile.shop) && profile.shop.length === 0)));
+    (profile &&
+      (!profile.shop ||
+        (Array.isArray(profile.shop) && profile.shop.length === 0)));
 
   const handleBack = () => setStep(currentStep - 1);
 
@@ -50,8 +71,15 @@ export function CooperativeSignupStep3() {
     if (!cooperativeId || !subscriptionTierId) {
       try {
         const res = await fetchDAWCooperative();
-        if (!res.success || !res.data?.cooperative || !res.data?.tiers?.length) {
-          toast.error(res.error ?? "Could not load DAW cooperative. Please refresh and try again.");
+        if (
+          !res.success ||
+          !res.data?.cooperative ||
+          !res.data?.tiers?.length
+        ) {
+          toast.error(
+            res.error ??
+              "Could not load DAW cooperative. Please refresh and try again.",
+          );
           setIsSubmitting(false);
           return;
         }
@@ -62,7 +90,10 @@ export function CooperativeSignupStep3() {
             ? res.data.tiers[tierIndex]._id
             : null;
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Could not load DAW cooperative.";
+        const msg =
+          err instanceof Error
+            ? err.message
+            : "Could not load DAW cooperative.";
         toast.error(msg);
         setSubmitError(msg);
         setIsSubmitting(false);
@@ -71,7 +102,9 @@ export function CooperativeSignupStep3() {
     }
 
     if (!cooperativeId || !subscriptionTierId) {
-      toast.error("DAW cooperative or tier not loaded. Please refresh and try again.");
+      toast.error(
+        "DAW cooperative or tier not loaded. Please refresh and try again.",
+      );
       setIsSubmitting(false);
       return;
     }
@@ -86,26 +119,33 @@ export function CooperativeSignupStep3() {
           fd.append("phone", personalInfo.phone.trim());
           fd.append("password", personalInfo.password);
           fd.append("confirmPassword", personalInfo.confirmPassword);
+          if (personalInfo.country) fd.append("country", personalInfo.country);
+          if (personalInfo.currency)
+            fd.append("currency", personalInfo.currency);
         }
         fd.append("name", shopInfo.shopName);
         fd.append("description", shopInfo.description);
         fd.append("category", shopInfo.category);
-        if (shopInfo.contactNumber) fd.append("contactNumber", shopInfo.contactNumber);
-        if (shopInfo.businessAddress) fd.append("businessAddress", shopInfo.businessAddress);
+        if (shopInfo.contactNumber)
+          fd.append("contactNumber", shopInfo.contactNumber);
+        if (shopInfo.businessAddress)
+          fd.append("businessAddress", shopInfo.businessAddress);
         fd.append("cooperativeId", cooperativeId);
         fd.append("subscriptionTierId", subscriptionTierId);
         if (shopInfo.shopLogo) fd.append("shopLogo", shopInfo.shopLogo);
         if (shopInfo.shopBanner) fd.append("shopBanner", shopInfo.shopBanner);
         if (documents.nin) fd.append("nin", documents.nin.trim());
-        if (documents.passportPhotograph) fd.append("passportPhotograph", documents.passportPhotograph);
-        if (documents.businessCac) fd.append("businessCac", documents.businessCac);
+        if (documents.passportPhotograph)
+          fd.append("passportPhotograph", documents.passportPhotograph);
+        if (documents.businessCac)
+          fd.append("businessCac", documents.businessCac);
 
         const res = await cooperativeJoinWithSellerOnboard(fd);
         if (res.success) {
           toast.success(
             isLoggedIn
               ? "Seller onboarded and joined DAW cooperative."
-              : "Account created and joined. Please verify your email with the OTP sent."
+              : "Account created and joined. Please verify your email with the OTP sent.",
           );
           reset();
           router.push(isLoggedIn ? "/sellers/shop" : "/otp?mode=signup");
@@ -124,7 +164,10 @@ export function CooperativeSignupStep3() {
       }
 
       if (isLoggedIn) {
-        const res = await joinCooperative({ cooperativeId, subscriptionTierId });
+        const res = await joinCooperative({
+          cooperativeId,
+          subscriptionTierId,
+        });
         if (res.success) {
           toast.success("You have joined the DAW cooperative.");
           reset();
@@ -145,8 +188,16 @@ export function CooperativeSignupStep3() {
 
       const { email, password, confirmPassword, firstName, lastName, phone } =
         personalInfo;
-      if (!email?.trim() || !password || !confirmPassword?.trim() || !firstName?.trim() || !phone?.trim()) {
-        toast.error("Please fill in email, password, confirm password, first name, and phone.");
+      if (
+        !email?.trim() ||
+        !password ||
+        !confirmPassword?.trim() ||
+        !firstName?.trim() ||
+        !phone?.trim()
+      ) {
+        toast.error(
+          "Please fill in email, password, confirm password, first name, and phone.",
+        );
         setIsSubmitting(false);
         return;
       }
@@ -168,12 +219,16 @@ export function CooperativeSignupStep3() {
         firstName: firstName.trim(),
         lastName: (lastName ?? "").trim(),
         phone: phone.trim(),
+        country: personalInfo.country,
+        currency: personalInfo.currency,
         cooperativeId,
         subscriptionTierId,
       });
 
       if (res.success) {
-        toast.success("Account created and joined. Please verify your email with the OTP sent.");
+        toast.success(
+          "Account created and joined. Please verify your email with the OTP sent.",
+        );
         reset();
         router.push("/otp?mode=signup");
         return;
@@ -189,15 +244,27 @@ export function CooperativeSignupStep3() {
     }
   };
 
-  const tiers = {
-    1: "$25,000",
-    2: "$30,000",
-    3: "$50,000",
-  };
+  const userCountry = profile?.country || personalInfo?.country || "";
+  const isNigeria =
+    userCountry.toLowerCase() === "nigeria" ||
+    userCountry.toUpperCase() === "NG" ||
+    userCountry.toUpperCase() === "NGA";
 
-  const tierPrice = membershipTier
-    ? tiers[membershipTier as keyof typeof tiers]
-    : "";
+  const tiersInfo = isNigeria
+    ? {
+        1: { name: "Basic Tier", price: "up to ₦1M" },
+        2: { name: "Standard Tier", price: "up to ₦5M" },
+        3: { name: "Premium Tier", price: "up to ₦10M" },
+      }
+    : {
+        1: { name: "Basic Tier", price: "up to $2,000" },
+        2: { name: "Standard Tier", price: "up to $6,000" },
+        3: { name: "Premium Tier", price: "up to $10,000" },
+      };
+
+  const selectedTier = membershipTier
+    ? tiersInfo[membershipTier as keyof typeof tiersInfo]
+    : { name: "None", price: "None" };
 
   return (
     <div className="w-full max-w-[600px]">
@@ -231,14 +298,12 @@ export function CooperativeSignupStep3() {
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Shop Name:</p>
-            <p className="text-sm text-gray-600">
-              {shopInfo.shopName}
-            </p>
+            <p className="text-sm text-gray-600">{shopInfo.shopName}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Membership Tier:</p>
             <p className="text-sm text-gray-600">
-              Tier {membershipTier}: {tierPrice}
+              {selectedTier.name} ({selectedTier.price})
             </p>
           </div>
         </div>

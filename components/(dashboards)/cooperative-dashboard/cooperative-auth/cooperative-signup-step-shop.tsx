@@ -14,6 +14,8 @@ import {
 import { Upload, X } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import type { CooperativeShopInfo } from "@/zustand/cooperative-signup-store";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const DEFAULT_SHOP_INFO: CooperativeShopInfo = {
   shopName: "",
@@ -45,6 +47,10 @@ export function CooperativeSignupStepShop() {
     updateShopInfo({ category: value });
   };
 
+  const handlePhoneChange = (value: string) => {
+    updateShopInfo({ contactNumber: value });
+  };
+
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     field: "shopLogo" | "shopBanner",
@@ -68,8 +74,7 @@ export function CooperativeSignupStepShop() {
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Partial<Record<keyof CooperativeShopInfo, string>> = {};
-    if (!shopInfo.shopName)
-      newErrors.shopName = "Shop name is required";
+    if (!shopInfo.shopName) newErrors.shopName = "Shop name is required";
     if (!shopInfo.description)
       newErrors.description = "Description is required";
     if (!shopInfo.category) newErrors.category = "Category is required";
@@ -179,22 +184,16 @@ export function CooperativeSignupStepShop() {
             >
               Contact Number
             </Label>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 h-12 px-3 rounded-lg border border-input-border bg-[#f5f5f5]">
-                <span className="text-xl">🇳🇬</span>
-                <span className="text-sm text-[#1a1a1a]">+234</span>
-              </div>
-              <Input
-                id="contactNumber"
-                name="contactNumber"
-                type="tel"
-                placeholder="000 000 000"
-                value={shopInfo.contactNumber}
-                onChange={handleChange}
-                className="flex-1 h-12 rounded-lg border border-input-border bg-white px-4 text-sm placeholder:text-input-placeholder"
-                aria-invalid={!!errors.contactNumber}
-              />
-            </div>
+            <PhoneInput
+              country={"ng"}
+              value={shopInfo.contactNumber}
+              onChange={handlePhoneChange}
+              containerClass="w-full"
+              inputClass="!w-full !h-12 !rounded-lg !border !border-input-border !bg-white !px-4 !pl-12 !text-sm !placeholder:text-input-placeholder"
+              buttonClass="!border-none !bg-transparent !pl-3"
+              dropdownClass="!rounded-xl !shadow-lg text-sm"
+              placeholder="Enter contact number"
+            />
             {errors.contactNumber && (
               <span className="text-xs text-destructive">
                 {errors.contactNumber}
@@ -227,10 +226,10 @@ export function CooperativeSignupStepShop() {
           </div>
         </div>
 
-        {/* Shop Branding (Optional) */}
+        {/* Shop Branding (required)  */}
         <div>
           <p className="text-sm font-medium text-[#1a1a1a] mb-4">
-            Shop Branding (Optional)
+            Shop Branding (required)
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Shop Logo */}

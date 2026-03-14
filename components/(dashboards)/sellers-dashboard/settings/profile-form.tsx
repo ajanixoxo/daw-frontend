@@ -1,24 +1,40 @@
+"use client";
+
+import { useState } from "react";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { IUser } from "@/types/auth.types";
 import { IShop } from "@/types/shop.types";
 
 interface ProfileFormProps {
   user?: IUser & {
-        phone?: string;
-        member?: any[];
+    phone?: string;
+    member?: any[];
+    country?: string;
+    currency?: string;
   };
-  shop?: IShop | null; 
+  shop?: IShop | null;
 }
 
 export function ProfileForm({ user, shop }: ProfileFormProps) {
-  console.log("[ProfileForm] User data:", user);
-  console.log("[ProfileForm] Member data:", user?.member);
-  if (user?.member && user.member.length > 0) {
-      console.log("[ProfileForm] First member cooperative:", user.member[2]);
-  }
+  const [phoneNumber, setPhoneNumber] = useState(user?.phone || "");
+  const [country, setCountry] = useState(user?.country || "");
+  const [currency, setCurrency] = useState(user?.currency || "");
+
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    setPhoneNumber(value);
+    setCountry(countryName);
+    setCurrency(isNigeria ? "NGN" : "USD");
+  };
 
   return (
     <div className="space-y-8">
       {shop && <input type="hidden" name="shopId" value={shop._id} />}
+      <input type="hidden" name="country" value={country} />
+      <input type="hidden" name="currency" value={currency} />
 
       {/* Cooperative Profile Section */}
       <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
@@ -89,13 +105,25 @@ export function ProfileForm({ user, shop }: ProfileFormProps) {
               >
                 Phone Number
               </label>
+              <PhoneInput
+                country={"ng"}
+                value={phoneNumber}
+                onChange={handlePhoneChange}
+                inputProps={{
+                  name: "phone_display",
+                  id: "phone",
+                  required: true,
+                }}
+                containerClass="w-full"
+                inputClass="!w-full !px-4 !py-3 !h-auto !rounded-xl !border !border-[#D0D5DD] focus:!outline-none focus:!ring-4 focus:!ring-[#E6007A]/5 focus:!border-[#E6007A] !transition-all !placeholder:text-[#667085] !text-[#101828] !font-medium !pl-10"
+                buttonClass="!rounded-l-xl !border-y !border-l !border-[#D0D5DD] !bg-white !pl-2"
+                countryCodeEditable={false}
+                enableSearch={true}
+              />
               <input
-                type="tel"
-                id="phone"
+                type="hidden"
                 name="phone"
-                defaultValue={user?.phone}
-                placeholder="Enter Phone Number"
-                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] focus:outline-none focus:ring-4 focus:ring-[#E6007A]/5 focus:border-[#E6007A] transition-all placeholder:text-[#667085] text-[#101828] font-medium"
+                value={phoneNumber.replace(/\D/g, "")}
               />
             </div>
             <div>
@@ -116,6 +144,33 @@ export function ProfileForm({ user, shop }: ProfileFormProps) {
             </div>
           </div>
 
+          {/* Country & Currency (Read-only) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[14px] font-bold text-[#344054] mb-2">
+                Country
+              </label>
+              <input
+                type="text"
+                value={country}
+                disabled
+                placeholder="Country Name"
+                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] bg-gray-50 text-[#101828] font-medium cursor-not-allowed"
+              />
+            </div>
+            <div>
+              <label className="block text-[14px] font-bold text-[#344054] mb-2">
+                Currency
+              </label>
+              <input
+                type="text"
+                value={currency}
+                disabled
+                placeholder="Currency"
+                className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] bg-gray-50 text-[#101828] font-medium cursor-not-allowed"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -169,18 +224,19 @@ export function ProfileForm({ user, shop }: ProfileFormProps) {
               >
                 Cooperative
               </label>
-               {/* Display Cooperative Name from Membership data if available, otherwise input */}
+              {/* Display Cooperative Name from Membership data if available, otherwise input */}
               <input
                 type="text"
                 id="cooperative"
                 disabled
                 defaultValue={
-                  user?.member && user.member.length > 0 && 
-                  typeof user.member[0].cooperativeId === 'object' && 
-                  'name' in user.member[0].cooperativeId
-                    ? (user.member[0].cooperativeId as any).name 
+                  user?.member &&
+                  user.member.length > 0 &&
+                  typeof user.member[0].cooperativeId === "object" &&
+                  "name" in user.member[0].cooperativeId
+                    ? (user.member[0].cooperativeId as any).name
                     : "Not in a cooperative"
-                } 
+                }
                 className="w-full px-4 py-3 rounded-xl border border-[#D0D5DD] bg-gray-50 focus:outline-none text-[#101828] font-medium cursor-not-allowed"
               />
             </div>
@@ -204,8 +260,8 @@ export function ProfileForm({ user, shop }: ProfileFormProps) {
             />
           </div>
 
-           {/* Description - Added missing field mapped in action */}
-           <div>
+          {/* Description - Added missing field mapped in action */}
+          <div>
             <label
               htmlFor="description"
               className="block text-[14px] font-bold text-[#344054] mb-2"

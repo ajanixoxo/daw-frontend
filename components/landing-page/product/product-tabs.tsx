@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useReviews, useCreateReview } from "@/hooks/useReviews";
 import { toast } from "sonner";
+import { useAuthStore } from "@/zustand/store";
+import { useRouter, usePathname } from "next/navigation";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
@@ -56,8 +58,20 @@ export function ProductTabs({
   const [comment, setComment] = useState("");
   const [title, setTitle] = useState("");
 
+  const { isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isAuthenticated) {
+      toast.error("Please login to submit a review");
+      const loginUrl = new URL("/auth", window.location.origin);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      router.push(loginUrl.pathname + loginUrl.search);
+      return;
+    }
 
     if (rating === 0) {
       toast.error("Please select a rating");
@@ -262,7 +276,7 @@ export function ProductTabs({
                         className="border-b border-gray-100 last:border-0 pb-8 last:pb-0"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 uppercase flex items-center justify-center text-gray-500 font-bold bg-gray-100">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 uppercase flex items-center justify-center text-gray-500 font-bold">
                             {review.user_id?.firstName?.charAt(0) || "A"}
                           </div>
                           <div>

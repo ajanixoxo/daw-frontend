@@ -8,6 +8,8 @@ interface PersonalInfo {
   phone: string;
   password: string;
   confirmPassword: string;
+  country: string;
+  currency: string;
 }
 
 interface ShopInfo {
@@ -47,6 +49,8 @@ const initialPersonalInfo: PersonalInfo = {
   phone: '',
   password: '',
   confirmPassword: '',
+  country: '',
+  currency: 'USD',
 };
 
 const initialShopInfo: ShopInfo = {

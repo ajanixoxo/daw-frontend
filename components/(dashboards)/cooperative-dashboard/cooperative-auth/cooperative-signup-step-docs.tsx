@@ -95,7 +95,7 @@ export function CooperativeSignupStepDocs() {
     else if (!/^\d{11}$/.test(documents.nin.trim()))
       newErrors.nin = "NIN must be 11 digits";
     if (!documents.passportPhotograph)
-      newErrors.passportPhotograph = "Passport photograph is required";
+      newErrors.passportPhotograph = "Valid Identification is required";
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) setStep(4);
@@ -116,7 +116,8 @@ export function CooperativeSignupStepDocs() {
         {/* NIN Input */}
         <div className="space-y-2">
           <Label htmlFor="nin" className="text-sm font-medium text-[#222]">
-            National Identification Number (NIN) <span className="text-red-500">*</span>
+            National Identification Number (NIN){" "}
+            <span className="text-red-500">*</span>
           </Label>
           <Input
             id="nin"
@@ -136,19 +137,19 @@ export function CooperativeSignupStepDocs() {
           )}
         </div>
 
-        {/* Passport Photograph */}
+        {/* Valid Identification */}
         <UploadBox
-          label="Passport Photograph *"
+          label="Valid Identification *"
           field="passportPhotograph"
           value={documents.passportPhotograph}
           onChange={(file) => updateDocuments({ passportPhotograph: file })}
-          description="Upload a clear passport photograph"
+          description="Upload a clear Valid Identification"
           error={errors.passportPhotograph}
         />
 
-        {/* Business CAC (Optional) */}
+        {/*Business CAC * */}
         <UploadBox
-          label="Business CAC (Optional)"
+          label="Business CAC *"
           field="businessCac"
           value={documents.businessCac}
           onChange={(file) => updateDocuments({ businessCac: file })}
