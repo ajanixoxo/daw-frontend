@@ -217,6 +217,14 @@ export const API_ENDPOINTS = {
     INITIATE: "/api/payment/initiate",
     VERIFY: (reference: string) => `/api/payment/verify/${reference}`,
   },
+  PAYSTACK: {
+    INITIALIZE: "/api/paystack/initialize",
+    VERIFY: "/api/paystack/verify",
+  },
+  PAYPAL: {
+    CREATE_ORDER: "/api/paypal/create-order",
+    CAPTURE_ORDER: "/api/paypal/capture-order",
+  },
   ADMIN: {
     DASHBOARD_STATS: "/api/admin/dashboard/stats",
     PENDING_COOPERATIVES: "/api/admin/cooperatives/pending",

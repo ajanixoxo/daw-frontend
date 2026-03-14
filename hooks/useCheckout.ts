@@ -1,8 +1,19 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { useMutation } from '@tanstack/react-query';
-import { placeOrder, initiatePayment } from '@/app/actions/checkout';
-import { IPlaceOrderRequest, IPaymentInitiateRequest, IPlaceOrderResponse } from '@/types/checkout.types';
+import {
+  placeOrder,
+  initiatePayment,
+  initiatePaystackPayment,
+  initiatePaypalOrder,
+} from '@/app/actions/checkout';
+import {
+  IPlaceOrderRequest,
+  IPaymentInitiateRequest,
+  IPlaceOrderResponse,
+  IPaystackInitiateRequest,
+  IPaypalCreateOrderRequest,
+} from '@/types/checkout.types';
 
 interface CheckoutState {
   orderData: IPlaceOrderResponse | null;
@@ -45,9 +56,27 @@ export function useInitiatePayment() {
   return useMutation({
     mutationFn: async (data: IPaymentInitiateRequest) => {
       const result = await initiatePayment(data);
-      if (!result.success) {
-        throw new Error(result.error || "Failed to initiate payment");
-      }
+      if (!result.success) throw new Error(result.error || "Failed to initiate payment");
+      return result.data!;
+    },
+  });
+}
+
+export function useInitiatePaystackPayment() {
+  return useMutation({
+    mutationFn: async (data: IPaystackInitiateRequest) => {
+      const result = await initiatePaystackPayment(data);
+      if (!result.success) throw new Error(result.error || "Failed to initiate Paystack payment");
+      return result.data!;
+    },
+  });
+}
+
+export function useInitiatePaypalOrder() {
+  return useMutation({
+    mutationFn: async (data: IPaypalCreateOrderRequest) => {
+      const result = await initiatePaypalOrder(data);
+      if (!result.success) throw new Error(result.error || "Failed to create PayPal order");
       return result.data!;
     },
   });
