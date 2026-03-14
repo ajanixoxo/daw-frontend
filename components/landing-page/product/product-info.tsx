@@ -151,10 +151,12 @@ export function ProductInfo({ product }: ProductInfoProps) {
       {/* Price Block */}
       <div className="flex items-center gap-4">
         <span className="text-gray-300 line-through text-xl font-medium">
-          ${originalPrice.toFixed(2)}
+          {product.displayCurrency === 'USD' ? '$' : '₦'}
+          {originalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <span className="text-[#F10E7C] text-3xl font-bold">
-          ${price.toFixed(2)}
+          {product.displayCurrency === 'USD' ? '$' : '₦'}
+          {(product.displayPrice || product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <span className="px-2.5 py-1 bg-[#fff0f7] text-[#F10E7C] text-xs font-bold rounded-full">
           {discount}% Off

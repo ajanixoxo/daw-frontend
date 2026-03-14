@@ -9,6 +9,9 @@ export interface IProduct {
   name: string;
   quantity: number;
   price: number;
+  currency?: "NGN" | "USD";
+  displayPrice?: number;
+  displayCurrency?: "NGN" | "USD";
   images: string[];
   status: "available" | "unavailable" | "draft" | "out_of_stock";
   description?: string;

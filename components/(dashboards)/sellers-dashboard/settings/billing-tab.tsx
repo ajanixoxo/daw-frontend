@@ -103,7 +103,7 @@ export function BillingTab() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button className="flex-1 h-12 rounded-xl bg-[#E6007A] text-white hover:bg-[#d0006e] shadow-md shadow-[#E6007A]/20 transition-all font-bold text-[15px]">
-              Change Plan
+             Subscirbe 
             </Button>
             <Button
               variant="ghost"
