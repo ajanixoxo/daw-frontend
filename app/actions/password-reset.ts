@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { createServerSession, getServerSession, destroyServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { createServerSession, destroyServerSession, getFreshToken } from "@/app/actions/auth";
 import { 
   IActionResponse, 
   IForgotPasswordRequest, 
@@ -44,9 +44,7 @@ export async function resetPassword(
   data: IResetPasswordRequest
 ): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Session expired. Please try again." };

@@ -1,18 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getServerSession, getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { ICreateShopRequest, ICreateShopResponse, IGetShopResponse, IEditShopResponse, IShop } from "@/types/shop.types";
 import { revalidatePath } from "next/cache";
 
 export async function createShop(data: ICreateShopRequest): Promise<IActionResponse<ICreateShopResponse>> {
   try {
-    await refreshAccessToken();
-
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -61,11 +57,7 @@ export async function getShop(shopId: string): Promise<IActionResponse<IGetShopR
 
 export async function getMyShop(): Promise<IActionResponse<IGetShopResponse>> {
   try {
-    await refreshAccessToken();
-
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -96,13 +88,14 @@ export interface IGetAllShopsResponse {
 
 export async function getAllShops(): Promise<IActionResponse<IGetAllShopsResponse>> {
   try {
-    await refreshAccessToken();
+    // Public endpoint — no auth required, no token refresh needed.
+    // Passing a token if we happen to have one is fine but not mandatory.
     const session = await getServerSession();
     const token = session?.accessToken;
 
     const response = await apiClient.get<IGetAllShopsResponse>(
       API_ENDPOINTS.SHOPS.GET_ALL_SHOPS,
-       token ? { token } : undefined
+      token ? { token } : undefined
     );
 
     return { success: true, data: response };

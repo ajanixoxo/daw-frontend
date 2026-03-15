@@ -124,6 +124,15 @@ export interface IOtpRequest {
 export interface IVerifyEmailResponse {
   success: boolean;
   message: string;
+  token?: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  user?: {
+    _id: string;
+    email: string;
+    roles: string[];
+  };
 }
 
 export interface IForgotPasswordRequest {

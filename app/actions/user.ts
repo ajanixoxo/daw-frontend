@@ -1,14 +1,13 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getServerSession, getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 export async function upgradeToSeller(): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
+    const token = await getFreshToken();
     const session = await getServerSession();
-    const token = session?.accessToken;
     const userId = session?.userId;
 
     if (!token || !userId) {

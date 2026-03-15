@@ -6,13 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Loader2,
   Store,
   MapPin,
@@ -46,6 +39,8 @@ export default function ShopDetailsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("products");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<"best_match" | "price_asc" | "price_desc">("best_match");
 
   // Track shop view on mount (fire-and-forget)
   useEffect(() => {
@@ -101,10 +96,22 @@ export default function ShopDetailsPage() {
     );
   };
 
-  const filteredProducts =
-    products?.filter((product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()),
-    ) || [];
+  // Derive unique categories from this shop's products
+  const categories = Array.from(
+    new Set((products || []).map((p) => p.category).filter(Boolean))
+  ) as string[];
+
+  const filteredProducts = (products || [])
+    .filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === "all" || product.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === "price_asc") return a.price - b.price;
+      if (sortBy === "price_desc") return b.price - a.price;
+      return 0; // best_match = original order
+    });
 
   return (
     <>
@@ -262,83 +269,64 @@ export default function ShopDetailsPage() {
 
           {activeTab === "products" && (
             <div className="space-y-6">
-              {/* Search Row */}
+              {/* Search + Category Row */}
               <div className="flex flex-col md:flex-row justify-between gap-4">
-                {/* Left Filters */}
+                {/* Category pills from actual product data */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className="rounded-full border-[#D0D5DD] text-[#344054] h-9 text-sm px-4 whitespace-nowrap gap-2"
+                  <button
+                    onClick={() => setCategoryFilter("all")}
+                    className={`rounded-full border h-9 text-sm px-4 whitespace-nowrap transition-colors ${categoryFilter === "all" ? "bg-[#fcebf5] border-[#f10e7c] text-[#f10e7c]" : "border-[#D0D5DD] text-[#344054] bg-white hover:border-[#f10e7c]"}`}
                   >
-                    <span className="rotate-90 text-xs">I I I</span> All Filter
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="rounded-full border-[#D0D5DD] text-[#344054] h-9 text-sm px-4 whitespace-nowrap gap-2"
-                  >
-                    Price <span className="text-[10px]">▼</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="rounded-full border-[#D0D5DD] text-[#344054] h-9 text-sm px-4 whitespace-nowrap gap-2"
-                  >
-                    Shop <span className="text-[10px]">▼</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="rounded-full border-[#D0D5DD] text-[#344054] h-9 text-sm px-4 whitespace-nowrap gap-2"
-                  >
-                    Cooperative <span className="text-[10px]">▼</span>
-                  </Button>
+                    All
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`rounded-full border h-9 text-sm px-4 whitespace-nowrap transition-colors ${categoryFilter === cat ? "bg-[#fcebf5] border-[#f10e7c] text-[#f10e7c]" : "border-[#D0D5DD] text-[#344054] bg-white hover:border-[#f10e7c]"}`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Right Controls */}
-                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                  <div className="relative flex-1 md:w-[280px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#98A2B3]" />
-                    <Input
-                      placeholder="Search products..."
-                      className="pl-9 bg-[#F9FAFB] border-[#EAECF0] rounded-full h-10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <Select defaultValue="all">
-                    <SelectTrigger className="w-full md:w-[160px] rounded-full border-[#EAECF0] h-10">
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="fashion">Fashion</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {/* Search */}
+                <div className="relative flex-1 md:w-[280px] md:flex-none">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#98A2B3]" />
+                  <Input
+                    placeholder="Search products..."
+                    className="pl-9 bg-[#F9FAFB] border-[#EAECF0] rounded-full h-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
               </div>
 
+              {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
-                <div className="flex items-center gap-3">
-                  <Badge
-                    variant="secondary"
-                    className="bg-[#fcebf5] text-[#344054] hover:bg-[#fcebf5] rounded-full px-3 py-1 font-normal text-xs gap-1 cursor-pointer"
-                  >
-                    Handcrafted Goods{" "}
-                    <span className="text-[#98A2B3] ml-1">×</span>
-                  </Badge>
-                  <span className="text-[#667085] hidden sm:inline-block">
-                    {filteredProducts.length} results Found
-                  </span>
-                </div>
+                <span className="text-[#667085]">
+                  {filteredProducts.length} result{filteredProducts.length !== 1 ? "s" : ""} found
+                </span>
                 <div className="flex items-center gap-3">
                   <span className="text-[#667085]">Sort By</span>
                   <div className="flex bg-white border border-[#D0D5DD] rounded-full p-1">
-                    <button className="px-3 py-1 bg-[#fcebf5] text-[#f10e7c] rounded-full text-xs font-medium">
+                    <button
+                      onClick={() => setSortBy("best_match")}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === "best_match" ? "bg-[#fcebf5] text-[#f10e7c]" : "text-[#667085] hover:text-[#344054]"}`}
+                    >
                       Best Match
                     </button>
-                    <button className="px-3 py-1 text-[#667085] hover:text-[#344054] rounded-full text-xs font-medium">
-                      Orders
+                    <button
+                      onClick={() => setSortBy("price_asc")}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === "price_asc" ? "bg-[#fcebf5] text-[#f10e7c]" : "text-[#667085] hover:text-[#344054]"}`}
+                    >
+                      Price ↑
                     </button>
-                    <button className="px-3 py-1 text-[#667085] hover:text-[#344054] rounded-full text-xs font-medium">
-                      Price
+                    <button
+                      onClick={() => setSortBy("price_desc")}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === "price_desc" ? "bg-[#fcebf5] text-[#f10e7c]" : "text-[#667085] hover:text-[#344054]"}`}
+                    >
+                      Price ↓
                     </button>
                   </div>
                 </div>

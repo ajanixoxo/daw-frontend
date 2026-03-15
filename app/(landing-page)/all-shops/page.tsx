@@ -306,7 +306,7 @@ export default function AllShopsPage() {
                         {shop.name}
                       </h3>
                       <span className="text-[#f10e7c] text-xs font-medium whitespace-nowrap">
-                        45 products
+                        {shop.productCount ?? 0} products
                       </span>
                     </div>
 

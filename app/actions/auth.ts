@@ -263,15 +263,21 @@ export async function verifyEmail(
       throw new Error(response.message || "Verification failed");
     }
 
-    // Update session to mark as verified but keep the token for all users
+    // Backend now returns a proper full token (with roles) after verification.
+    // Upgrade the session so the user can act immediately without re-logging in.
     const updatedSession: ISessionData = {
       ...session,
       isVerified: true,
+      accessToken: response.token?.accessToken || session.accessToken,
+      refreshToken: response.token?.refreshToken || session.refreshToken || "",
+      role: (response.user?.roles && response.user.roles.length > 0)
+        ? response.user.roles[0]
+        : session.role,
     };
     await createServerSession(updatedSession);
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       message: response.message || "Email verified successfully",
       data: updatedSession
     };
@@ -449,6 +455,24 @@ export async function refreshAccessToken(): Promise<IActionResponse<ISessionData
     const message = error instanceof Error ? error.message : "Failed to refresh token";
     return { success: false, error: message };
   }
+}
+
+/**
+ * Attempt a token refresh and return the freshest available access token.
+ * Using the token returned directly from the refresh response avoids the
+ * race condition where cookie mutations made inside refreshAccessToken are
+ * not yet visible to a subsequent getServerSession() call in the same
+ * Next.js server-action request.
+ */
+export async function getFreshToken(): Promise<string | null> {
+  const refreshResult = await refreshAccessToken();
+  if (refreshResult.success && refreshResult.data?.accessToken) {
+    return refreshResult.data.accessToken;
+  }
+  // Refresh failed or no refresh token — fall back to whatever is in the session
+  // (may still be valid if the access token has not expired yet).
+  const session = await getServerSession();
+  return session?.accessToken || null;
 }
 
 export async function checkVerificationStatus(): Promise<{
