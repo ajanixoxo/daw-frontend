@@ -46,7 +46,7 @@ export default function AllShopsPage() {
 
   // Filtering Logic
   let filteredShops = shops.filter((shop) => {
-    const matchesSearch = shop.name
+    const matchesSearch = (shop.name ?? "")
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesCategory =
