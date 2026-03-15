@@ -6,7 +6,8 @@ export function formatPrice(price: number, currency?: string | null): string {
   const isUSD = currency === "USD";
   const symbol = isUSD ? "$" : "₦";
   const locale = isUSD ? "en-US" : "en-NG";
-  return `${symbol}${price.toLocaleString(locale, {
+  const safePrice = typeof price === "number" && isFinite(price) ? price : 0;
+  return `${symbol}${safePrice.toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
