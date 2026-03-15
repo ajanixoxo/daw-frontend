@@ -15,11 +15,68 @@ interface IShopResponse {
 
 const SHOP_ID_KEY = 'shopId';
 
+type ShopRecord = {
+  shopId?: string;
+  _id?: string;
+  name?: string;
+};
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== '';
+}
+
+function sanitizeShopId(value: unknown): string | null {
+  if (!isNonEmptyString(value)) return null;
+
+  const shopId = value.trim();
+  if (
+    !shopId ||
+    shopId === '[object Object]' ||
+    shopId.includes('[object Object]')
+  ) {
+    return null;
+  }
+
+  return shopId;
+}
+
+export function getSafeShopList(user: IUser | null | undefined): ShopRecord[] {
+  if (!user?.shop || !Array.isArray(user.shop)) return [];
+
+  return user.shop.filter(
+    (shop): shop is ShopRecord => typeof shop === 'object' && shop !== null,
+  );
+}
+
+export function getPrimaryShop(user: IUser | null | undefined): ShopRecord | null {
+  const shops = getSafeShopList(user);
+  return shops.length > 0 ? shops[0] : null;
+}
+
+export function hasCooperativeMembership(user: IUser | null | undefined): boolean {
+  if (!user) return false;
+
+  if (Array.isArray(user.roles)) {
+    if (user.roles.includes('member') || user.roles.includes('cooperative')) {
+      return true;
+    }
+  }
+
+  if (!Array.isArray(user.member)) return false;
+
+  return user.member.some((member) => {
+    if (!member || typeof member !== 'object') return false;
+    const record = member as { cooperativeId?: unknown; memberId?: unknown; _id?: unknown };
+    return Boolean(record.cooperativeId || record.memberId || record._id);
+  });
+}
+
 // Store shop ID in localStorage
 export function storeShopId(shopId: string | null) {
   if (typeof window === 'undefined') return;
-  if (shopId) {
-    localStorage.setItem(SHOP_ID_KEY, shopId);
+  const sanitizedShopId = sanitizeShopId(shopId);
+  if (sanitizedShopId) {
+    localStorage.setItem(SHOP_ID_KEY, sanitizedShopId);
   } else {
     localStorage.removeItem(SHOP_ID_KEY);
   }
@@ -29,15 +86,13 @@ export function storeShopId(shopId: string | null) {
 export function getShopId(): string | null {
   if (typeof window === 'undefined') return null;
   const shopId = localStorage.getItem(SHOP_ID_KEY);
-  
-  // Validate shopId - if it contains [object Object], it's invalid
-  if (shopId && (shopId.includes('[object Object]') || shopId.trim() === '')) {
-    // Clear invalid data
+  const sanitizedShopId = sanitizeShopId(shopId);
+
+  if (!sanitizedShopId && shopId) {
     localStorage.removeItem(SHOP_ID_KEY);
-    return null;
   }
-  
-  return shopId;
+
+  return sanitizedShopId;
 }
 
 // Hook to fetch seller profile
@@ -53,40 +108,10 @@ export function useSellerProfile() {
         throw new Error('Failed to fetch profile');
       }
 
-      // Store shop ID in localStorage if available (use first shop's shopId)
-      if (response.user.shop) {
-        if (Array.isArray(response.user.shop) && response.user.shop.length > 0) {
-          const firstShop = response.user.shop[0];
-          // Ensure we extract shopId as a string, not the entire object
-          if (firstShop && typeof firstShop === 'object' && firstShop !== null) {
-            // Check if shopId exists and is a valid string
-            const shopId = firstShop.shopId;
-            if (shopId && typeof shopId === 'string' && shopId.trim() !== '') {
-              storeShopId(shopId.trim());
-            } else if (shopId && typeof shopId !== 'string') {
-              // If shopId is not a string, try to convert it
-              const shopIdString = String(shopId).trim();
-              if (shopIdString && !shopIdString.includes('[object Object]')) {
-                storeShopId(shopIdString);
-              } else {
-                console.warn('Invalid shopId format:', shopId);
-                storeShopId(null);
-              }
-            } else {
-              console.warn('Missing or empty shopId in shop object:', firstShop);
-              storeShopId(null);
-            }
-          } else {
-            console.warn('Invalid shop structure - not an object:', firstShop);
-            storeShopId(null);
-          }
-        } else {
-          // If shop is not an array or is empty, clear it
-          storeShopId(null);
-        }
-      } else {
-        storeShopId(null);
-      }
+      const primaryShop = getPrimaryShop(response.user);
+      storeShopId(
+        sanitizeShopId(primaryShop?.shopId) ?? sanitizeShopId(primaryShop?._id),
+      );
 
       return response.user;
     },

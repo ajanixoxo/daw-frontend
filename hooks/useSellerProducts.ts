@@ -166,17 +166,12 @@ export function useDeleteProduct() {
 // Hook to fetch seller's products (filtered by shop ID)
 export function useSellerProducts() {
   const shopId = getShopId();
+  const hasValidShopId = typeof shopId === 'string' && shopId.trim() !== '';
 
   return useQuery({
     queryKey: ['seller-products', shopId],
     queryFn: async () => {
       if (!shopId) {
-        return { products: [] };
-      }
-
-      // Validate shopId is not corrupted
-      if (shopId.includes('[object Object]')) {
-        console.error('Invalid shopId:', shopId);
         return { products: [] };
       }
 
@@ -196,7 +191,7 @@ export function useSellerProducts() {
         return { products: [] };
       }
     },
-    enabled: !!shopId && !shopId.includes('[object Object]'),
+    enabled: hasValidShopId,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }

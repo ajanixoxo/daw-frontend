@@ -16,7 +16,7 @@ import {
   LogOut,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useSellerProfile } from "@/hooks/useSellerProfile"
+import { hasCooperativeMembership, useSellerProfile } from "@/hooks/useSellerProfile"
 import { useLogout } from "@/hooks/useAuth"
 
 interface DashboardSidebarProps {
@@ -48,13 +48,7 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
   }
 
   // Check if user is a cooperative member (by role or member data)
-  const isMember =
-    user?.roles?.includes("member") ||
-    user?.roles?.includes("cooperative") ||
-    (user?.member &&
-      Array.isArray(user.member) &&
-      user.member.length > 0 &&
-      user.member.some((m: { cooperativeId?: string }) => m.cooperativeId))
+  const isMember = hasCooperativeMembership(user)
 
   // Filter nav items: memberOnly items only show for cooperative members
   const navItems = allNavItems.filter(item => {
