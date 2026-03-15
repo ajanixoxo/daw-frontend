@@ -48,6 +48,31 @@ export function CooperativeSignupStep3() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const membershipTierToName: Record<number, string> = {
+    1: "basic",
+    2: "standard",
+    3: "premium",
+  };
+
+  const resolveSubscriptionTierId = (
+    tiers: { _id: string; name: string; monthlyContribution: number }[],
+    selectedTier: number | null,
+  ) => {
+    if (!selectedTier || !tiers?.length) return null;
+
+    const expected = membershipTierToName[selectedTier];
+    if (!expected) return null;
+
+    const byName = tiers.find((t) =>
+      (t.name || "").toLowerCase().includes(expected),
+    );
+    if (byName?._id) return byName._id;
+
+    // Fallback for legacy ordering assumptions
+    const idx = selectedTier - 1;
+    return idx >= 0 && tiers[idx] ? tiers[idx]._id : null;
+  };
+
   const isLoggedIn = !!profile;
   const isBuyerOrGuestFlow =
     !profile ||
@@ -64,9 +89,7 @@ export function CooperativeSignupStep3() {
     setSubmitError(null);
 
     let cooperativeId = dawCooperativeId;
-    const tierIndex = membershipTier != null ? membershipTier - 1 : -1;
-    let subscriptionTierId =
-      tierIndex >= 0 && dawTiers[tierIndex] ? dawTiers[tierIndex]._id : null;
+    let subscriptionTierId = resolveSubscriptionTierId(dawTiers, membershipTier);
 
     if (!cooperativeId || !subscriptionTierId) {
       try {
@@ -85,10 +108,10 @@ export function CooperativeSignupStep3() {
         }
         setDAWCooperative(res.data.cooperative._id, res.data.tiers);
         cooperativeId = res.data.cooperative._id;
-        subscriptionTierId =
-          tierIndex >= 0 && res.data.tiers[tierIndex]
-            ? res.data.tiers[tierIndex]._id
-            : null;
+        subscriptionTierId = resolveSubscriptionTierId(
+          res.data.tiers,
+          membershipTier,
+        );
       } catch (err) {
         const msg =
           err instanceof Error

@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSellerProfile, getShopId } from "@/hooks/useSellerProfile";
+import { useSellerProfile, getPrimaryShop } from "@/hooks/useSellerProfile";
 import { useLogout } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
@@ -20,15 +20,8 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { data: profile, isLoading: profileLoading } = useSellerProfile();
   const { logout, isLoading: isLoggingOut } = useLogout();
   const router = useRouter();
-  
-  // Get shopId from localStorage (already validated and stored by useSellerProfile)
-  const shopId = getShopId();
-  
-  // Get shop name from profile directly (no need for extra API call)
-  // profile.shop is an array, get the first shop's name
-  const shopName = profile?.shop && Array.isArray(profile.shop) && profile.shop.length > 0
-    ? profile.shop[0].name || "Shop"
-    : "Shop";
+
+  const shopName = getPrimaryShop(profile)?.name || "Shop";
   
   const email = profile?.email || "";
   const isLoading = profileLoading;
