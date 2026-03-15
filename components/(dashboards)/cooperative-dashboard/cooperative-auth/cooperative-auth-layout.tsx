@@ -35,7 +35,7 @@ export default function CooperativeAuthLayout({
             </div>
             <p className="text-base leading-relaxed text-white/90">
               Create your shop for free! Non-members can create a shop for{" "}
-              <span className="font-semibold">₦5,000/month</span>.
+              <span className="font-semibold">₦20,000 or $25 / month</span>.
             </p>
           </div>
 

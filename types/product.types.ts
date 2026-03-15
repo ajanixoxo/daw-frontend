@@ -6,9 +6,13 @@ export interface IProductVariant {
 export interface IProduct {
   _id: string;
   shop_id: string;
+  shop_name?: string;
   name: string;
   quantity: number;
   price: number;
+  currency?: "NGN" | "USD";
+  displayPrice?: number;
+  displayCurrency?: "NGN" | "USD";
   images: string[];
   status: "available" | "unavailable" | "draft" | "out_of_stock";
   description?: string;
@@ -40,6 +44,15 @@ export interface ICart {
 export interface IAddToCartRequest {
   productId: string;
   quantity: number;
+  /** Client-only: product details for guest cart storage — never sent to server. */
+  _snapshot?: {
+    _id: string;
+    name: string;
+    price: number;
+    images: string[];
+    description: string;
+    shopName?: string;
+  };
 }
 
 export interface IAddToCartResponse {

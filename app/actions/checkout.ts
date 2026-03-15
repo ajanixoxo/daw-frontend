@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/product.types";
 import {
   IPlaceOrderRequest,
@@ -19,10 +19,7 @@ import {
 
 export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionResponse<IPlaceOrderResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -43,10 +40,7 @@ export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionRespo
 
 export async function initiatePayment(data: IPaymentInitiateRequest): Promise<IActionResponse<IPaymentInitiateResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -73,9 +67,7 @@ export async function initiatePaystackPayment(
   data: IPaystackInitiateRequest
 ): Promise<IActionResponse<IPaystackInitiateResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.post<IPaystackInitiateResponse>(
@@ -94,9 +86,7 @@ export async function verifyPaystackPayment(
   reference: string
 ): Promise<IActionResponse<IPaystackVerifyResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.post<IPaystackVerifyResponse>(
@@ -117,9 +107,7 @@ export async function initiatePaypalOrder(
   data: IPaypalCreateOrderRequest
 ): Promise<IActionResponse<IPaypalCreateOrderResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.post<IPaypalCreateOrderResponse>(
@@ -138,9 +126,7 @@ export async function capturePaypalOrder(
   paypalOrderId: string
 ): Promise<IActionResponse<IPaypalCaptureResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.post<IPaypalCaptureResponse>(
@@ -159,10 +145,7 @@ export async function capturePaypalOrder(
 
 export async function verifyPayment(reference: string): Promise<IActionResponse<IPaymentVerifyResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }

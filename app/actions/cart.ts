@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import type {
   IAddToCartRequest,
   IAddToCartResponse,
@@ -14,20 +14,8 @@ export async function addToCart(
   data: IAddToCartRequest
 ): Promise<IActionResponse<IAddToCartResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
-    console.log("Cart Action - Session found:", !!session);
-    console.log("Cart Action - Token found:", !!token);
-    if (token)
-      console.log(
-        "Cart Action - Token prefix:",
-        token.substring(0, 10) + "..."
-      );
-
+    const token = await getFreshToken();
     if (!token) {
-      console.error("Cart Action - No token found in session");
       throw new Error("Authentication required");
     }
 
@@ -54,10 +42,7 @@ export async function addToCart(
 
 export async function getCart(): Promise<IActionResponse<ICartResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       throw new Error("Authentication required");
     }
@@ -81,10 +66,7 @@ export async function updateCartItem(
   quantity: number
 ): Promise<IActionResponse<IAddToCartResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       throw new Error("Authentication required");
     }
@@ -111,10 +93,7 @@ export async function updateCartItem(
 
 export async function removeCartItem(itemId: string): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       throw new Error("Authentication required");
     }

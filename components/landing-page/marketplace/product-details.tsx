@@ -14,6 +14,7 @@ import {
   Check,
 } from "lucide-react";
 import { type Product, getRelatedProducts } from "@/lib/products-data";
+import { formatPrice } from "@/lib/format-price";
 
 interface ProductDetailsProps {
   product: Product;
@@ -148,11 +149,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           <div className="flex items-center gap-3 mb-4">
             {product.originalPrice && (
               <span className="text-[#9ca3af] line-through text-lg">
-                ${product.originalPrice.toFixed(2)}
+                {formatPrice(product.originalPrice, "USD")}
               </span>
             )}
             <span className="text-[#f10e7c] text-2xl md:text-3xl font-bold">
-              ${product.price.toFixed(2)}
+              {formatPrice(product.price, "USD")}
             </span>
             {product.discount && (
               <span className="px-2 py-1 bg-[#f10e7c] text-white text-xs font-medium rounded">
@@ -450,7 +451,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   {relatedProduct.name}
                 </h3>
                 <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
-                  ${relatedProduct.price.toFixed(2)}
+                  {formatPrice(relatedProduct.price, "USD")}
                 </span>
               </div>
 

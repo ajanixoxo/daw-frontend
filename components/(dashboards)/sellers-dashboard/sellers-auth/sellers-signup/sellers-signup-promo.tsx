@@ -35,7 +35,7 @@ const SellersSignupPromo: FC = () => {
           </div>
           <p className="text-white text-base">
             Create your shop for free! Non-members can create a shop for
-            ₦5,000/month.
+            ₦20,000 or $25 / month.
           </p>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useWishlist, useRemoveFromWishlist } from "@/hooks/useWishlist";
 import { useAddToCart, useIsProductInCart } from "@/hooks/useCart";
 import { toast } from "sonner";
+import { productPrice } from "@/lib/format-price";
 
 export function FavoritesView() {
   const { data: wishlist, isLoading } = useWishlist();
@@ -16,7 +17,18 @@ export function FavoritesView() {
 
   const handleAddToCart = (product: any) => {
     addToCart(
-      { productId: product._id, quantity: 1 },
+      {
+        productId: product._id,
+        quantity: 1,
+        _snapshot: {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          images: product.images || [],
+          description: product.description || "",
+          shopName: product.shop_name || "",
+        },
+      },
       {
         onSuccess: () => {
           toast.success("Added to cart");
@@ -119,10 +131,7 @@ function FavoriteItemCard({
               {product.name}
             </h3>
             <span className="text-[#F10E7C] font-semibold text-sm">
-              ₦
-              {product.price.toLocaleString("en-NG", {
-                minimumFractionDigits: 2,
-              })}
+              {productPrice(product)}
             </span>
           </div>
           <p className="text-xs text-gray-500 line-clamp-2 mb-4">

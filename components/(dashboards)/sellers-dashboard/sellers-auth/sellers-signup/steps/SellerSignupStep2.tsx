@@ -305,7 +305,7 @@ const SellerSignupStep2: FC = () => {
 
         {/*Business CAC * */}
         <UploadBox
-          label="Shop Branding *"
+          label="Business CAC *"
           field="businessCac"
           value={documents.businessCac}
           onChange={(file) => updateDocuments({ businessCac: file })}

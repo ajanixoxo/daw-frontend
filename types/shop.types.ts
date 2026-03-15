@@ -22,6 +22,7 @@ export interface IShop {
   is_member_shop: boolean;
   status: string;
   store_url?: string;
+  productCount?: number;
   createdAt: string;
   updatedAt: string;
   __v?: number;

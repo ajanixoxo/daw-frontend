@@ -110,7 +110,7 @@ function handleLogout() {
     window.dispatchEvent(new CustomEvent('auth:logout'));
     
     // Redirect to login
-    window.location.href = '/login';
+    window.location.href = '/auth';
   }
 }
 
