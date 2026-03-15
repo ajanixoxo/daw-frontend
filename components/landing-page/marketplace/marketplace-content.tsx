@@ -243,7 +243,8 @@ function ProductCard({ product }: { product: IProduct }) {
           {product.name}
         </h3>
         <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
-          ₦{product.price.toLocaleString()}
+          {product.displayCurrency === 'USD' ? '$' : '₦'}
+          {(product.displayPrice || product.price).toLocaleString()}
         </span>
       </div>
 
