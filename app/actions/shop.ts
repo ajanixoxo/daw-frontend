@@ -113,10 +113,7 @@ export interface IGetShopStatsResponse {
 
 export async function getShopStats(shopId: string): Promise<IActionResponse<IGetShopStatsResponse>> {
   try {
-    await refreshAccessToken();
-
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -137,10 +134,7 @@ export async function getShopStats(shopId: string): Promise<IActionResponse<IGet
 
 export async function editShop(shopId: string, formData: FormData): Promise<IActionResponse<IEditShopResponse>> {
   try {
-    await refreshAccessToken();
-
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
