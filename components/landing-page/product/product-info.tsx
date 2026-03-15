@@ -25,6 +25,7 @@ import { useReviews } from "@/hooks/useReviews";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { formatPrice, productPrice } from "@/lib/format-price";
 import { useAuthStore } from "@/zustand/store";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -60,16 +61,19 @@ export function ProductInfo({ product }: ProductInfoProps) {
   };
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      toast.error("Please login to add items to cart");
-      const loginUrl = new URL("/auth", window.location.origin);
-      loginUrl.searchParams.set("callbackUrl", pathname);
-      router.push(loginUrl.pathname + loginUrl.search);
-      return;
-    }
-
     addToCart(
-      { productId: product._id, quantity },
+      {
+        productId: product._id,
+        quantity,
+        _snapshot: {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          images: product.images || [],
+          description: product.description || "",
+          shopName: product.shop_name || "",
+        },
+      },
       {
         onSuccess: () => {
           toast.success("Added to cart successfully");
@@ -151,12 +155,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
       {/* Price Block */}
       <div className="flex items-center gap-4">
         <span className="text-gray-300 line-through text-xl font-medium">
-          {product.displayCurrency === 'USD' ? '$' : '₦'}
-          {originalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {formatPrice(originalPrice, product.currency)}
         </span>
         <span className="text-[#F10E7C] text-3xl font-bold">
-          {product.displayCurrency === 'USD' ? '$' : '₦'}
-          {(product.displayPrice || product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {productPrice(product)}
         </span>
         <span className="px-2.5 py-1 bg-[#fff0f7] text-[#F10E7C] text-xs font-bold rounded-full">
           {discount}% Off

@@ -377,8 +377,19 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
               window.location.href = "/sellers/kyc";
             }
           } else {
-            // For standard buyers / guests
+            // For standard buyers — check if they had a pending guest checkout
             setIsLoading(false);
+            try {
+              const { getPendingCheckoutCart } = await import("@/lib/guest-cart");
+              const pending = getPendingCheckoutCart();
+              if (pending.length > 0) {
+                // Redirect to cart; the ShoppingCart component handles the merge
+                window.location.href = "/cart";
+                return;
+              }
+            } catch {
+              // ignore — just do normal redirect
+            }
             router.push("/");
             router.refresh();
           }

@@ -23,8 +23,11 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAddToCart } from "@/hooks/useCart";
 import { clientApiClient, API_ENDPOINTS } from "@/lib/api/client-client";
+import { productPrice } from "@/lib/format-price";
 import Header from "@/components/Header";
 import Footer from "@/components/landing-page/cooperatives/Footer";
+import { ProductQuickViewModal } from "@/components/landing-page/shop/product-quick-view-modal";
+import type { IProduct } from "@/types/product.types";
 
 export default function ShopDetailsPage() {
   const params = useParams();
@@ -41,6 +44,7 @@ export default function ShopDetailsPage() {
   const [activeTab, setActiveTab] = useState("products");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"best_match" | "price_asc" | "price_desc">("best_match");
+  const [quickViewProduct, setQuickViewProduct] = useState<IProduct | null>(null);
 
   // Track shop view on mount (fire-and-forget)
   useEffect(() => {
@@ -87,9 +91,23 @@ export default function ShopDetailsPage() {
   const productCount = products?.length || 0;
 
   const handleAddToCart = (productId: string) => {
+    const product = (products || []).find((p) => p._id === productId);
     setAddingProductId(productId);
     addToCart(
-      { productId, quantity: 1 },
+      {
+        productId,
+        quantity: 1,
+        _snapshot: product
+          ? {
+              _id: product._id,
+              name: product.name,
+              price: product.price,
+              images: product.images || [],
+              description: product.description || "",
+              shopName: shop.name,
+            }
+          : undefined,
+      },
       {
         onSettled: () => setAddingProductId(null),
       },
@@ -373,24 +391,33 @@ export default function ShopDetailsPage() {
 
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-[#f10e7c] text-lg">
-                          ${product.price.toFixed(2)}
+                          {productPrice(product)}
                         </span>
                       </div>
 
-                      <Button
-                        className="w-full mt-3 bg-[#101828] hover:bg-[#2d3a4f] text-white rounded-full h-10 text-xs font-medium"
-                        onClick={() => handleAddToCart(product._id)}
-                        disabled={
-                          isAddingToCart && addingProductId === product._id
-                        }
-                      >
-                        {isAddingToCart && addingProductId === product._id ? (
-                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                        ) : (
-                          <ShoppingCart className="w-3 h-3 mr-2" />
-                        )}
-                        Add to Cart
-                      </Button>
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1 rounded-full h-10 text-xs font-medium border-[#EAECF0] text-[#344054] hover:bg-[#F9FAFB]"
+                          onClick={() => setQuickViewProduct(product)}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          className="flex-1 bg-[#101828] hover:bg-[#2d3a4f] text-white rounded-full h-10 text-xs font-medium"
+                          onClick={() => handleAddToCart(product._id)}
+                          disabled={
+                            isAddingToCart && addingProductId === product._id
+                          }
+                        >
+                          {isAddingToCart && addingProductId === product._id ? (
+                            <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                          ) : (
+                            <ShoppingCart className="w-3 h-3 mr-2" />
+                          )}
+                          Add to Cart
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -425,6 +452,11 @@ export default function ShopDetailsPage() {
       </div>
     </main>
     <Footer />
+
+    <ProductQuickViewModal
+      product={quickViewProduct}
+      onClose={() => setQuickViewProduct(null)}
+    />
     </>
   );
 }

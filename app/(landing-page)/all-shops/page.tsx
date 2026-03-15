@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Search, Store, ShoppingBag, ShoppingCart, Star, CheckCircle2 } from "lucide-react";
+import { productPrice } from "@/lib/format-price";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -394,7 +395,18 @@ function ProductCard({ product }: { product: IProduct }) {
 
   const handleAddToCart = () => {
     addToCart(
-      { productId: product._id, quantity: 1 },
+      {
+        productId: product._id,
+        quantity: 1,
+        _snapshot: {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          images: product.images || [],
+          description: product.description || "",
+          shopName: product.shop_name || "",
+        },
+      },
       {
         onSuccess: () => {
           setJustAdded(true);
@@ -464,8 +476,7 @@ function ProductCard({ product }: { product: IProduct }) {
           {product.name}
         </h3>
         <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
-          {product.displayCurrency === 'USD' ? '$' : '₦'}
-          {(product.displayPrice || product.price).toLocaleString()}
+          {productPrice(product)}
         </span>
       </div>
 

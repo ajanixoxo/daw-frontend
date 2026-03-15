@@ -20,6 +20,7 @@ import {
 } from "@/hooks/useWishlist";
 import type { IProduct } from "@/types/product.types";
 import { cn } from "@/lib/utils";
+import { productPrice } from "@/lib/format-price";
 
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer } from "@/lib/animations";
@@ -36,7 +37,18 @@ export function PopularProducts() {
     setAddingProductId(product._id);
 
     addToCart(
-      { productId: product._id, quantity: 1 },
+      {
+        productId: product._id,
+        quantity: 1,
+        _snapshot: {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          images: product.images || [],
+          description: product.description || "",
+          shopName: product.shop_name || "",
+        },
+      },
       {
         onSuccess: () => {
           setJustAdded(product._id);
@@ -211,11 +223,7 @@ function ProductCard({
           {product.name}
         </h3>
         <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
-          ₦
-          {product.price.toLocaleString("en-NG", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {productPrice(product)}
         </span>
       </div>
 
