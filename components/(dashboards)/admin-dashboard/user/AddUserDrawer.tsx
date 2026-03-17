@@ -286,6 +286,7 @@ export function AddUserDrawer({ userId, mode = 'create', open: controlledOpen, o
                     <SelectItem value="buyer">Buyer</SelectItem>
                     <SelectItem value="seller">Seller</SelectItem>
                     <SelectItem value="member">Member</SelectItem>
+                    <SelectItem value="support-admin">Support Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

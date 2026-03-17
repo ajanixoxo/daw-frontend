@@ -55,7 +55,7 @@ export function useLogin(): UseLoginReturn {
             const userRoles = result.user?.roles || [];
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
             const isCooperativeAdmin = result.data.role === "cooperative_admin";
-            const isAdmin = result.data.role === "admin";
+            const isAdmin = result.data.role === "admin" || userRoles.includes("admin") || userRoles.includes("support-admin");
             
             if (isAdmin) {
               // Redirect admin to admin dashboard
@@ -313,7 +313,7 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           const userRoles = result.user?.roles || [result.data.role];
           const isSeller = userRoles.includes("seller") || result.data.role === "seller";
           const isCooperativeAdmin = result.data.role === "cooperative_admin";
-          const isAdmin = result.data.role === "admin";
+          const isAdmin = result.data.role === "admin" || userRoles.includes("admin") || userRoles.includes("support-admin");
           
           if (isAdmin) {
             // Redirect admin to admin dashboard

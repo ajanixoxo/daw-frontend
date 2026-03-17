@@ -13,6 +13,7 @@ import { StatusBadge } from "./StatusBadge";
 import { UserActionsMenu } from "./UserActionsMenu";
 import { formatDate } from "./formatters";
 import { User } from "@/hooks/useAdminUsers";
+import { useAuthStore } from "@/zustand/store";
 
 interface UsersTableProps {
   users: User[];
@@ -39,6 +40,9 @@ function getRandomColor(name: string) {
 }
 
 export function UsersTable({ users }: UsersTableProps) {
+  const userRoles = useAuthStore((state) => state.user?.roles || []);
+  const isAdmin = userRoles.includes("admin");
+
   return (
     <div className="bg-white rounded-[10px] overflow-hidden border border-user-mgmt-table-border">
       <div className="overflow-x-auto">
@@ -101,7 +105,7 @@ export function UsersTable({ users }: UsersTableProps) {
                     <StatusBadge status={user.status} />
                   </TableCell>
                   <TableCell>
-                    <UserActionsMenu userId={user._id} userName={`${user.firstName} ${user.lastName}`} />
+                    <UserActionsMenu userId={user._id} userName={`${user.firstName} ${user.lastName}`} isAdmin={isAdmin} />
                   </TableCell>
                 </TableRow>
               )
