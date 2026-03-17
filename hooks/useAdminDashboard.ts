@@ -20,10 +20,36 @@ export interface Cooperative {
     logoUrl?: string;
     createdAt: string;
     adminId: {
+        _id: string;
         firstName: string;
         lastName: string;
         email: string;
+        phone?: string;
+        kyc_status?: string;
     };
+    status: "pending" | "approved" | "rejected" | "suspended";
+    members: string[];
+    isActive: boolean;
+}
+
+export interface AdminProduct {
+    _id: string;
+    name: string;
+    description: string;
+    category: string;
+    quantity: number;
+    price: number;
+    currency: string;
+    images: string[];
+    status: "available" | "unavailable" | "draft" | "out_of_stock";
+    shop_id: string;
+    shop_name: string;
+    shop_logo: string;
+    seller_name: string;
+    seller_email: string;
+    displayPrice: string;
+    displayCurrency: string;
+    createdAt: string;
 }
 
 export function useDashboardStats() {
@@ -119,6 +145,38 @@ export function useRevenueAnalytics() {
                 { token: accessToken }
             );
             return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useAllCooperatives() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "cooperatives", "all"],
+        queryFn: async () => {
+            const response = await apiClient.get<Cooperative[]>(
+                "/api/cooperatives",
+                { token: accessToken }
+            );
+            return response;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useAllProducts() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "products", "all"],
+        queryFn: async () => {
+            const response = await apiClient.get<{ success: boolean; products: AdminProduct[] }>(
+                "/marketplace/get/all/products",
+                { token: accessToken }
+            );
+            return response;
         },
         enabled: !!accessToken,
     });

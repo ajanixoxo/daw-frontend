@@ -26,6 +26,8 @@ interface DashboardSidebarProps {
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
   { icon: ShoppingBag, label: "User", href: "/admin/user" },
+  { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
+  { icon: ShoppingBag, label: "Listings", href: "/admin/listings" },
   { icon: Wallet, label: "Wallet", href: "/admin/wallet" },
   { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
   // { icon: Settings, label: "Settings", href: "/admin/settings" },
