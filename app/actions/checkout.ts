@@ -38,6 +38,23 @@ export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionRespo
   }
 }
 
+export async function calculateDeliveryFee(data: { orderId: string, country: string, state: string }): Promise<IActionResponse<{ deliveryFee: number, totalAmount: number }>> {
+  try {
+    const token = await getFreshToken();
+    
+    const response = await apiClient.post<{ deliveryFee: number, totalAmount: number }>(
+      "/marketplace/calculate-shipping",
+      data,
+      { token: token || undefined }
+    );
+    
+    return { success: true, data: response, message: "Calculated" };
+  } catch (error: any) {
+    const message = error instanceof Error ? error.message : error?.response?.data?.message || "Failed to calculate delivery fee";
+    return { success: false, error: message };
+  }
+}
+
 export async function initiatePayment(data: IPaymentInitiateRequest): Promise<IActionResponse<IPaymentInitiateResponse>> {
   try {
     const token = await getFreshToken();

@@ -8,9 +8,11 @@ import {
   useInitiatePaystackPayment,
   useInitiatePaypalOrder,
 } from "@/hooks/useCheckout";
+import { calculateDeliveryFee } from "@/app/actions/checkout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/zustand/store";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -150,6 +152,7 @@ const LOGISTICS_OPTIONS = [
 export default function CheckoutPage() {
   const router = useRouter();
   const { orderData } = useCheckoutStore();
+  const { user } = useAuthStore();
   const { mutate: initiateVigipay, isPending: isPendingVigipay } = useInitiatePayment();
   const { mutate: initiatePaystack, isPending: isPendingPaystack } = useInitiatePaystackPayment();
   const { mutate: initiatePaypal, isPending: isPendingPaypal } = useInitiatePaypalOrder();
@@ -170,8 +173,57 @@ export default function CheckoutPage() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState<"vigipay" | "paystack" | "paypal">("paystack");
-  // const [selectedLogistics, setSelectedLogistics] = useState(LOGISTICS_OPTIONS[1].id);
   const [promoCode, setPromoCode] = useState("");
+
+  const initialDeliveryFee = (orderData?.order as any)?.delivery_fee || 0;
+  const subtotal = orderData ? orderData.order.total_amount - initialDeliveryFee : 0;
+  const [deliveryFee, setDeliveryFee] = useState(initialDeliveryFee);
+  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false);
+  const [deliveryError, setDeliveryError] = useState("");
+
+  const total = subtotal + deliveryFee;
+
+  // Pre-fill form data with authenticated user details
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+        country: prev.country || user.country || "",
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    async function fetchDeliveryFee() {
+      if (!formData.country || !orderData?.order?._id) return;
+      if (formData.country === "Nigeria" && !formData.state) return;
+      
+      setIsCalculatingDelivery(true);
+      setDeliveryError("");
+      
+      try {
+        const res = await calculateDeliveryFee({
+          orderId: orderData.order._id,
+          country: formData.country,
+          state: formData.state
+        });
+        
+        if (res.success && res.data) {
+          setDeliveryFee(res.data.deliveryFee);
+        } else {
+          setDeliveryError(res.error || "Failed to calculate delivery fee");
+        }
+      } catch (err: any) {
+        setDeliveryError(err.message || "Calculation failed");
+      } finally {
+        setIsCalculatingDelivery(false);
+      }
+    }
+    fetchDeliveryFee();
+  }, [formData.country, formData.state, orderData?.order?._id]);
 
   useEffect(() => {
     if (!orderData) {
@@ -181,15 +233,6 @@ export default function CheckoutPage() {
   }, [orderData, router]);
 
   if (!orderData) return null;
-
-  // const selectedLogisticsOption = LOGISTICS_OPTIONS.find((l) => l.id === selectedLogistics)!;
-  // const shippingCost = 1500;
-  // const deliveryCost = selectedLogisticsOption.price;
-
-  const subtotal = orderData.order.total_amount;
-  // const tax = subtotal * 0.075;
-
-  const total = subtotal;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -632,20 +675,18 @@ export default function CheckoutPage() {
                         })}
                       </span>
                     </div>
-                    {/* Shipping, Tax, Delivery — commented out (placeholder values)
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium">₦{shippingCost.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span className="font-medium">₦{tax.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</span>
-                    </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Delivery</span>
-                      <span className="font-medium">₦{deliveryCost.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</span>
+                      <span className="font-medium flex items-center">
+                        {isCalculatingDelivery ? (
+                           <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : deliveryFee > 0 ? (
+                           `₦${deliveryFee.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
+                        ) : (
+                           <span className="text-xs">{deliveryError ? <span className="text-red-500">{deliveryError}</span> : "Select Address"}</span>
+                        )}
+                      </span>
                     </div>
-                    */}
                   </div>
 
                   {/* Payment Method Selector */}

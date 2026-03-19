@@ -67,6 +67,8 @@ export function AddProductDrawer({
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [weight, setWeight] = useState("");
+  const [location, setLocation] = useState("");
   const [quantity, setQuantity] = useState("");
   const [productFeatures, setProductFeatures] = useState("");
   const [careInstruction, setCareInstruction] = useState("");
@@ -101,6 +103,8 @@ export function AddProductDrawer({
       setCategory(product.category || "");
       setDescription(product.description || "");
       setPrice(product.price?.toString() || "");
+      setWeight(product.weight?.toString() || "");
+      setLocation(product.location || "");
       setQuantity(product.quantity?.toString() || "");
       setProductFeatures(product.productFeatures || "");
       setCareInstruction(product.careInstruction || "");
@@ -115,6 +119,8 @@ export function AddProductDrawer({
         category: product.category || "",
         description: product.description || "",
         price: product.price?.toString() || "",
+        weight: product.weight?.toString() || "",
+        location: product.location || "",
         quantity: product.quantity?.toString() || "",
         status: statusLabel,
         productFeatures: product.productFeatures || "",
@@ -227,6 +233,8 @@ export function AddProductDrawer({
     setCategory("");
     setDescription("");
     setPrice("");
+    setWeight("");
+    setLocation("");
     setQuantity("");
     setProductFeatures("");
     setCareInstruction("");
@@ -256,6 +264,8 @@ export function AddProductDrawer({
       if (description !== initialValues.description)
         dirty.description = description;
       if (price !== initialValues.price) dirty.price = parseFloat(price);
+      if (weight !== initialValues.weight) dirty.weight = parseFloat(weight);
+      if (location !== initialValues.location) dirty.location = location;
       if (quantity !== initialValues.quantity)
         dirty.quantity = parseInt(quantity, 10);
       if (productStatus !== initialValues.status) dirty.status = statusValue;
@@ -320,6 +330,8 @@ export function AddProductDrawer({
         await addProductMutation.mutateAsync({
           name,
           price: parseFloat(price),
+          weight: parseFloat(weight),
+          location: location || undefined,
           quantity: parseInt(quantity, 10),
           description: description || undefined,
           category: category || undefined,
@@ -598,7 +610,7 @@ export function AddProductDrawer({
                 </div>
               </div>
             </div>
-
+             
             {/* Description */}
             <div className="space-y-2">
               <Label
@@ -656,7 +668,41 @@ export function AddProductDrawer({
                 />
               </div>
             </div>
-
+            <div>
+              <Label
+                htmlFor="weight"
+                className="text-sm font-medium text-[#292d32]"
+              >
+                Weight (kg) *
+              </Label>
+              <Input
+                id="weight"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Enter Weight"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="border-[#e7e8e9] h-11"
+                required
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="location"
+                className="text-sm font-medium text-[#292d32]"
+              >
+                Stock Location (Address/City) *
+              </Label>
+              <Input
+                id="location"
+                placeholder="Where is this product located?"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="border-[#e7e8e9] h-11"
+                required
+              />
+            </div>
             {/* Variants Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">

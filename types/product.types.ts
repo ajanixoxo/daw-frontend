@@ -9,6 +9,8 @@ export interface IProduct {
   shop_name?: string;
   name: string;
   quantity: number;
+  weight: number;
+  location?: string;
   price: number;
   currency?: "NGN" | "USD";
   displayPrice?: number;
@@ -126,6 +128,8 @@ export interface IAddProductRequest {
   shop_id: string;
   name: string;
   quantity: number;
+  weight: number;
+  location?: string;
   price: number;
   description?: string;
   category?: string;
