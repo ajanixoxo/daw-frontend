@@ -29,6 +29,7 @@ const demoProduct: IProduct = {
   category: "HOME DECOR",
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
+  weight: 1,
 };
 
 export default function ProductDetailsPage() {
