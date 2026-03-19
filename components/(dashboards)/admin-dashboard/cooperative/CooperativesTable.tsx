@@ -27,6 +27,7 @@ export function CooperativesTable({ cooperatives }: CooperativesTableProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
+      case "active":
         return "bg-[#ECFDF3] text-[#027A48]";
       case "pending":
         return "bg-[#FFFAEB] text-[#B54708]";
@@ -40,8 +41,8 @@ export function CooperativesTable({ cooperatives }: CooperativesTableProps) {
   };
 
   const formatStatus = (status: string) => {
-    if (status === "approved") return "Active";
-    return status.charAt(0)                                                                                                                   .toUpperCase() + status.slice(1);
+    if (status === "approved" || status === "active") return "Active";
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   return (

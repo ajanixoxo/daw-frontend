@@ -84,6 +84,40 @@ export function usePendingCooperatives() {
     });
 }
 
+export interface DashboardLoan {
+    _id: string;
+    amount: number;
+    purpose: string;
+    status: string;
+    createdAt: string;
+    userId: {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
+    cooperativeId: {
+        _id: string;
+        name: string;
+    };
+}
+
+export function usePendingLoans() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "loans", "pending"],
+        queryFn: async () => {
+            const response = await apiClient.get<{ success: boolean; count: number; data: DashboardLoan[] }>(
+                "/api/admin/dashboard/loans/pending",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
 import { AnalyticsResponse, UserAnalyticsResponse, CooperativeAnalyticsResponse, RevenueAnalyticsResponse } from "@/components/(dashboards)/admin-dashboard/analytics/types";
 
 export function useAdminAnalytics() {

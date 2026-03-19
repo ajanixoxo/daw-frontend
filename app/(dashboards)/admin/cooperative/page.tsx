@@ -43,8 +43,8 @@ export default function CooperativePage() {
   const { data: analyticsData, isLoading: isLoadingAnalytics } = useCooperativeAnalytics();
 
   const filteredCooperatives = cooperatives?.filter(coop => {
-    const matchesSearch = coop.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      coop.adminId?.email.toLowerCase().includes(debouncedSearch.toLowerCase());
+    const matchesSearch = (coop.name || "").toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (coop.adminId?.email || "").toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchesStatus = statusFilter === "" || coop.status === statusFilter;
     return matchesSearch && matchesStatus;
   }) || [];
@@ -55,9 +55,14 @@ export default function CooperativePage() {
   };
 
   const getStatValue = (status: string) => {
+    if (status === "approved") {
+      const approvedCount = analyticsData?.statusBreakdown.find((s: any) => s._id === "approved")?.count || 0;
+      const activeCount = analyticsData?.statusBreakdown.find((s: any) => s._id === "active")?.count || 0;
+      return approvedCount + activeCount;
+    }
     return analyticsData?.statusBreakdown.find((s: any) => s._id === status)?.count || 0;
   };
-
+ console.log(cooperatives)
   return (
     <div className="p-4 lg:p-6 space-y-8 max-w-[1400px] mx-auto">
       {/* Header Section */}
