@@ -131,6 +131,10 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
           router.push("/sellers/dashboard");
         } else if (roles.includes("member") || roles.includes("cooperative")) {
           router.push("/cooperative/shop");
+        } else if (roles.includes("logistics_provider")) {
+          router.push("/logistics/dashboard");
+        } else if ((roles.includes("support_admin") || roles.includes("admin"))) {
+          router.push("/admin/dashboard");
         } else {
           router.push("/marketplace");
         }
