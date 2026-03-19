@@ -2,124 +2,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
-const deliveries = [
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    shipmentId: "SHP-2024-8472",
-    cost: "$127",
-    timeline: "3 Days",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "2025-10-16",
-    status: "active",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    shipmentId: "SHP-2024-8472",
-    cost: "$127",
-    timeline: "4",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "2025-10-16",
-    status: "active",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    shipmentId: "SHP-2024-8472",
-    cost: "$127",
-    timeline: "3",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "2025-10-16",
-    status: "active",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    shipmentId: "SHP-2024-8472",
-    cost: "$127",
-    timeline: "2",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "2025-10-16",
-    status: "active",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    shipmentId: "SHP-2024-8472",
-    cost: "1$127",
-    timeline: "3",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "2025-10-16",
-    status: "completed",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    shipmentId: "SHP-2024-8472",
-    cost: "127",
-    timeline: "4",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "2025-10-16",
-    status: "completed",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    description: "Supporting",
-    shipmentId: "Lagos, NG",
-    cost: "127",
-    timeline: "5",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "LA, USA",
-    status: "completed",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    description: "Supporting",
-    shipmentId: "Lagos, NG",
-    cost: "127",
-    timeline: "4",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "LA, USA",
-    status: "completed",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    description: "Supporting..",
-    shipmentId: "Lagos, NG",
-    cost: "127",
-    timeline: "e",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "LA, USA",
-    status: "completed",
-  },
-  {
-    id: "LN-0333",
-    name: "Samuel Uche",
-    description: "Supporting",
-    shipmentId: "Lagos, NG",
-    cost: "127",
-    timeline: "4",
-    from: "Lagos, NG",
-    to: "LA, USA",
-    date: "LA, USA",
-    status: "completed",
-  },
-]
+
+import { useDeliveries } from "@/hooks/useLogistics"
 
 export function AllDeliveriesView() {
+  const { data, isLoading } = useDeliveries("all");
+  const deliveries = data?.data || [];
+
+  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading deliveries...</div>;
+  if (!deliveries.length) return <div className="p-8 text-center text-muted-foreground">No deliveries found.</div>;
+
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
       {/* Table for larger screens */}
@@ -140,37 +32,47 @@ export function AllDeliveriesView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {deliveries.map((delivery, index) => (
+              {deliveries.map((delivery: any, index: number) => (
                 <tr key={index} className="hover:bg-secondary/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-[#e9d5ff] text-[#7c3aed] font-semibold">M</AvatarFallback>
+                        <AvatarFallback className="bg-[#e9d5ff] text-[#7c3aed] font-semibold">
+                          {(delivery.buyer_id?.firstName?.[0] || "U").toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium text-foreground">{delivery.name}</div>
-                        {delivery.description && (
-                          <div className="text-sm text-muted-foreground">{delivery.description}</div>
+                        <div className="font-medium text-foreground">
+                          {delivery.buyer_id?.firstName} {delivery.buyer_id?.lastName}
+                        </div>
+                        {delivery.items?.[0] && (
+                          <div className="text-sm text-muted-foreground">
+                            {delivery.items[0].product_id?.name || "Product"}
+                          </div>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-foreground">{delivery.shipmentId}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{delivery.cost}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{delivery.timeline}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{delivery.from}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{delivery.to}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{delivery.date}</td>
+                  <td className="px-6 py-4 text-sm text-foreground">{delivery._id.substring(0, 8)}...</td>
+                  <td className="px-6 py-4 text-sm text-foreground">₦{delivery.total_amount?.toLocaleString() || "0"}</td>
+                  <td className="px-6 py-4 text-sm text-foreground">-</td>
+                  <td className="px-6 py-4 text-sm text-foreground">{delivery.shop_id?.name || "Store"}</td>
+                  <td className="px-6 py-4 text-sm text-foreground truncate max-w-[150px]">
+                    {delivery.shipping_address?.street || "Destination"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-foreground">
+                    {new Date(delivery.createdAt).toLocaleDateString()}
+                  </td>
                   <td className="px-6 py-4">
                     <Badge
-                      variant={delivery.status === "completed" ? "default" : "secondary"}
+                      variant={delivery.status === "delivered" ? "default" : "secondary"}
                       className={
-                        delivery.status === "completed"
+                        delivery.status === "delivered"
                           ? "bg-[#d1fae5] text-[#065f46] hover:bg-[#d1fae5]"
                           : "bg-[#fed7aa] text-[#9a3412] hover:bg-[#fed7aa]"
                       }
                     >
-                      {delivery.status === "completed" ? "Completed" : "Active"}
+                      <span className="capitalize">{delivery.status.replace("_", " ")}</span>
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
@@ -187,45 +89,53 @@ export function AllDeliveriesView() {
 
       {/* Card layout for mobile screens */}
       <div className="md:hidden space-y-4 p-4">
-        {deliveries.map((delivery, index) => (
+        {deliveries.map((delivery: any, index: number) => (
           <div key={index} className="rounded-lg border border-border bg-card p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-[#e9d5ff] text-[#7c3aed] font-semibold">M</AvatarFallback>
+                  <AvatarFallback className="bg-[#e9d5ff] text-[#7c3aed] font-semibold">
+                    {(delivery.buyer_id?.firstName?.[0] || "U").toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium text-foreground">{delivery.name}</div>
-                  {delivery.description && <div className="text-sm text-muted-foreground">{delivery.description}</div>}
+                  <div className="font-medium text-foreground">
+                    {delivery.buyer_id?.firstName} {delivery.buyer_id?.lastName}
+                  </div>
+                  {delivery.items?.[0] && (
+                    <div className="text-sm text-muted-foreground">
+                      {delivery.items[0].product_id?.name || "Product"}
+                    </div>
+                  )}
                 </div>
               </div>
               <Badge
-                variant={delivery.status === "completed" ? "default" : "secondary"}
+                variant={delivery.status === "delivered" ? "default" : "secondary"}
                 className={
-                  delivery.status === "completed"
+                  delivery.status === "delivered"
                     ? "bg-[#d1fae5] text-[#065f46] hover:bg-[#d1fae5]"
                     : "bg-[#fed7aa] text-[#9a3412] hover:bg-[#fed7aa]"
                 }
               >
-                {delivery.status === "completed" ? "Completed" : "Active"}
+                <span className="capitalize">{delivery.status.replace("_", " ")}</span>
               </Badge>
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <span className="text-muted-foreground">Shipment ID:</span>
-                <div className="font-medium">{delivery.shipmentId}</div>
+                <div className="font-medium">{delivery._id.substring(0, 8)}...</div>
               </div>
               <div>
                 <span className="text-muted-foreground">Cost:</span>
-                <div className="font-medium">{delivery.cost}</div>
+                <div className="font-medium">₦{delivery.total_amount?.toLocaleString() || "0"}</div>
               </div>
               <div>
                 <span className="text-muted-foreground">From:</span>
-                <div className="font-medium">{delivery.from}</div>
+                <div className="font-medium">{delivery.shop_id?.name || "Store"}</div>
               </div>
               <div>
                 <span className="text-muted-foreground">To:</span>
-                <div className="font-medium">{delivery.to}</div>
+                <div className="font-medium truncate">{delivery.shipping_address?.street || "Destination"}</div>
               </div>
             </div>
             <Button size="sm" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">

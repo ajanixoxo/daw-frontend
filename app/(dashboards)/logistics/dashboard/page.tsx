@@ -1,10 +1,16 @@
+"use client"
+
 import { Package, Star, AlertCircle } from "lucide-react"
 import { StatsCard } from "@/components/(dashboards)/logistics-dashboard/dashboard/stats-card"
 import { PerformanceChart } from "@/components/(dashboards)/logistics-dashboard/dashboard/performance-chart"
 import { RecentActivities } from "@/components/(dashboards)/logistics-dashboard/dashboard/recent-activities"
 import { RecentsTable } from "@/components/(dashboards)/logistics-dashboard/dashboard/recents-table"
+import { useLogisticsStats } from "@/hooks/useLogistics"
 
 export default function DashboardPage() {
+  const { data: statsData, isLoading } = useLogisticsStats();
+  const stats = statsData?.data;
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -16,12 +22,30 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard title="Total Shipment" value="5300" change="+12% from last month" trend="up" icon={Package} />
-          <StatsCard title="Active Shipment" value="1300" change="Cards issued" trend="neutral" icon={Package} />
-          <StatsCard title="Rating" value="4.8" change="Based on 85 reviews" trend="neutral" icon={Star} />
+          <StatsCard 
+            title="Total Shipment" 
+            value={isLoading ? "..." : stats?.totalShipments?.toString() || "0"} 
+            change="+12% from last month" 
+            trend="up" 
+            icon={Package} 
+          />
+          <StatsCard 
+            title="Active Shipment" 
+            value={isLoading ? "..." : stats?.activeShipments?.toString() || "0"} 
+            change="Cards issued" 
+            trend="neutral" 
+            icon={Package} 
+          />
+          <StatsCard 
+            title="Rating" 
+            value={isLoading ? "..." : stats?.rating?.toString() || "4.8"} 
+            change="Based on 85 reviews" 
+            trend="neutral" 
+            icon={Star} 
+          />
           <StatsCard
             title="Pending Requests"
-            value="21"
+            value={isLoading ? "..." : stats?.pendingRequests?.toString() || "0"}
             change="Requires Attention"
             trend="neutral"
             icon={AlertCircle}

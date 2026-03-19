@@ -56,6 +56,7 @@ export function useLogin(): UseLoginReturn {
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
             const isCooperativeAdmin = result.data.role === "cooperative_admin";
             const isAdmin = result.data.role === "admin" || userRoles.includes("admin") || userRoles.includes("support-admin");
+            const isLogistics = result.data.role === "logistics_provider";
             
             if (isAdmin) {
               // Redirect admin to admin dashboard
@@ -99,6 +100,9 @@ export function useLogin(): UseLoginReturn {
                 // On error, redirect to KYC page
                 router.push("/sellers/kyc");
               }
+            } else if (isLogistics) {
+              // Redirect logistics provider to logistics dashboard
+              router.push("/logistics/dashboard");
             } else {
               router.push("/");
             }

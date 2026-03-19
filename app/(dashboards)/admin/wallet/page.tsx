@@ -10,8 +10,12 @@ import { RecentTransactionsTable } from "@/components/(dashboards)/sellers-dashb
 import { AdminPayoutDrawer } from "@/components/(dashboards)/admin-dashboard/wallet/admin-payout-drawer";
 import { UpdateWalletPinModal } from "@/components/(dashboards)/admin-dashboard/wallet/update-wallet-pin-modal";
 import { toast } from "sonner";
+import { useAuthStore } from "@/zustand/store";
 
 export default function AdminWalletPage() {
+    const { user } = useAuthStore();
+    const isSupportAdmin = user?.roles?.includes("support-admin") || false;
+    
     const [loading, setLoading] = useState(true);
     const [wallet, setWallet] = useState<IAdminWalletResponse | null>(null);
     const [ledger, setLedger] = useState<ILedgerEntry[]>([]);
@@ -29,6 +33,7 @@ export default function AdminWalletPage() {
                 setWallet(walletResult.data);
             } else {
                 toast.error(walletResult.error || "Failed to fetch wallet");
+                console.log(walletResult)
             }
 
             if (ledgerResult.success && ledgerResult.data) {
@@ -114,18 +119,26 @@ export default function AdminWalletPage() {
                     <div className="space-y-4">
                         <h3 className="font-semibold text-[#1d1d2a]">Quick Actions</h3>
                         <div className="grid grid-cols-1 gap-3">
-                            <AdminPayoutDrawer onSuccess={() => fetchData()}>
-                                <Button className="w-full justify-start gap-2 bg-[#DB005F] hover:bg-[#b0004d] text-white">
-                                    <ArrowUpRight className="h-4 w-4" />
-                                    Process Payout
-                                </Button>
-                            </AdminPayoutDrawer>
-                            <UpdateWalletPinModal>
-                                <Button variant="outline" className="w-full justify-start gap-2 border-[#e7e8e9]">
-                                    <CreditCard className="h-4 w-4" />
-                                    Update Wallet PIN
-                                </Button>
-                            </UpdateWalletPinModal>
+                            {!isSupportAdmin ? (
+                                <>
+                                    <AdminPayoutDrawer onSuccess={() => fetchData()}>
+                                        <Button className="w-full justify-start gap-2 bg-[#DB005F] hover:bg-[#b0004d] text-white">
+                                            <ArrowUpRight className="h-4 w-4" />
+                                            Process Payout
+                                        </Button>
+                                    </AdminPayoutDrawer>
+                                    <UpdateWalletPinModal>
+                                        <Button variant="outline" className="w-full justify-start gap-2 border-[#e7e8e9]">
+                                            <CreditCard className="h-4 w-4" />
+                                            Update Wallet PIN
+                                        </Button>
+                                    </UpdateWalletPinModal>
+                                </>
+                            ) : (
+                                <p className="text-sm text-[#667185] italic">
+                                    Management actions are restricted for support accounts.
+                                </p>
+                            )}
                         </div>
                     </div>
                 </Card>

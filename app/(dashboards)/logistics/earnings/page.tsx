@@ -6,9 +6,18 @@ import { EarningsChart } from "@/components/(dashboards)/logistics-dashboard/ear
 import { PaymentsTable } from "@/components/(dashboards)/logistics-dashboard/earnings/payments-table"
 import { PaymentDetailsModal } from "@/components/(dashboards)/logistics-dashboard/earnings/payment-details-modal"
 import { useState } from "react"
+import { useLogisticsEarnings } from "@/hooks/useLogistics"
 
 export default function EarningsPage() {
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
+  const { data: earningsData, isLoading } = useLogisticsEarnings()
+
+  const earnings = earningsData?.data
+
+  // Calculate "This Month" based on the last entry in the monthly chart
+  const thisMonthEarnings = earnings?.monthlyChart && earnings.monthlyChart.length > 0
+    ? earnings.monthlyChart[earnings.monthlyChart.length - 1].amount
+    : 0
 
   return (
     <>
@@ -24,22 +33,28 @@ export default function EarningsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Total Earnings"
-              value="₦328,000"
+              value={isLoading ? "..." : `₦${earnings?.totalEarnings?.toLocaleString() || 0}`}
               change="+10% More than Previous"
               trend="up"
               icon={DollarSign}
             />
-            <StatsCard title="This Month" value="₦67,000" change="+10% More than Previous" trend="up" icon={Package} />
+            <StatsCard 
+              title="This Month" 
+              value={isLoading ? "..." : `₦${thisMonthEarnings.toLocaleString()}`} 
+              change="+10% More than Previous" 
+              trend="up" 
+              icon={Package} 
+            />
             <StatsCard
               title="Avg per Delivery"
-              value="₦1,489"
+              value={isLoading ? "..." : `₦${earnings?.avgPerDelivery?.toLocaleString(undefined, { maximumFractionDigits: 0 }) || 0}`}
               change="+10% More than Previous"
               trend="up"
               icon={TrendingUp}
             />
             <StatsCard
               title="Pending Payout"
-              value="₦12,500"
+              value={isLoading ? "..." : `₦${earnings?.pendingPayout?.toLocaleString() || 0}`}
               change="+10% More than Previous"
               trend="up"
               icon={Clock}
