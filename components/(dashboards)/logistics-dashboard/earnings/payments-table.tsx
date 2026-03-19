@@ -5,71 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { FileDown } from "lucide-react"
 
-interface Payment {
-  orderId: number
-  paymentId: string
-  deliveries: string
-  amount: string
-  orderDate: string
-  status: "paid" | "pending"
-}
-
-const payments: Payment[] = [
-  {
-    orderId: 1,
-    paymentId: "96003321",
-    deliveries: "Marvin McKinney",
-    amount: "$17.84",
-    orderDate: "7 Apr, 2025",
-    status: "paid",
-  },
-  {
-    orderId: 2,
-    paymentId: "96003321",
-    deliveries: "Marvin McKinney",
-    amount: "$17.84",
-    orderDate: "7 Apr, 2025",
-    status: "pending",
-  },
-  {
-    orderId: 3,
-    paymentId: "96003321",
-    deliveries: "Marvin McKinney",
-    amount: "$17.84",
-    orderDate: "7 Apr, 2025",
-    status: "pending",
-  },
-  {
-    orderId: 4,
-    paymentId: "96003321",
-    deliveries: "Marvin McKinney",
-    amount: "$17.84",
-    orderDate: "7 Apr, 2025",
-    status: "paid",
-  },
-  {
-    orderId: 5,
-    paymentId: "96003321",
-    deliveries: "Apr 12, 2023 | 09:24AM",
-    amount: "$120,000.00",
-    orderDate: "Apr 12, 2023 | 09:24",
-    status: "paid",
-  },
-  {
-    orderId: 6,
-    paymentId: "96003321",
-    deliveries: "Apr 12, 2023 | 09:24AM",
-    amount: "$120,000.00",
-    orderDate: "Apr 12, 2023 | 09:24",
-    status: "paid",
-  },
-]
+import { useDeliveries } from "@/hooks/useLogistics"
 
 interface PaymentsTableProps {
   onViewDetails: (paymentId: string) => void
 }
 
 export function PaymentsTable({ onViewDetails }: PaymentsTableProps) {
+  const { data, isLoading } = useDeliveries("all");
+  const deliveries = data?.data || [];
+
   return (
     <Card>
       <CardHeader>
@@ -88,108 +33,130 @@ export function PaymentsTable({ onViewDetails }: PaymentsTableProps) {
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Order ID</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Payment ID</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Deliveries</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Amount</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Order Date</th>
+                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Customer</th>
+                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Earnings</th>
+                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Date</th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Status</th>
                 <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground"></th>
               </tr>
             </thead>
             <tbody>
-              {payments.map((payment) => (
-                <tr key={payment.orderId} className="border-b transition-colors hover:bg-muted/50">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                        M
+              {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Loading payment history...
+                    </td>
+                  </tr>
+              ) : deliveries.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No payment history found.
+                    </td>
+                  </tr>
+              ) : (
+                deliveries.map((delivery: any) => (
+                  <tr key={delivery._id} className="border-b transition-colors hover:bg-muted/50">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                          {(delivery.buyer_id?.firstName?.[0] || 'U').toUpperCase()}
+                        </div>
+                        <span className="font-medium">{delivery._id.substring(0, 8)}</span>
                       </div>
-                      <span className="font-medium">{payment.orderId}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 font-medium">{payment.paymentId}</td>
-                  <td className="p-4">{payment.deliveries}</td>
-                  <td className="p-4 font-medium">{payment.amount}</td>
-                  <td className="p-4 text-muted-foreground">{payment.orderDate}</td>
-                  <td className="p-4">
-                    {payment.status === "paid" ? (
-                      <Badge
-                        variant="outline"
-                        className="border-success/20 bg-success/10 text-success hover:bg-success/10"
+                    </td>
+                    <td className="p-4 font-medium">
+                      {delivery.buyer_id?.firstName} {delivery.buyer_id?.lastName}
+                    </td>
+                    <td className="p-4 font-medium">₦{delivery.delivery_fee?.toLocaleString() || "0"}</td>
+                    <td className="p-4 text-muted-foreground">
+                      {new Date(delivery.updatedAt).toLocaleDateString()}
+                    </td>
+                    <td className="p-4">
+                      {delivery.status === "delivered" ? (
+                        <Badge
+                          variant="outline"
+                          className="border-success/20 bg-success/10 text-success hover:bg-success/10"
+                        >
+                          <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-success" />
+                          Paid
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="border-warning/20 bg-warning/10 text-warning hover:bg-warning/10"
+                        >
+                          <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-warning" />
+                          Pending
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="p-4 text-right">
+                      <Button
+                        size="sm"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => onViewDetails && onViewDetails(delivery._id)}
                       >
-                        <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-success" />
-                        Paid
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="outline"
-                        className="border-warning/20 bg-warning/10 text-warning hover:bg-warning/10"
-                      >
-                        <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-warning" />
-                        Pending
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="p-4 text-right">
-                    <Button
-                      size="sm"
-                      className="bg-primary text-primary-foreground hover:bg-primary/90"
-                      onClick={() => onViewDetails(payment.paymentId)}
-                    >
-                      View Details
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+                        View Details
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Mobile Card View */}
         <div className="space-y-4 md:hidden">
-          {payments.map((payment) => (
-            <div key={payment.orderId} className="rounded-lg border bg-card p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                    M
+          {isLoading ? (
+             <div className="text-center py-4 text-muted-foreground">Loading payment history...</div>
+          ) : deliveries.length === 0 ? (
+             <div className="text-center py-4 text-muted-foreground">No payment history found.</div>
+          ) : (
+            deliveries.map((delivery: any) => (
+              <div key={delivery._id} className="rounded-lg border bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                      {(delivery.buyer_id?.firstName?.[0] || 'U').toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium">Order #{delivery._id.substring(0, 8)}</p>
+                      <p className="text-sm text-muted-foreground">{delivery.buyer_id?.firstName} {delivery.buyer_id?.lastName}</p>
+                    </div>
+                  </div>
+                  {delivery.status === "delivered" ? (
+                    <Badge variant="outline" className="border-success/20 bg-success/10 text-success">
+                      <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-success" />
+                      Paid
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-warning/20 bg-warning/10 text-warning">
+                      <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-warning" />
+                      Pending
+                    </Badge>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Amount</p>
+                    <p className="font-medium">₦{delivery.delivery_fee?.toLocaleString() || "0"}</p>
                   </div>
                   <div>
-                    <p className="font-medium">Order #{payment.orderId}</p>
-                    <p className="text-sm text-muted-foreground">{payment.paymentId}</p>
+                    <p className="text-muted-foreground">Date</p>
+                    <p className="font-medium">{new Date(delivery.updatedAt).toLocaleDateString()}</p>
                   </div>
                 </div>
-                {payment.status === "paid" ? (
-                  <Badge variant="outline" className="border-success/20 bg-success/10 text-success">
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-success" />
-                    Paid
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="border-warning/20 bg-warning/10 text-warning">
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-warning" />
-                    Pending
-                  </Badge>
-                )}
+                <Button
+                  size="sm"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={() => onViewDetails && onViewDetails(delivery._id)}
+                >
+                  View Details
+                </Button>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Amount</p>
-                  <p className="font-medium">{payment.amount}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Date</p>
-                  <p className="font-medium">{payment.orderDate}</p>
-                </div>
-              </div>
-              <Button
-                size="sm"
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={() => onViewDetails(payment.paymentId)}
-              >
-                View Details
-              </Button>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </CardContent>
     </Card>
