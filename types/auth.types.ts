@@ -1,6 +1,6 @@
 export interface ISessionData {
   userId: string;
-  role: string;
+  roles: string[];
   email: string;
   isVerified: boolean;
   accessToken: string;

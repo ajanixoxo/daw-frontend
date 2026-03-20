@@ -250,6 +250,7 @@ export function AddProductDrawer({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(weight)
 
     if (!name || !price || !quantity) return;
 

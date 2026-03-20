@@ -170,14 +170,20 @@ export function CooperativeSignupStep3() {
               ? "Seller onboarded and joined DAW cooperative."
               : "Account created and joined. Please verify your email with the OTP sent.",
           );
-          reset();
-          router.push(isLoggedIn ? "/sellers/shop" : "/otp?mode=signup");
-          // Sync roles AFTER navigation starts to prevent flash of "already member" card
-          if (isLoggedIn && res.data?.user) {
-            updateUser({ roles: res.data.user.roles });
-            queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
-            queryClient.invalidateQueries({ queryKey: ["my-shop"] });
+          
+          if (isLoggedIn) {
+            reset();
+            router.push("/sellers/shop");
+            if (res.data?.user) {
+              updateUser({ roles: res.data.user.roles });
+              queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
+              queryClient.invalidateQueries({ queryKey: ["profile"] });
+              queryClient.invalidateQueries({ queryKey: ["my-shop"] });
+            }
+          } else {
+            // Guest flow: redirect to OTP verification
+            // Don't reset() here to prevent parent re-render before navigation
+            window.location.href = "/otp?mode=signup";
           }
           return;
         }
@@ -252,8 +258,8 @@ export function CooperativeSignupStep3() {
         toast.success(
           "Account created and joined. Please verify your email with the OTP sent.",
         );
-        reset();
-        router.push("/otp?mode=signup");
+        // Don't reset() here to prevent parent re-render before navigation
+        window.location.href = "/otp?mode=signup";
         return;
       }
       setSubmitError(res.error ?? "Failed to join cooperative");

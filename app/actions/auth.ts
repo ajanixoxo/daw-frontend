@@ -30,7 +30,7 @@ export async function createServerSession(
   try {
     const cookieStore = await cookies();
 
-    console.log("Setting cookies for user:", data.userId, "role:", data.role, "isVerified:", data.isVerified);
+    console.log("Setting cookies for user:", data.userId, "role:", data.roles, "isVerified:", data.isVerified);
 
     cookieStore.set("userId", data.userId || "", {
       ...COOKIE_CONFIG,
@@ -42,7 +42,7 @@ export async function createServerSession(
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
-    cookieStore.set("role", data.role || "buyer", {
+    cookieStore.set("roles", JSON.stringify(data.roles || ["buyer"]), {
       ...COOKIE_CONFIG,
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
@@ -75,38 +75,29 @@ export async function getServerSession(): Promise<ISessionData | null> {
     const cookieStore = await cookies();
     const userId = cookieStore.get("userId")?.value;
     const email = cookieStore.get("email")?.value;
-    const role = cookieStore.get("role")?.value;
+    const rolesCookie = cookieStore.get("roles")?.value;
+    const roles: string[] = rolesCookie ? JSON.parse(rolesCookie) : ["buyer"];
     const isVerified = cookieStore.get("isVerified")?.value;
     const accessToken = cookieStore.get("accessToken")?.value;
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
-    console.log("Cookie values:", {
-      userId: !!userId,
-      email: !!email,
-      role: !!role,
-      isVerified: isVerified !== undefined,
-      accessToken: !!accessToken,
-      refreshToken: !!refreshToken,
-      isVerifiedValue: isVerified,
-      actualRole: role
-    });
+    console.log("Cookie values:", { userId: !!userId, email: !!email, roles, isVerified, accessToken: !!accessToken });
 
-
-    if (userId === undefined || email === undefined || role === undefined || accessToken === undefined || refreshToken === undefined || isVerified === undefined) {
-      console.log("Missing required cookie values - role:", role, "refreshToken:", refreshToken);
+    if (userId === undefined || email === undefined || accessToken === undefined || refreshToken === undefined || isVerified === undefined) {
+      console.log("Missing required cookie values - refreshToken:", refreshToken);
       return null;
     }
 
     const session = {
       userId,
       email,
-      role,
+      roles,
       isVerified: isVerified === "true",
       accessToken,
       refreshToken
     };
 
-    console.log("Session created successfully:", { userId: session.userId, email: session.email, role: session.role, isVerified: session.isVerified });
+    console.log("Session created successfully:", { userId: session.userId, email: session.email, roles: session.roles, isVerified: session.isVerified });
     return session;
   } catch (error) {
     console.error("Get session error:", error);
@@ -119,7 +110,7 @@ export async function destroyServerSession(): Promise<IActionResponse> {
     const cookieStore = await cookies();
     cookieStore.delete("userId");
     cookieStore.delete("email");
-    cookieStore.delete("role");
+    cookieStore.delete("roles");
     cookieStore.delete("isVerified");
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
@@ -160,7 +151,7 @@ export async function loginUser(
     const sessionData: ISessionData = {
       userId: user._id,
       email: user.email,
-      role: user.roles && user.roles.length > 0 ? user.roles[0] : "buyer",
+      roles: user.roles && user.roles.length > 0 ? user.roles : ["buyer"],
       isVerified: typeof token === "string" ? false : (user.isVerified ?? false),
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -216,7 +207,7 @@ export async function signupUser(
     const sessionData: ISessionData = {
       userId: user._id,
       email: user.email,
-      role: user.roles && user.roles.length > 0 ? user.roles[0] : "buyer",
+      roles: user.roles && user.roles.length > 0 ? user.roles : ["buyer"],
       isVerified: false,
       accessToken: token,
       refreshToken: "",
@@ -270,9 +261,9 @@ export async function verifyEmail(
       isVerified: true,
       accessToken: response.token?.accessToken || session.accessToken,
       refreshToken: response.token?.refreshToken || session.refreshToken || "",
-      role: (response.user?.roles && response.user.roles.length > 0)
-        ? response.user.roles[0]
-        : session.role,
+      roles: (response.user?.roles && response.user.roles.length > 0)
+        ? response.user.roles
+        : session.roles,
     };
     await createServerSession(updatedSession);
 
@@ -317,7 +308,7 @@ export async function verifyLoginOtp(
       isVerified: true,
       accessToken: response.token.accessToken,
       refreshToken: response.token.refreshToken,
-      role: response.user.roles && response.user.roles.length > 0 ? response.user.roles[0] : session.role,
+      roles: response.user.roles && response.user.roles.length > 0 ? response.user.roles : session?.roles || ["buyer"],
     };
 
     if (session) {
@@ -427,13 +418,14 @@ export async function refreshAccessToken(): Promise<IActionResponse<ISessionData
     // will re-set all cookies with fresh maxAge values.
     const userId = cookieStore.get("userId")?.value || "";
     const email = cookieStore.get("email")?.value || "";
-    const role = cookieStore.get("role")?.value || "buyer";
+    const rolesCookie = cookieStore.get("roles")?.value;
+    const roles: string[] = rolesCookie ? JSON.parse(rolesCookie) : ["buyer"];
     const isVerified = cookieStore.get("isVerified")?.value === "true";
 
     const updatedSessionData: ISessionData = {
       userId,
       email,
-      role,
+      roles,
       isVerified,
       accessToken: token.accessToken,
       refreshToken: token.refreshToken,
