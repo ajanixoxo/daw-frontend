@@ -9,17 +9,17 @@ import DocumentTextIcon from "@/components/icons/DocumentTextIcon";
 import ArrowUpIcon from "@/components/icons/ArrowUpIcon";
 import CardsIcon from "@/components/icons/CardsIcon";
 import ProfileTwoUserIcon from "@/components/icons/ProfileTwoUserIcon";
-import { useDashboardStats, usePendingCooperatives } from "@/hooks/useAdminDashboard";
+import { useDashboardStats, usePendingLoans } from "@/hooks/useAdminDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { getLedger } from "@/app/actions/wallet";
 import { ILedgerEntry } from "@/types/wallet.types";
 import { ActivityStatus } from "@/components/(dashboards)/admin-dashboard/dashboard/enums";
-import { ActivityItem as ActivityItemType } from "@/components/(dashboards)/admin-dashboard/dashboard/schema";
+import { ActivityItem as ActivityItemType, ApprovalItem } from "@/components/(dashboards)/admin-dashboard/dashboard/schema";
 
 export default function AdminDashboardPage() {
   const { data: statsData, isLoading: isLoadingStats } = useDashboardStats();
-  const { data: pendingCoopsData, isLoading: isLoadingPending } = usePendingCooperatives();
+  const { data: pendingLoansData, isLoading: isLoadingPending } = usePendingLoans();
   const [ledger, setLedger] = useState<ILedgerEntry[]>([]);
   const [isLoadingLedger, setIsLoadingLedger] = useState(true);
 
@@ -39,8 +39,17 @@ export default function AdminDashboardPage() {
     fetchLedger();
   }, []);
 
-  // Use API Pending Coops if available, else empty array
-  const pendingApprovals = pendingCoopsData || [];
+  // Use API Pending Loans if available, else empty array
+  const pendingApprovals = pendingLoansData || [];
+
+  const mappedApprovals: ApprovalItem[] = pendingApprovals.map((loan) => ({
+    id: loan._id,
+    type: "Loan" as any, 
+    name: loan.userId ? `${loan.userId.firstName} ${loan.userId.lastName}` : "Unknown User",
+    submittedBy: loan.cooperativeId ? loan.cooperativeId.name : "Independent",
+    orderDate: new Date(loan.createdAt),
+    description: `Loan Purpose: ${loan.purpose || loan.amount}`,
+  }));
 
   // Map ledger entries to activity items
   const recentActivities: ActivityItemType[] = ledger.slice(0, 5).map(item => ({
@@ -118,7 +127,7 @@ export default function AdminDashboardPage() {
               <Skeleton className="h-20 w-full" />
             </div>
           ) : (
-            <PendingApprovalsTable approvals={pendingApprovals as unknown as any} />
+            <PendingApprovalsTable approvals={mappedApprovals} />
           )}
         </div>
 

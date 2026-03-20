@@ -3,22 +3,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 
-const data = [
-  { month: "January", revenue: 195000 },
-  { month: "February", revenue: 280000 },
-  { month: "March", revenue: 290000 },
-  { month: "April", revenue: 160000 },
-  { month: "May", revenue: 240000 },
-  { month: "June", revenue: 155000 },
-  { month: "July", revenue: 235000 },
-  { month: "August", revenue: 285000 },
-  { month: "September", revenue: 310000 },
-  { month: "October", revenue: 305000 },
-  { month: "November", revenue: 275000 },
-  { month: "December", revenue: 340000 },
-]
+import { useLogisticsEarnings } from "@/hooks/useLogistics"
 
 export function EarningsChart() {
+  const { data: earningsData, isLoading } = useLogisticsEarnings()
+  
+  // Transform the dynamic backend array -> recharts structure 
+  const data = earningsData?.data?.monthlyChart?.map((item: any) => ({
+    month: item.month,
+    revenue: item.amount || 0
+  })) || [
+    { month: "No data", revenue: 0 }
+  ];
   return (
     <Card>
       <CardHeader>
@@ -26,8 +22,9 @@ export function EarningsChart() {
           <div className="space-y-1">
             <CardTitle className="text-xl font-semibold">TOTAL REVENUE</CardTitle>
             <div className="flex items-center gap-2">
-              <span className="text-3xl font-bold">$0</span>
-              <span className="text-sm text-destructive">(+42.6%) than last Year</span>
+              <span className="text-3xl font-bold">
+                ₦{earningsData?.data?.totalEarnings?.toLocaleString() || 0}
+              </span>
             </div>
           </div>
         </div>

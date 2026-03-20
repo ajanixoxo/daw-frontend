@@ -29,6 +29,7 @@ import { useAdminUsers } from "@/hooks/useAdminUsers";
 import { useDashboardStats } from "@/hooks/useAdminDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAuthStore } from "@/zustand/store";
 
 const ROLES = [
   { value: "buyer", label: "Buyer" },
@@ -65,6 +66,9 @@ export default function UserManagementPage() {
   });
   const { data: statsData, isLoading: isLoadingStats } = useDashboardStats();
 
+  const userRoles = useAuthStore((state) => state.user?.roles || []);
+  const isAdmin = userRoles.includes("admin");
+
   const users = usersData?.data || [];
   const pagination = usersData?.pagination || { total: 0, page: 1, pages: 1 };
 
@@ -93,7 +97,7 @@ export default function UserManagementPage() {
             Get an Overview of all users and activity here
           </p>
         </div>
-        <AddUserDrawer />
+        {isAdmin && <AddUserDrawer />}
       </div>
 
       {/* Stats Cards */}
@@ -105,7 +109,7 @@ export default function UserManagementPage() {
             <UserStatCard
               icon={<DocumentTextUserIcon width={13} height={13} color="#f10e7c" />}
               label="Total User"
-              value={formatNaira(statsData?.activeUsers.value || 0)}
+              value={statsData?.activeUsers.value || 0}
               subtitle={
                 <div className="flex items-center gap-1">
                   <ArrowUpIcon width={12} height={12} color="#12B76A" />
