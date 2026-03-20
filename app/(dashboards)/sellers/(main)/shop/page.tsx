@@ -24,13 +24,7 @@ import { useGetMyShop, useShopStats } from "@/hooks/useShop";
 import { useProductsByShop } from "@/hooks/useProducts";
 import { useSellerOrders } from "@/hooks/useSellerOrders";
 
-const topRegions = [
-  { rank: 1, name: "Nigeria", sales: "45 sales", revenue: "$1700.84" },
-  { rank: 2, name: "Belgium", sales: "45 sales", revenue: "$1700.84" },
-  { rank: 3, name: "Canada", sales: "45 sales", revenue: "$1700.84" },
-  { rank: 4, name: "South Africa", sales: "45 sales", revenue: "$1700.84" },
-  { rank: 5, name: "Mars", sales: "45 sales", revenue: "$1700.84" },
-];
+const topRegions: { rank: number; name: string; sales: string; revenue: string }[] = [];
 
 export default function ShopPage() {
   const router = useRouter();
@@ -342,36 +336,45 @@ export default function ShopPage() {
             </Button>
           </div>
           <div className="space-y-4">
-            {topRegions.map((region) => (
-              <div
-                key={region.rank}
-                className="flex items-center justify-between p-4 bg-[#F9FAFB] rounded-xl transition-all duration-300 hover:bg-white hover:shadow-[0px_4px_12px_rgba(16,24,40,0.06)]"
-              >
-                <div className="flex items-center gap-5">
-                  <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-[#F2F4F7] shadow-sm shrink-0">
-                    <span className="text-[14px] font-black text-[#101828]">
-                      #{region.rank}
-                    </span>
+            {topRegions.length > 0 ? (
+              topRegions.map((region) => (
+                <div
+                  key={region.rank}
+                  className="flex items-center justify-between p-4 bg-[#F9FAFB] rounded-xl transition-all duration-300 hover:bg-white hover:shadow-[0px_4px_12px_rgba(16,24,40,0.06)]"
+                >
+                  <div className="flex items-center gap-5">
+                    <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-[#F2F4F7] shadow-sm shrink-0">
+                      <span className="text-[14px] font-black text-[#101828]">
+                        #{region.rank}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-[15px] font-bold text-[#1D2939] leading-tight">
+                        {region.name}
+                      </p>
+                      <p className="text-[12px] font-semibold text-[#667185] mt-1">
+                        {region.sales}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[15px] font-bold text-[#1D2939] leading-tight">
-                      {region.name}
+                  <div className="text-right">
+                    <p className="text-[11px] text-[#98A2B3] uppercase tracking-[0.05em] font-bold leading-tight">
+                      Revenue
                     </p>
-                    <p className="text-[12px] font-semibold text-[#667185] mt-1">
-                      {region.sales}
+                    <p className="text-[15px] font-black text-[#101828] mt-1">
+                      {region.revenue}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-[11px] text-[#98A2B3] uppercase tracking-[0.05em] font-bold leading-tight">
-                    Revenue
-                  </p>
-                  <p className="text-[15px] font-black text-[#101828] mt-1">
-                    {region.revenue}
-                  </p>
-                </div>
+              ))
+            ) : (
+              <div className="py-12 text-center bg-[#F9FAFB] rounded-2xl border border-dashed border-[#EAECF0]">
+                <MapPin className="w-10 h-10 text-[#98A2B3] mx-auto mb-3" />
+                <p className="text-[14px] font-medium text-[#667085]">
+                  No top regions yet
+                </p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

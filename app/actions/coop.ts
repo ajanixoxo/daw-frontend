@@ -136,7 +136,7 @@ export async function cooperativeJoinWithSellerOnboard(
       await createServerSession({
         userId: data.user._id,
         email: data.user.email,
-        role: data.user.roles?.[0] || "buyer",
+        roles: data.user.roles || ["buyer"],
         isVerified: false,
         accessToken: data.token,
         refreshToken: "",
@@ -186,7 +186,7 @@ export async function guestJoinCooperative(data: {
       await createServerSession({
         userId: response.user._id,
         email: response.user.email,
-        role: response.user.roles?.[0] || "buyer",
+        roles: response.user.roles || ["buyer"],
         isVerified: false,
         accessToken: response.token,
         refreshToken: "",

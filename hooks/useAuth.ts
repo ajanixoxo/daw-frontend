@@ -50,13 +50,14 @@ export function useLogin(): UseLoginReturn {
             setAuthData(result.user, result.data);
           }
 
-          if (result.data.isVerified) {
+          // If we have tokens, we are authenticated - redirect to dashboard
+          if (result.data.accessToken && result.data.refreshToken) {
             // Check user role and redirect accordingly
             const userRoles = result.user?.roles || [];
-            const isSeller = userRoles.includes("seller") || result.data.role === "seller";
-            const isCooperativeAdmin = result.data.role === "cooperative_admin";
-            const isAdmin = result.data.role === "admin" || userRoles.includes("admin") || userRoles.includes("support-admin");
-            const isLogistics = result.data.role === "logistics_provider";
+            const isSeller = userRoles.includes("seller") || userRoles.includes("member");
+            const isCooperativeAdmin = userRoles.includes("cooperative_admin");
+            const isAdmin = userRoles.includes("admin") || userRoles.includes("support-admin");
+            const isLogistics = userRoles.includes("logistics_provider");
             
             if (isAdmin) {
               // Redirect admin to admin dashboard
@@ -107,7 +108,7 @@ export function useLogin(): UseLoginReturn {
               router.push("/");
             }
             router.refresh();
-          } else {
+          } else if (!result.data.isVerified) {
             router.push("/otp?mode=login");
           }
         }
@@ -231,8 +232,20 @@ export function useLogout(): UseLogoutReturn {
         resetSellerSignup();
         resetCooperativeSignup();
         
-        // Clear tokens from localStorage
-        tokenManager.clearTokens();
+        // Clear all storage
+        if (typeof window !== 'undefined') {
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          // Clear all cookies
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          }
+        }
 
         // Dispatch logout event for React Query cache clearing
         if (typeof window !== 'undefined') {
@@ -303,7 +316,7 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
             const partialUser = {
               _id: result.data.userId,
               email: result.data.email,
-              roles: [result.data.role],
+              roles: result.data.roles || ["buyer"],
               isVerified: true,
               status: "active",
               firstName: "",
@@ -314,10 +327,10 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           }
           
           // Check user role and redirect accordingly
-          const userRoles = result.user?.roles || [result.data.role];
-          const isSeller = userRoles.includes("seller") || result.data.role === "seller";
-          const isCooperativeAdmin = result.data.role === "cooperative_admin";
-          const isAdmin = result.data.role === "admin" || userRoles.includes("admin") || userRoles.includes("support-admin");
+          const userRoles = result.user?.roles || result.data.roles || ["buyer"];
+          const isSeller = userRoles.includes("seller") || userRoles.includes("member");
+          const isCooperativeAdmin = userRoles.includes("cooperative_admin");
+          const isAdmin = userRoles.includes("admin") || userRoles.includes("support-admin");
           
           if (isAdmin) {
             // Redirect admin to admin dashboard

@@ -69,6 +69,17 @@ export default function Header({ theme = "dark" }: HeaderProps) {
     ? "text-white"
     : "text-[#222]";
 
+  const dashboardLink = (() => {
+    const roles = (user as any)?.roles || [];
+    const role = (user as any)?.role || "";
+    console.log(user)
+    if (roles.includes("admin") || role === "admin") return "/admin/dashboard";
+    if (roles.includes("cooperative_admin") || role === "cooperative_admin") return "/cooperative/dashboard";
+    if (roles.includes("seller") || roles.includes("member") || role === "seller") return "/sellers/dashboard";
+    if (roles.includes("logistics_provider") || role === "logistics_provider") return "/logistics/dashboard";
+    return "/profile";
+  })();
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${
@@ -151,7 +162,7 @@ export default function Header({ theme = "dark" }: HeaderProps) {
 
               {/* Profile Icon */}
               <Link
-                href="/profile"
+                href={dashboardLink}
                 className="p-2 hover:bg-gray-100/10 rounded-full transition-colors"
               >
                 <User className={cn("w-6 h-6", iconColorClass)} />
@@ -280,7 +291,7 @@ export default function Header({ theme = "dark" }: HeaderProps) {
 
                 {/* Profile Link */}
                 <Link
-                  href="/profile"
+                  href={dashboardLink}
                   className="flex items-center gap-2 text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >

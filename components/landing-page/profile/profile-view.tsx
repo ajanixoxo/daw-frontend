@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, User } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 import { useProfile } from "@/hooks/useProfile";
@@ -77,9 +77,11 @@ export function ProfileView() {
               </div>
               <div>
                 <p className="text-sm text-[#6b6b6b] mb-1">Role</p>
-                <p className="font-medium text-[#1a1a1a] capitalize">
-                  {user.roles?.[0] || "Buyer"}
-                </p>
+                {user.roles.map(( role, index) => (
+                  <p key={index} className="font-medium text-[#1a1a1a] capitalize">
+                    {role}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
