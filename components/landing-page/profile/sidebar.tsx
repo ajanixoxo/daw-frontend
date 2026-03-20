@@ -25,15 +25,15 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const isSeller = 
     user?.roles?.includes("seller") || 
     user?.roles?.includes("vendor") ||
-    sessionData?.role === "seller" ||
-    sessionData?.role === "vendor"
+    sessionData?.roles?.includes("seller") ||
+    sessionData?.roles?.includes("vendor")
 
     
     const isMember =
       user?.roles?.includes("member") ||
       user?.roles?.includes("cooperative") ||
-      sessionData?.role === "member" ||
-      sessionData?.role === "cooperative";
+      sessionData?.roles?.includes("member") ||
+      sessionData?.roles?.includes("cooperative");
 
     return (
       <aside className="w-full lg:w-[280px]  lg:shrink-0">

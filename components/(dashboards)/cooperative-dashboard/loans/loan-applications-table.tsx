@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Search, SlidersHorizontal } from "lucide-react"
-import { getAllLoanApplications, approveLoanAction, rejectLoanAction, LoanRecord } from "@/app/actions/loans"
+import { getCooperativeLoans, updateLoanStatus } from "@/app/actions/loans"
+import { ILoanAdminRecord } from "@/types/loan.types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function LoanApplicationsTable() {
-  const [applications, setApplications] = useState<LoanRecord[]>([])
+  const [applications, setApplications] = useState<ILoanAdminRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -23,7 +24,7 @@ export function LoanApplicationsTable() {
   const fetchApplications = async () => {
     try {
       setLoading(true)
-      const result = await getAllLoanApplications()
+      const result = await getCooperativeLoans()
       if (result.success && result.data) {
         setApplications(result.data)
       } else {
@@ -39,12 +40,12 @@ export function LoanApplicationsTable() {
   useEffect(() => { fetchApplications() }, [])
 
   const handleApprove = async (id: string) => {
-    const result = await approveLoanAction(id)
+    const result = await updateLoanStatus(id, "approve")
     if (result.success) fetchApplications()
   }
 
   const handleReject = async (id: string) => {
-    const result = await rejectLoanAction(id)
+    const result = await updateLoanStatus(id, "reject")
     if (result.success) fetchApplications()
   }
 
@@ -161,9 +162,9 @@ export function LoanApplicationsTable() {
                       <div className="text-sm font-medium text-[#222222]">{app.member}</div>
                       <div className="text-xs text-[#838794]">{app.email}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#222222]">${app.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-[#222222]">{app.amount.toLocaleString()}</td>
                     <td className="px-6 py-4 text-sm text-[#676767]">{app.purpose || "N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-[#676767]">{app.category}</td>
+                    <td className="px-6 py-4 text-sm text-[#676767]">{app.loanProduct}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(app.status)}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${getStatusDot(app.status)}`} />
@@ -230,7 +231,7 @@ export function LoanApplicationsTable() {
               <div className="mb-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Amount:</span>
-                  <span className="text-[#222222]">${app.amount.toLocaleString()}</span>
+                  <span className="text-[#222222]">{app.amount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Purpose:</span>
@@ -238,7 +239,7 @@ export function LoanApplicationsTable() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Category:</span>
-                  <span className="text-[#222222]">{app.category}</span>
+                  <span className="text-[#222222]">{app.loanProduct}</span>
                 </div>
               </div>
               <div className="flex gap-2">

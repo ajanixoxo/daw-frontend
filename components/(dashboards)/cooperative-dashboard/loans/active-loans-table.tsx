@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Search, SlidersHorizontal } from "lucide-react"
-import { getActiveLoans, LoanRecord } from "@/app/actions/loans"
+import { getCooperativeLoans } from "@/app/actions/loans"
+import { ILoanAdminRecord } from "@/types/loan.types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function ActiveLoansTable() {
-  const [loans, setLoans] = useState<LoanRecord[]>([])
+  const [loans, setLoans] = useState<ILoanAdminRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -24,7 +25,7 @@ export function ActiveLoansTable() {
     const fetchLoans = async () => {
       try {
         setLoading(true)
-        const result = await getActiveLoans()
+        const result = await getCooperativeLoans()
         if (result.success && result.data) {
           setLoans(result.data)
         } else {
@@ -160,9 +161,9 @@ export function ActiveLoansTable() {
                   <tr key={loan._id} className="border-b border-[#e4e7ec] transition-colors hover:bg-[#f9f9f9]">
                     <td className="px-6 py-4 text-sm text-[#222222]">{loan._id.slice(-6).toUpperCase()}</td>
                     <td className="px-6 py-4 text-sm font-medium text-[#222222]">{loan.member}</td>
-                    <td className="px-6 py-4 text-sm text-[#676767]">{loan.category}</td>
-                    <td className="px-6 py-4 text-sm text-[#222222]">${loan.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-sm text-[#222222]">${loan.outstanding.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-[#676767]">{loan.loanProduct}</td>
+                    <td className="px-6 py-4 text-sm text-[#222222]">{loan.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-[#222222]">{loan.outstanding.toLocaleString()}</td>
                     <td className="px-6 py-4 text-sm text-[#676767]">{formatDate(loan.dueDate)}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(loan.status)}`}>
@@ -213,15 +214,15 @@ export function ActiveLoansTable() {
               <div className="mb-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Category:</span>
-                  <span className="text-[#222222]">{loan.category}</span>
+                  <span className="text-[#222222]">{loan.loanProduct}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Principal:</span>
-                  <span className="text-[#222222]">${loan.amount.toLocaleString()}</span>
+                  <span className="text-[#222222]">{loan.amount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Outstanding:</span>
-                  <span className="text-[#222222]">${loan.outstanding.toLocaleString()}</span>
+                  <span className="text-[#222222]">{loan.outstanding.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Due Date:</span>

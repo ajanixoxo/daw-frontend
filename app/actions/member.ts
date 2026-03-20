@@ -1,14 +1,15 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getFreshToken } from "@/app/actions/auth";
+import { getServerSession } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 export async function approveMember(
   memberId: string
 ): Promise<IActionResponse> {
   try {
-    const token = await getFreshToken();
+    const session = await getServerSession();
+    const token = session?.accessToken;
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -31,6 +32,27 @@ export async function approveMember(
     console.error("Approve member error:", error);
     const message =
       error instanceof Error ? error.message : "Failed to approve member";
+    return { success: false, error: message };
+  }
+}
+
+export async function getMyMemberProfile(): Promise<IActionResponse<any>> {
+  try {
+    const session = await getServerSession();
+    const token = session?.accessToken;
+
+    if (!token) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    const response = await apiClient.get<any>("/api/members/me", { token });
+
+    return {
+      success: true,
+      data: response,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch profile";
     return { success: false, error: message };
   }
 }

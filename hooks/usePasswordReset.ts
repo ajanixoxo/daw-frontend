@@ -15,8 +15,12 @@ export function useForgotPassword() {
       }
       return response;
     },
-    onSuccess: (data) => {
-      toast.success(data.message || 'OTP sent to your email');
+    onSuccess: (response) => {
+      toast.success(response.message || 'OTP sent to your email');
+      // Store token securely in sessionStorage for the next step
+      if (typeof window !== 'undefined' && response.data?.token) {
+        sessionStorage.setItem('reset_token', response.data.token);
+      }
       router.push('/reset-password');
     },
     onError: (error) => {
@@ -30,7 +34,13 @@ export function useResetPassword() {
 
   return useMutation({
     mutationFn: async (data: IResetPasswordRequest) => {
-      const response = await resetPassword(data);
+      const token = typeof window !== 'undefined' ? sessionStorage.getItem('reset_token') : null;
+      
+      if (!token) {
+        throw new Error('Reset session expired or invalid. Please request a new code.');
+      }
+
+      const response = await resetPassword(data, token);
       if (!response.success) {
         throw new Error(response.error);
       }
@@ -38,6 +48,9 @@ export function useResetPassword() {
     },
     onSuccess: (data) => {
       toast.success(data.message || 'Password reset successfully');
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('reset_token');
+      }
       router.push('/auth');
     },
     onError: (error) => {

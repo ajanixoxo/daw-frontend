@@ -135,8 +135,8 @@ export function LoanList({ memberId }: { memberId?: string }) {
       if (!memberId) return;
       try {
         setLoading(true);
-        const { getMemberLoans } = await import("@/app/actions/loans");
-        const result = await getMemberLoans(memberId);
+        const { getCooperativeLoans } = await import("@/app/actions/loans");
+        const result = await getCooperativeLoans();
         if (result.success && result.data) {
           setLoans(result.data);
         }

@@ -219,7 +219,7 @@ const SellerSignupStep2: FC = () => {
         await createServerSession({
           userId: data.user._id,
           email: data.user.email,
-          role: data.user.roles?.[0] || "seller",
+          roles: data.user.roles || ["seller"],
           isVerified: false,
           accessToken: data.token,
           refreshToken: "",

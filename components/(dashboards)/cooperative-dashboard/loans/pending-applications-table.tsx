@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
-import { getPendingApplications, approveLoanAction, rejectLoanAction, LoanRecord } from "@/app/actions/loans"
+import { getCooperativeLoans, updateLoanStatus } from "@/app/actions/loans"
+import { ILoanAdminRecord } from "@/types/loan.types"
 
 export function PendingApplicationsTable() {
-  const [applications, setApplications] = useState<LoanRecord[]>([])
+  const [applications, setApplications] = useState<ILoanAdminRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -13,7 +14,7 @@ export function PendingApplicationsTable() {
   const fetchPending = async () => {
     try {
       setLoading(true)
-      const result = await getPendingApplications()
+      const result = await getCooperativeLoans("pending")
       if (result.success && result.data) {
         setApplications(result.data)
       } else {
@@ -29,12 +30,12 @@ export function PendingApplicationsTable() {
   useEffect(() => { fetchPending() }, [])
 
   const handleApprove = async (id: string) => {
-    const result = await approveLoanAction(id)
+    const result = await updateLoanStatus(id, "approve")
     if (result.success) fetchPending()
   }
 
   const handleReject = async (id: string) => {
-    const result = await rejectLoanAction(id)
+    const result = await updateLoanStatus(id, "reject")
     if (result.success) fetchPending()
   }
 
@@ -104,9 +105,9 @@ export function PendingApplicationsTable() {
                       <div className="text-sm font-medium text-[#222222]">{app.member}</div>
                       <div className="text-xs text-[#838794]">{app.email}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#222222]">${app.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-[#222222]">{app.amount.toLocaleString()}</td>
                     <td className="px-6 py-4 text-sm text-[#676767]">{app.purpose || "N/A"}</td>
-                    <td className="px-6 py-4 text-sm text-[#676767]">{app.category}</td>
+                    <td className="px-6 py-4 text-sm text-[#676767]">{app.loanProduct}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button className="rounded-lg bg-[#f0f2f5] px-4 py-2 text-sm font-medium text-[#676767] transition-colors hover:bg-[#e4e7ec]">
@@ -165,7 +166,7 @@ export function PendingApplicationsTable() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#838794]">Category:</span>
-                  <span className="text-[#222222]">{app.category}</span>
+                  <span className="text-[#222222]">{app.loanProduct}</span>
                 </div>
               </div>
               <div className="flex gap-2">

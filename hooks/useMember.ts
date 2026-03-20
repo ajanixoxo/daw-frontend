@@ -1,8 +1,21 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { getMyMemberProfile } from "@/app/actions/member";
 import { fetchMember } from "@/app/actions/coop";
 import { IMember } from "@/types/auth.types";
 import { useState } from "react";
+
+export const useMember = () => {
+  return useQuery({
+    queryKey: ["my-member-profile"],
+    queryFn: async () => {
+      const response = await getMyMemberProfile();
+      if (!response.success) throw new Error(response.error);
+      return response.data;
+    }
+  });
+};
 
 export const useFetchMembers = () => {
   const [members, setMembers] = useState<IMember[]>([]);
@@ -15,7 +28,6 @@ export const useFetchMembers = () => {
       setError(null);
 
       const res = await fetchMember(cooperativeId);
-      console.log("fetch member ", res.data);
       if (!res.success) {
         setError(res.error || "Failed to fetch members");
         return;
