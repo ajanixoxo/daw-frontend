@@ -105,7 +105,7 @@ const SignUpForm: FC<SignUpFormProps> = ({ inviteData, inviteToken }) => {
         const userData = response.data.user;
         const sessionData = {
           userId: userData._id,
-          role: userData.roles[0] || "buyer",
+          roles: userData.roles || ["buyer"],
           email: userData.email,
           isVerified: userData.isVerified,
           accessToken: response.data.accessToken,

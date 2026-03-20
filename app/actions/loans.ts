@@ -7,7 +7,8 @@ import {
   ILoan, 
   ILoanProduct, 
   ILoanApplication, 
-  IEligibilityResponse 
+  IEligibilityResponse,
+  ILoanAdminRecord
 } from "@/types/loan.types";
 
 // ---------- Helper ----------
@@ -103,7 +104,7 @@ export async function getMyLoans(): Promise<IActionResponse<ILoan[]>> {
 
 // ---------- Administrative Flow ----------
 
-export async function getCooperativeLoans(status?: string): Promise<IActionResponse<ILoan[]>> {
+export async function getCooperativeLoans(status?: string): Promise<IActionResponse<ILoanAdminRecord[]>> {
   try {
     const session = await getServerSession();
     const token = session?.accessToken;
@@ -116,7 +117,7 @@ export async function getCooperativeLoans(status?: string): Promise<IActionRespo
       ? `/api/loans/cooperative/${cooperativeId}?status=${status}`
       : `/api/loans/cooperative/${cooperativeId}`;
 
-    const response = await apiClient.get<{ success: boolean; data: ILoan[] }>(
+    const response = await apiClient.get<{ success: boolean; data: ILoanAdminRecord[] }>(
       url,
       { token }
     );

@@ -78,3 +78,18 @@ export interface IEligibilityResponse {
   requestedAmount: number;
   tierName: string;
 }
+export interface ILoanAdminRecord {
+  _id: string;
+  member: string;
+  email: string;
+  loanProduct: string;
+  amount: number;
+  outstanding: number;
+  interestRate: number;
+  purpose: string;
+  durationMonths: number;
+  status: LoanStatus;
+  createdAt: string;
+  dueDate: string | null;
+  repayments: any[];
+}

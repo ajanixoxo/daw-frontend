@@ -22,6 +22,7 @@ export function CooperativeSignupStep2() {
           id: 1,
           name: "Basic Tier",
           price: "up to ₦1M",
+          contribution: "₦25,000 / month",
           features: [
             "Quick Cash ₦20K",
             "Gasoline ₦150K",
@@ -33,12 +34,14 @@ export function CooperativeSignupStep2() {
           id: 2,
           name: "Standard Tier",
           price: "up to ₦5M",
+          contribution: "₦30,000 / month",
           features: ["Business Expansion ₦3M", "Inventory ₦2M"],
         },
         {
           id: 3,
           name: "Premium Tier",
           price: "up to ₦10M",
+          contribution: "₦50,000 / month",
           features: ["Major Equipment ₦10M"],
         },
       ]
@@ -47,6 +50,7 @@ export function CooperativeSignupStep2() {
           id: 1,
           name: "Basic Tier",
           price: "up to $2,000",
+          contribution: "$50 / month",
           features: [
             "Quick Cash $40",
             "Gasoline $300",
@@ -58,12 +62,14 @@ export function CooperativeSignupStep2() {
           id: 2,
           name: "Standard Tier",
           price: "up to $6,000",
+          contribution: "$60 / month",
           features: ["Business Expansion $3,600", "Inventory $2,400"],
         },
         {
           id: 3,
           name: "Premium Tier",
           price: "up to $10,000",
+          contribution: "$100 / month",
           features: ["Major Equipment $10k"],
         },
       ];
@@ -105,6 +111,9 @@ export function CooperativeSignupStep2() {
                   </h3>
                   <p className="text-xl font-bold text-[#F10E7C]">
                     {tier.price}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Contribution: {tier.contribution}
                   </p>
                 </div>
                 {isSelected && (
