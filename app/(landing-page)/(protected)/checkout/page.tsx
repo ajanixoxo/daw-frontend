@@ -244,10 +244,12 @@ export default function CheckoutPage() {
       return;
     }
 
+    const combinedOrderId = orderData.orderIds?.join(",") || orderData.order._id;
+
     const billingPayload = {
-      description: `Checkout payment for order #${orderData.order._id}`,
+      description: `Checkout payment for order(s): ${combinedOrderId}`,
       name: formData.fullName,
-      orderId: orderData.order._id,
+      orderId: combinedOrderId,
       email: formData.email,
       phone: formData.phone,
       country: formData.country,

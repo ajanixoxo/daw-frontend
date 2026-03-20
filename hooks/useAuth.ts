@@ -50,13 +50,14 @@ export function useLogin(): UseLoginReturn {
             setAuthData(result.user, result.data);
           }
 
-          if (result.data.isVerified) {
+          // If we have tokens, we are authenticated - redirect to dashboard
+          if (result.data.accessToken && result.data.refreshToken) {
             // Check user role and redirect accordingly
             const userRoles = result.user?.roles || [];
             const isSeller = userRoles.includes("seller") || result.data.role === "seller";
             const isCooperativeAdmin = result.data.role === "cooperative_admin";
             const isAdmin = result.data.role === "admin" || userRoles.includes("admin") || userRoles.includes("support-admin");
-            const isLogistics = result.data.role === "logistics_provider";
+            const isLogistics = result.data.role === "logistics_provider" || userRoles.includes("logistics_provider");
             
             if (isAdmin) {
               // Redirect admin to admin dashboard
@@ -107,7 +108,7 @@ export function useLogin(): UseLoginReturn {
               router.push("/");
             }
             router.refresh();
-          } else {
+          } else if (!result.data.isVerified) {
             router.push("/otp?mode=login");
           }
         }

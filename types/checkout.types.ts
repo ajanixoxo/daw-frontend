@@ -20,6 +20,8 @@ export interface IPlaceOrderResponse {
     updatedAt: string;
     __v: number;
   };
+  orders: any[]; // Support for multiple shop orders
+  orderIds: string[]; // List of all order IDs
   orderItems: {
     order_id: string;
     product_id: string;

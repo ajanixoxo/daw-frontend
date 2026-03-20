@@ -7,12 +7,12 @@ export function middleware(request: NextRequest) {
   // Define protected routes
   const protectedRoutes = [
     "/profile",
-    // /cart is intentionally public — guests can view and manage their cart.
-    // They are prompted to sign up only when they try to proceed to checkout.
     "/checkout",
     "/payment",
     "/cooperative", // Cooperative dashboard routes
     "/admin", // Admin dashboard routes
+    "/logistics",
+    "/shop-manager"
   ];
 
   // Public exceptions: routes under protected prefixes that guests can access
