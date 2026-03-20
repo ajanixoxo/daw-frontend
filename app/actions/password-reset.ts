@@ -13,26 +13,18 @@ import {
 
 export async function forgotPassword(
   data: IForgotPasswordRequest
-): Promise<IActionResponse> {
+): Promise<IActionResponse<IForgotPasswordResponse>> {
   try {
     const response = await apiClient.post<IForgotPasswordResponse>(
       API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
       data
     );
 
-
-    const sessionData: ISessionData = {
-      userId: "", // Not available yet
-      email: data.email,
-      role: "buyer", // Default role
-      isVerified: false,
-      accessToken: response.token,
-      refreshToken: "",
+    return { 
+      success: true, 
+      message: response.message,
+      data: response 
     };
-
-    await createServerSession(sessionData);
-
-    return { success: true, message: response.message };
   } catch (error) {
     console.error("Forgot password error:", error);
     const message = error instanceof Error ? error.message : "Failed to process forgot password request";
@@ -41,13 +33,12 @@ export async function forgotPassword(
 }
 
 export async function resetPassword(
-  data: IResetPasswordRequest
+  data: IResetPasswordRequest,
+  token: string
 ): Promise<IActionResponse> {
   try {
-    const token = await getFreshToken();
-
     if (!token) {
-      return { success: false, error: "Session expired. Please try again." };
+      return { success: false, error: "Reset token is missing. Please try again." };
     }
 
     const response = await apiClient.post<IResetPasswordResponse>(
@@ -55,9 +46,6 @@ export async function resetPassword(
       data,
       { token }
     );
-
-   
-    await destroyServerSession();
 
     return { success: true, message: response.message };
   } catch (error) {
