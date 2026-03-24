@@ -67,6 +67,7 @@ export async function updateUserProfile(data: {
   phone?: string;
   country?: string;
   currency?: string;
+  isLoginOtpEnabled?: boolean;
 }): Promise<IActionResponse<{ message: string; user: IUser }>> {
   try {
     const token = await getFreshToken();

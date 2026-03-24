@@ -57,6 +57,7 @@ export interface IUser {
   kyc_status?: string;
   roles: string[];
   status?: string;
+  isLoginOtpEnabled?: boolean;
   shop?: any[];
   member?: any[];
   createdAt?: string;
@@ -91,6 +92,7 @@ export interface ILoginResponse {
     accessToken: string;
     refreshToken: string;
   } | string;
+  isOtpRequired?: boolean;
 }
 
 export interface ISignupResponse {
