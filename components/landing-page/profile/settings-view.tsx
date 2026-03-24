@@ -19,6 +19,7 @@ export function SettingsView() {
     phone: "",
     country: "",
     currency: "",
+    isLoginOtpEnabled: false,
   });
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export function SettingsView() {
         phone: user.phone || "",
         country: user.country || "",
         currency: user.currency || "",
+        isLoginOtpEnabled: user.isLoginOtpEnabled || false,
       });
     }
   }, [user]);
@@ -46,6 +48,7 @@ export function SettingsView() {
         phone: cleanPhone,
         country: accountForm.country,
         currency: accountForm.currency,
+        isLoginOtpEnabled: accountForm.isLoginOtpEnabled,
       });
 
       if (res.success) {
