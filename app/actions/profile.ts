@@ -68,6 +68,16 @@ export async function updateUserProfile(data: {
   country?: string;
   currency?: string;
   isLoginOtpEnabled?: boolean;
+  billingAddress?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    streetAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }): Promise<IActionResponse<{ message: string; user: IUser }>> {
   try {
     const token = await getFreshToken();

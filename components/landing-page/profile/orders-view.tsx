@@ -43,14 +43,13 @@ export function OrdersView({ onViewDetails, onTrack }: OrdersViewProps) {
     // Filter by search query (search by ID or shop name)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      return (
-        order._id.toLowerCase().includes(query) ||
-        order.shop_id.name.toLowerCase().includes(query)
-      );
+      const orderIdMatch = order._id?.toLowerCase().includes(query) || false;
+      const shopNameMatch = order.shop_id?.name?.toLowerCase().includes(query) || false;
+      return orderIdMatch || shopNameMatch;
     }
 
     return true;
-  });
+  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (isLoading) {
     return (
@@ -143,28 +142,32 @@ function OrderCard({ order, onViewDetails, onTrack }: OrderCardProps) {
       <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
         {/* Product Image - Placeholder or Shop Logo/Banner */}
         <div className="w-full sm:w-[200px] h-[140px] rounded-xl overflow-hidden bg-[#f5f5f5] shrink-0 relative">
-          {/* <Image
+          <Image
             src={
-              order.shop_id.banner_url ||
-              order.shop_id.logo_url ||
+              order.items?.[0]?.product_image ||
+              order.shop_id?.logo_url ||
               "/placeholder.svg"
             }
-            alt={order.shop_id.name}
+            alt={order.items?.[0]?.product_name || order.shop_id?.name || "Order Image"}
             fill
             className="object-cover"
-          /> */}
+          />
         </div>
 
         {/* Order Info */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 text-sm text-[#6b6b6b] mb-1">
-            <span>{format(new Date(order.createdAt), "MMM dd, yyyy")}</span>
+            <span>
+              {order.createdAt
+                ? format(new Date(order.createdAt), "MMM dd, yyyy")
+                : "N/A"}
+            </span>
           </div>
           <h3 className="text-lg font-semibold text-[#1a1a1a] mb-2">
-            Order #{order._id.slice(-6).toUpperCase()}
+            Order #{order._id ? order._id.slice(-6).toUpperCase() : "UNKNOWN"}
           </h3>
           <p className="text-sm text-[#6b6b6b] mb-2">
-            Shop: {order.shop_id.name}
+            Shop: {order.shop_id?.name || "Unknown Shop"}
           </p>
           <div className="flex items-center gap-1">
             <span className="text-[#f10e7c] font-semibold">

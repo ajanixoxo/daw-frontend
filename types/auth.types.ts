@@ -65,6 +65,16 @@ export interface IUser {
   avatar?: string;
   country?: string;
   currency?: string;
+  billingAddress?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    streetAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }
 
 
