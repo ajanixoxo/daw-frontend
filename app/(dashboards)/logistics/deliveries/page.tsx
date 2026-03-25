@@ -3,11 +3,12 @@
 import { useState } from "react"
 import { DeliveryTabs } from "@/components/(dashboards)/logistics-dashboard/deliveries/delivery-tabs"
 import { AllDeliveriesView } from "@/components/(dashboards)/logistics-dashboard/deliveries/all-deliveries-view"
+import { NewDeliveriesView } from "@/components/(dashboards)/logistics-dashboard/deliveries/new-deliveries-view"
 import { ActiveDeliveriesView } from "@/components/(dashboards)/logistics-dashboard/deliveries/active-deliveries-view"
 import { CompletedDeliveriesView } from "@/components/(dashboards)/logistics-dashboard/deliveries/completed-deliveries-view"
 
 export default function DeliveriesPage() {
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "completed">("all")
+  const [activeTab, setActiveTab] = useState<"all" | "new" | "active" | "completed">("all")
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
@@ -24,6 +25,7 @@ export default function DeliveriesPage() {
         {/* Tab Content */}
         <div className="mt-6">
           {activeTab === "all" && <AllDeliveriesView />}
+          {activeTab === "new" && <NewDeliveriesView />}
           {activeTab === "active" && <ActiveDeliveriesView />}
           {activeTab === "completed" && <CompletedDeliveriesView />}
         </div>

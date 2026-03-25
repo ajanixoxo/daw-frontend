@@ -1,13 +1,13 @@
 "use client"
 
 interface DeliveryTabsProps {
-  activeTab: "all" | "active" | "completed"
-  onTabChange: (tab: "all" | "active" | "completed") => void
+  activeTab: "all" | "new" | "active" | "completed"
+  onTabChange: (tab: "all" | "new" | "active" | "completed") => void
 }
 
 export function DeliveryTabs({ activeTab, onTabChange }: DeliveryTabsProps) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
       <button
         onClick={() => onTabChange("all")}
         className={`rounded-lg px-6 py-3 text-center text-sm font-medium transition-all ${
@@ -17,6 +17,16 @@ export function DeliveryTabs({ activeTab, onTabChange }: DeliveryTabsProps) {
         }`}
       >
         All Deliveries
+      </button>
+      <button
+        onClick={() => onTabChange("new")}
+        className={`rounded-lg px-6 py-3 text-center text-sm font-medium transition-all ${
+          activeTab === "new"
+            ? "bg-primary text-primary-foreground shadow-md"
+            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+        }`}
+      >
+        New Orders
       </button>
       <button
         onClick={() => onTabChange("active")}

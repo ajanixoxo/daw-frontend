@@ -94,10 +94,12 @@ export function AllDeliveriesView() {
                       className={
                         delivery.status === "delivered"
                           ? "bg-[#d1fae5] text-[#065f46] hover:bg-[#d1fae5]"
+                          : delivery.status === "processing"
+                          ? "bg-[#fb923c] text-white hover:bg-[#fb923c]"
                           : "bg-[#fed7aa] text-[#9a3412] hover:bg-[#fed7aa]"
                       }
                     >
-                      <span className="capitalize">{delivery.status.replace("_", " ")}</span>
+                      <span className="capitalize">{delivery.status === "processing" ? "New" : delivery.status.replace("_", " ")}</span>
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
@@ -143,10 +145,12 @@ export function AllDeliveriesView() {
                 className={
                   delivery.status === "delivered"
                     ? "bg-[#d1fae5] text-[#065f46] hover:bg-[#d1fae5]"
+                    : delivery.status === "processing"
+                    ? "bg-[#fb923c] text-white hover:bg-[#fb923c]"
                     : "bg-[#fed7aa] text-[#9a3412] hover:bg-[#fed7aa]"
                 }
               >
-                <span className="capitalize">{delivery.status.replace("_", " ")}</span>
+                <span className="capitalize">{delivery.status === "processing" ? "New" : delivery.status.replace("_", " ")}</span>
               </Badge>
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
