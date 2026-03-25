@@ -101,7 +101,7 @@ export function FeaturedShops() {
                   </h3>
                   <span className="text-[#f10e7c] text-xs font-medium whitespace-nowrap">
                     {/* TODO: Add product count to shop API response */}
-                    45 products
+                   {shop.productCount}
                   </span>
                 </div>
 

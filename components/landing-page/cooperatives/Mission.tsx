@@ -27,7 +27,7 @@ export default function Mission() {
             </h1>
             <div className="flex flex-col gap-6 max-w-[900px] items-center">
               <p className="text-[#222222] text-lg lg:text-[20px] font-light leading-relaxed tracking-tight max-w-[800px]">
-                The Digital African Woman (DAW) cooperatives empowers African
+                The Digital African Women (DAW) cooperatives empowers African
                 women entrepreneurs by providing the access, resources, and
                 support needed to scale their businesses efficiently.
               </p>
@@ -82,9 +82,8 @@ export default function Mission() {
                   style={{
                     background:
                       // "linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0))",
-                        "linear-gradient(180deg, #FFFFFF 100%, rgba(255, 255, 255, 0.9) 100%, rgba(255, 255, 255, 0.00) 100%)",
+                      "linear-gradient(180deg, #FFFFFF 100%, rgba(255, 255, 255, 0.9) 100%, rgba(255, 255, 255, 0.00) 100%)",
                     filter: "blur(40px)",
-
                   }}
                 ></div>
                 <div className="relative z-10 p-8 lg:p-[32px_40px] flex flex-col gap-1">
@@ -113,9 +112,8 @@ export default function Mission() {
                   style={{
                     background:
                       // "linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0))",
-                        "linear-gradient(180deg, #222222 20.91%, rgba(34, 34, 34, 1) 42.11%, rgba(34, 34, 34, 1) 65%)",
+                      "linear-gradient(180deg, #222222 20.91%, rgba(34, 34, 34, 1) 42.11%, rgba(34, 34, 34, 1) 65%)",
                     filter: "blur(40px)",
-
                   }}
                 ></div>
                 <div className="relative z-10 p-8 lg:p-[32px_40px] flex flex-col gap-1">
