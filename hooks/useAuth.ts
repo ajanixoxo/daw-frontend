@@ -79,27 +79,17 @@ export function useLogin(): UseLoginReturn {
                     // User has shops, redirect to dashboard
                     router.push("/sellers/dashboard");
                   } else {
-                    // User has no shops, check KYC status
-                    const isKycVerified = 
-                      user.kyc_status === "verified" || 
-                      (user as any).kycVerified === true;
-                    
-                    if (!isKycVerified) {
-                      // Redirect to KYC page if not verified
-                      router.push("/sellers/kyc");
-                    } else {
-                      // KYC verified but no shops, redirect to create shop
-                      router.push("/sellers/shop/create");
-                    }
+                    // Bypass KYC check, redirect directly to create shop
+                    router.push("/sellers/shop/create");
                   }
                 } else {
-                  // If profile fetch fails, redirect to KYC to be safe
-                  router.push("/sellers/kyc");
+                  // If profile fetch fails, redirect to dashboard to be safe
+                  router.push("/sellers/dashboard");
                 }
               } catch (error) {
                 console.error("Error checking profile:", error);
-                // On error, redirect to KYC page
-                router.push("/sellers/kyc");
+                // On error, redirect to dashboard
+                router.push("/sellers/dashboard");
               }
             } else if (isLogistics) {
               // Redirect logistics provider to logistics dashboard
@@ -358,29 +348,8 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
                   // User has shops, redirect to dashboard
                   redirectPath = "/sellers/dashboard";
                 } else {
-                  // User has no shops, check KYC status
-                  // First try from result.user, then use profile data
-                  const userFromResult = result.user as any;
-                  let isKycVerified = false;
-                  
-                  if (userFromResult?.kyc_status === "verified" || userFromResult?.kycVerified === true) {
-                    isKycVerified = true;
-                  } else if (userFromResult?.kyc_status || userFromResult?.kycVerified === false) {
-                    isKycVerified = false;
-                  } else {
-                    // Use profile data for KYC status
-                    isKycVerified = 
-                      user.kyc_status === "verified" || 
-                      (user as any).kycVerified === true;
-                  }
-                  
-                  if (!isKycVerified) {
-                    // Redirect to KYC page if not verified
-                    redirectPath = "/sellers/kyc";
-                  } else {
-                    // KYC verified but no shops, redirect to create shop
-                    redirectPath = "/sellers/shop/create";
-                  }
+                  // Bypass KYC check, redirect directly to create shop
+                  redirectPath = "/sellers/shop/create";
                 }
               }
               
@@ -389,9 +358,9 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
               window.location.href = redirectPath;
             } catch (error) {
               console.error("Error checking profile:", error);
-              // On error, redirect to KYC page
+              // On error, redirect to dashboard
               setIsLoading(false);
-              window.location.href = "/sellers/kyc";
+              window.location.href = "/sellers/dashboard";
             }
           } else {
             // For standard buyers — check if they had a pending guest checkout
