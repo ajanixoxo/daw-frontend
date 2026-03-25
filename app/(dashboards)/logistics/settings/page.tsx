@@ -31,6 +31,8 @@ export default function SettingsPage() {
     phone: user?.phone || "",
     timezone: "West Africa Time (WAT)",
   })
+  const [isUpdating2FA, setIsUpdating2FA] = useState(false)
+  const [isLoginOtpEnabled, setIsLoginOtpEnabled] = useState(user?.isLoginOtpEnabled || false)
 
   // Sync state if user loads after mount
   useEffect(() => {
@@ -42,6 +44,9 @@ export default function SettingsPage() {
         email: user.email || prev.email,
         phone: user.phone || prev.phone,
       }))
+      if (user.isLoginOtpEnabled !== undefined) {
+        setIsLoginOtpEnabled(user.isLoginOtpEnabled)
+      }
     }
   }, [user])
 
@@ -105,6 +110,26 @@ export default function SettingsPage() {
       toast.error("An error occurred while updating the profile")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleEmailAuthChange = async (checked: boolean) => {
+    setIsUpdating2FA(true)
+    const prev = isLoginOtpEnabled
+    setIsLoginOtpEnabled(checked) // Optimistic update
+    try {
+      const result = await updateUserProfile({ isLoginOtpEnabled: checked })
+      if (result.success) {
+        toast.success(checked ? "Email Authentication enabled" : "Email Authentication disabled")
+      } else {
+        setIsLoginOtpEnabled(prev)
+        toast.error(result.error || "Failed to update 2FA settings")
+      }
+    } catch {
+      setIsLoginOtpEnabled(prev)
+      toast.error("An error occurred")
+    } finally {
+      setIsUpdating2FA(false)
     }
   }
 
@@ -249,6 +274,30 @@ export default function SettingsPage() {
                       <Calendar className="h-4 w-4" />
                       <span>Joined active session</span>
                     </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Settings */}
+            <Card>
+              <CardContent className="p-6 md:p-8">
+                <h2 className="mb-6 text-xl font-bold text-foreground">Security Settings</h2>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card p-6">
+                    <div>
+                      <h3 className="font-semibold text-foreground">Email Authentication (2FA)</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Receive login OTP codes securely via your email address.
+                      </p>
+                    </div>
+                    <Switch
+                      disabled={isUpdating2FA}
+                      checked={isLoginOtpEnabled}
+                      onCheckedChange={handleEmailAuthChange}
+                      className="data-[state=checked]:bg-[#f10e7c]"
+                    />
                   </div>
                 </div>
               </CardContent>

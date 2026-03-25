@@ -76,7 +76,7 @@ export async function updateUserProfile(data: {
       return { success: false, error: "Please login" };
     }
 
-    const response = await apiClient.patch<{
+    const response = await apiClient.put<{
       success: boolean;
       message: string;
       user: IUser;

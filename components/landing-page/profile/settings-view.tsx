@@ -7,6 +7,7 @@ import { updateUserProfile } from "@/app/actions/profile";
 import { toast } from "sonner";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { Switch } from "@/components/ui/switch";
 
 export function SettingsView() {
   const { data: user, isLoading: profileLoading } = useProfile();
@@ -187,6 +188,24 @@ export function SettingsView() {
               className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] outline-none opacity-70 cursor-not-allowed"
             />
           </div>
+        </div>
+
+        <div className="mt-6 p-4 rounded-xl border border-[#e7e8e9] bg-[#fdfdfd] flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-[15px] font-bold text-[#1a1a1a]">
+              Email Authentication (2FA)
+            </h3>
+            <p className="text-[13px] text-[#6b6b6b]">
+              Receive a secure OTP code via email each time you log in.
+            </p>
+          </div>
+          <Switch
+            checked={accountForm.isLoginOtpEnabled}
+            onCheckedChange={(checked) =>
+              setAccountForm({ ...accountForm, isLoginOtpEnabled: checked })
+            }
+            className="data-[state=checked]:bg-[#ec008c]"
+          />
         </div>
 
         <button

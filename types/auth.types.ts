@@ -87,7 +87,7 @@ export interface ISignupRequest {
 
 export interface ILoginResponse {
   message: string;
-  user: IUser;
+  user?: IUser;
   token: {
     accessToken: string;
     refreshToken: string;
