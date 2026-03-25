@@ -31,6 +31,8 @@ export default function Header({ theme = "dark" }: HeaderProps) {
   // Use Zustand store for auth state
   const { isAuthenticated, isVerified, user } = useAuthStore();
   const { logout, isLoading: isLoggingOut } = useLogout();
+  const cartItemCount = useCartItemCount();
+
 
   // Determine if user is fully authenticated
   const isFullyAuthenticated = isAuthenticated && isVerified;
@@ -282,9 +284,9 @@ export default function Header({ theme = "dark" }: HeaderProps) {
                 >
                   <ShoppingCart className="w-5 h-5" />
                   Cart
-                  {useCartItemCount() > 0 && (
+                  {cartItemCount > 0 && (
                     <span className="ml-auto bg-[#F10E7C] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {useCartItemCount()}
+                      {cartItemCount}
                     </span>
                   )}
                 </Link>

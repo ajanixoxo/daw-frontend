@@ -62,22 +62,26 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
 
       <div className="bg-white rounded-2xl border border-[#e7e8e9] p-4 md:p-5">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-          <div className="w-16 h-14 rounded-lg overflow-hidden bg-[#f5f5f5] shrink-0 relative">
-            {/* <Image
-              src={order.shop_id.logo_url || "/placeholder.svg"}
-              alt={order.shop_id.name}
+          <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#f5f5f5] shrink-0 relative border border-[#e7e8e9]">
+            <Image
+              src={
+                order.items?.[0]?.product_image ||
+                order.shop_id?.logo_url ||
+                "/placeholder.svg"
+              }
+              alt={order.items?.[0]?.product_name || order.shop_id?.name || "Order Image"}
               fill
               className="object-cover"
-            /> */}
+            />
           </div>
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
               <div>
                 <h3 className="font-semibold text-[#1a1a1a]">
-                  {order.shop_id.name}
+                  {order.items?.[0]?.product_name || order.shop_id?.name}
                 </h3>
                 <p className="text-sm text-[#6b6b6b]">
-                  {order.shop_id.category}
+                  {order.items?.[0]?.product_description || order.shop_id?.category}
                 </p>
               </div>
               <div className="flex flex-col items-start sm:items-end gap-1">

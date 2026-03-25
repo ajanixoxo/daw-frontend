@@ -69,11 +69,13 @@ export function OrderDetailsView({
               Order Details
             </h1>
             <p className="text-[#6b6b6b] text-sm mt-1">
-              Order #{order._id.slice(-6).toUpperCase()}
+              Order #{order._id ? order._id.slice(-6).toUpperCase() : "UNKNOWN"}
             </p>
             <p className="text-[#6b6b6b] text-xs">
               Placed on{" "}
-              {format(new Date(order.createdAt), "MMM dd, yyyy 'at' h:mm a")}
+              {order.createdAt
+                ? format(new Date(order.createdAt), "MMM dd, yyyy 'at' h:mm a")
+                : "N/A"}
             </p>
           </div>
         </div>
@@ -90,24 +92,55 @@ export function OrderDetailsView({
         </span>
       </div>
 
-      {/* Products Card - Placeholder since items are missing in provided response structure */}
+      {/* Order Items */}
       <div className="bg-white rounded-2xl border border-[#e7e8e9] p-5 md:p-6">
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="font-semibold text-[#1a1a1a]">Shop Info</h2>
+        <h2 className="font-semibold text-[#1a1a1a] mb-5">Order Items</h2>
+        <div className="space-y-4">
+          {order.items?.map((item) => (
+            <div key={item._id} className="flex gap-4 p-3 bg-[#f9f9f9] rounded-xl border border-[#e7e8e9]">
+              <div className="w-20 h-20 rounded-lg overflow-hidden relative shrink-0 bg-white">
+                <Image
+                  src={item.product_image || "/placeholder.svg"}
+                  alt={item.product_name || "Product"}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-[#1a1a1a] truncate">{item.product_name || "Unknown Product"}</h4>
+                <p className="text-sm text-[#6b6b6b] line-clamp-1">{item.product_description || ""}</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm font-semibold text-[#f10e7c]">
+                    ₦{(item.price_at_purchase || 0).toLocaleString()} x {item.quantity || 0}
+                  </span>
+                  <span className="text-sm font-bold text-[#1a1a1a]">
+                    ₦{((item.price_at_purchase || 0) * (item.quantity || 0)).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 relative">
-            {/* <Image
-              src={order.shop_id.logo_url || "/placeholder.svg"}
-              alt={order.shop_id.name}
-              fill
-              className="object-cover"
-            /> */}
+        {/* Shop Info Footer */}
+        <div className="mt-6 pt-6 border-t border-[#e7e8e9] flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 relative shrink-0">
+            {order.shop_id?.logo_url ? (
+              <Image
+                src={order.shop_id.logo_url}
+                alt={order.shop_id.name || "Shop Logo"}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-[#fce4ec] text-[#f10e7c] text-xs font-bold">
+                {order.shop_id?.name?.charAt(0) || "S"}
+              </div>
+            )}
           </div>
           <div>
-            <h3 className="font-medium text-lg">{order.shop_id.name}</h3>
-            <p className="text-sm text-gray-500">{order.shop_id.category}</p>
+            <p className="text-xs text-[#6b6b6b]">Sold by</p>
+            <h3 className="text-sm font-medium text-[#1a1a1a]">{order.shop_id?.name || "Unknown Shop"}</h3>
           </div>
         </div>
 
@@ -116,18 +149,15 @@ export function OrderDetailsView({
           <h3 className="font-semibold text-[#1a1a1a] mb-4">Order Summary</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-[#0891b2] text-sm">Total Amount</span>
+              <span className="text-[#6b6b6b] text-sm">Total Amount</span>
               <span className="font-semibold text-[#f10e7c]">
-                ₦
-                {order.total_amount.toLocaleString("en-NG", {
-                  minimumFractionDigits: 2,
-                })}
+                ₦{(order.total_amount || 0).toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#0891b2] text-sm">Payment Status</span>
+              <span className="text-[#6b6b6b] text-sm">Payment Status</span>
               <span className="text-[#1a1a1a] text-sm capitalize">
-                {order.payment_status}
+                {order.payment_status || "N/A"}
               </span>
             </div>
           </div>
@@ -153,8 +183,8 @@ export function OrderDetailsView({
               icon="box"
               status="completed"
               title="Order Placed"
-              date={format(new Date(order.createdAt), "MMM dd, yyyy")}
-              time={format(new Date(order.createdAt), "h:mm a")}
+              date={order.createdAt ? format(new Date(order.createdAt), "MMM dd, yyyy") : ""}
+              time={order.createdAt ? format(new Date(order.createdAt), "h:mm a") : ""}
             />
             <TimelineItem
               icon="processing"
@@ -191,12 +221,12 @@ export function OrderDetailsView({
           <div className="space-y-4">
             <div>
               <p className="text-xs text-[#6b6b6b] mb-0.5">Order ID</p>
-              <p className="font-semibold text-[#1a1a1a]">{order._id}</p>
+              <p className="font-semibold text-[#1a1a1a]">{order._id || "N/A"}</p>
             </div>
             <div>
               <p className="text-xs text-[#6b6b6b] mb-0.5">Shop</p>
               <p className="font-semibold text-[#1a1a1a]">
-                {order.shop_id.name}
+                {order.shop_id?.name || "Unknown Shop"}
               </p>
             </div>
           </div>

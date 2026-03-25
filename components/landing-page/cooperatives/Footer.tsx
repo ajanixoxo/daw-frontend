@@ -1,18 +1,49 @@
+"use client";
+
+import { useState } from "react";
+import { subscribeToNewsletter } from "@/app/actions/newsletter";
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setStatus("loading");
+    const result = await subscribeToNewsletter(email);
+    
+    if (result.success) {
+      setStatus("success");
+      setMessage(result.message);
+      setEmail("");
+    } else {
+      setStatus("error");
+      setMessage(result.message);
+    }
+  };
+
   const navigation = {
     column1: [
-      { name: "Home", href: "#" },
-      { name: "Marketplace", href: "#" },
-      { name: "Masterclass", href: "#" },
-      { name: "Community", href: "#" },
+      { name: "Home", href: "/" },
+      { name: "Marketplace", href: "/all-shops" },
+      { name: "Masterclass", href: "/masterclass" },
+      // { name: "Community", href: "#" },
       { name: "Agent Support", href: "#" },
     ],
     column2: [
-      { name: "Dashboard", href: "#" },
-      { name: "Shipping Guidelines", href: "#" },
-      { name: "Loan Information", href: "#" },
-      { name: "Terms of Service", href: "#" },
-      { name: "Privacy Policy", href: "#" },
+      // { name: "Dashboard", href: "#" },
+      { name: "Shipping Guidelines", href: "/shipping-guidelines" },
+      { name: "Loan Information", href: "/loan-information" },
+      { name: "Terms of Service", href: "/terms-of-service" },
+      { name: "Privacy Policy", href: "/privacy-policy" },
     ],
   };
 
@@ -155,18 +186,43 @@ export default function Footer() {
               Subscribe to our newsletter for updates
             </h4>
 
-            <div className="relative flex h-[72px] w-full max-w-[540px] items-center rounded-full border border-[#E5E5E5] bg-white p-[7px] transition-all focus-within:border-[#F10E7C]/30">
-              <input
-                type="email"
-                placeholder="Email address"
-                className="flex-1 bg-transparent pl-8 text-[18px] font-normal text-[#1A1A1A] placeholder:text-[#ADADAD] outline-none"
-              />
-              <button className="h-full px-6 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg">
-                <span className="text-white text-[18px] font-semibold tracking-[-0.01em]">
-                  Subscribe
-                </span>
-              </button>
-            </div>
+            <form onSubmit={handleSubscribe} className="space-y-3">
+              <div className="relative flex h-[72px] w-full max-w-[540px] items-center rounded-full border border-[#E5E5E5] bg-white p-[7px] transition-all focus-within:border-[#F10E7C]/30 shadow-sm">
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={status === "loading"}
+                  className="flex-1 bg-transparent pl-8 text-[18px] font-normal text-[#1A1A1A] placeholder:text-[#ADADAD] outline-none disabled:opacity-50"
+                  required
+                />
+                <button 
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="h-full px-8 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg disabled:opacity-70 disabled:hover:bg-[#F10E7C] flex items-center justify-center min-w-[140px]"
+                >
+                  {status === "loading" ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-white" />
+                  ) : (
+                    <span className="text-white text-[18px] font-semibold tracking-[-0.01em]">
+                      Subscribe
+                    </span>
+                  )}
+                </button>
+              </div>
+              
+              {status !== "idle" && (
+                <div className={`flex items-center gap-2 px-6 py-2 rounded-full text-sm font-medium animate-in fade-in slide-in-from-top-1 duration-300 ${
+                  status === "success" ? "text-green-600 bg-green-50" : 
+                  status === "error" ? "text-red-600 bg-red-50" : "text-[#6B6B6B]"
+                }`}>
+                  {status === "success" && <CheckCircle className="w-4 h-4" />}
+                  {status === "error" && <AlertCircle className="w-4 h-4" />}
+                  {message}
+                </div>
+              )}
+            </form>
 
             {/* Social Links */}
             <div className="flex items-center gap-8 pt-2">
@@ -187,7 +243,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-12 pt-8 border-t border-[#E5E5E5]">
           <p className="text-[#6B6B6B] text-xs sm:text-sm font-normal leading-[140%] tracking-[-0.48px] text-center">
-            © 2025 Digital African Woman Marketplace. All rights reserved.
+            © 2025 Digital African Women Marketplace. All rights reserved.
           </p>
         </div>
       </div>

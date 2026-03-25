@@ -63,6 +63,8 @@ export interface ILedgerEntry {
     beneficiaryAccount?: string;
     channel: string;
     narration?: string;
+    shopName?: string;
+    merchantRef?: string;
     transactionDate: string;
     entryDate?: string;
     createdAt: string;

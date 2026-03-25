@@ -68,6 +68,16 @@ export async function updateUserProfile(data: {
   country?: string;
   currency?: string;
   isLoginOtpEnabled?: boolean;
+  billingAddress?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    streetAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }): Promise<IActionResponse<{ message: string; user: IUser }>> {
   try {
     const token = await getFreshToken();
@@ -76,7 +86,7 @@ export async function updateUserProfile(data: {
       return { success: false, error: "Please login" };
     }
 
-    const response = await apiClient.patch<{
+    const response = await apiClient.put<{
       success: boolean;
       message: string;
       user: IUser;

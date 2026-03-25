@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, Smartphone, Loader2 } from "lucide-react";
 import { useFormState, useFormStatus } from "react-dom";
 import { updateSellerPassword } from "@/app/actions/settings";
+import { updateUserProfile } from "@/app/actions/profile";
+import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 
 const initialState = {
@@ -37,9 +39,26 @@ function SubmitButton() {
 }
 
 export function SecurityTab() {
-  const [smsAuth, setSmsAuth] = useState(true);
-  const [emailAuth, setEmailAuth] = useState(false);
+  const { data: user, refetch } = useProfile();
+  const [isUpdating2FA, setIsUpdating2FA] = useState(false);
   const [state, formAction] = useFormState(updateSellerPassword, initialState);
+
+  const handleEmailAuthChange = async (checked: boolean) => {
+    setIsUpdating2FA(true);
+    try {
+      const result = await updateUserProfile({ isLoginOtpEnabled: checked });
+      if (result.success) {
+        toast.success(checked ? "Email Authentication enabled" : "Email Authentication disabled");
+        refetch();
+      } else {
+        toast.error(result.error || "Failed to update 2FA settings");
+      }
+    } catch {
+      toast.error("An error occurred");
+    } finally {
+      setIsUpdating2FA(false);
+    }
+  };
 
   useEffect(() => {
     if (state?.success) {
@@ -129,31 +148,16 @@ export function SecurityTab() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-[15px] font-bold text-[#101828]">
-                SMS Authentication
-              </h3>
-              <p className="text-[13px] font-medium text-[#667185]">
-                Receive codes via SMS
-              </p>
-            </div>
-            <Switch
-              checked={smsAuth}
-              onCheckedChange={setSmsAuth}
-              className="data-[state=checked]:bg-[#E6007A]"
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-[15px] font-bold text-[#101828]">
                 Email Authentication
               </h3>
               <p className="text-[13px] font-medium text-[#667185]">
-                Receive codes via email
+                Receive login OTP codes securely via your registered email address.
               </p>
             </div>
             <Switch
-              checked={emailAuth}
-              onCheckedChange={setEmailAuth}
+              disabled={isUpdating2FA}
+              checked={user?.isLoginOtpEnabled || false}
+              onCheckedChange={handleEmailAuthChange}
               className="data-[state=checked]:bg-[#E6007A]"
             />
           </div>

@@ -23,6 +23,18 @@ export interface IOrder {
   escrow_status: string;
   payment_status: string;
   status: string;
+  items?: {
+    _id: string;
+    product_id: string;
+    product_name: string;
+    product_description: string;
+    product_image: string;
+    product_category: string;
+    price_at_purchase: number;
+    current_price: number;
+    quantity: number;
+    subtotal: number;
+  }[];
   createdAt: string;
   updatedAt: string;
   __v: number;

@@ -131,6 +131,30 @@ export async function loginUser(
       credentials
     );
 
+    if (response.isOtpRequired && response.token) {
+      const tempToken = typeof response.token === "string" ? response.token : response.token.accessToken;
+      
+      const sessionData: ISessionData = {
+        userId: "",
+        email: credentials.email,
+        roles: ["buyer"],
+        isVerified: false,
+        accessToken: tempToken,
+        refreshToken: "",
+      };
+
+      const sessionResult = await createServerSession(sessionData);
+      if (!sessionResult.success) {
+        throw new Error(sessionResult.error || "Failed to create session");
+      }
+
+      return {
+        success: true,
+        data: sessionData,
+        message: response.message
+      };
+    }
+
     if (!response.user || !response.token) {
       throw new Error("Invalid response format from server");
     }
