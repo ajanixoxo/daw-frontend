@@ -62,18 +62,17 @@ export function SecurityTab() {
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Two-Factor Authentication</h2>
 
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <div className="font-medium">Email Authentication</div>
-              <div className="text-sm text-muted-foreground">Receive login OTP codes securely via your email</div>
-            </div>
-            <Switch 
-              disabled={isUpdating2FA}
-              checked={user?.isLoginOtpEnabled || false} 
-              onCheckedChange={handleEmailAuthChange} 
-              className="data-[state=checked]:bg-[#E6007A]"
-            />
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="space-y-0.5">
+            <div className="font-medium">Email Authentication</div>
+            <div className="text-sm text-muted-foreground">Receive login OTP codes securely via your email</div>
           </div>
+          <Switch 
+            disabled={isUpdating2FA}
+            checked={user?.isLoginOtpEnabled || false} 
+            onCheckedChange={handleEmailAuthChange} 
+            className="data-[state=checked]:bg-[#E6007A]"
+          />
         </div>
       </div>
 
