@@ -3,3 +3,4 @@ import CooperativeAuthLayout from "@/components/(dashboards)/cooperative-dashboa
 export default function Layout({ children }: { children: React.ReactNode }) {
   return <CooperativeAuthLayout>{children}</CooperativeAuthLayout>;
 }
+

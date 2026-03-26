@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "./auth";
+import { getFreshToken } from "./auth";
 import type { IActionResponse } from "@/types/auth.types";
 import type {
     ICreateStaticAccountRequest,
@@ -18,13 +18,13 @@ export async function createStaticAccount(
     data: ICreateStaticAccountRequest
 ): Promise<IActionResponse<IWalletBankAccount>> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.post<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.CREATE_STATIC,
             data,
-            { token: session.accessToken }
+            { token }
         );
 
         // Backend returns data directly or in responseData
@@ -52,16 +52,16 @@ export async function createStaticAccount(
 
 export async function getWalletAccount(): Promise<IActionResponse<IWalletBankAccount>> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.get<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.GET_ACCOUNT,
-            { token: session.accessToken }
+            { token }
         );
         const profileResponse = await apiClient.get<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.PROFILE,
-            { token: session.accessToken }
+            { token }
         );
         console.log("response to get balance", response);
         const walletData = response.response || response.responseData || response.data || response;
@@ -101,12 +101,12 @@ export async function getWalletAccount(): Promise<IActionResponse<IWalletBankAcc
 
 export async function getBanks(): Promise<IActionResponse<IBank[]>> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.get<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.GET_BANKS,
-            { token: session.accessToken }
+            { token }
         );
 
         // Debug logging on server
@@ -139,13 +139,13 @@ export async function withdrawFunds(
     data: IWithdrawRequest
 ): Promise<IActionResponse> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.post<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.PAYOUT,
             data,
-            { token: session.accessToken }
+            { token }
         );
 
         return {
@@ -166,13 +166,13 @@ export async function accountLookup(
     accNumber: string
 ): Promise<IActionResponse<{ accountName: string }>> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.post<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.ACCOUNT_LOOKUP,
             { bankCode, accNumber },
-            { token: session.accessToken }
+            { token }
         );
 
         const lookupData = response.responseData || response.data || response;
@@ -196,12 +196,12 @@ export async function accountLookup(
 export async function getLedger(): Promise<IActionResponse<ILedgerEntry[]>> {
 
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.get<IWalletResponse<ILedgerEntry[]>>(
             API_ENDPOINTS.WALLET.LEDGER,
-            { token: session.accessToken }
+            { token }
         );
 
         const ledger = response.walletLedger || response.data || response;
@@ -222,12 +222,12 @@ export async function getLedger(): Promise<IActionResponse<ILedgerEntry[]>> {
 
 export async function getAdminWallet(): Promise<IActionResponse<IAdminWalletResponse>> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.get<IWalletResponse<IAdminWalletResponse>>(
             API_ENDPOINTS.WALLET.ADMIN_GET_WALLET,
-            { token: session.accessToken }
+            { token }
         );
 
         const walletData = (response.data || response.responseData || response) as IAdminWalletResponse;
@@ -250,13 +250,13 @@ export async function processAdminPayout(
     data: IAdminPayoutRequest
 ): Promise<IActionResponse> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.post<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.ADMIN_PAYOUT,
             data,
-            { token: session.accessToken }
+            { token }
         );
 
         return {
@@ -275,13 +275,13 @@ export async function processAdminPayout(
 
 export async function updateWalletPin(pin: string): Promise<IActionResponse> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.put<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.UPDATE_PIN,
             { pin },
-            { token: session.accessToken }
+            { token }
         );
 
         return {
@@ -299,13 +299,13 @@ export async function updateWalletPin(pin: string): Promise<IActionResponse> {
 
 export async function getPayoutCharge(amount: number): Promise<IActionResponse<any>> {
     try {
-        const session = await getServerSession();
-        if (!session?.accessToken) throw new Error("Authentication required");
+        const token = await getFreshToken();
+        if (!token) throw new Error("Authentication required");
 
         const response = await apiClient.post<IWalletResponse<any>>(
             API_ENDPOINTS.WALLET.CHARGE,
             { amount, transferType: "WalletToAccount" },
-            { token: session.accessToken }
+            { token }
         );
 
         return {
