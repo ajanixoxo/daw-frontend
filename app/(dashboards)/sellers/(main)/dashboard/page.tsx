@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card";
 import { RevenueChart } from "@/components/(dashboards)/sellers-dashboard/revenue-chart";
 import { RecentOrdersTable } from "@/components/(dashboards)/sellers-dashboard/recent-orders-table";
@@ -16,6 +16,9 @@ import { useSellerProducts } from "@/hooks/useSellerProducts";
 import { useSellerOrders } from "@/hooks/useSellerOrders";
 
 export default function DashboardPage() {
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => { setHasMounted(true); }, []);
+
   const { data: productsData } = useSellerProducts();
   const { data: ordersData, isLoading: ordersLoading } = useSellerOrders();
 
@@ -108,7 +111,7 @@ export default function DashboardPage() {
 
       {/* Recent Orders Table */}
       <div className="pt-2">
-        <RecentOrdersTable orders={orders} isLoading={ordersLoading} />
+        <RecentOrdersTable orders={orders} isLoading={hasMounted && ordersLoading} />
       </div>
     </main>
   );
