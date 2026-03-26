@@ -1,11 +1,10 @@
 "use client"
 
-import { Search, SlidersHorizontal, Package, Clock, Truck, CheckCircle2, MoreVertical, Loader2 } from "lucide-react"
+import { useState } from "react"
+import { Search, Package, Clock, Truck, CheckCircle2, Loader2 } from "lucide-react"
 import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useSellerOrders } from "@/hooks/useSellerOrders"
 import { IOrder } from "@/types/product.types"
 
@@ -83,102 +82,30 @@ function getBuyerId(order: IOrder): string {
   return '';
 }
 
-const mockOrders = [
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Shipped",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Cancelled",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Pending",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Shipped",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Pending",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Shipped",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Cancelled",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Pending",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Shipped",
-  },
-  {
-    id: "96003321",
-    customer: "Marvin McKinney",
-    product: "Turtleneck",
-    store: "Faye's Complex",
-    date: "Apr 12, 2025",
-    amount: "$17.84",
-    status: "Cancelled",
-  },
-]
+// Helper function to get a display name for the buyer
+function getBuyerName(order: IOrder): string {
+  if (order.buyer_id && typeof order.buyer_id === 'object') {
+    const buyer = order.buyer_id as any;
+    if (buyer.firstName || buyer.lastName) {
+      return `${buyer.firstName || ''} ${buyer.lastName || ''}`.trim();
+    }
+  }
+  const id = getBuyerId(order);
+  return id ? '#' + id.slice(-6) : '-';
+}
 
 export default function OrdersPage() {
   const { data: ordersData, isLoading: ordersLoading } = useSellerOrders();
   const orders = ordersData?.orders || [];
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredOrders = searchQuery.trim()
+    ? orders.filter((order) =>
+        order._id.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : orders;
 
   // Calculate stats
   const totalOrders = orders.length;
@@ -239,12 +166,15 @@ export default function OrdersPage() {
                 <Input
                   placeholder="Search here..."
                   className="pl-9 pr-4 py-2 w-full sm:w-[280px] border-[#e4e7ec] text-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="outline" size="sm" className="border-[#e4e7ec] text-[#344054] gap-2 bg-transparent">
+              {/* Filter - not yet implemented */}
+              {/* <Button variant="outline" size="sm" className="border-[#e4e7ec] text-[#344054] gap-2 bg-transparent">
                 <SlidersHorizontal className="w-4 h-4" />
                 Filter
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -273,7 +203,7 @@ export default function OrdersPage() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : orders.length === 0 ? (
+                ) : filteredOrders.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-12 text-[#667185]">
                       <p className="text-lg font-medium mb-2">No orders found</p>
@@ -281,19 +211,30 @@ export default function OrdersPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  orders.map((order) => {
+                  filteredOrders.map((order) => {
                     const statusColors = getStatusColor(order.status);
                     const shopName = getShopName(order);
-                    const buyerId = getBuyerId(order);
                     return (
                       <TableRow key={order._id} className="border-b border-[#e4e7ec]">
                         <TableCell className="text-[#1d2739] text-sm font-medium">
                           {order._id.slice(-8).toUpperCase()}
                         </TableCell>
                         <TableCell className="text-[#1d2739] text-sm">
-                          {buyerId ? buyerId.slice(-8).toUpperCase() : '-'}
+                          {getBuyerName(order)}
                         </TableCell>
-                        <TableCell className="text-[#1d2739] text-sm">-</TableCell>
+                        <TableCell className="text-[#1d2739] text-sm">
+                          {order.items && order.items.length > 0
+                            ? (
+                              <>
+                                {order.items[0].product_name}
+                                {order.items.length > 1 && (
+                                  <span className="text-[#667185]"> + {order.items.length - 1} more</span>
+                                )}
+                              </>
+                            )
+                            : '-'
+                          }
+                        </TableCell>
                         <TableCell className="text-[#1d2739] text-sm">{shopName}</TableCell>
                         <TableCell className="text-[#1d2739] text-sm">{formatDate(order.createdAt)}</TableCell>
                         <TableCell className="text-[#1d2739] text-sm font-medium">
@@ -308,7 +249,8 @@ export default function OrdersPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
+                      {/* Order actions - coming soon */}
+                      {/* <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <MoreVertical className="w-4 h-4 text-[#667185]" />
@@ -319,7 +261,7 @@ export default function OrdersPage() {
                           <DropdownMenuItem>Edit Order</DropdownMenuItem>
                           <DropdownMenuItem className="text-red-600">Cancel Order</DropdownMenuItem>
                         </DropdownMenuContent>
-                      </DropdownMenu>
+                      </DropdownMenu> */}
                     </TableCell>
                   </TableRow>
                     );

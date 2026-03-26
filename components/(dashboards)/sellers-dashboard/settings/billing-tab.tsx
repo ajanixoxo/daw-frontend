@@ -1,119 +1,119 @@
 "use client";
 
+import Link from "next/link";
+import { HandCoins, ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Download } from "lucide-react";
 
-export function BillingTab() {
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Payment Methods */}
-      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
-        <h2 className="text-[18px] font-bold text-[#101828] mb-8">
-          Payment Methods
-        </h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-5 border border-[#F2F4F7] rounded-xl hover:bg-[#F9FAFB] transition-colors group">
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-full bg-[#F9FAFB] border border-[#F2F4F7] flex items-center justify-center text-[#667185] group-hover:bg-white transition-colors">
-                <CreditCard className="size-5" />
+interface BillingTabProps {
+  isMember: boolean;
+}
+
+export function BillingTab({ isMember }: BillingTabProps) {
+  // Cooperative members pay monthly contributions, not subscriptions.
+  // Show them a redirect to the contribution page.
+  if (isMember) {
+    return (
+      <div className="animate-in fade-in duration-500">
+        <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
+          <div className="flex flex-col items-center text-center gap-6 py-8">
+            <div className="w-16 h-16 rounded-2xl bg-[#FEEBF6] flex items-center justify-center">
+              <HandCoins className="w-8 h-8 text-[#E6007A]" />
+            </div>
+
+            <div className="space-y-2 max-w-md">
+              <h2 className="text-[18px] font-bold text-[#101828]">
+                You&apos;re a Cooperative Member
+              </h2>
+              <p className="text-[14px] text-[#667085] leading-relaxed">
+                As a DAW cooperative member, your monthly payments are managed
+                as <strong className="text-[#101828]">contributions</strong>,
+                not subscriptions. Use the Contribution page to make and track
+                your monthly payments.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-start gap-3 w-full max-w-xs">
+              <div className="flex items-center gap-2 text-[13px] text-[#475467]">
+                <CheckCircle className="w-4 h-4 text-[#12B76A] shrink-0" />
+                <span>No subscription fee required for members</span>
               </div>
-              <div>
-                <h3 className="text-[15px] font-bold text-[#101828]">
-                  Visa ending in 4242
-                </h3>
-                <p className="text-[13px] font-medium text-[#667185]">
-                  Expires 12/2025
-                </p>
+              <div className="flex items-center gap-2 text-[13px] text-[#475467]">
+                <CheckCircle className="w-4 h-4 text-[#12B76A] shrink-0" />
+                <span>Monthly contribution covers your membership</span>
+              </div>
+              <div className="flex items-center gap-2 text-[13px] text-[#475467]">
+                <CheckCircle className="w-4 h-4 text-[#12B76A] shrink-0" />
+                <span>Contribution history tracked on the Contribution page</span>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFF0F6] text-[#E6007A] text-[12px] font-bold">
-              <span className="size-1.5 rounded-full bg-[#E6007A]" />
-              Default
-            </div>
+
+            <Link href="/sellers/contribution">
+              <Button className="bg-[#E6007A] hover:bg-[#d0006e] text-white gap-2 h-11 px-6">
+                Go to Contribution Page
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </div>
-          <Button
-            variant="ghost"
-            className="w-full h-12 rounded-xl bg-[#F9FAFB] border border-[#F2F4F7] text-[#101828] hover:bg-[#F2F4F7] transition-all font-bold text-[15px]"
-          >
-            Add Payment Method
-          </Button>
         </div>
-      </section>
+      </div>
+    );
+  }
 
-      {/* Billing History */}
-      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
-        <h2 className="text-[18px] font-bold text-[#101828] mb-8">
-          Billing History
+  // Regular sellers pay a monthly subscription.
+  // Subscription payment backend is not yet available — show plan info with clear status.
+  return (
+    <div className="animate-in fade-in duration-500 space-y-6">
+      <div className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
+        <h2 className="text-[18px] font-bold text-[#101828] mb-2">
+          Seller Subscription
         </h2>
-        <div className="space-y-3">
-          {[
-            { date: "Jan 15, 2025", amount: "$29.99", status: "Paid" },
-            { date: "Dec 15, 2024", amount: "$29.99", status: "Paid" },
-            { date: "Nov 15, 2024", amount: "$29.99", status: "Paid" },
-          ].map((invoice, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-5 border border-[#F2F4F7] rounded-xl hover:bg-[#F9FAFB] transition-colors group"
-            >
-              <div>
-                <h3 className="text-[15px] font-bold text-[#101828]">
-                  {invoice.date}
-                </h3>
-                <p className="text-[13px] font-medium text-[#667185]">
-                  Premium Membership
-                </p>
-              </div>
-              <div className="flex items-center gap-6">
-                <span className="text-[16px] font-bold text-[#101828]">
-                  {invoice.amount}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-10 rounded-lg text-[#667185] hover:text-[#101828] hover:bg-white transition-all"
-                >
-                  <Download className="size-5" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+        <p className="text-[14px] text-[#667085] mb-8">
+          Your monthly subscription gives you full access to all seller features
+          on the DAW marketplace.
+        </p>
 
-      {/* Subscription */}
-      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
-        <h2 className="text-[18px] font-bold text-[#101828] mb-8">
-          Current Subscription
-        </h2>
-        <div className="p-8 bg-[#F9FAFB] border border-[#F2F4F7] rounded-2xl">
+        <div className="p-7 bg-[#F9FAFB] border border-[#F2F4F7] rounded-2xl">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h3 className="text-[20px] font-bold text-[#101828]">
-                Premium Plan
+              <h3 className="text-[17px] font-bold text-[#101828]">
+                Standard Seller Plan
               </h3>
-              <p className="text-[14px] font-medium text-[#667185] mt-1">
+              <p className="text-[13px] text-[#667085] mt-1">
+                Access to all marketplace seller features
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[11px] text-[#98A2B3] uppercase tracking-widest mb-1">
                 Billed monthly
               </p>
             </div>
-            <span className="text-[28px] font-bold text-[#101828]">$29.99</span>
           </div>
-          <p className="text-[14px] font-medium text-[#667185] mb-8">
-            Next billing date:{" "}
-            <span className="text-[#101828] font-bold">February 15, 2025</span>
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button className="flex-1 h-12 rounded-xl bg-[#E6007A] text-white hover:bg-[#d0006e] shadow-md shadow-[#E6007A]/20 transition-all font-bold text-[15px]">
-             Subscirbe 
-            </Button>
-            <Button
-              variant="ghost"
-              className="flex-1 h-12 rounded-xl bg-white border border-[#F2F4F7] text-[#F04438] hover:bg-[#FEF3F2] transition-all font-bold text-[15px]"
-            >
-              Cancel Subscription
-            </Button>
+
+          <div className="space-y-3 mb-8">
+            {[
+              "List and manage products on the marketplace",
+              "Process and fulfil customer orders",
+              "Wallet & payout access",
+              "Sales analytics dashboard",
+              "Customer support",
+            ].map((benefit) => (
+              <div
+                key={benefit}
+                className="flex items-center gap-2 text-[13px] text-[#475467]"
+              >
+                <CheckCircle className="w-4 h-4 text-[#12B76A] shrink-0" />
+                <span>{benefit}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-6 border-t border-[#F2F4F7] text-center">
+            <p className="text-[13px] font-medium text-[#667085]">
+              Subscription payments coming soon
+            </p>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

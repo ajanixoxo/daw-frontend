@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Search, Filter, ArrowUpRight, ArrowDownLeft, Inbox } from "lucide-react";
+import { Search, ArrowUpRight, ArrowDownLeft, Inbox } from "lucide-react";
 import { ILedgerEntry } from "@/types/wallet.types";
 import { Input } from "@/components/ui/input";
 
@@ -68,14 +68,15 @@ export function RecentTransactionsTable({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="h-10 border-[#e7e8e9] gap-2 font-medium text-xs bg-white">
+          {/* Filter/Export — coming soon */}
+          {/* <Button variant="outline" className="h-10 border-[#e7e8e9] gap-2 font-medium text-xs bg-white">
             <Filter className="h-3.5 w-3.5" />
             Filter
           </Button>
           <Button variant="outline" className="h-10 border-[#e7e8e9] gap-2 font-medium text-xs bg-white">
             <Download className="h-3.5 w-3.5" />
             Export
-          </Button>
+          </Button> */}
         </div>
       </div>
 

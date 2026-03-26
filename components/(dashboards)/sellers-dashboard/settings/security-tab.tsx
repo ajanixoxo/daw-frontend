@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Smartphone, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useFormState, useFormStatus } from "react-dom";
 import { updateSellerPassword } from "@/app/actions/settings";
 import { updateUserProfile } from "@/app/actions/profile";
@@ -164,8 +164,8 @@ export function SecurityTab() {
         </div>
       </section>
 
-      {/* Active Sessions */}
-      <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
+      {/* Active Sessions — coming soon */}
+      {/* <section className="bg-white rounded-2xl border border-[#F2F4F7] p-8 shadow-[0px_1px_2px_rgba(16,24,40,0.05)]">
         <h2 className="text-[18px] font-bold text-[#101828] mb-8">
           Active Sessions
         </h2>
@@ -213,7 +213,7 @@ export function SecurityTab() {
             </Button>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

@@ -50,7 +50,7 @@ export default function DashboardPage() {
             Get an Overview of your store activity here
           </p>
         </div>
-        <div className="w-full sm:w-auto">
+        {/* <div className="w-full sm:w-auto">
           <Select defaultValue="jan-jul">
             <SelectTrigger className="w-full sm:w-[260px] h-9 border-[#e4e7ec] bg-white rounded-md text-[#344054] font-normal text-[12px]">
               <SelectValue />
@@ -63,7 +63,7 @@ export default function DashboardPage() {
               <SelectItem value="last-quarter">Last Quarter</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
       </div>
 
       {/* Stat Cards */}
