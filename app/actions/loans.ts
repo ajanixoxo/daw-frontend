@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { 
   ILoan, 
@@ -29,8 +29,7 @@ async function getDawCoopId(): Promise<string | null> {
 
 export async function getLoanProducts(): Promise<IActionResponse<ILoanProduct[]>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.get<{ success: boolean; data: ILoanProduct[] }>(
@@ -49,8 +48,7 @@ export async function getLoanProducts(): Promise<IActionResponse<ILoanProduct[]>
 
 export async function checkLoanEligibilityAction(loanProductId: string): Promise<IActionResponse<IEligibilityResponse>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.get<{ success: boolean; data: IEligibilityResponse }>(
@@ -67,8 +65,7 @@ export async function checkLoanEligibilityAction(loanProductId: string): Promise
 
 export async function applyForLoanAction(data: ILoanApplication): Promise<IActionResponse<ILoan>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.post<{ success: boolean; data: ILoan }>(
@@ -86,8 +83,7 @@ export async function applyForLoanAction(data: ILoanApplication): Promise<IActio
 
 export async function getMyLoans(): Promise<IActionResponse<ILoan[]>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.get<{ success: boolean; data: ILoan[] }>(
@@ -106,8 +102,7 @@ export async function getMyLoans(): Promise<IActionResponse<ILoan[]>> {
 
 export async function getCooperativeLoans(status?: string): Promise<IActionResponse<ILoanAdminRecord[]>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();
@@ -135,8 +130,7 @@ export async function updateLoanStatus(
   payload: any = {}
 ): Promise<IActionResponse<ILoan>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.patch<{ success: boolean; data: ILoan }>(
@@ -154,8 +148,7 @@ export async function updateLoanStatus(
 
 export async function getLoanStats(): Promise<IActionResponse<any>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();

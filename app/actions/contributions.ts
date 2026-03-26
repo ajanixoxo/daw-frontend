@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 // ---------- Interfaces ----------
@@ -69,8 +69,7 @@ export async function getContributionStats(): Promise<
   IActionResponse<ContributionStats>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();
@@ -99,8 +98,7 @@ export async function getAllContributions(): Promise<
   IActionResponse<ContributionRecord[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();
@@ -130,8 +128,7 @@ export async function getMemberContributions(
   memberId: string
 ): Promise<IActionResponse<ContributionRecord[]>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.get<{ success: boolean; data: ContributionRecord[] | any[] }>(
@@ -182,8 +179,7 @@ export async function getContributionTypes(): Promise<
   IActionResponse<ContributionTypeRecord[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();
@@ -212,8 +208,7 @@ export async function getLoanEligibility(): Promise<
   IActionResponse<LoanEligibilityRecord[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();
@@ -246,8 +241,7 @@ export async function createContributionTypeAction(formData: {
   loanEligibilityMonths?: number;
 }): Promise<IActionResponse<ContributionTypeRecord>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const cooperativeId = await getDawCoopId();
@@ -278,8 +272,7 @@ export async function updateContributionTypeStatusAction(
   status: "active" | "pending" | "rejected"
 ): Promise<IActionResponse<ContributionTypeRecord>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     if (!token) return { success: false, error: "Authentication required" };
 
     const response = await apiClient.put<{ success: boolean; data: ContributionTypeRecord }>(

@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { revalidatePath } from "next/cache";
 
@@ -85,8 +85,7 @@ export async function getCooperativeDashboardStats(): Promise<
   IActionResponse<DashboardStats>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -116,8 +115,7 @@ export async function getRevenueChartData(): Promise<
   IActionResponse<RevenueData[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -147,8 +145,7 @@ export async function getTopMembers(): Promise<
   IActionResponse<TopMember[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -178,8 +175,7 @@ export async function getRecentMembers(): Promise<
   IActionResponse<RecentMember[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -224,8 +220,7 @@ export async function getAllCooperativeMembers(): Promise<
   IActionResponse<CooperativeMember[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -297,8 +292,7 @@ export async function getMemberDetails(
   memberId: string
 ): Promise<IActionResponse<MemberDetails>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -328,8 +322,7 @@ export async function removeMemberAction(
   memberId: string
 ): Promise<IActionResponse<void>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };

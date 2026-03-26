@@ -1,15 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 export async function approveMember(
   memberId: string
 ): Promise<IActionResponse> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -38,8 +37,7 @@ export async function approveMember(
 
 export async function getMyMemberProfile(): Promise<IActionResponse<any>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };

@@ -1,7 +1,8 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { createServerSession, getServerSession } from "@/app/actions/auth";
+import { cookies } from "next/headers";
+import { createServerSession, getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 
 interface IJoinCooperativeResponse {
@@ -71,8 +72,7 @@ export async function joinCooperative(data: {
   subscriptionTierId: string;
 }): Promise<IActionResponse<IJoinCooperativeResponse>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -108,8 +108,7 @@ export async function cooperativeJoinWithSellerOnboard(
   IActionResponse<{ member: unknown; shop: unknown; message: string; user?: { _id: string; roles: string[]; member?: unknown[] } }>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
     const baseUrl =
       process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
     const url = `${baseUrl}${API_ENDPOINTS.SHOPS.COOPERATIVE_JOIN_WITH_SELLER_ONBOARD}`;
@@ -209,11 +208,9 @@ export async function fetchMember(
   cooperativeId: string
 ): Promise<IActionResponse<IFetchMemberResponse>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
-    const userId = session?.userId;
+    const token = await getFreshToken();
 
-    if (!token || !userId) {
+    if (!token) {
       return { success: false, error: "Authentication required" };
     }
 
@@ -238,8 +235,7 @@ export async function fetchSubscriptionTiers(
   cooperativeId: string
 ): Promise<IActionResponse<SubscriptionTier[]>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -294,8 +290,7 @@ export async function fetchAllCooperatives(): Promise<
   IActionResponse<Cooperative[]>
 > {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -322,8 +317,7 @@ export async function fetchCooperativeById(
   cooperativeId: string
 ): Promise<IActionResponse<Cooperative>> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -352,13 +346,14 @@ export async function createCooperative(
   try {
     console.log("initial payload", payload);
 
-    const session = await getServerSession();
-    const token = session?.accessToken;
-    const adminId = session?.userId;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
+
+    const cookieStore = await cookies();
+    const adminId = cookieStore.get("userId")?.value;
 
     // Include adminId in the payload
     const finalPayload = { ...payload, adminId };

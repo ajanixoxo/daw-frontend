@@ -1,6 +1,6 @@
 "use server";
 
-import { getServerSession } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { apiClient } from "@/lib/api/client";
 
 interface InviteMemberParams {
@@ -20,8 +20,7 @@ interface InviteMemberResponse {
 
 export async function inviteMember(params: InviteMemberParams): Promise<InviteMemberResponse> {
   try {
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Not authenticated" };

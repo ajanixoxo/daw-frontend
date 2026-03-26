@@ -53,11 +53,28 @@ function clearTokens(): void {
 }
 
 /**
+ * Sync refreshed tokens back to HTTP-only cookies so server actions stay in sync.
+ * The backend rotates the refresh token on every use, so cookies must be updated
+ * after every client-side refresh or server actions will fail with the old token.
+ */
+async function syncTokensToCookies(accessToken: string, refreshToken: string): Promise<void> {
+  try {
+    await fetch('/api/auth/sync-tokens', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessToken, refreshToken }),
+    });
+  } catch {
+    // Non-critical — server actions will use stale cookies until next full login
+  }
+}
+
+/**
  * Call refresh token API
  */
 async function refreshAccessToken(): Promise<{ accessToken: string; refreshToken: string }> {
   const refreshToken = getRefreshToken();
-  
+
   if (!refreshToken) {
     throw new Error('No refresh token available');
   }
@@ -79,6 +96,9 @@ async function refreshAccessToken(): Promise<{ accessToken: string; refreshToken
 
   const { accessToken, refreshToken: newRefreshToken } = response.data.token;
   setTokens(accessToken, newRefreshToken);
+
+  // Keep HTTP-only cookies in sync so server actions always have the latest tokens
+  await syncTokensToCookies(accessToken, newRefreshToken);
 
   return { accessToken, refreshToken: newRefreshToken };
 }
