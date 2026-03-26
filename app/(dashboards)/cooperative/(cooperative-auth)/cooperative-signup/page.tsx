@@ -25,6 +25,7 @@ export default function CooperativeSignupPage() {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isAlreadyMember = isAuthenticated && user?.roles?.includes("member");
+  const isAlreadySeller = isAuthenticated && user?.roles?.includes("seller");
 
   const isBuyerOrGuestFlow =
     !profile ||
@@ -65,6 +66,7 @@ export default function CooperativeSignupPage() {
 
   // Block access for users who are already cooperative members
   if (isAlreadyMember) {
+    const isBoth = isAlreadyMember && isAlreadySeller;
     return (
       <div className="flex w-full flex-col items-center justify-center min-h-[60vh]">
         <div className="w-full max-w-md">
@@ -72,10 +74,12 @@ export default function CooperativeSignupPage() {
             {/* Header */}
             <div style={{ backgroundColor: "#f10e7c" }} className="px-8 py-10 text-white">
               <h2 className="text-3xl font-bold mb-3">
-                You&apos;re Already a Member!
+                {isBoth ? "You're All Set!" : "You're Already a Member!"}
               </h2>
               <p className="text-lg opacity-95">
-                Your account is already a member of the DAW Cooperative. You have full access to all cooperative features and benefits.
+                {isBoth
+                  ? "Your account already has a seller profile, a shop, and is a member of the DAW Cooperative."
+                  : "Your account is already a member of the DAW Cooperative. You have full access to all cooperative features and benefits."}
               </p>
             </div>
 

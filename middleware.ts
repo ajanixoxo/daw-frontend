@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     "/profile",
     "/checkout",
     "/payment",
-    "/cooperative", // Cooperative dashboard routes
+    // "/cooperative", // Cooperative dashboard routes
     "/admin", // Admin dashboard routes
     "/logistics",
     "/shop-manager"
