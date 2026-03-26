@@ -18,6 +18,7 @@ export default function WalletPage() {
   const [ledger, setLedger] = useState<ILedgerEntry[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchData = async (showToast = false) => {
     if (showToast) setRefreshing(true);
@@ -27,29 +28,32 @@ export default function WalletPage() {
         getLedger(),
       ]);
 
-      console.log("Client: Account Fetch Result:", accResult);
-
       if (accResult.success && accResult.data && accResult.data.accountNo) {
         setAccount(accResult.data);
         setShowSetup(false);
+        setFetchError(null);
       } else if (accResult.success) {
-        // Successful API call but no account exists
+        // API call succeeded but no wallet account exists yet
         setAccount(null);
         setShowSetup(true);
+        setFetchError(null);
       } else {
-        // API call failed - don't automatically show setup, show error or retry
+        // API call failed — show retry state, not the setup form
         setAccount(null);
         setShowSetup(false);
-        toast.error(accResult.error || "Failed to fetch wallet info");
+        setFetchError(accResult.error || "Failed to fetch wallet info");
+        if (!showToast) toast.error(accResult.error || "Failed to fetch wallet info");
       }
 
       if (ledgerResult.success && ledgerResult.data) {
         setLedger(ledgerResult.data);
       }
 
-      if (showToast) toast.success("Data refreshed");
+      if (showToast && !accResult.success) toast.error("Failed to refresh data");
+      else if (showToast) toast.success("Data refreshed");
     } catch (error) {
       console.error("Error fetching wallet data:", error);
+      setFetchError("An unexpected error occurred");
       if (showToast) toast.error("Failed to refresh data");
     } finally {
       setLoading(false);
@@ -65,6 +69,24 @@ export default function WalletPage() {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#DB005F]" />
+      </div>
+    );
+  }
+
+  // If fetch failed with an actual error (not a missing account)
+  if (fetchError && !showSetup) {
+    return (
+      <div className="p-6 max-w-[1600px] mx-auto">
+        <div className="flex flex-col items-center justify-center h-[40vh] gap-4 text-center">
+          <p className="text-sm text-[#667185]">{fetchError}</p>
+          <Button
+            onClick={() => { setFetchError(null); setLoading(true); fetchData(); }}
+            className="bg-[#1d1d2a] hover:bg-[#1d1d2a]/90 text-white rounded-lg px-6"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }
