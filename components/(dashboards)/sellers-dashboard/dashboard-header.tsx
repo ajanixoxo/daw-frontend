@@ -1,5 +1,5 @@
 "use client";
-import { Bell, Menu, Loader2, LogOut, Store } from "lucide-react";
+import { Menu, Loader2, LogOut, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -31,7 +31,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   };
 
   const handleExploreMarketplace = () => {
-    router.push("/");
+    router.push("/all-shops");
   };
 
   return (
@@ -62,9 +62,6 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           >
             <Store className="h-4 w-4" />
             <span className="text-sm">Explore Marketplace</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5 text-[#667185]" />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

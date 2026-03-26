@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import { SettingsHeader } from "@/components/(dashboards)/sellers-dashboard/settings/settings-header";
 import { SettingsTabs } from "@/components/(dashboards)/sellers-dashboard/settings/settings-tabs";
@@ -14,6 +15,7 @@ import { updateSellerProfile } from "@/app/actions/settings";
 import { toast } from "sonner";
 import { IUser } from "@/types/auth.types";
 import { IShop } from "@/types/shop.types";
+import { hasCooperativeMembership } from "@/hooks/useSellerProfile";
 
 interface SettingsClientPageProps {
   initialData: {
@@ -43,16 +45,19 @@ function SubmitButton() {
 }
 
 export default function SettingsClientPage({ initialData }: SettingsClientPageProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
-  const [state, action] = useFormState(updateSellerProfile, initialState);
+  const [state] = useFormState(updateSellerProfile, initialState);
+  const isMember = hasCooperativeMembership(initialData?.user ?? null);
 
-  // Show toast on state change
-  if (state?.success && state?.message) {
-     // This might cause infinite loop if not handled carefully in effect, 
-     // but sonner usually handles deduping. Better to use useEffect.
-     // For now, let's rely on the user seeing the success state or we add useEffect.
-  }
-  
+  useEffect(() => {
+    if (state?.success && state?.message) {
+      toast.success(state.message);
+    } else if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto px-6 py-10 max-w-[1280px]">
@@ -83,7 +88,7 @@ export default function SettingsClientPage({ initialData }: SettingsClientPagePr
 
             {/* Action buttons */}
             <div className="mt-12 flex justify-end items-center gap-4">
-              <button type="button" className="h-12 px-10 rounded-xl bg-[#F9FAFB] text-[#101828] hover:bg-[#F2F4F7] transition-all font-bold text-[15px]">
+              <button type="button" onClick={() => router.back()} className="h-12 px-10 rounded-xl bg-[#F9FAFB] text-[#101828] hover:bg-[#F2F4F7] transition-all font-bold text-[15px]">
                 Cancel
               </button>
               <SubmitButton />
@@ -105,7 +110,7 @@ export default function SettingsClientPage({ initialData }: SettingsClientPagePr
 
         {activeTab === "billing" && (
           <div className="mt-10 animate-in fade-in duration-500">
-            <BillingTab />
+            <BillingTab isMember={isMember} />
           </div>
         )}
 

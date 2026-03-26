@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card";
 import { RevenueChart } from "@/components/(dashboards)/sellers-dashboard/revenue-chart";
 import { RecentOrdersTable } from "@/components/(dashboards)/sellers-dashboard/recent-orders-table";
@@ -16,6 +16,9 @@ import { useSellerProducts } from "@/hooks/useSellerProducts";
 import { useSellerOrders } from "@/hooks/useSellerOrders";
 
 export default function DashboardPage() {
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => { setHasMounted(true); }, []);
+
   const { data: productsData } = useSellerProducts();
   const { data: ordersData, isLoading: ordersLoading } = useSellerOrders();
 
@@ -50,7 +53,7 @@ export default function DashboardPage() {
             Get an Overview of your store activity here
           </p>
         </div>
-        <div className="w-full sm:w-auto">
+        {/* <div className="w-full sm:w-auto">
           <Select defaultValue="jan-jul">
             <SelectTrigger className="w-full sm:w-[260px] h-9 border-[#e4e7ec] bg-white rounded-md text-[#344054] font-normal text-[12px]">
               <SelectValue />
@@ -63,7 +66,7 @@ export default function DashboardPage() {
               <SelectItem value="last-quarter">Last Quarter</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
       </div>
 
       {/* Stat Cards */}
@@ -108,7 +111,7 @@ export default function DashboardPage() {
 
       {/* Recent Orders Table */}
       <div className="pt-2">
-        <RecentOrdersTable orders={orders} isLoading={ordersLoading} />
+        <RecentOrdersTable orders={orders} isLoading={hasMounted && ordersLoading} />
       </div>
     </main>
   );

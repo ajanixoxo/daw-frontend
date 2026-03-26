@@ -5,7 +5,6 @@ import { useState, useMemo } from "react";
 
 import {
   Search,
-  SlidersHorizontal,
   Pencil,
   Trash2,
   Loader2,
@@ -146,6 +145,9 @@ export default function ProductsPage() {
 
   const shopName = shopData?.shop?.name || "My Shop";
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Edit drawer state
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
@@ -167,6 +169,16 @@ export default function ProductsPage() {
     const outOfStock = products.filter((p) => p.quantity === 0).length;
     return { total, active, inactive, lowStock, outOfStock };
   }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return products;
+    const query = searchQuery.toLowerCase();
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        (p.category || "").toLowerCase().includes(query),
+    );
+  }, [products, searchQuery]);
 
   const handleEdit = (product: IProduct) => {
     setEditProduct(product);
@@ -262,15 +274,18 @@ export default function ProductsPage() {
                 <Input
                   placeholder="Search here..."
                   className="pl-10 h-11 border-[#E4E7EC] rounded-xl focus:border-[#E6007A] focus:ring-[#E6007A] bg-white text-[14px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button
+              {/* Filter button - not yet implemented */}
+              {/* <Button
                 variant="outline"
                 className="h-11 px-4 border-[#E4E7EC] rounded-xl bg-white hover:bg-[#F9FAFB] text-[#344054] font-medium text-[14px]"
               >
                 <SlidersHorizontal className="size-4 mr-2" />
                 Filter
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -313,7 +328,7 @@ export default function ProductsPage() {
                       </div>
                     </td>
                   </tr>
-                ) : products.length === 0 ? (
+                ) : filteredProducts.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -328,7 +343,7 @@ export default function ProductsPage() {
                     </td>
                   </tr>
                 ) : (
-                  products.map((product) => {
+                  filteredProducts.map((product) => {
                     const style = getStatusStyle(product.status);
                     return (
                       <tr
@@ -393,40 +408,6 @@ export default function ProductsPage() {
                                 strokeWidth={2.5}
                               />
                             </button>
-                            <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
-                              <svg
-                                width="18"
-                                height="18"
-                                viewBox="0 0 18 18"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </button>
-                            <button className="text-[#667185] hover:text-[#E6007A] transition-colors">
-                              <svg
-                                width="18"
-                                height="18"
-                                viewBox="0 0 18 18"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M15.42 2.58a4.5 4.5 0 0 0-6.36 0l-.06.06-.06-.06a4.5 4.5 0 0 0-6.36 6.36l.06.06L9 15.42l6.36-6.36.06-.06a4.5 4.5 0 0 0 0-6.36z"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -446,13 +427,13 @@ export default function ProductsPage() {
                   <span className="text-[#667185]">Loading products...</span>
                 </div>
               </div>
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <div className="py-12 text-center text-[#667185]">
                 <p className="text-lg font-medium mb-2">No products found</p>
                 <p className="text-sm">Add your first product to get started</p>
               </div>
             ) : (
-              products.map((product) => {
+              filteredProducts.map((product) => {
                 const style = getStatusStyle(product.status);
                 return (
                   <div

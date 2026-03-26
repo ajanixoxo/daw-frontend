@@ -214,20 +214,20 @@ export default function ShopPage() {
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3">
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   className="bg-white border border-[#F2F4F7] text-[#667185] hover:text-[#E6007A] hover:bg-[#FEEBF6] rounded-xl h-11 w-11 shadow-sm transition-all"
                 >
                   <Heart className="w-5 h-5" />
-                </Button>
-                <Button
+                </Button> */}
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   className="bg-white border border-[#F2F4F7] text-[#667185] hover:text-[#E6007A] hover:bg-[#FEEBF6] rounded-xl h-11 w-11 shadow-sm transition-all"
                 >
                   <Share2 className="w-5 h-5" />
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
@@ -277,12 +277,12 @@ export default function ShopPage() {
             <h2 className="text-[20px] font-bold text-[#101828] tracking-tight">
               Top Products
             </h2>
-            <Button
+            {/* <Button
               variant="ghost"
               className="text-[13px] font-semibold text-[#E6007A] hover:bg-[#FEEBF6]"
             >
               View All
-            </Button>
+            </Button> */}
           </div>
           <div className="space-y-4">
             {topProducts.length > 0 ? (
@@ -328,12 +328,12 @@ export default function ShopPage() {
             <h2 className="text-[20px] font-bold text-[#101828] tracking-tight">
               Top Regions
             </h2>
-            <Button
+            {/* <Button
               variant="ghost"
               className="text-[13px] font-semibold text-[#E6007A] hover:bg-[#FEEBF6]"
             >
               Details
-            </Button>
+            </Button> */}
           </div>
           <div className="space-y-4">
             {topRegions.length > 0 ? (
