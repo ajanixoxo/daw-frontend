@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { usePopularProducts } from "@/hooks/useProducts";
 import Link from "next/link";
+import { productPrice } from "@/lib/format-price";
 
 export function MarketplaceProducts() {
   const { data, isLoading, error } = usePopularProducts(4);
@@ -61,7 +62,7 @@ export function MarketplaceProducts() {
                     {product.name}
                   </h3>
                   <span className="text-[#f10e7c] font-semibold text-base whitespace-nowrap">
-                    ₦{product.price.toLocaleString()}
+                    {productPrice(product)}
                   </span>
                 </div>
 

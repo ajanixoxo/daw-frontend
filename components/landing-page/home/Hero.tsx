@@ -153,7 +153,7 @@ export default function Hero() {
               variants={fadeIn("up", 0.2)}
               className="mb-6 font-inter text-[32px] font-medium leading-[120%] tracking-[-0.06em] text-white transition-all duration-700 sm:text-[48px] lg:text-[64px] lg:tracking-[-3.12px]"
             >
-              Empowering African Woman Through Digital Commerce
+              Empowering African Women Through Digital Commerce
             </motion.h1>
             <motion.p
               variants={fadeIn("up", 0.4)}

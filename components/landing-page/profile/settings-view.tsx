@@ -1,14 +1,81 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { updateUserProfile } from "@/app/actions/profile";
+import { toast } from "sonner";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { Switch } from "@/components/ui/switch";
+import { COUNTRY_STATES } from "@/lib/constants/countries";
 
 export function SettingsView() {
+  const { data: user, isLoading: profileLoading } = useProfile();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [accountForm, setAccountForm] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
+    country: "",
+    currency: "",
+    isLoginOtpEnabled: false,
   });
+
+  useEffect(() => {
+    if (user) {
+      setAccountForm({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        country: user.country || "",
+        currency: user.currency || "",
+        isLoginOtpEnabled: user.isLoginOtpEnabled || false,
+      });
+    }
+  }, [user]);
+
+  const handleAccountSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      // Strip any non-numeric characters before saving
+      const cleanPhone = accountForm.phone.replace(/\D/g, "");
+
+      const res = await updateUserProfile({
+        firstName: accountForm.firstName,
+        lastName: accountForm.lastName,
+        phone: cleanPhone,
+        country: accountForm.country,
+        currency: accountForm.currency,
+        isLoginOtpEnabled: accountForm.isLoginOtpEnabled,
+      });
+
+      if (res.success) {
+        toast.success("Profile updated successfully");
+      } else {
+        toast.error(res.error || "Failed to update profile");
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    setAccountForm({
+      ...accountForm,
+      phone: value,
+      country: countryName,
+      currency: isNigeria ? "NGN" : "USD",
+    });
+  };
 
   const [billingForm, setBillingForm] = useState({
     fullName: "",
@@ -20,6 +87,42 @@ export function SettingsView() {
     city: "",
     zipCode: "",
   });
+
+  useEffect(() => {
+    if (user?.billingAddress) {
+      setBillingForm({
+        fullName: user.billingAddress.fullName || "",
+        email: user.billingAddress.email || "",
+        phone: user.billingAddress.phone || "",
+        streetAddress: user.billingAddress.streetAddress || "",
+        country: user.billingAddress.country || "",
+        state: user.billingAddress.state || "",
+        city: user.billingAddress.city || "",
+        zipCode: user.billingAddress.zipCode || "",
+      });
+    }
+  }, [user]);
+
+  const [billingSaving, setBillingSaving] = useState(false);
+
+  const handleBillingSubmit = async () => {
+    setBillingSaving(true);
+    try {
+      const res = await updateUserProfile({
+        billingAddress: billingForm,
+      });
+
+      if (res.success) {
+        toast.success("Billing address updated successfully");
+      } else {
+        toast.error(res.error || "Failed to update billing address");
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
+      setBillingSaving(false);
+    }
+  };
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
@@ -35,57 +138,121 @@ export function SettingsView() {
           Account Settings
         </h2>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-              Full Name
+              First Name
             </label>
             <input
               type="text"
-              placeholder="John Doe"
-              value={accountForm.fullName}
+              placeholder="First Name"
+              value={accountForm.firstName}
               onChange={(e) =>
-                setAccountForm({ ...accountForm, fullName: e.target.value })
+                setAccountForm({ ...accountForm, firstName: e.target.value })
               }
               className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
             />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="hello@example.com"
-                value={accountForm.email}
-                onChange={(e) =>
-                  setAccountForm({ ...accountForm, email: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="Enter Number"
-                value={accountForm.phone}
-                onChange={(e) =>
-                  setAccountForm({ ...accountForm, phone: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Last Name
+            </label>
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={accountForm.lastName}
+              onChange={(e) =>
+                setAccountForm({ ...accountForm, lastName: e.target.value })
+              }
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
+            />
           </div>
-
-          <button className="px-6 py-2.5 bg-[#ec008c] text-white rounded-full font-medium hover:bg-[#d4007d] transition-colors mt-2">
-            Save Changes
-          </button>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="hello@example.com"
+              value={accountForm.email}
+              disabled
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none opacity-70 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Phone Number
+            </label>
+            <PhoneInput
+              country={"ng"}
+              value={accountForm.phone}
+              onChange={handlePhoneChange}
+              containerClass="w-full"
+              inputClass="!w-full !h-12 !rounded-full !border-none !bg-[#f5f5f5] !px-4 !pl-14 !text-[#1a1a1a]"
+              buttonClass="!border-none !bg-transparent !pl-3"
+              dropdownClass="!rounded-xl !shadow-lg text-sm"
+              countryCodeEditable={false}
+              enableSearch={true}
+              prefix="" // Ensure no dangling +
+              preserveOrder={["countryCode", "phoneNumber"]}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Country
+            </label>
+            <input
+              type="text"
+              value={accountForm.country}
+              disabled
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] outline-none opacity-70 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+              Currency
+            </label>
+            <input
+              type="text"
+              value={accountForm.currency}
+              disabled
+              className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] outline-none opacity-70 cursor-not-allowed"
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 rounded-xl border border-[#e7e8e9] bg-[#fdfdfd] flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-[15px] font-bold text-[#1a1a1a]">
+              Email Authentication (2FA)
+            </h3>
+            <p className="text-[13px] text-[#6b6b6b]">
+              Receive a secure OTP code via email each time you log in.
+            </p>
+          </div>
+          <Switch
+            checked={accountForm.isLoginOtpEnabled}
+            onCheckedChange={(checked) =>
+              setAccountForm({ ...accountForm, isLoginOtpEnabled: checked })
+            }
+            className="data-[state=checked]:bg-[#ec008c]"
+          />
+        </div>
+
+        <button
+          onClick={handleAccountSubmit}
+          disabled={isSubmitting || profileLoading}
+          className="px-6 py-2.5 bg-[#ec008c] text-white rounded-full font-medium hover:bg-[#d4007d] transition-colors mt-2 disabled:opacity-50 flex items-center gap-2"
+        >
+          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+          Save Changes
+        </button>
       </div>
 
       {/* Billing Address */}
@@ -167,17 +334,20 @@ export function SettingsView() {
               <div className="relative">
                 <select
                   value={billingForm.country}
-                  onChange={(e) =>
-                    setBillingForm({ ...billingForm, country: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const country = e.target.value;
+                    setBillingForm({ ...billingForm, country, state: "", city: "" });
+                  }}
                   className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20 appearance-none cursor-pointer"
                 >
                   <option value="" disabled>
                     Select Country
                   </option>
-                  <option value="nigeria">Nigeria</option>
-                  <option value="ghana">Ghana</option>
-                  <option value="kenya">Kenya</option>
+                  {Object.keys(COUNTRY_STATES).sort().map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6b6b6b] pointer-events-none" />
               </div>
@@ -190,16 +360,19 @@ export function SettingsView() {
                 <select
                   value={billingForm.state}
                   onChange={(e) =>
-                    setBillingForm({ ...billingForm, state: e.target.value })
+                    setBillingForm({ ...billingForm, state: e.target.value, city: "" })
                   }
-                  className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20 appearance-none cursor-pointer"
+                  disabled={!billingForm.country}
+                  className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20 appearance-none cursor-pointer disabled:opacity-50"
                 >
                   <option value="" disabled>
-                    Select State
+                    {billingForm.country ? "Select State" : "Select a country first"}
                   </option>
-                  <option value="lagos">Lagos</option>
-                  <option value="abuja">Abuja</option>
-                  <option value="rivers">Rivers</option>
+                  {(COUNTRY_STATES[billingForm.country] || []).map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6b6b6b] pointer-events-none" />
               </div>
@@ -209,24 +382,18 @@ export function SettingsView() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
-                City
+                City / Region
               </label>
               <div className="relative">
-                <select
+                <input
+                  type="text"
+                  placeholder="Enter City"
                   value={billingForm.city}
                   onChange={(e) =>
                     setBillingForm({ ...billingForm, city: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20 appearance-none cursor-pointer"
-                >
-                  <option value="" disabled>
-                    Select City
-                  </option>
-                  <option value="ikeja">Ikeja</option>
-                  <option value="lekki">Lekki</option>
-                  <option value="victoria-island">Victoria Island</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6b6b6b] pointer-events-none" />
+                  className="w-full px-4 py-3 bg-[#f5f5f5] rounded-full text-[#1a1a1a] placeholder-[#a1a1a1] outline-none focus:ring-2 focus:ring-[#ec008c]/20"
+                />
               </div>
             </div>
             <div>
@@ -245,7 +412,12 @@ export function SettingsView() {
             </div>
           </div>
 
-          <button className="px-6 py-2.5 bg-[#ec008c] text-white rounded-full font-medium hover:bg-[#d4007d] transition-colors mt-2">
+          <button 
+            onClick={handleBillingSubmit}
+            disabled={billingSaving || profileLoading}
+            className="px-6 py-2.5 bg-[#ec008c] text-white rounded-full font-medium hover:bg-[#d4007d] transition-colors mt-2 flex items-center gap-2 disabled:opacity-50"
+          >
+            {billingSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             Save Changes
           </button>
         </div>

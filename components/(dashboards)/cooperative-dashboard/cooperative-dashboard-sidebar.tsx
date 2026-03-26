@@ -26,8 +26,8 @@ interface DashboardSidebarProps {
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/cooperative/dashboard" },
   { icon: ShoppingBag, label: "Members", href: "/cooperative/members" },
+  { icon: Wallet, label: "Wallet", href: "/cooperative/wallet" },
   { icon: HandCoins, label: "Contribution", href: "/cooperative/contributions" },
-  { icon: Wallet, label: "Loans", href: "/cooperative/loans" },
   // { icon: BarChart3, label: "Analytics", href: "/cooperative/analytics" },
   // { icon: Settings, label: "Settings", href: "/cooperative/settings" },
 ]
@@ -41,7 +41,7 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
   }
 
   return (
-   <>
+    <>
       {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onToggle} aria-hidden="true" />}
 
       {/* Sidebar */}
@@ -61,11 +61,11 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
           <div className="flex items-center justify-between px-2 py-6 border-b border-[#e7e8e9] min-h-[88px]">
             <div className="flex items-center gap-0.5 overflow-hidden">
               {isCollapsed ? (
-              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                <img src="/logo.png" alt="Logo" className="h-7 w-7" />
-              </div>
+                <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                  <img src="/logo.png" alt="Logo" className="h-7 w-7" />
+                </div>
               ) : (
-              <img src="/logo-full.png" alt="Logo" className="h-6" />
+                <img src="/logo-full.png" alt="Logo" className="h-6" />
               )}
             </div>
             {/* Desktop collapse toggle - always visible on desktop */}

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Check } from "lucide-react";
 import { useSellerSignupStore } from "@/zustand/seller-signup-store";
 import { useRouter } from "next/navigation";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const SellerSignupStep0: FC = () => {
   const router = useRouter();
@@ -20,6 +22,17 @@ const SellerSignupStep0: FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updatePersonalInfo({ [e.target.name]: e.target.value });
+  };
+
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    updatePersonalInfo({
+      phone: value,
+      country: countryName,
+      currency: isNigeria ? "NGN" : "USD",
+    });
   };
 
   const validateEmail = (email: string): boolean => {
@@ -148,20 +161,19 @@ const SellerSignupStep0: FC = () => {
           )}
         </div>
 
-        {/* Phone */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="phone" className="auth-label text-text-dark">
             Phone Number
           </Label>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="23409099987"
+          <PhoneInput
+            country={"ng"}
             value={personalInfo.phone}
-            onChange={handleChange}
-            className="h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder"
-            aria-invalid={!!errors.phone}
+            onChange={handlePhoneChange}
+            containerClass="w-full"
+            inputClass="!w-full !h-12 !rounded-[40px] !border !border-input-border !bg-white !px-4 !pl-12 !text-base !placeholder:text-input-placeholder"
+            buttonClass="!border-none !bg-transparent !pl-4"
+            dropdownClass="!rounded-xl !shadow-lg text-sm"
+            placeholder="Enter phone number"
           />
           {errors.phone && (
             <span className="text-xs text-destructive">{errors.phone}</span>
@@ -249,9 +261,7 @@ const SellerSignupStep0: FC = () => {
                     )}
                     <span
                       className={
-                        req.met
-                          ? "text-green-600 font-medium"
-                          : "text-gray-500"
+                        req.met ? "text-green-600 font-medium" : "text-gray-500"
                       }
                     >
                       {req.label}
@@ -296,11 +306,7 @@ const SellerSignupStep0: FC = () => {
                 showConfirmPassword ? "Hide password" : "Show password"
               }
             >
-              {showConfirmPassword ? (
-                <EyeOff size={20} />
-              ) : (
-                <Eye size={20} />
-              )}
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
           {errors.confirmPassword && (

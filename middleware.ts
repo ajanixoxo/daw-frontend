@@ -7,12 +7,12 @@ export function middleware(request: NextRequest) {
   // Define protected routes
   const protectedRoutes = [
     "/profile",
-    "/cart",
-    "/product", // This will match /product/[id]
     "/checkout",
     "/payment",
-    "/cooperative", // Cooperative dashboard routes
+    // "/cooperative", // Cooperative dashboard routes
     "/admin", // Admin dashboard routes
+    "/logistics",
+    "/shop-manager"
   ];
 
   // Public exceptions: routes under protected prefixes that guests can access

@@ -16,10 +16,10 @@ export function MembersHeader() {
           <p className="mt-1 text-sm text-[#838794] lg:text-base">Manage and invite members to your cooperative</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button variant="outline" className="border-[#e4e7ec] bg-white text-[#1d1d2a] hover:bg-[#f5f5f5]">
+          {/* <Button variant="outline" className="border-[#e4e7ec] bg-white text-[#1d1d2a] hover:bg-[#f5f5f5]">
             <Copy className="mr-2 h-4 w-4" />
             Copy Link
-          </Button>
+          </Button> */}
           <Button className="bg-[#1d1d2a] text-white hover:bg-[#2d2d3a]" onClick={() => setIsDrawerOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Invite Members

@@ -20,6 +20,8 @@ export interface IPlaceOrderResponse {
     updatedAt: string;
     __v: number;
   };
+  orders: any[]; // Support for multiple shop orders
+  orderIds: string[]; // List of all order IDs
   orderItems: {
     order_id: string;
     product_id: string;
@@ -44,7 +46,8 @@ export interface IPaymentInitiateRequest {
   address: string[];
   DeliveryAddress: string;
   zipCode: string;
-  logisticsInfo: string;
+  amount: number;
+  logisticsInfo?: string;
 }
 
 export interface IPaymentInitiateResponse {
@@ -52,6 +55,57 @@ export interface IPaymentInitiateResponse {
   redirectUrl: string;
   reference: string;
   paymentId: string;
+}
+
+// ── Shared billing fields sent to every payment provider ─────────────────────
+export interface IPaymentBillingFields {
+  description: string;
+  name: string;
+  orderId: string;
+  email: string;
+  phone: string;
+  country: string;
+  state: string;
+  city: string;
+  address: string[];
+  DeliveryAddress: string;
+  zipCode: string;
+  logisticsInfo?: string;
+}
+
+// ── Paystack ──────────────────────────────────────────────────────────────────
+export interface IPaystackInitiateRequest extends IPaymentBillingFields {}
+
+export interface IPaystackInitiateResponse {
+  success: boolean;
+  paymentId: string;
+  reference: string;
+  authorizationUrl: string;
+}
+
+export interface IPaystackVerifyResponse {
+  success: boolean;
+  message: string;
+  reference: string;
+  gatewayReference?: string;
+  status: string;
+}
+
+// ── PayPal ────────────────────────────────────────────────────────────────────
+export interface IPaypalCreateOrderRequest extends IPaymentBillingFields {}
+
+export interface IPaypalCreateOrderResponse {
+  success: boolean;
+  paymentId: string;
+  paypalOrderId: string;
+  approvalUrl: string;
+}
+
+export interface IPaypalCaptureResponse {
+  success: boolean;
+  message: string;
+  captureId?: string;
+  status: string;
 }
 
 export interface IPaymentVerifyResponse {

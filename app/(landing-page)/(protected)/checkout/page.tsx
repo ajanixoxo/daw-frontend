@@ -2,10 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useCheckoutStore, useInitiatePayment } from "@/hooks/useCheckout";
+import {
+  useCheckoutStore,
+  useInitiatePayment,
+  useInitiatePaystackPayment,
+  useInitiatePaypalOrder,
+} from "@/hooks/useCheckout";
+import { calculateDeliveryFee } from "@/app/actions/checkout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/zustand/store";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -19,6 +26,8 @@ import { Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/landing-page/cooperatives/Footer";
+
+import { COUNTRY_STATES } from "@/lib/constants/countries";
 
 const LOGISTICS_OPTIONS = [
   { id: "fedex-express", name: "FedEx Express", time: "2weeks", price: 200 },
@@ -34,8 +43,12 @@ const LOGISTICS_OPTIONS = [
 export default function CheckoutPage() {
   const router = useRouter();
   const { orderData } = useCheckoutStore();
-  const { mutate: initiatePayment, isPending: isProcessingPayment } =
-    useInitiatePayment();
+  const { user } = useAuthStore();
+  const { mutate: initiateVigipay, isPending: isPendingVigipay } = useInitiatePayment();
+  const { mutate: initiatePaystack, isPending: isPendingPaystack } = useInitiatePaystackPayment();
+  const { mutate: initiatePaypal, isPending: isPendingPaypal } = useInitiatePaypalOrder();
+
+  const isProcessingPayment = isPendingVigipay || isPendingPaystack || isPendingPaypal;
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -47,12 +60,65 @@ export default function CheckoutPage() {
     streetAddress: "",
     zipCode: "",
     deliveryAddressType: "same", // 'same' or 'different'
+    differentAddress: "",
   });
 
-  const [selectedLogistics, setSelectedLogistics] = useState(
-    LOGISTICS_OPTIONS[1].id
-  );
+  const [paymentMethod, setPaymentMethod] = useState<"vigipay" | "paystack" | "paypal">("paystack");
   const [promoCode, setPromoCode] = useState("");
+
+  const initialDeliveryFee = (orderData?.order as any)?.delivery_fee || 0;
+  const subtotal = orderData ? orderData.order.total_amount - initialDeliveryFee : 0;
+  const [deliveryFee, setDeliveryFee] = useState(initialDeliveryFee);
+  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false);
+  const [deliveryError, setDeliveryError] = useState("");
+
+  const total = subtotal + deliveryFee;
+
+  // Pre-fill form data with authenticated user details
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.billingAddress?.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: prev.email || user.billingAddress?.email || user.email || "",
+        phone: prev.phone || user.billingAddress?.phone || user.phone || "",
+        country: prev.country || user.billingAddress?.country || user.country || "",
+        state: prev.state || user.billingAddress?.state || "",
+        city: prev.city || user.billingAddress?.city || "",
+        streetAddress: prev.streetAddress || user.billingAddress?.streetAddress || "",
+        zipCode: prev.zipCode || user.billingAddress?.zipCode || "",
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    async function fetchDeliveryFee() {
+      if (!formData.country || !orderData?.order?._id) return;
+      if (formData.country === "Nigeria" && !formData.state) return;
+      
+      setIsCalculatingDelivery(true);
+      setDeliveryError("");
+      
+      try {
+        const res = await calculateDeliveryFee({
+          orderId: orderData.order._id,
+          country: formData.country,
+          state: formData.state
+        });
+        
+        if (res.success && res.data) {
+          setDeliveryFee(res.data.deliveryFee);
+        } else {
+          setDeliveryError(res.error || "Failed to calculate delivery fee");
+        }
+      } catch (err: any) {
+        setDeliveryError(err.message || "Calculation failed");
+      } finally {
+        setIsCalculatingDelivery(false);
+      }
+    }
+    fetchDeliveryFee();
+  }, [formData.country, formData.state, orderData?.order?._id]);
 
   useEffect(() => {
     if (!orderData) {
@@ -63,38 +129,22 @@ export default function CheckoutPage() {
 
   if (!orderData) return null;
 
-  const selectedLogisticsOption = LOGISTICS_OPTIONS.find(
-    (l) => l.id === selectedLogistics
-  )!;
-  const shippingCost = 1500; // Fixed shipping/processing fee
-  const deliveryCost = selectedLogisticsOption.price;
-
-  // Assuming orderData.total_amount is the subtotal of items
-  const subtotal = orderData.order.total_amount;
-  const tax = subtotal * 0.075;
-
-  const total = subtotal + shippingCost + tax + deliveryCost;
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handlePayment = () => {
-    // Basic validation
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.streetAddress ||
-      !formData.city
-    ) {
+    if (!formData.fullName || !formData.email || !formData.streetAddress) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    const payload = {
-      description: `Checkout payment for order #${orderData.order._id}`,
+    const combinedOrderId = orderData.orderIds?.join(",") || orderData.order._id;
+
+    const billingPayload = {
+      description: `Checkout payment for order(s): ${combinedOrderId}`,
       name: formData.fullName,
-      orderId: orderData.order._id,
+      orderId: combinedOrderId,
       email: formData.email,
       phone: formData.phone,
       country: formData.country,
@@ -104,25 +154,50 @@ export default function CheckoutPage() {
       DeliveryAddress:
         formData.deliveryAddressType === "same"
           ? "Same as shipping address"
-          : "Different address",
+          : formData.differentAddress,
       zipCode: formData.zipCode,
-      logisticsInfo: `${selectedLogisticsOption.name} (${selectedLogisticsOption.time})`,
+      amount: total,
     };
 
-    initiatePayment(payload, {
-      onSuccess: (data) => {
-        toast.success("Payment initiated successfully");
-        if (data.redirectUrl) {
-          window.location.href = data.redirectUrl;
-        } else {
-          toast.error("No redirect URL returned");
-        }
-      },
-      onError: (error: any) => {
-        console.error("Payment failed:", error);
-        toast.error(error.message || "Failed to initiate payment");
-      },
-    });
+    const onError = (error: any) => {
+      console.error("Payment failed:", error);
+      toast.error(error.message || "Failed to initiate payment");
+    };
+
+    if (paymentMethod === "vigipay") {
+      initiateVigipay(billingPayload, {
+        onSuccess: (data) => {
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
+          } else {
+            toast.error("No redirect URL returned");
+          }
+        },
+        onError,
+      });
+    } else if (paymentMethod === "paystack") {
+      initiatePaystack(billingPayload, {
+        onSuccess: (data) => {
+          if (data.authorizationUrl) {
+            window.location.href = data.authorizationUrl;
+          } else {
+            toast.error("No Paystack authorization URL returned");
+          }
+        },
+        onError,
+      });
+    } else if (paymentMethod === "paypal") {
+      initiatePaypal(billingPayload, {
+        onSuccess: (data) => {
+          if (data.approvalUrl) {
+            window.location.href = data.approvalUrl;
+          } else {
+            toast.error("No PayPal approval URL returned");
+          }
+        },
+        onError,
+      });
+    }
   };
 
   return (
@@ -155,7 +230,7 @@ export default function CheckoutPage() {
                     <Input
                       id="fullName"
                       placeholder="John Doe"
-                      className="bg-gray-50/50 border-gray-200 h-12"
+                      className="bg-gray-50/50 border-gray-200 h-12 w-full"
                       value={formData.fullName}
                       onChange={(e) =>
                         handleInputChange("fullName", e.target.value)
@@ -170,7 +245,7 @@ export default function CheckoutPage() {
                         id="email"
                         type="email"
                         placeholder="hello@example.com"
-                        className="bg-gray-50/50 border-gray-200 h-12"
+                        className="bg-gray-50/50 border-gray-200 h-12 w-full"
                         value={formData.email}
                         onChange={(e) =>
                           handleInputChange("email", e.target.value)
@@ -182,7 +257,7 @@ export default function CheckoutPage() {
                       <Input
                         id="phone"
                         placeholder="Enter Number"
-                        className="bg-gray-50/50 border-gray-200 h-12"
+                        className="bg-gray-50/50 border-gray-200 h-12 w-full"
                         value={formData.phone}
                         onChange={(e) =>
                           handleInputChange("phone", e.target.value)
@@ -192,46 +267,150 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label>Country</Label>
-                      <Select
-                        onValueChange={(val) =>
-                          handleInputChange("country", val)
-                        }
-                      >
-                        <SelectTrigger className="bg-gray-50/50 border-gray-200 h-12">
-                          <SelectValue placeholder="Select Country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Nigeria">Nigeria</SelectItem>
-                          <SelectItem value="Ghana">Ghana</SelectItem>
-                          <SelectItem value="Kenya">Kenya</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>State</Label>
-                      <Select
-                        onValueChange={(val) => handleInputChange("state", val)}
-                      >
-                        <SelectTrigger className="bg-gray-50/50 border-gray-200 h-12">
-                          <SelectValue placeholder="Select State" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Lagos">Lagos</SelectItem>
-                          <SelectItem value="Abuja">Abuja</SelectItem>
-                          <SelectItem value="Rivers">Rivers</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <Select
+                      onValueChange={(val) => {
+                        handleInputChange("country", val);
+                        handleInputChange("state", "");
+                      }}
+                    >
+                      <SelectTrigger className="bg-gray-50/50 border-gray-200 h-12 w-full">
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Afghanistan">Afghanistan</SelectItem>
+                        <SelectItem value="Albania">Albania</SelectItem>
+                        <SelectItem value="Algeria">Algeria</SelectItem>
+                        <SelectItem value="Angola">Angola</SelectItem>
+                        <SelectItem value="Argentina">Argentina</SelectItem>
+                        <SelectItem value="Australia">Australia</SelectItem>
+                        <SelectItem value="Austria">Austria</SelectItem>
+                        <SelectItem value="Bangladesh">Bangladesh</SelectItem>
+                        <SelectItem value="Belgium">Belgium</SelectItem>
+                        <SelectItem value="Benin">Benin</SelectItem>
+                        <SelectItem value="Bolivia">Bolivia</SelectItem>
+                        <SelectItem value="Brazil">Brazil</SelectItem>
+                        <SelectItem value="Burkina Faso">Burkina Faso</SelectItem>
+                        <SelectItem value="Cameroon">Cameroon</SelectItem>
+                        <SelectItem value="Canada">Canada</SelectItem>
+                        <SelectItem value="Chad">Chad</SelectItem>
+                        <SelectItem value="Chile">Chile</SelectItem>
+                        <SelectItem value="China">China</SelectItem>
+                        <SelectItem value="Colombia">Colombia</SelectItem>
+                        <SelectItem value="Congo">Congo</SelectItem>
+                        <SelectItem value="Cote d'Ivoire">Cote d&apos;Ivoire</SelectItem>
+                        <SelectItem value="Czech Republic">Czech Republic</SelectItem>
+                        <SelectItem value="Denmark">Denmark</SelectItem>
+                        <SelectItem value="DR Congo">DR Congo</SelectItem>
+                        <SelectItem value="Ecuador">Ecuador</SelectItem>
+                        <SelectItem value="Egypt">Egypt</SelectItem>
+                        <SelectItem value="Ethiopia">Ethiopia</SelectItem>
+                        <SelectItem value="Finland">Finland</SelectItem>
+                        <SelectItem value="France">France</SelectItem>
+                        <SelectItem value="Gambia">Gambia</SelectItem>
+                        <SelectItem value="Germany">Germany</SelectItem>
+                        <SelectItem value="Ghana">Ghana</SelectItem>
+                        <SelectItem value="Greece">Greece</SelectItem>
+                        <SelectItem value="Guinea">Guinea</SelectItem>
+                        <SelectItem value="Hungary">Hungary</SelectItem>
+                        <SelectItem value="India">India</SelectItem>
+                        <SelectItem value="Indonesia">Indonesia</SelectItem>
+                        <SelectItem value="Iran">Iran</SelectItem>
+                        <SelectItem value="Iraq">Iraq</SelectItem>
+                        <SelectItem value="Ireland">Ireland</SelectItem>
+                        <SelectItem value="Israel">Israel</SelectItem>
+                        <SelectItem value="Italy">Italy</SelectItem>
+                        <SelectItem value="Japan">Japan</SelectItem>
+                        <SelectItem value="Jordan">Jordan</SelectItem>
+                        <SelectItem value="Kazakhstan">Kazakhstan</SelectItem>
+                        <SelectItem value="Kenya">Kenya</SelectItem>
+                        <SelectItem value="Kuwait">Kuwait</SelectItem>
+                        <SelectItem value="Lebanon">Lebanon</SelectItem>
+                        <SelectItem value="Libya">Libya</SelectItem>
+                        <SelectItem value="Madagascar">Madagascar</SelectItem>
+                        <SelectItem value="Malawi">Malawi</SelectItem>
+                        <SelectItem value="Malaysia">Malaysia</SelectItem>
+                        <SelectItem value="Mali">Mali</SelectItem>
+                        <SelectItem value="Mauritania">Mauritania</SelectItem>
+                        <SelectItem value="Mexico">Mexico</SelectItem>
+                        <SelectItem value="Morocco">Morocco</SelectItem>
+                        <SelectItem value="Mozambique">Mozambique</SelectItem>
+                        <SelectItem value="Myanmar">Myanmar</SelectItem>
+                        <SelectItem value="Nepal">Nepal</SelectItem>
+                        <SelectItem value="Netherlands">Netherlands</SelectItem>
+                        <SelectItem value="New Zealand">New Zealand</SelectItem>
+                        <SelectItem value="Niger">Niger</SelectItem>
+                        <SelectItem value="Nigeria">Nigeria</SelectItem>
+                        <SelectItem value="Norway">Norway</SelectItem>
+                        <SelectItem value="Pakistan">Pakistan</SelectItem>
+                        <SelectItem value="Peru">Peru</SelectItem>
+                        <SelectItem value="Philippines">Philippines</SelectItem>
+                        <SelectItem value="Poland">Poland</SelectItem>
+                        <SelectItem value="Portugal">Portugal</SelectItem>
+                        <SelectItem value="Qatar">Qatar</SelectItem>
+                        <SelectItem value="Romania">Romania</SelectItem>
+                        <SelectItem value="Russia">Russia</SelectItem>
+                        <SelectItem value="Rwanda">Rwanda</SelectItem>
+                        <SelectItem value="Saudi Arabia">Saudi Arabia</SelectItem>
+                        <SelectItem value="Senegal">Senegal</SelectItem>
+                        <SelectItem value="Sierra Leone">Sierra Leone</SelectItem>
+                        <SelectItem value="Singapore">Singapore</SelectItem>
+                        <SelectItem value="Somalia">Somalia</SelectItem>
+                        <SelectItem value="South Africa">South Africa</SelectItem>
+                        <SelectItem value="South Korea">South Korea</SelectItem>
+                        <SelectItem value="South Sudan">South Sudan</SelectItem>
+                        <SelectItem value="Spain">Spain</SelectItem>
+                        <SelectItem value="Sri Lanka">Sri Lanka</SelectItem>
+                        <SelectItem value="Sudan">Sudan</SelectItem>
+                        <SelectItem value="Sweden">Sweden</SelectItem>
+                        <SelectItem value="Switzerland">Switzerland</SelectItem>
+                        <SelectItem value="Syria">Syria</SelectItem>
+                        <SelectItem value="Tanzania">Tanzania</SelectItem>
+                        <SelectItem value="Thailand">Thailand</SelectItem>
+                        <SelectItem value="Togo">Togo</SelectItem>
+                        <SelectItem value="Tunisia">Tunisia</SelectItem>
+                        <SelectItem value="Turkey">Turkey</SelectItem>
+                        <SelectItem value="Uganda">Uganda</SelectItem>
+                        <SelectItem value="Ukraine">Ukraine</SelectItem>
+                        <SelectItem value="United Arab Emirates">United Arab Emirates</SelectItem>
+                        <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                        <SelectItem value="United States">United States</SelectItem>
+                        <SelectItem value="Venezuela">Venezuela</SelectItem>
+                        <SelectItem value="Vietnam">Vietnam</SelectItem>
+                        <SelectItem value="Yemen">Yemen</SelectItem>
+                        <SelectItem value="Zambia">Zambia</SelectItem>
+                        <SelectItem value="Zimbabwe">Zimbabwe</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label>State</Label>
+                    <Select
+                      key={formData.country}
+                      onValueChange={(val) => handleInputChange("state", val)}
+                      disabled={!formData.country}
+                    >
+                      <SelectTrigger className="bg-gray-50/50 border-gray-200 h-12 w-full">
+                        <SelectValue placeholder={formData.country ? "Select State" : "Select a country first"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(COUNTRY_STATES[formData.country] ?? []).map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="address">Street Address</Label>
                     <Input
                       id="address"
                       placeholder="Enter Street Address"
-                      className="bg-gray-50/50 border-gray-200 h-12"
+                      className="bg-gray-50/50 border-gray-200 h-12 w-full"
                       value={formData.streetAddress}
                       onChange={(e) =>
                         handleInputChange("streetAddress", e.target.value)
@@ -239,35 +418,37 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label>City</Label>
-                      <Select
-                        onValueChange={(val) => handleInputChange("city", val)}
-                      >
-                        <SelectTrigger className="bg-gray-50/50 border-gray-200 h-12">
-                          <SelectValue placeholder="Select City" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Ikeja">Ikeja</SelectItem>
-                          <SelectItem value="Lekki">Lekki</SelectItem>
-                          <SelectItem value="Yaba">Yaba</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
+                  <div className="space-y-2">
                       <Label htmlFor="zipCode">Zip Code</Label>
                       <Input
                         id="zipCode"
                         placeholder="Enter Zip Code"
-                        className="bg-gray-50/50 border-gray-200 h-12"
+                        className="bg-gray-50/50 border-gray-200 h-12 w-full"
                         value={formData.zipCode}
                         onChange={(e) =>
                           handleInputChange("zipCode", e.target.value)
                         }
                       />
-                    </div>
                   </div>
+                  </div>
+
+                  {/* City field — commented out for now
+                  <div className="space-y-2">
+                    <Label>City</Label>
+                    <Select
+                      onValueChange={(val) => handleInputChange("city", val)}
+                    >
+                      <SelectTrigger className="bg-gray-50/50 border-gray-200 h-12 w-full">
+                        <SelectValue placeholder="Select City" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ikeja">Ikeja</SelectItem>
+                        <SelectItem value="Lekki">Lekki</SelectItem>
+                        <SelectItem value="Yaba">Yaba</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  */}
                 </div>
               </section>
 
@@ -314,9 +495,24 @@ export default function CheckoutPage() {
                     </Label>
                   </div>
                 </RadioGroup>
+
+                {formData.deliveryAddressType === "different" && (
+                  <div className="space-y-2 mt-4">
+                    <Label htmlFor="differentAddress">Billing Address</Label>
+                    <Input
+                      id="differentAddress"
+                      placeholder="Enter your billing address"
+                      className="bg-gray-50/50 border-gray-200 h-12 w-full"
+                      value={formData.differentAddress}
+                      onChange={(e) =>
+                        handleInputChange("differentAddress", e.target.value)
+                      }
+                    />
+                  </div>
+                )}
               </section>
 
-              {/* Logistics */}
+              {/* Logistics — commented out for now
               <section className="space-y-4">
                 <h3 className="text-sm font-medium">Logistics</h3>
                 <RadioGroup
@@ -357,6 +553,7 @@ export default function CheckoutPage() {
                   ))}
                 </RadioGroup>
               </section>
+              */}
             </div>
 
             {/* Right Column - Order Summary */}
@@ -376,31 +573,51 @@ export default function CheckoutPage() {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium">
-                        ₦
-                        {shippingCost.toLocaleString("en-NG", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span className="font-medium">
-                        ₦
-                        {tax.toLocaleString("en-NG", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Delivery</span>
-                      <span className="font-medium">
-                        ₦
-                        {deliveryCost.toLocaleString("en-NG", {
-                          minimumFractionDigits: 2,
-                        })}
+                      <span className="font-medium flex items-center">
+                        {isCalculatingDelivery ? (
+                           <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : deliveryFee > 0 ? (
+                           `₦${deliveryFee.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
+                        ) : (
+                           <span className="text-xs">{deliveryError ? <span className="text-red-500">{deliveryError}</span> : "Select Address"}</span>
+                        )}
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Payment Method Selector */}
+                  <div className="mb-6">
+                    <p className="text-sm font-medium mb-3">Payment Method</p>
+                    <div className="space-y-2">
+                      {[
+                        { id: "paystack", label: "Paystack", sub: "Debit / Credit Card (NGN)" },
+                        { id: "paypal",   label: "PayPal",   sub: "International (USD)" },
+                        { id: "vigipay",  label: "Vigipay",  sub: "Bank Transfer (NGN)" },
+                      ].map((method) => (
+                        <button
+                          key={method.id}
+                          type="button"
+                          onClick={() => setPaymentMethod(method.id as "vigipay" | "paystack" | "paypal")}
+                          className={`w-full flex items-center justify-between border rounded-lg px-4 py-3 transition-colors text-left ${
+                            paymentMethod === method.id
+                              ? "border-[#F10E7C] bg-[#fff0f7]"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div>
+                            <p className="text-sm font-medium">{method.label}</p>
+                            <p className="text-xs text-muted-foreground">{method.sub}</p>
+                          </div>
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            paymentMethod === method.id ? "border-[#F10E7C]" : "border-gray-300"
+                          }`}>
+                            {paymentMethod === method.id && (
+                              <div className="w-2 h-2 rounded-full bg-[#F10E7C]" />
+                            )}
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
 

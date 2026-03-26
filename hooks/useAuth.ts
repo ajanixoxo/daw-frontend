@@ -4,6 +4,8 @@ import { loginUser, signupUser, logoutUser, resendOtp } from "@/app/actions/auth
 import { getUserProfile } from "@/app/actions/profile";
 import type { ILoginRequest, ISignupRequest, ISessionData, IUser } from "@/types/auth.types";
 import { useAuthStore } from "@/zustand/store";
+import { useSellerSignupStore } from "@/zustand/seller-signup-store";
+import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { tokenManager } from "@/lib/api/client-client";
 
 interface UseLoginReturn {
@@ -48,12 +50,14 @@ export function useLogin(): UseLoginReturn {
             setAuthData(result.user, result.data);
           }
 
-          if (result.data.isVerified) {
+          // If we have tokens, we are authenticated - redirect to dashboard
+          if (result.data.accessToken && result.data.refreshToken) {
             // Check user role and redirect accordingly
             const userRoles = result.user?.roles || [];
-            const isSeller = userRoles.includes("seller") || result.data.role === "seller";
-            const isCooperativeAdmin = result.data.role === "cooperative_admin";
-            const isAdmin = result.data.role === "admin";
+            const isSeller = userRoles.includes("seller") || userRoles.includes("member");
+            const isCooperativeAdmin = userRoles.includes("cooperative_admin");
+            const isAdmin = userRoles.includes("admin") || userRoles.includes("support-admin");
+            const isLogistics = userRoles.includes("logistics_provider");
             
             if (isAdmin) {
               // Redirect admin to admin dashboard
@@ -75,33 +79,26 @@ export function useLogin(): UseLoginReturn {
                     // User has shops, redirect to dashboard
                     router.push("/sellers/dashboard");
                   } else {
-                    // User has no shops, check KYC status
-                    const isKycVerified = 
-                      user.kyc_status === "verified" || 
-                      (user as any).kycVerified === true;
-                    
-                    if (!isKycVerified) {
-                      // Redirect to KYC page if not verified
-                      router.push("/sellers/kyc");
-                    } else {
-                      // KYC verified but no shops, redirect to create shop
-                      router.push("/sellers/shop/create");
-                    }
+                    // Bypass KYC check, redirect directly to create shop
+                    router.push("/sellers/shop/create");
                   }
                 } else {
-                  // If profile fetch fails, redirect to KYC to be safe
-                  router.push("/sellers/kyc");
+                  // If profile fetch fails, redirect to dashboard to be safe
+                  router.push("/sellers/dashboard");
                 }
               } catch (error) {
                 console.error("Error checking profile:", error);
-                // On error, redirect to KYC page
-                router.push("/sellers/kyc");
+                // On error, redirect to dashboard
+                router.push("/sellers/dashboard");
               }
+            } else if (isLogistics) {
+              // Redirect logistics provider to logistics dashboard
+              router.push("/logistics/dashboard");
             } else {
               router.push("/");
             }
             router.refresh();
-          } else {
+          } else if (!result.data.isVerified) {
             router.push("/otp?mode=login");
           }
         }
@@ -206,6 +203,8 @@ export function useLogout(): UseLogoutReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { logout: clearAuthData } = useAuthStore();
+  const { reset: resetSellerSignup } = useSellerSignupStore();
+  const { reset: resetCooperativeSignup } = useCooperativeSignupStore();
 
   const logout = async () => {
     setIsLoading(true);
@@ -213,25 +212,38 @@ export function useLogout(): UseLogoutReturn {
 
     startTransition(async () => {
       try {
-        const result = await logoutUser();
-
-        if (!result.success) {
-          setError(result.error || "Logout failed");
-          setIsLoading(false);
-          return;
+        // Attempt server-side logout but don't let it block client-side clearing
+        await logoutUser();
+      } catch (err) {
+        console.error("Server logout failed, proceeding with client-side clear:", err);
+      } finally {
+        // PERMANENTLY clear all client-side state
+        clearAuthData();
+        resetSellerSignup();
+        resetCooperativeSignup();
+        
+        // Clear all storage
+        if (typeof window !== 'undefined') {
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          // Clear all cookies
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          }
         }
 
-        clearAuthData();
-        
-        // Clear tokens from localStorage
-        tokenManager.clearTokens();
+        // Dispatch logout event for React Query cache clearing
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+        }
 
         router.push("/");
         router.refresh();
-        setIsLoading(false);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "An error occurred";
-        setError(message);
         setIsLoading(false);
       }
     });
@@ -281,7 +293,7 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           return;
         }
 
-        if (mode === "login" && result.data) {
+        if (result.data) {
           // Store tokens in localStorage for client-side API client
           if (result.data.accessToken && result.data.refreshToken) {
             tokenManager.setTokens(result.data.accessToken, result.data.refreshToken);
@@ -289,96 +301,84 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           
           if (result.user) {
             setAuthData(result.user, result.data);
-            
-            // Check user role and redirect accordingly
-            const userRoles = result.user.roles || [];
-            const isSeller = userRoles.includes("seller") || result.data.role === "seller";
-            const isCooperativeAdmin = result.data.role === "cooperative_admin";
-            const isAdmin = result.data.role === "admin";
-            
-            if (isAdmin) {
-              // Redirect admin to admin dashboard
-              setIsLoading(false);
-              window.location.href = "/admin/dashboard";
-            } else if (isCooperativeAdmin) {
-              // Redirect cooperative admin to cooperative dashboard
-              setIsLoading(false);
-              window.location.href = "/cooperative/dashboard";
-            } else if (isSeller) {
-              // Fetch profile to check shop and KYC status
-              try {
-                const profileResponse = await getUserProfile();
+          } else {
+            // Fallback for signup verification which might not return a full user object initially
+            const partialUser = {
+              _id: result.data.userId,
+              email: result.data.email,
+              roles: result.data.roles || ["buyer"],
+              isVerified: true,
+              status: "active",
+              firstName: "",
+              lastName: "",
+              phone: ""
+            } as any;
+            setAuthData(partialUser, result.data);
+          }
+          
+          // Check user role and redirect accordingly
+          const userRoles = result.user?.roles || result.data.roles || ["buyer"];
+          const isSeller = userRoles.includes("seller") || userRoles.includes("member");
+          const isCooperativeAdmin = userRoles.includes("cooperative_admin");
+          const isAdmin = userRoles.includes("admin") || userRoles.includes("support-admin");
+          
+          if (isAdmin) {
+            // Redirect admin to admin dashboard
+            setIsLoading(false);
+            window.location.href = "/admin/dashboard";
+          } else if (isCooperativeAdmin) {
+            // Redirect cooperative admin to cooperative dashboard
+            setIsLoading(false);
+            window.location.href = "/cooperative/dashboard";
+          } else if (isSeller) {
+            // Fetch profile to check shop and KYC status
+            try {
+              const profileResponse = await getUserProfile();
+              
+              // Determine redirect path based on shop and KYC status
+              let redirectPath = "/sellers/kyc"; // Default to KYC
+              
+              if (profileResponse.success && profileResponse.data) {
+                const user = profileResponse.data;
                 
-                // Determine redirect path based on shop and KYC status
-                let redirectPath = "/sellers/kyc"; // Default to KYC
+                // Check if user has shops
+                const hasShops = user.shop && Array.isArray(user.shop) && user.shop.length > 0;
                 
-                if (profileResponse.success && profileResponse.data) {
-                  const user = profileResponse.data;
-                  
-                  // Check if user has shops
-                  const hasShops = user.shop && Array.isArray(user.shop) && user.shop.length > 0;
-                  
-                  if (hasShops) {
-                    // User has shops, redirect to dashboard
-                    redirectPath = "/sellers/dashboard";
-                  } else {
-                    // User has no shops, check KYC status
-                    // First try from result.user (for OTP login), then use profile data
-                    const userFromResult = result.user as any;
-                    let isKycVerified = false;
-                    
-                    if (userFromResult?.kyc_status === "verified" || userFromResult?.kycVerified === true) {
-                      isKycVerified = true;
-                    } else if (userFromResult?.kyc_status || userFromResult?.kycVerified === false) {
-                      isKycVerified = false;
-                    } else {
-                      // Use profile data for KYC status
-                      isKycVerified = 
-                        user.kyc_status === "verified" || 
-                        (user as any).kycVerified === true;
-                    }
-                    
-                    if (!isKycVerified) {
-                      // Redirect to KYC page if not verified
-                      redirectPath = "/sellers/kyc";
-                    } else {
-                      // KYC verified but no shops, redirect to create shop
-                      redirectPath = "/sellers/shop/create";
-                    }
-                  }
+                if (hasShops) {
+                  // User has shops, redirect to dashboard
+                  redirectPath = "/sellers/dashboard";
+                } else {
+                  // Bypass KYC check, redirect directly to create shop
+                  redirectPath = "/sellers/shop/create";
                 }
-                
-                // Clear loading state and redirect immediately
-                setIsLoading(false);
-                window.location.href = redirectPath;
-              } catch (error) {
-                console.error("Error checking profile:", error);
-                // On error, redirect to KYC page
-                setIsLoading(false);
-                window.location.href = "/sellers/kyc";
               }
-            } else {
+              
+              // Clear loading state and redirect immediately
               setIsLoading(false);
-              router.push("/");
-              router.refresh();
+              window.location.href = redirectPath;
+            } catch (error) {
+              console.error("Error checking profile:", error);
+              // On error, redirect to dashboard
+              setIsLoading(false);
+              window.location.href = "/sellers/dashboard";
             }
           } else {
+            // For standard buyers — check if they had a pending guest checkout
             setIsLoading(false);
-            setAuthStatus(true, true);
+            try {
+              const { getPendingCheckoutCart } = await import("@/lib/guest-cart");
+              const pending = getPendingCheckoutCart();
+              if (pending.length > 0) {
+                // Redirect to cart; the ShoppingCart component handles the merge
+                window.location.href = "/cart";
+                return;
+              }
+            } catch {
+              // ignore — just do normal redirect
+            }
             router.push("/");
             router.refresh();
           }
-        } else if (mode === "signup") {
-          // Clear the stored role if it exists
-          const signupRole = sessionStorage.getItem("signupRole");
-          if (signupRole) {
-            sessionStorage.removeItem("signupRole");
-          }
-          
-          // Show success message and redirect to login (same for both buyer and seller)
-          setSuccess(true);
-          setAuthStatus(false, true);
-          setIsLoading(false);
         } else {
           setAuthStatus(false, true);
           setIsLoading(false);

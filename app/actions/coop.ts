@@ -100,7 +100,7 @@ export async function joinCooperative(data: {
  * Combined: guest/buyer → create user (if guest) + seller onboard + join DAW cooperative.
  * Client builds FormData with: personal (firstName, lastName, email, phone, password?, confirmPassword?);
  * shop (name, description, category, contactNumber, businessAddress, shopLogo?, shopBanner?);
- * documents (idDocument, proofOfResidence, businessCac, passportPhotograph); cooperativeId, subscriptionTierId.
+ * documents (nin, passportPhotograph, businessCac?); cooperativeId, subscriptionTierId.
  */
 export async function cooperativeJoinWithSellerOnboard(
   formData: FormData
@@ -122,7 +122,7 @@ export async function cooperativeJoinWithSellerOnboard(
       member?: unknown;
       shop?: unknown;
       token?: string; // guest temp token for /auth/verify/email
-      user?: { _id: string; email: string; roles?: string[] };
+      user?: { _id: string; email: string; roles?: string[]; shop?: unknown; member?: unknown[] };
     };
     if (!res.ok) {
       const msg =
@@ -136,7 +136,7 @@ export async function cooperativeJoinWithSellerOnboard(
       await createServerSession({
         userId: data.user._id,
         email: data.user.email,
-        role: data.user.roles?.[0] || "buyer",
+        roles: data.user.roles || ["buyer"],
         isVerified: false,
         accessToken: data.token,
         refreshToken: "",
@@ -168,6 +168,8 @@ export async function guestJoinCooperative(data: {
   firstName: string;
   lastName?: string;
   phone: string;
+  country?: string;
+  currency?: string;
   cooperativeId: string;
   subscriptionTierId: string;
 }): Promise<IActionResponse<IJoinCooperativeResponse>> {
@@ -184,7 +186,7 @@ export async function guestJoinCooperative(data: {
       await createServerSession({
         userId: response.user._id,
         email: response.user.email,
-        role: response.user.roles?.[0] || "buyer",
+        roles: response.user.roles || ["buyer"],
         isVerified: false,
         accessToken: response.token,
         refreshToken: "",

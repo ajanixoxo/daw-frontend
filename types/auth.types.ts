@@ -1,6 +1,6 @@
 export interface ISessionData {
   userId: string;
-  role: string;
+  roles: string[];
   email: string;
   isVerified: boolean;
   accessToken: string;
@@ -57,11 +57,24 @@ export interface IUser {
   kyc_status?: string;
   roles: string[];
   status?: string;
+  isLoginOtpEnabled?: boolean;
   shop?: any[];
   member?: any[];
   createdAt?: string;
   updatedAt?: string;
-  avatar?: string; // <- add this line
+  avatar?: string;
+  country?: string;
+  currency?: string;
+  billingAddress?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    streetAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }
 
 
@@ -78,15 +91,18 @@ export interface ISignupRequest {
   confirmPassword: string;
   phone: string;
   roles?: "buyer" | "seller";
+  country?: string;
+  currency?: string;
 }
 
 export interface ILoginResponse {
   message: string;
-  user: IUser;
+  user?: IUser;
   token: {
     accessToken: string;
     refreshToken: string;
   } | string;
+  isOtpRequired?: boolean;
 }
 
 export interface ISignupResponse {
@@ -120,6 +136,15 @@ export interface IOtpRequest {
 export interface IVerifyEmailResponse {
   success: boolean;
   message: string;
+  token?: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  user?: {
+    _id: string;
+    email: string;
+    roles: string[];
+  };
 }
 
 export interface IForgotPasswordRequest {

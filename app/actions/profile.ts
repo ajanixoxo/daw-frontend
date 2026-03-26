@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse, IUser } from "@/types/auth.types";
 
 interface IProfileResponse {
@@ -11,9 +11,7 @@ interface IProfileResponse {
 
 export async function getUserProfile(): Promise<IActionResponse<IUser>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Please login to view profile" };
@@ -45,9 +43,7 @@ export async function getSellerDocumentsMe(): Promise<
   IActionResponse<{ hasDocuments: boolean }>
 > {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Please login" };
@@ -58,12 +54,52 @@ export async function getSellerDocumentsMe(): Promise<
       { token }
     );
 
-    return {
-      success: true,
-      data: { hasDocuments: response?.hasDocuments ?? false },
-    };
+    return { success: true, data: { hasDocuments: response?.hasDocuments ?? false } };
   } catch (error) {
     console.error("Get seller documents error:", error);
     return { success: true, data: { hasDocuments: false } };
+  }
+}
+
+export async function updateUserProfile(data: {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  country?: string;
+  currency?: string;
+  isLoginOtpEnabled?: boolean;
+  billingAddress?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    streetAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+}): Promise<IActionResponse<{ message: string; user: IUser }>> {
+  try {
+    const token = await getFreshToken();
+
+    if (!token) {
+      return { success: false, error: "Please login" };
+    }
+
+    const response = await apiClient.put<{
+      success: boolean;
+      message: string;
+      user: IUser;
+    }>(API_ENDPOINTS.AUTH.PROFILE, data, { token });
+
+    return {
+      success: true,
+      data: { message: response.message, user: response.user },
+      message: response.message,
+    };
+  } catch (error) {
+    console.error("Update profile error:", error);
+    const message = error instanceof Error ? error.message : "Failed to update profile";
+    return { success: false, error: message };
   }
 }

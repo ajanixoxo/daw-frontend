@@ -25,6 +25,9 @@ import { useReviews } from "@/hooks/useReviews";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { formatPrice, productPrice } from "@/lib/format-price";
+import { useAuthStore } from "@/zustand/store";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ProductInfoProps {
   product: IProduct;
@@ -46,6 +49,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const reviewCount = reviewsData?.pagination.total || 4; // Mock 4 if 0
   const averageRating = 4.5; // Mock 4.5
 
+  const { isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1 && newQuantity <= (product.quantity || 100)) {
@@ -55,7 +62,18 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
   const handleAddToCart = () => {
     addToCart(
-      { productId: product._id, quantity },
+      {
+        productId: product._id,
+        quantity,
+        _snapshot: {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          images: product.images || [],
+          description: product.description || "",
+          shopName: product.shop_name || "",
+        },
+      },
       {
         onSuccess: () => {
           toast.success("Added to cart successfully");
@@ -68,6 +86,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   };
 
   const toggleWishlist = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to add items to wishlist");
+      const loginUrl = new URL("/auth", window.location.origin);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      router.push(loginUrl.pathname + loginUrl.search);
+      return;
+    }
+
     if (isInWishlist) {
       removeFromWishlist(product._id);
     } else {
@@ -129,10 +155,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
       {/* Price Block */}
       <div className="flex items-center gap-4">
         <span className="text-gray-300 line-through text-xl font-medium">
-          ${originalPrice.toFixed(2)}
+          {formatPrice(originalPrice, product.currency)}
         </span>
         <span className="text-[#F10E7C] text-3xl font-bold">
-          ${price.toFixed(2)}
+          {productPrice(product)}
         </span>
         <span className="px-2.5 py-1 bg-[#fff0f7] text-[#F10E7C] text-xs font-bold rounded-full">
           {discount}% Off

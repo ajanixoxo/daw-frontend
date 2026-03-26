@@ -6,10 +6,30 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Bell, Smartphone } from "lucide-react"
+import { updateUserProfile } from "@/app/actions/profile"
+import { useProfile } from "@/hooks/useProfile"
+import { toast } from "sonner"
 
 export function SecurityTab() {
-  const [smsAuth, setSmsAuth] = useState(true)
-  const [emailAuth, setEmailAuth] = useState(false)
+  const { data: user, refetch } = useProfile()
+  const [isUpdating2FA, setIsUpdating2FA] = useState(false)
+
+  const handleEmailAuthChange = async (checked: boolean) => {
+    setIsUpdating2FA(true)
+    try {
+      const result = await updateUserProfile({ isLoginOtpEnabled: checked })
+      if (result.success) {
+        toast.success(checked ? "Email Authentication enabled" : "Email Authentication disabled")
+        refetch()
+      } else {
+        toast.error(result.error || "Failed to update 2FA settings")
+      }
+    } catch {
+      toast.error("An error occurred")
+    } finally {
+      setIsUpdating2FA(false)
+    }
+  }
 
   return (
     <div className="space-y-12">
@@ -42,22 +62,17 @@ export function SecurityTab() {
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Two-Factor Authentication</h2>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <div className="font-medium">SMS Authentication</div>
-              <div className="text-sm text-muted-foreground">Receive codes via SMS</div>
-            </div>
-            <Switch checked={smsAuth} onCheckedChange={setSmsAuth} />
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="space-y-0.5">
+            <div className="font-medium">Email Authentication</div>
+            <div className="text-sm text-muted-foreground">Receive login OTP codes securely via your email</div>
           </div>
-
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <div className="font-medium">Email Authentication</div>
-              <div className="text-sm text-muted-foreground">Receive codes via email</div>
-            </div>
-            <Switch checked={emailAuth} onCheckedChange={setEmailAuth} />
-          </div>
+          <Switch 
+            disabled={isUpdating2FA}
+            checked={user?.isLoginOtpEnabled || false} 
+            onCheckedChange={handleEmailAuthChange} 
+            className="data-[state=checked]:bg-[#E6007A]"
+          />
         </div>
       </div>
 

@@ -19,6 +19,7 @@ import {
   useIsProductInWishlist,
 } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
+import { productPrice } from "@/lib/format-price";
 import type { IProduct } from "@/types/product.types";
 
 export function MarketplaceContent() {
@@ -173,7 +174,18 @@ function ProductCard({ product }: { product: IProduct }) {
 
   const handleAddToCart = () => {
     addToCart(
-      { productId: product._id, quantity: 1 },
+      {
+        productId: product._id,
+        quantity: 1,
+        _snapshot: {
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          images: product.images || [],
+          description: product.description || "",
+          shopName: product.shop_name || "",
+        },
+      },
       {
         onSuccess: () => {
           setJustAdded(true);
@@ -243,7 +255,7 @@ function ProductCard({ product }: { product: IProduct }) {
           {product.name}
         </h3>
         <span className="text-[#f10e7c] font-semibold text-sm whitespace-nowrap">
-          ₦{product.price.toLocaleString()}
+          {productPrice(product)}
         </span>
       </div>
 

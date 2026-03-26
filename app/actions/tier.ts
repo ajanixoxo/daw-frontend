@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { CreateTierPayload, Tier } from "@/types/tier.types";
 
@@ -17,9 +17,7 @@ export async function createTier(
   payload: CreateTierPayload
 ): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -49,9 +47,7 @@ export async function updateTier(
   payload: UpdateTierPayload
 ): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };
@@ -83,9 +79,7 @@ export async function getAllTiersByCoopId(
   cooperativeId: string
 ): Promise<GetAllTiersResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Authentication required" };

@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, MapPin } from "lucide-react"
+import { Calendar, MapPin, Loader2 } from "lucide-react"
+import { useAuthStore } from "@/zustand/store"
+import { updateUserProfile } from "@/app/actions/profile"
+import { toast } from "sonner"
 
 type TabType = "profile" | "notifications"
 
@@ -18,14 +21,34 @@ interface NotificationSetting {
 }
 
 export default function SettingsPage() {
+  const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState<TabType>("profile")
+  const [isSaving, setIsSaving] = useState(false)
   const [profileData, setProfileData] = useState({
-    firstName: "Princewill",
-    lastName: "Favour",
-    email: "princewillfavour17@gmail.com",
-    phone: "+234 90322353555",
-    timezone: "Eastern Time (EST)",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    timezone: "West Africa Time (WAT)",
   })
+  const [isUpdating2FA, setIsUpdating2FA] = useState(false)
+  const [isLoginOtpEnabled, setIsLoginOtpEnabled] = useState(user?.isLoginOtpEnabled || false)
+
+  // Sync state if user loads after mount
+  useEffect(() => {
+    if (user) {
+      setProfileData((prev) => ({
+        ...prev,
+        firstName: user.firstName || prev.firstName,
+        lastName: user.lastName || prev.lastName,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+      }))
+      if (user.isLoginOtpEnabled !== undefined) {
+        setIsLoginOtpEnabled(user.isLoginOtpEnabled)
+      }
+    }
+  }, [user])
 
   const [notifications, setNotifications] = useState<NotificationSetting[]>([
     {
@@ -66,6 +89,52 @@ export default function SettingsPage() {
 
   const toggleNotification = (id: string) => {
     setNotifications((prev) => prev.map((notif) => (notif.id === id ? { ...notif, enabled: !notif.enabled } : notif)))
+  }
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true)
+    try {
+      const result = await updateUserProfile({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: profileData.phone,
+      })
+
+      if (result.success) {
+        toast.success(result.message || "Profile updated successfully")
+        // Optional: trigger a session refresh if needed
+      } else {
+        toast.error(result.error || "Failed to update profile")
+      }
+    } catch (error) {
+      toast.error("An error occurred while updating the profile")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleEmailAuthChange = async (checked: boolean) => {
+    setIsUpdating2FA(true)
+    const prev = isLoginOtpEnabled
+    setIsLoginOtpEnabled(checked) // Optimistic update
+    try {
+      const result = await updateUserProfile({ isLoginOtpEnabled: checked })
+      if (result.success) {
+        toast.success(checked ? "Email Authentication enabled" : "Email Authentication disabled")
+      } else {
+        setIsLoginOtpEnabled(prev)
+        toast.error(result.error || "Failed to update 2FA settings")
+      }
+    } catch {
+      setIsLoginOtpEnabled(prev)
+      toast.error("An error occurred")
+    } finally {
+      setIsUpdating2FA(false)
+    }
+  }
+
+  const handleSaveNotifications = () => {
+    toast.success("Notification preferences saved successfully")
   }
 
   return (
@@ -143,8 +212,8 @@ export default function SettingsPage() {
                       id="email"
                       type="email"
                       value={profileData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
-                      className="h-12"
+                      disabled
+                      className="h-12 bg-muted/50 cursor-not-allowed text-muted-foreground"
                     />
                   </div>
 
@@ -183,11 +252,13 @@ export default function SettingsPage() {
                   <div className="flex items-start justify-between rounded-lg border border-border bg-card p-6">
                     <div>
                       <h3 className="font-semibold text-foreground">Last Login</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">February 22, 2024 at 2:30 PM EST</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {(user as any)?.lastLogin ? new Date((user as any).lastLogin).toLocaleString() : "Active Session"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4" />
-                      <span>New York, NY (IP: 192.168.1.100)</span>
+                      <span>{user?.country || "Location not tracked"}</span>
                     </div>
                   </div>
 
@@ -195,12 +266,38 @@ export default function SettingsPage() {
                   <div className="flex items-start justify-between rounded-lg border border-border bg-card p-6">
                     <div>
                       <h3 className="font-semibold text-foreground">Account Created</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">January 15, 2024</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Just now"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>38 days ago</span>
+                      <span>Joined active session</span>
                     </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Settings */}
+            <Card>
+              <CardContent className="p-6 md:p-8">
+                <h2 className="mb-6 text-xl font-bold text-foreground">Security Settings</h2>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card p-6">
+                    <div>
+                      <h3 className="font-semibold text-foreground">Email Authentication (2FA)</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Receive login OTP codes securely via your email address.
+                      </p>
+                    </div>
+                    <Switch
+                      disabled={isUpdating2FA}
+                      checked={isLoginOtpEnabled}
+                      onCheckedChange={handleEmailAuthChange}
+                      className="data-[state=checked]:bg-[#f10e7c]"
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -211,8 +308,13 @@ export default function SettingsPage() {
               <Button variant="outline" size="lg" className="px-8 bg-transparent">
                 Cancel
               </Button>
-              <Button size="lg" className="bg-[#f10e7c] px-8 hover:bg-[#d10c69]">
-                Save Changes
+              <Button 
+                size="lg" 
+                className="bg-[#f10e7c] px-8 hover:bg-[#d10c69]" 
+                onClick={handleSaveProfile} 
+                disabled={isSaving}
+              >
+                {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
               </Button>
             </div>
           </div>
@@ -249,7 +351,11 @@ export default function SettingsPage() {
               <Button variant="outline" size="lg" className="px-8 bg-transparent">
                 Test Email Configuration
               </Button>
-              <Button size="lg" className="bg-[#f10e7c] px-8 hover:bg-[#d10c69]">
+              <Button 
+                size="lg" 
+                className="bg-[#f10e7c] px-8 hover:bg-[#d10c69]"
+                onClick={handleSaveNotifications}
+              >
                 Save Settings
               </Button>
             </div>

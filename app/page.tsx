@@ -42,14 +42,16 @@ export default function Home() {
       {isAuthenticated && isVerified && (
         <>
           <HeroSection />
-          <FeaturedShops />
-          <PopularProducts />
+          
+      
         </>
       )}
       {!isAuthenticated && (
         <>
           <Hero />
           <CooperativePlatform />
+          <FeaturedShops />
+          <PopularProducts />
           <WhyDAWSection />
         </>
       )}

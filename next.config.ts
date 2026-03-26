@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+    
+  },
+  allowedDevOrigins:[
+       "http://192.168.18.2:3000",
+    "http://localhost:3000"
+  ],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
   },
 };
 

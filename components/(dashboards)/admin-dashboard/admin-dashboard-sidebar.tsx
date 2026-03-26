@@ -26,10 +26,9 @@ interface DashboardSidebarProps {
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
   { icon: ShoppingBag, label: "User", href: "/admin/user" },
-  // { icon: Package, label: "Products", href: "/cooperative-dashboard/products" },
-  // { icon: ShoppingCart, label: "Orders", href: "/cooperative-dashboard/orders" },
-  // { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
-  // { icon: Wallet, label: "Listings", href: "/admin/listings" },
+  { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
+  { icon: ShoppingBag, label: "Listings", href: "/admin/listings" },
+  { icon: Wallet, label: "Wallet", href: "/admin/wallet" },
   { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
   // { icon: Settings, label: "Settings", href: "/admin/settings" },
 ]
@@ -43,7 +42,7 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
   }
 
   return (
-   <>
+    <>
       {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onToggle} aria-hidden="true" />}
 
       {/* Sidebar */}
@@ -63,11 +62,11 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
           <div className="flex items-center justify-between px-2 py-6 border-b border-[#e7e8e9] min-h-[88px]">
             <div className="flex items-center gap-0.5 overflow-hidden">
               {isCollapsed ? (
-              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                <img src="/logo.png" alt="Logo" className="h-7 w-7" />
-              </div>
+                <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                  <img src="/logo.png" alt="Logo" className="h-7 w-7" />
+                </div>
               ) : (
-              <img src="/logo-full.png" alt="Logo" className="h-6" />
+                <img src="/logo-full.png" alt="Logo" className="h-6" />
               )}
             </div>
             {/* Desktop collapse toggle - always visible on desktop */}

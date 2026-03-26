@@ -16,6 +16,9 @@ import CardsAnalyticsIcon from "@/components/icons/CardsAnalyticsIcon";
 import ListDocumentIcon from "@/components/icons/ListDocumentIcon";
 import { useAdminAnalytics, useDashboardStats } from "@/hooks/useAdminDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UsersAnalyticsTab } from "@/components/(dashboards)/admin-dashboard/analytics/UsersAnalyticsTab";
+import { CooperativesAnalyticsTab } from "@/components/(dashboards)/admin-dashboard/analytics/CooperativesAnalyticsTab";
+import { RevenueAnalyticsTab } from "@/components/(dashboards)/admin-dashboard/analytics/RevenueAnalyticsTab";
 
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<TabType>(TabType.OVERVIEW);
@@ -135,28 +138,28 @@ export default function AnalyticsPage() {
 
       {/* Navigation Tabs */}
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
-        <TabsList className="bg-white rounded-lg shadow-sm p-0 h-auto">
+        <TabsList className="bg-white rounded-lg shadow-sm p-1.5 h-auto w-full justify-start">
           <TabsTrigger
             value={TabType.OVERVIEW}
-            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg px-6 py-3"
+            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg flex-1 px-8 py-3.5"
           >
             {TabType.OVERVIEW}
           </TabsTrigger>
           <TabsTrigger
             value={TabType.USERS}
-            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg px-6 py-3"
+            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg flex-1 px-8 py-3.5"
           >
             {TabType.USERS}
           </TabsTrigger>
           <TabsTrigger
             value={TabType.COOPERATIVES}
-            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg px-6 py-3"
+            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg flex-1 px-8 py-3.5"
           >
             {TabType.COOPERATIVES}
           </TabsTrigger>
           <TabsTrigger
             value={TabType.REVENUE}
-            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg px-6 py-3"
+            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg flex-1 px-8 py-3.5"
           >
             {TabType.REVENUE}
           </TabsTrigger>
@@ -236,21 +239,15 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value={TabType.USERS} className="mt-8">
-          <div className="text-center py-12 text-gray-500">
-            Users analytics content coming soon...
-          </div>
+          <UsersAnalyticsTab />
         </TabsContent>
 
         <TabsContent value={TabType.COOPERATIVES} className="mt-8">
-          <div className="text-center py-12 text-gray-500">
-            Cooperatives analytics content coming soon...
-          </div>
+          <CooperativesAnalyticsTab />
         </TabsContent>
 
         <TabsContent value={TabType.REVENUE} className="mt-8">
-          <div className="text-center py-12 text-gray-500">
-            Revenue analytics content coming soon...
-          </div>
+          <RevenueAnalyticsTab />
         </TabsContent>
       </Tabs>
     </div>

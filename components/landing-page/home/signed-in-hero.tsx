@@ -376,7 +376,7 @@ export function HeroSection() {
                       className="font-medium text-sm"
                       style={{ color: banner.logoColor }}
                     >
-                      Woman
+                      Women
                     </span>
                   </div>
                 </div>

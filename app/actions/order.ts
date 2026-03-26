@@ -1,16 +1,13 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/product.types";
 import { IGetAllOrdersResponse, IGetOrderResponse } from "@/types/order.types";
 
 export async function getAllOrders(): Promise<IActionResponse<IGetAllOrdersResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -30,10 +27,7 @@ export async function getAllOrders(): Promise<IActionResponse<IGetAllOrdersRespo
 
 export async function getOrder(orderId: string): Promise<IActionResponse<IGetOrderResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }

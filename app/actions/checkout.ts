@@ -1,22 +1,25 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/product.types";
-import { 
-  IPlaceOrderRequest, 
-  IPlaceOrderResponse, 
-  IPaymentInitiateRequest, 
+import {
+  IPlaceOrderRequest,
+  IPlaceOrderResponse,
+  IPaymentInitiateRequest,
   IPaymentInitiateResponse,
-  IPaymentVerifyResponse
+  IPaymentVerifyResponse,
+  IPaystackInitiateRequest,
+  IPaystackInitiateResponse,
+  IPaystackVerifyResponse,
+  IPaypalCreateOrderRequest,
+  IPaypalCreateOrderResponse,
+  IPaypalCaptureResponse,
 } from "@/types/checkout.types";
 
 export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionResponse<IPlaceOrderResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -35,12 +38,26 @@ export async function placeOrder(data: IPlaceOrderRequest): Promise<IActionRespo
   }
 }
 
+export async function calculateDeliveryFee(data: { orderId: string, country: string, state: string }): Promise<IActionResponse<{ deliveryFee: number, totalAmount: number }>> {
+  try {
+    const token = await getFreshToken();
+    
+    const response = await apiClient.post<{ deliveryFee: number, totalAmount: number }>(
+      "/marketplace/calculate-shipping",
+      data,
+      { token: token || undefined }
+    );
+    
+    return { success: true, data: response, message: "Calculated" };
+  } catch (error: any) {
+    const message = error instanceof Error ? error.message : error?.response?.data?.message || "Failed to calculate delivery fee";
+    return { success: false, error: message };
+  }
+}
+
 export async function initiatePayment(data: IPaymentInitiateRequest): Promise<IActionResponse<IPaymentInitiateResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }
@@ -61,12 +78,91 @@ export async function initiatePayment(data: IPaymentInitiateRequest): Promise<IA
   }
 }
 
+// ── Paystack ──────────────────────────────────────────────────────────────────
+
+export async function initiatePaystackPayment(
+  data: IPaystackInitiateRequest
+): Promise<IActionResponse<IPaystackInitiateResponse>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.post<IPaystackInitiateResponse>(
+      API_ENDPOINTS.PAYSTACK.INITIALIZE,
+      data,
+      { token }
+    );
+    return { success: true, data: response, message: "Paystack payment initiated" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to initiate Paystack payment";
+    return { success: false, error: message };
+  }
+}
+
+export async function verifyPaystackPayment(
+  reference: string
+): Promise<IActionResponse<IPaystackVerifyResponse>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.post<IPaystackVerifyResponse>(
+      API_ENDPOINTS.PAYSTACK.VERIFY,
+      { reference },
+      { token }
+    );
+    return { success: true, data: response, message: "Payment verified" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to verify Paystack payment";
+    return { success: false, error: message };
+  }
+}
+
+// ── PayPal ────────────────────────────────────────────────────────────────────
+
+export async function initiatePaypalOrder(
+  data: IPaypalCreateOrderRequest
+): Promise<IActionResponse<IPaypalCreateOrderResponse>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.post<IPaypalCreateOrderResponse>(
+      API_ENDPOINTS.PAYPAL.CREATE_ORDER,
+      data,
+      { token }
+    );
+    return { success: true, data: response, message: "PayPal order created" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to create PayPal order";
+    return { success: false, error: message };
+  }
+}
+
+export async function capturePaypalOrder(
+  paypalOrderId: string
+): Promise<IActionResponse<IPaypalCaptureResponse>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.post<IPaypalCaptureResponse>(
+      API_ENDPOINTS.PAYPAL.CAPTURE_ORDER,
+      { paypalOrderId },
+      { token }
+    );
+    return { success: true, data: response, message: "PayPal payment captured" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to capture PayPal payment";
+    return { success: false, error: message };
+  }
+}
+
+// ── Vigipay verify (existing) ─────────────────────────────────────────────────
+
 export async function verifyPayment(reference: string): Promise<IActionResponse<IPaymentVerifyResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
-
+    const token = await getFreshToken();
     if (!token) {
       return { success: false, error: "Authentication required" };
     }

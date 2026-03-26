@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse, IUser } from "@/types/auth.types";
 import { IGetShopResponse, IEditShopResponse, IShop } from "@/types/shop.types";
 import { revalidatePath } from "next/cache";
@@ -26,9 +26,7 @@ interface IGetSellerSettingsResponse {
 
 export async function getSellerSettings(): Promise<IActionResponse<ISellerSettingsData>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Please login to view settings" };
@@ -65,9 +63,7 @@ export async function getSellerSettings(): Promise<IActionResponse<ISellerSettin
 
 export async function updateSellerProfile(prevState: any, formData: FormData): Promise<IActionResponse<any>> {
     try {
-        await refreshAccessToken();
-        const session = await getServerSession();
-        const token = session?.accessToken;
+        const token = await getFreshToken();
 
         if (!token) {
             return { success: false, error: "Authentication required" };
@@ -76,15 +72,22 @@ export async function updateSellerProfile(prevState: any, formData: FormData): P
         // 1. Update User Profile
         const firstName = formData.get("firstName") as string;
         const lastName = formData.get("lastName") as string;
-        const phone = formData.get("phone") as string;
+        const rawPhone = formData.get("phone") as string;
+        const country = formData.get("country") as string;
+        const currency = formData.get("currency") as string;
         const profilePicture = formData.get("profilePicture") as File;
 
+        // Strip non-digits from phone number
+        const phone = rawPhone ? rawPhone.replace(/\D/g, "") : rawPhone;
+
         // Only call user update if there are user fields
-        if (firstName || lastName || phone || (profilePicture && profilePicture.size > 0)) {
+        if (firstName || lastName || phone || country || currency || (profilePicture && profilePicture.size > 0)) {
              const userFormData = new FormData();
              if (firstName) userFormData.append("firstName", firstName);
              if (lastName) userFormData.append("lastName", lastName);
              if (phone) userFormData.append("phone", phone);
+             if (country) userFormData.append("country", country);
+             if (currency) userFormData.append("currency", currency);
              if (profilePicture && profilePicture.size > 0) userFormData.append("profilePicture", profilePicture);
 
              const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
@@ -148,9 +151,7 @@ export async function updateSellerProfile(prevState: any, formData: FormData): P
 
 export async function updateSellerPassword(prevState: any, formData: FormData): Promise<IActionResponse<any>> {
     try {
-        await refreshAccessToken();
-        const session = await getServerSession();
-        const token = session?.accessToken;
+        const token = await getFreshToken();
 
         if (!token) {
             return { success: false, error: "Authentication required" };

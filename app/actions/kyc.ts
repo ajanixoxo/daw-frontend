@@ -1,15 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getServerSession, getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { IVerifyNinRequest, IVerifyNinResponse } from "@/types/kyc.types";
 
 export async function verifyNin(data: { nin: string }): Promise<IActionResponse<IVerifyNinResponse>> {
   try {
-    await refreshAccessToken();
+    const token = await getFreshToken();
     const session = await getServerSession();
-    const token = session?.accessToken;
     const userId = session?.userId;
 
     if (!token || !userId) {

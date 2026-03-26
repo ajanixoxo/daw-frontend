@@ -30,7 +30,7 @@ export function BecomeASellerBanner() {
               available to a vast audience?
             </p>
             <Link
-              href="/sellers-signup"
+              href="/sellers/sellers-signup"
               className="inline-flex items-center gap-2 rounded-full bg-[#f10e7c] px-8 py-4 text-center font-medium text-white transition-colors hover:bg-[#d10c6c]"
             >
               Get Started

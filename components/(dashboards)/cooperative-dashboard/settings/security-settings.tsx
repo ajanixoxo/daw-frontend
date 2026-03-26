@@ -5,12 +5,34 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { MapPin, Calendar } from "lucide-react"
+import { updateUserProfile } from "@/app/actions/profile"
+import { useProfile } from "@/hooks/useProfile"
+import { toast } from "sonner"
 
 export default function SecuritySettings() {
-  const [twoFactor, setTwoFactor] = useState(true)
+  const { data: user, refetch } = useProfile()
+  const [isUpdating2FA, setIsUpdating2FA] = useState(false)
+
   const [loginNotifications, setLoginNotifications] = useState(true)
   const [ipRestrictions, setIpRestrictions] = useState(false)
   const [sessionTimeout, setSessionTimeout] = useState("24 hours")
+
+  const handleEmailAuthChange = async (checked: boolean) => {
+    setIsUpdating2FA(true)
+    try {
+      const result = await updateUserProfile({ isLoginOtpEnabled: checked })
+      if (result.success) {
+        toast.success(checked ? "Email Authentication enabled" : "Email Authentication disabled")
+        refetch()
+      } else {
+        toast.error(result.error || "Failed to update 2FA settings")
+      }
+    } catch {
+      toast.error("An error occurred")
+    } finally {
+      setIsUpdating2FA(false)
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -20,10 +42,15 @@ export default function SecuritySettings() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-medium text-gray-900">Two-Factor Authentication</h3>
-              <p className="text-sm text-gray-600">Add an extra layer of security</p>
+              <h3 className="font-medium text-gray-900">Email Authentication (2FA)</h3>
+              <p className="text-sm text-gray-600">Receive login OTP codes securely via your email</p>
             </div>
-            <Switch checked={twoFactor} onCheckedChange={setTwoFactor} />
+            <Switch 
+              disabled={isUpdating2FA}
+              checked={user?.isLoginOtpEnabled || false} 
+              onCheckedChange={handleEmailAuthChange} 
+              className="data-[state=checked]:bg-[#f10e7c]"
+            />
           </div>
 
           <div className="flex items-center justify-between">

@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileText, X } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import type { CooperativeDocumentsInfo } from "@/zustand/cooperative-signup-store";
 
 const DEFAULT_DOCUMENTS: CooperativeDocumentsInfo = {
-  idDocument: null,
-  proofOfResidence: null,
-  businessCac: null,
+  nin: "",
   passportPhotograph: null,
+  businessCac: null,
 };
 
 function UploadBox({
@@ -33,7 +33,6 @@ function UploadBox({
     e.preventDefault();
     e.stopPropagation();
     onChange(null);
-    // Reset the file input
     const input = document.getElementById(field) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -86,21 +85,18 @@ export function CooperativeSignupStepDocs() {
     ...DEFAULT_DOCUMENTS,
     ...formData.documents,
   };
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof CooperativeDocumentsInfo, string>>
-  >({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Partial<Record<keyof CooperativeDocumentsInfo, string>> =
-      {};
-    if (!documents.idDocument) newErrors.idDocument = "ID document is required";
-    if (!documents.proofOfResidence)
-      newErrors.proofOfResidence = "Proof of residence is required";
-    if (!documents.businessCac)
-      newErrors.businessCac = "Business CAC is required";
+    const newErrors: Record<string, string> = {};
+
+    if (!documents.nin.trim()) newErrors.nin = "NIN is required";
+    else if (!/^\d{11}$/.test(documents.nin.trim()))
+      newErrors.nin = "NIN must be 11 digits";
     if (!documents.passportPhotograph)
-      newErrors.passportPhotograph = "Passport photograph is required";
+      newErrors.passportPhotograph = "Valid Identification is required";
+
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) setStep(4);
   };
@@ -110,46 +106,55 @@ export function CooperativeSignupStepDocs() {
   return (
     <div className="w-full max-w-[600px]">
       <div className="mb-8">
-        <h1 className="text-2xl font-medium text-[#222]">Documents Upload</h1>
+        <h1 className="text-2xl font-medium text-[#222]">KYC & Documents</h1>
         <p className="text-sm text-gray-500">
-          Upload valid identification and business documents (NIN is on the ID
-          document if applicable)
+          Provide your NIN for verification and upload required documents
         </p>
       </div>
 
       <form onSubmit={handleNext} className="space-y-6">
-        <UploadBox
-          label="Upload Valid Identification Documents: e.g. International Passport, Driver's License, Voter's Card"
-          field="idDocument"
-          value={documents.idDocument}
-          onChange={(file) => updateDocuments({ idDocument: file })}
-          error={errors.idDocument}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <UploadBox
-            label="Proof of residence"
-            field="proofOfResidence"
-            value={documents.proofOfResidence}
-            onChange={(file) => updateDocuments({ proofOfResidence: file })}
-            error={errors.proofOfResidence}
+        {/* NIN Input */}
+        <div className="space-y-2">
+          <Label htmlFor="nin" className="text-sm font-medium text-[#222]">
+            National Identification Number (NIN){" "}
+            <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="nin"
+            type="text"
+            inputMode="numeric"
+            placeholder="Enter your 11-digit NIN"
+            maxLength={11}
+            value={documents.nin}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "");
+              updateDocuments({ nin: val });
+            }}
+            className={`h-12 border-[#e7e8e9] bg-white text-[#222] placeholder:text-[#b6b8c0] focus:border-[#f10e7c] focus:ring-[#f10e7c] ${errors.nin ? "border-red-500" : ""}`}
           />
-          <UploadBox
-            label="Business CAC"
-            field="businessCac"
-            value={documents.businessCac}
-            onChange={(file) => updateDocuments({ businessCac: file })}
-            error={errors.businessCac}
-          />
+          {errors.nin && (
+            <span className="text-xs text-red-600">{errors.nin}</span>
+          )}
         </div>
 
+        {/* Valid Identification */}
         <UploadBox
-          label="Passport photograph"
+          label="Valid Identification *"
           field="passportPhotograph"
           value={documents.passportPhotograph}
           onChange={(file) => updateDocuments({ passportPhotograph: file })}
-          description="Upload Passport or Take Image"
+          description="Upload a clear Valid Identification"
           error={errors.passportPhotograph}
+        />
+
+        {/*Business CAC * */}
+        <UploadBox
+          label="Business CAC *"
+          field="businessCac"
+          value={documents.businessCac}
+          onChange={(file) => updateDocuments({ businessCac: file })}
+          description="Upload CAC certificate if available"
+          error={errors.businessCac}
         />
 
         <div className="flex gap-4 pt-4">

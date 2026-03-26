@@ -17,11 +17,30 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export function CooperativeSignupStep3() {
   const router = useRouter();
-  const { currentStep, formData, dawCooperativeId, dawTiers, setDAWCooperative, setStep, reset } =
-    useCooperativeSignupStore();
+  const {
+    currentStep,
+    formData,
+    dawCooperativeId,
+    dawTiers,
+    setDAWCooperative,
+    setStep,
+    reset,
+  } = useCooperativeSignupStore();
   const { personalInfo, membershipTier } = formData;
-  const shopInfo = formData.shopInfo ?? { shopName: "", description: "", category: "", contactNumber: "", businessAddress: "", shopLogo: null, shopBanner: null };
-  const documents = formData.documents ?? { idDocument: null, proofOfResidence: null, businessCac: null, passportPhotograph: null };
+  const shopInfo = formData.shopInfo ?? {
+    shopName: "",
+    description: "",
+    category: "",
+    contactNumber: "",
+    businessAddress: "",
+    shopLogo: null,
+    shopBanner: null,
+  };
+  const documents = formData.documents ?? {
+    nin: "",
+    passportPhotograph: null,
+    businessCac: null,
+  };
   const { data: profile } = useProfile();
   const updateUser = useAuthStore((s) => s.updateUser);
   const queryClient = useQueryClient();
@@ -29,10 +48,37 @@ export function CooperativeSignupStep3() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const membershipTierToName: Record<number, string> = {
+    1: "basic",
+    2: "standard",
+    3: "premium",
+  };
+
+  const resolveSubscriptionTierId = (
+    tiers: { _id: string; name: string; monthlyContribution: number }[],
+    selectedTier: number | null,
+  ) => {
+    if (!selectedTier || !tiers?.length) return null;
+
+    const expected = membershipTierToName[selectedTier];
+    if (!expected) return null;
+
+    const byName = tiers.find((t) =>
+      (t.name || "").toLowerCase().includes(expected),
+    );
+    if (byName?._id) return byName._id;
+
+    // Fallback for legacy ordering assumptions
+    const idx = selectedTier - 1;
+    return idx >= 0 && tiers[idx] ? tiers[idx]._id : null;
+  };
+
   const isLoggedIn = !!profile;
   const isBuyerOrGuestFlow =
     !profile ||
-    (profile && (!profile.shop || (Array.isArray(profile.shop) && profile.shop.length === 0)));
+    (profile &&
+      (!profile.shop ||
+        (Array.isArray(profile.shop) && profile.shop.length === 0)));
 
   const handleBack = () => setStep(currentStep - 1);
 
@@ -43,26 +89,34 @@ export function CooperativeSignupStep3() {
     setSubmitError(null);
 
     let cooperativeId = dawCooperativeId;
-    const tierIndex = membershipTier != null ? membershipTier - 1 : -1;
-    let subscriptionTierId =
-      tierIndex >= 0 && dawTiers[tierIndex] ? dawTiers[tierIndex]._id : null;
+    let subscriptionTierId = resolveSubscriptionTierId(dawTiers, membershipTier);
 
     if (!cooperativeId || !subscriptionTierId) {
       try {
         const res = await fetchDAWCooperative();
-        if (!res.success || !res.data?.cooperative || !res.data?.tiers?.length) {
-          toast.error(res.error ?? "Could not load DAW cooperative. Please refresh and try again.");
+        if (
+          !res.success ||
+          !res.data?.cooperative ||
+          !res.data?.tiers?.length
+        ) {
+          toast.error(
+            res.error ??
+              "Could not load DAW cooperative. Please refresh and try again.",
+          );
           setIsSubmitting(false);
           return;
         }
         setDAWCooperative(res.data.cooperative._id, res.data.tiers);
         cooperativeId = res.data.cooperative._id;
-        subscriptionTierId =
-          tierIndex >= 0 && res.data.tiers[tierIndex]
-            ? res.data.tiers[tierIndex]._id
-            : null;
+        subscriptionTierId = resolveSubscriptionTierId(
+          res.data.tiers,
+          membershipTier,
+        );
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Could not load DAW cooperative.";
+        const msg =
+          err instanceof Error
+            ? err.message
+            : "Could not load DAW cooperative.";
         toast.error(msg);
         setSubmitError(msg);
         setIsSubmitting(false);
@@ -71,7 +125,9 @@ export function CooperativeSignupStep3() {
     }
 
     if (!cooperativeId || !subscriptionTierId) {
-      toast.error("DAW cooperative or tier not loaded. Please refresh and try again.");
+      toast.error(
+        "DAW cooperative or tier not loaded. Please refresh and try again.",
+      );
       setIsSubmitting(false);
       return;
     }
@@ -83,47 +139,52 @@ export function CooperativeSignupStep3() {
           fd.append("firstName", personalInfo.firstName.trim());
           fd.append("lastName", (personalInfo.lastName ?? "").trim());
           fd.append("email", personalInfo.email.trim());
-          fd.append("phone", personalInfo.phoneNumber.trim());
+          fd.append("phone", personalInfo.phone.trim());
           fd.append("password", personalInfo.password);
           fd.append("confirmPassword", personalInfo.confirmPassword);
+          if (personalInfo.country) fd.append("country", personalInfo.country);
+          if (personalInfo.currency)
+            fd.append("currency", personalInfo.currency);
         }
         fd.append("name", shopInfo.shopName);
         fd.append("description", shopInfo.description);
         fd.append("category", shopInfo.category);
-        if (shopInfo.contactNumber) fd.append("contactNumber", shopInfo.contactNumber);
-        if (shopInfo.businessAddress) fd.append("businessAddress", shopInfo.businessAddress);
+        if (shopInfo.contactNumber)
+          fd.append("contactNumber", shopInfo.contactNumber);
+        if (shopInfo.businessAddress)
+          fd.append("businessAddress", shopInfo.businessAddress);
         fd.append("cooperativeId", cooperativeId);
         fd.append("subscriptionTierId", subscriptionTierId);
         if (shopInfo.shopLogo) fd.append("shopLogo", shopInfo.shopLogo);
         if (shopInfo.shopBanner) fd.append("shopBanner", shopInfo.shopBanner);
-        if (documents.idDocument) fd.append("idDocument", documents.idDocument);
-        if (documents.proofOfResidence) fd.append("proofOfResidence", documents.proofOfResidence);
-        if (documents.businessCac) fd.append("businessCac", documents.businessCac);
-        if (documents.passportPhotograph) fd.append("passportPhotograph", documents.passportPhotograph);
+        if (documents.nin) fd.append("nin", documents.nin.trim());
+        if (documents.passportPhotograph)
+          fd.append("passportPhotograph", documents.passportPhotograph);
+        if (documents.businessCac)
+          fd.append("businessCac", documents.businessCac);
 
         const res = await cooperativeJoinWithSellerOnboard(fd);
         if (res.success) {
-          if (isLoggedIn) {
-            // Sync updated roles into Zustand → localStorage
-            if (res.data?.user) {
-              updateUser({
-                roles: res.data.user.roles,
-                ...(res.data.user.member ? { member: res.data.user.member as any } : {}),
-              });
-            }
-            // Invalidate caches so sidebar/UI picks up new role immediately
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ["seller-profile"] }),
-              queryClient.invalidateQueries({ queryKey: ["profile"] }),
-            ]);
-          }
           toast.success(
             isLoggedIn
               ? "Seller onboarded and joined DAW cooperative."
-              : "Account created and joined. Please verify your email with the OTP sent."
+              : "Account created and joined. Please verify your email with the OTP sent.",
           );
-          reset();
-          router.push(isLoggedIn ? "/sellers/shop" : "/otp?mode=signup");
+          
+          if (isLoggedIn) {
+            reset();
+            router.push("/sellers/shop");
+            if (res.data?.user) {
+              updateUser({ roles: res.data.user.roles });
+              queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
+              queryClient.invalidateQueries({ queryKey: ["profile"] });
+              queryClient.invalidateQueries({ queryKey: ["my-shop"] });
+            }
+          } else {
+            // Guest flow: redirect to OTP verification
+            // Don't reset() here to prevent parent re-render before navigation
+            window.location.href = "/otp?mode=signup";
+          }
           return;
         }
         setSubmitError(res.error ?? "Failed to complete registration");
@@ -132,25 +193,21 @@ export function CooperativeSignupStep3() {
       }
 
       if (isLoggedIn) {
-        const res = await joinCooperative({ cooperativeId, subscriptionTierId });
+        const res = await joinCooperative({
+          cooperativeId,
+          subscriptionTierId,
+        });
         if (res.success) {
-          // Sync updated roles from backend into Zustand → localStorage
-          if (res.data?.user) {
-            updateUser({
-              roles: res.data.user.roles,
-              ...(res.data.user.member ? { member: res.data.user.member as any } : {}),
-            });
-          }
-
-          // Invalidate all profile caches so sidebar/UI picks up "member" role immediately
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ["seller-profile"] }),
-            queryClient.invalidateQueries({ queryKey: ["profile"] }),
-          ]);
-
           toast.success("You have joined the DAW cooperative.");
           reset();
           router.push("/sellers/shop");
+          // Sync roles AFTER navigation starts to prevent flash of "already member" card
+          if (res.data?.user) {
+            updateUser({ roles: res.data.user.roles });
+          }
+          queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+          queryClient.invalidateQueries({ queryKey: ["my-shop"] });
           return;
         }
         setSubmitError(res.error ?? "Failed to join cooperative");
@@ -158,10 +215,18 @@ export function CooperativeSignupStep3() {
         return;
       }
 
-      const { email, password, confirmPassword, firstName, lastName, phoneNumber } =
+      const { email, password, confirmPassword, firstName, lastName, phone } =
         personalInfo;
-      if (!email?.trim() || !password || !confirmPassword?.trim() || !firstName?.trim() || !phoneNumber?.trim()) {
-        toast.error("Please fill in email, password, confirm password, first name, and phone.");
+      if (
+        !email?.trim() ||
+        !password ||
+        !confirmPassword?.trim() ||
+        !firstName?.trim() ||
+        !phone?.trim()
+      ) {
+        toast.error(
+          "Please fill in email, password, confirm password, first name, and phone.",
+        );
         setIsSubmitting(false);
         return;
       }
@@ -182,15 +247,19 @@ export function CooperativeSignupStep3() {
         confirmPassword: confirmPassword.trim(),
         firstName: firstName.trim(),
         lastName: (lastName ?? "").trim(),
-        phone: phoneNumber.trim(),
+        phone: phone.trim(),
+        country: personalInfo.country,
+        currency: personalInfo.currency,
         cooperativeId,
         subscriptionTierId,
       });
 
       if (res.success) {
-        toast.success("Account created and joined. Please verify your email with the OTP sent.");
-        reset();
-        router.push("/otp?mode=signup");
+        toast.success(
+          "Account created and joined. Please verify your email with the OTP sent.",
+        );
+        // Don't reset() here to prevent parent re-render before navigation
+        window.location.href = "/otp?mode=signup";
         return;
       }
       setSubmitError(res.error ?? "Failed to join cooperative");
@@ -204,15 +273,27 @@ export function CooperativeSignupStep3() {
     }
   };
 
-  const tiers = {
-    1: "$25,000",
-    2: "$30,000",
-    3: "$50,000",
-  };
+  const userCountry = profile?.country || personalInfo?.country || "";
+  const isNigeria =
+    userCountry.toLowerCase() === "nigeria" ||
+    userCountry.toUpperCase() === "NG" ||
+    userCountry.toUpperCase() === "NGA";
 
-  const tierPrice = membershipTier
-    ? tiers[membershipTier as keyof typeof tiers]
-    : "";
+  const tiersInfo = isNigeria
+    ? {
+        1: { name: "Basic Tier", price: "up to ₦1M" },
+        2: { name: "Standard Tier", price: "up to ₦5M" },
+        3: { name: "Premium Tier", price: "up to ₦10M" },
+      }
+    : {
+        1: { name: "Basic Tier", price: "up to $2,000" },
+        2: { name: "Standard Tier", price: "up to $6,000" },
+        3: { name: "Premium Tier", price: "up to $10,000" },
+      };
+
+  const selectedTier = membershipTier
+    ? tiersInfo[membershipTier as keyof typeof tiersInfo]
+    : { name: "None", price: "None" };
 
   return (
     <div className="w-full max-w-[600px]">
@@ -242,22 +323,16 @@ export function CooperativeSignupStep3() {
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Phone:</p>
-            <p className="text-sm text-gray-600">{personalInfo.phoneNumber}</p>
+            <p className="text-sm text-gray-600">{personalInfo.phone}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-[#222]">Business/Shop Name:</p>
-            <p className="text-sm text-gray-600">
-              {isBuyerOrGuestFlow ? shopInfo.shopName : personalInfo.businessName}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-[#222]">Country:</p>
-            <p className="text-sm text-gray-600">{personalInfo.country}</p>
+            <p className="text-sm font-medium text-[#222]">Shop Name:</p>
+            <p className="text-sm text-gray-600">{shopInfo.shopName}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-[#222]">Membership Tier:</p>
             <p className="text-sm text-gray-600">
-              Tier {membershipTier}: {tierPrice}
+              {selectedTier.name} ({selectedTier.price})
             </p>
           </div>
         </div>

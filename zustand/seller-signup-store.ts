@@ -8,6 +8,8 @@ interface PersonalInfo {
   phone: string;
   password: string;
   confirmPassword: string;
+  country: string;
+  currency: string;
 }
 
 interface ShopInfo {
@@ -21,10 +23,9 @@ interface ShopInfo {
 }
 
 interface DocumentsInfo {
-  idDocument: File | null;
-  proofOfResidence: File | null;
-  businessCac: File | null;
+  nin: string;
   passportPhotograph: File | null;
+  businessCac: File | null;
 }
 
 interface SellerSignupState {
@@ -48,6 +49,8 @@ const initialPersonalInfo: PersonalInfo = {
   phone: '',
   password: '',
   confirmPassword: '',
+  country: '',
+  currency: 'USD',
 };
 
 const initialShopInfo: ShopInfo = {
@@ -61,10 +64,9 @@ const initialShopInfo: ShopInfo = {
 };
 
 const initialDocuments: DocumentsInfo = {
-  idDocument: null,
-  proofOfResidence: null,
-  businessCac: null,
+  nin: '',
   passportPhotograph: null,
+  businessCac: null,
 };
 
 export const useSellerSignupStore = create<SellerSignupState>()(
@@ -124,10 +126,9 @@ export const useSellerSignupStore = create<SellerSignupState>()(
             shopBanner: null,
           },
           documents: {
-            idDocument: null,
-            proofOfResidence: null,
-            businessCac: null,
+            nin: state.formData.documents.nin,
             passportPhotograph: null,
+            businessCac: null,
           },
         },
       }),

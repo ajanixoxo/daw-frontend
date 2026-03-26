@@ -73,14 +73,14 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
       <SheetContent side="right" className="w-full p-8 overflow-y-auto sm:max-w-[540px]">
         <SheetHeader className="text-left">
           <div className="flex items-center gap-3">
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 hover:bg-[#f5f5f5]"
               onClick={() => onOpenChange(false)}
             >
               <ArrowLeft className="h-5 w-5" />
-            </Button>
+            </Button> */}
             <div>
               <SheetTitle className="text-xl font-bold text-[#1d1d2a]">Create Contribution Type</SheetTitle>
               <SheetDescription className="text-sm text-[#838794]">
@@ -114,7 +114,7 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
             <Select value={type} onValueChange={setType}>
               <SelectTrigger
                 id="type"
-                className="h-12 border-[#e4e7ec] bg-white text-[#1d1d2a] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
+                className="h-12 w-full border-[#e4e7ec] bg-white text-[#1d1d2a] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
               >
                 <SelectValue placeholder="Select Type" />
               </SelectTrigger>
@@ -135,7 +135,7 @@ export function CreateContributionDrawer({ open, onOpenChange }: CreateContribut
             <Select value={frequency} onValueChange={setFrequency}>
               <SelectTrigger
                 id="frequency"
-                className="h-12 border-[#e4e7ec] bg-white text-[#1d1d2a] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
+                className="h-12 w-full border-[#e4e7ec] bg-white text-[#1d1d2a] focus:border-[#f10e7c] focus:ring-[#f10e7c]"
               >
                 <SelectValue placeholder="Select frequency" />
               </SelectTrigger>

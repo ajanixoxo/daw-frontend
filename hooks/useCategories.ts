@@ -6,6 +6,7 @@ import { getShopId } from './useSellerProfile';
 
 export function useShopCategories() {
   const shopId = getShopId();
+  const hasValidShopId = typeof shopId === 'string' && shopId.trim() !== '';
 
   return useQuery({
     queryKey: ['categories', shopId],
@@ -20,7 +21,7 @@ export function useShopCategories() {
 
       return response;
     },
-    enabled: !!shopId,
+    enabled: hasValidShopId,
     staleTime: 2 * 60 * 1000,
   });
 }

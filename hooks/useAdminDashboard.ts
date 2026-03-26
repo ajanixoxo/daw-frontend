@@ -20,10 +20,36 @@ export interface Cooperative {
     logoUrl?: string;
     createdAt: string;
     adminId: {
+        _id: string;
         firstName: string;
         lastName: string;
         email: string;
+        phone?: string;
+        kyc_status?: string;
     };
+    status: "pending" | "approved" | "rejected" | "suspended";
+    members: string[];
+    isActive: boolean;
+}
+
+export interface AdminProduct {
+    _id: string;
+    name: string;
+    description: string;
+    category: string;
+    quantity: number;
+    price: number;
+    currency: string;
+    images: string[];
+    status: "available" | "unavailable" | "draft" | "out_of_stock";
+    shop_id: string;
+    shop_name: string;
+    shop_logo: string;
+    seller_name: string;
+    seller_email: string;
+    displayPrice: string;
+    displayCurrency: string;
+    createdAt: string;
 }
 
 export function useDashboardStats() {
@@ -58,7 +84,41 @@ export function usePendingCooperatives() {
     });
 }
 
-import { AnalyticsResponse } from "@/components/(dashboards)/admin-dashboard/analytics/types";
+export interface DashboardLoan {
+    _id: string;
+    amount: number;
+    purpose: string;
+    status: string;
+    createdAt: string;
+    userId: {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
+    cooperativeId: {
+        _id: string;
+        name: string;
+    };
+}
+
+export function usePendingLoans() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "loans", "pending"],
+        queryFn: async () => {
+            const response = await apiClient.get<{ success: boolean; count: number; data: DashboardLoan[] }>(
+                "/api/admin/dashboard/loans/pending",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+import { AnalyticsResponse, UserAnalyticsResponse, CooperativeAnalyticsResponse, RevenueAnalyticsResponse } from "@/components/(dashboards)/admin-dashboard/analytics/types";
 
 export function useAdminAnalytics() {
     const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
@@ -67,14 +127,90 @@ export function useAdminAnalytics() {
         queryKey: ["admin", "analytics"],
         queryFn: async () => {
             const response = await apiClient.get<AnalyticsResponse>(
-                // API_ENDPOINTS.ADMIN.ANALYTICS - we haven't added this to client.ts yet, let's hardcode or update client.ts first?
-                // Better to update client.ts first to be consistent. But I can pass string too.
-                // Let's use string for now to save a step or update client.ts.
-                // Actually, clean code is better. I'll update client.ts first? No, I can jus use string "/api/admin/analytics" as I did for users.
                 "/api/admin/analytics",
                 { token: accessToken }
             );
             return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useUserAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics", "users"],
+        queryFn: async () => {
+            const response = await apiClient.get<UserAnalyticsResponse>(
+                "/api/admin/analytics/users",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useCooperativeAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics", "cooperatives"],
+        queryFn: async () => {
+            const response = await apiClient.get<CooperativeAnalyticsResponse>(
+                "/api/admin/analytics/cooperatives",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useRevenueAnalytics() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "analytics", "revenue"],
+        queryFn: async () => {
+            const response = await apiClient.get<RevenueAnalyticsResponse>(
+                "/api/admin/analytics/revenue",
+                { token: accessToken }
+            );
+            return response.data;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useAllCooperatives() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "cooperatives", "all"],
+        queryFn: async () => {
+            const response = await apiClient.get<Cooperative[]>(
+                "/api/cooperatives",
+                { token: accessToken }
+            );
+            return response;
+        },
+        enabled: !!accessToken,
+    });
+}
+
+export function useAllProducts() {
+    const accessToken = useAuthStore((state) => state.sessionData?.accessToken);
+
+    return useQuery({
+        queryKey: ["admin", "products", "all"],
+        queryFn: async () => {
+            const response = await apiClient.get<{ success: boolean; products: AdminProduct[] }>(
+                "/marketplace/get/all/products",
+                { token: accessToken }
+            );
+            return response;
         },
         enabled: !!accessToken,
     });

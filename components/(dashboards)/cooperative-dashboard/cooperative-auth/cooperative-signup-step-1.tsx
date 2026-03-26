@@ -1,257 +1,365 @@
 "use client";
 
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff, Check } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import { useProfile } from "@/hooks/useProfile";
-import { FileText, X } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 export function CooperativeSignupStep1() {
-  const {
-    formData,
-    prefilledFields,
-    hasSellerDocuments,
-    updatePersonalInfo,
-    setStep,
-  } = useCooperativeSignupStore();
+  const router = useRouter();
+  const { formData, prefilledFields, updatePersonalInfo, setStep } =
+    useCooperativeSignupStore();
   const { data: profile } = useProfile();
   const { personalInfo } = formData;
   const isLoggedIn = !!profile;
-  /** 5-step flow: buyer or guest (no shop yet). Business/Shop name is in Shop step, not here. */
-  const isBuyerOrGuestFlow =
-    !profile ||
-    (profile &&
-      (!profile.shop ||
-        (Array.isArray(profile.shop) && profile.shop.length === 0)));
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof personalInfo, string>>
+  >({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    updatePersonalInfo({ [name]: value });
+    updatePersonalInfo({ [e.target.name]: e.target.value });
   };
 
-  const handleNext = () => {
-    // Add validation logic here if needed
-    setStep(2);
+  const handlePhoneChange = (value: string, data: any) => {
+    const countryName = data.name || "";
+    const isNigeria = countryName.toLowerCase() === "nigeria";
+
+    updatePersonalInfo({
+      phone: value,
+      country: countryName,
+      currency: isNigeria ? "NGN" : "USD",
+    });
   };
 
-  const inputClass = (name: keyof typeof prefilledFields) =>
-    `w-full rounded-full border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-[#222] placeholder:text-gray-400 focus:border-[#F10E7C] focus:outline-none ${prefilledFields[name] ? "cursor-not-allowed bg-gray-100 opacity-90" : ""}`;
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: Partial<Record<keyof typeof personalInfo, string>> = {};
+
+    if (!personalInfo.firstName) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!personalInfo.lastName) {
+      newErrors.lastName = "Last name is required";
+    }
+
+    if (!personalInfo.email) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(personalInfo.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!personalInfo.phone) {
+      newErrors.phone = "Phone number is required";
+    }
+
+    if (!isLoggedIn) {
+      if (!personalInfo.password) {
+        newErrors.password = "Password is required";
+      } else if (personalInfo.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters";
+      }
+
+      if (!personalInfo.confirmPassword) {
+        newErrors.confirmPassword = "Please confirm your password";
+      } else if (personalInfo.password !== personalInfo.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setStep(2);
+    }
+  };
 
   return (
     <div className="w-full max-w-[600px]">
       <div className="mb-8">
-        <h1 className="text-2xl font-medium text-[#222]">
+        <h2
+          className="text-2xl font-medium text-[#1a1a1a] mb-2"
+          style={{ letterSpacing: "-0.96px" }}
+        >
           Personal Information
-        </h1>
+        </h2>
+        <p className="text-sm text-[#6b6b6b]">
+          Create your account to get started
+        </p>
       </div>
 
-      <div className="space-y-6">
-        {/* Row 1 */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">
+      <form onSubmit={handleNext} className="flex flex-col gap-5">
+        {/* First Name & Last Name */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="firstName" className="auth-label text-text-dark">
               First Name
-            </label>
-            <input
-              type="text"
+            </Label>
+            <Input
+              id="firstName"
               name="firstName"
-              placeholder="Enter First Name"
+              type="text"
+              placeholder="John"
               value={personalInfo.firstName}
               onChange={handleChange}
               disabled={!!prefilledFields.firstName}
-              className={inputClass("firstName")}
+              className="h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder disabled:cursor-not-allowed disabled:opacity-90"
+              aria-invalid={!!errors.firstName}
             />
+            {errors.firstName && (
+              <span className="text-xs text-destructive">
+                {errors.firstName}
+              </span>
+            )}
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">Last Name</label>
-            <input
-              type="text"
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="lastName" className="auth-label text-text-dark">
+              Last Name
+            </Label>
+            <Input
+              id="lastName"
               name="lastName"
-              placeholder="Enter Last Name"
+              type="text"
+              placeholder="Doe"
               value={personalInfo.lastName}
               onChange={handleChange}
               disabled={!!prefilledFields.lastName}
-              className={inputClass("lastName")}
+              className="h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder disabled:cursor-not-allowed disabled:opacity-90"
+              aria-invalid={!!errors.lastName}
             />
+            {errors.lastName && (
+              <span className="text-xs text-destructive">
+                {errors.lastName}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Row 2 */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              placeholder="Enter Number"
-              value={personalInfo.phoneNumber}
-              onChange={handleChange}
-              disabled={!!prefilledFields.phoneNumber}
-              className={inputClass("phoneNumber")}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="hello@example.com"
-              value={personalInfo.email}
-              onChange={handleChange}
-              disabled={!!prefilledFields.email}
-              className={inputClass("email")}
-            />
-          </div>
+        {/* Email */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="email" className="auth-label text-text-dark">
+            Email
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="hello@example.com"
+            value={personalInfo.email}
+            onChange={handleChange}
+            disabled={!!prefilledFields.email}
+            className="h-12 rounded-[40px] border border-input-border bg-white px-4 text-base placeholder:text-input-placeholder disabled:cursor-not-allowed disabled:opacity-90"
+            aria-invalid={!!errors.email}
+          />
+          {errors.email && (
+            <span className="text-xs text-destructive">{errors.email}</span>
+          )}
         </div>
 
-        {/* Business Name – only in 3-step flow (sellers); in 5-step flow it's "Business/Shop name" in Shop step */}
-        {!isBuyerOrGuestFlow && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">
-              Business Name
-            </label>
-            <input
-              type="text"
-              name="businessName"
-              placeholder="Enter Business Name"
-              value={personalInfo.businessName}
-              onChange={handleChange}
-              disabled={!!prefilledFields.businessName}
-              className={inputClass("businessName")}
-            />
-          </div>
-        )}
-
-        {/* Row 3 */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">Country</label>
-            <input
-              type="text"
-              name="country"
-              placeholder="Enter Name"
-              value={personalInfo.country}
-              onChange={handleChange}
-              className={inputClass("country")}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">Currency</label>
-            <input
-              type="text"
-              name="currency"
-              placeholder="Naira"
-              value={personalInfo.currency}
-              onChange={handleChange}
-              className={inputClass("currency")}
-            />
-          </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="phone" className="auth-label text-text-dark">
+            Phone Number
+          </Label>
+          <PhoneInput
+            country={"ng"}
+            value={personalInfo.phone}
+            onChange={handlePhoneChange}
+            disabled={!!prefilledFields.phone}
+            containerClass="w-full"
+            inputClass="!w-full !h-12 !rounded-[40px] !border !border-input-border !bg-white !px-4 !pl-12 !text-base !placeholder:text-input-placeholder disabled:cursor-not-allowed disabled:opacity-90"
+            buttonClass="!border-none !bg-transparent !pl-4"
+            dropdownClass="!rounded-xl !shadow-lg text-sm"
+            placeholder="Enter phone number"
+          />
+          {errors.phone && (
+            <span className="text-xs text-destructive">{errors.phone}</span>
+          )}
         </div>
 
-        {/* Password fields – only for guests (not logged in) */}
+        {/* Password fields - only for guests (not logged in) */}
         {!isLoggedIn && (
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#222]">
+          <>
+            {/* Password */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="password" className="auth-label text-text-dark">
                 Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                placeholder="*******"
-                value={personalInfo.password}
-                onChange={handleChange}
-                className={inputClass("password")}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#222]">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="*******"
-                value={personalInfo.confirmPassword}
-                onChange={handleChange}
-                className={inputClass("confirmPassword")}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Document Upload - hidden if user already has seller documents (e.g. from seller onboarding) */}
-
-        {!hasSellerDocuments && !isBuyerOrGuestFlow && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[#222]">
-              Upload Valid Identification Documents: e.g. NIN, International
-              Passport, Driver's License, Voter's Card
-            </label>
-            <div className="relative">
-              <input
-                type="file"
-                id="document-upload"
-                accept=".pdf,.jpg,.jpeg,.png"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  updatePersonalInfo({ document: file });
-                }}
-              />
-              <label
-                htmlFor="document-upload"
-                className="flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 py-10 transition-colors hover:bg-gray-100 relative"
-              >
-                {personalInfo.document && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      updatePersonalInfo({ document: null });
-                      const input = document.getElementById(
-                        "document-upload",
-                      ) as HTMLInputElement;
-                      if (input) input.value = "";
-                    }}
-                    className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
-                    title="Remove file"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-                <FileText
-                  className={`mb-2 h-8 w-8 ${personalInfo.document ? "text-green-500" : "text-gray-400"}`}
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={personalInfo.password}
+                  onChange={handleChange}
+                  className="h-12 rounded-[40px] border border-input-border bg-white px-4 pr-12 text-base placeholder:text-input-placeholder"
+                  aria-invalid={!!errors.password}
                 />
-                <span
-                  className={`text-sm ${personalInfo.document ? "text-green-600 font-medium" : "text-[#222]"}`}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b6b8c0] hover:text-[#1a1a1a] transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {personalInfo.document
-                    ? personalInfo.document.name
-                    : "Upload Document"}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              {/* Password Strength Indicator */}
+              {personalInfo.password && (
+                <div className="mt-3 space-y-3">
+                  <div className="flex gap-1 h-1.5">
+                    {[1, 2, 3, 4].map((level) => {
+                      const score = [
+                        personalInfo.password.length >= 8,
+                        /[A-Z]/.test(personalInfo.password),
+                        /[0-9]/.test(personalInfo.password),
+                        /[^A-Za-z0-9]/.test(personalInfo.password),
+                      ].filter(Boolean).length;
+
+                      let color = "bg-gray-200";
+                      if (score >= level) {
+                        if (score <= 1) color = "bg-red-500";
+                        else if (score <= 3) color = "bg-yellow-500";
+                        else color = "bg-green-500";
+                      }
+
+                      return (
+                        <div
+                          key={level}
+                          className={`flex-1 rounded-full transition-colors duration-300 ${color}`}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      {
+                        label: "At least 8 chars",
+                        met: personalInfo.password.length >= 8,
+                      },
+                      {
+                        label: "One uppercase",
+                        met: /[A-Z]/.test(personalInfo.password),
+                      },
+                      {
+                        label: "One number",
+                        met: /[0-9]/.test(personalInfo.password),
+                      },
+                      {
+                        label: "One special char",
+                        met: /[^A-Za-z0-9]/.test(personalInfo.password),
+                      },
+                    ].map((req, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 text-xs"
+                      >
+                        {req.met ? (
+                          <Check size={12} className="text-green-500" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border border-gray-300" />
+                        )}
+                        <span
+                          className={
+                            req.met
+                              ? "text-green-600 font-medium"
+                              : "text-gray-500"
+                          }
+                        >
+                          {req.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {errors.password && (
+                <span className="text-xs text-destructive mt-1">
+                  {errors.password}
                 </span>
-              </label>
+              )}
             </div>
-          </div>
+
+            {/* Confirm Password */}
+            <div className="flex flex-col gap-2">
+              <Label
+                htmlFor="confirmPassword"
+                className="auth-label text-text-dark"
+              >
+                Confirm Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={personalInfo.confirmPassword}
+                  onChange={handleChange}
+                  className="h-12 rounded-[40px] border border-input-border bg-white px-4 pr-12 text-base placeholder:text-input-placeholder"
+                  aria-invalid={!!errors.confirmPassword}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b6b8c0] hover:text-[#1a1a1a] transition-colors"
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <span className="text-xs text-destructive">
+                  {errors.confirmPassword}
+                </span>
+              )}
+            </div>
+          </>
         )}
 
-        {/* Actions */}
-        <div className="flex gap-4 pt-4">
-          <Link href="/" className="w-full">
-            <button className="w-full rounded-full border border-gray-100 bg-gray-50 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100">
-              Cancel
-            </button>
-          </Link>
-          <button
-            onClick={handleNext}
-            className="w-full rounded-full bg-[#F10E7C] py-3 text-sm font-medium text-white transition-colors hover:bg-[#d00c6b]"
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/")}
+            className="flex-1 h-12 rounded-[40px] border-2 border-gray-100 bg-white text-[#b6b8c0] font-semibold text-base hover:bg-gray-50"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="flex-1 h-12 rounded-[40px] bg-brand-pink hover:bg-brand-pink/90 text-white font-semibold text-base"
+            style={{ letterSpacing: "-0.64px" }}
           >
             Next
-          </button>
+          </Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

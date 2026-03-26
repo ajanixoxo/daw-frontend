@@ -1,16 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { IWishlistResponse } from "@/types/wishlist.types";
 import { revalidatePath } from "next/cache";
 
 export async function addToWishlist(productId: string): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Please login to add items to wishlist" };
@@ -33,9 +31,7 @@ export async function addToWishlist(productId: string): Promise<IActionResponse>
 
 export async function removeFromWishlist(productId: string): Promise<IActionResponse> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     console.log("Remove from wishlist - Product ID:", productId);
     console.log("Remove from wishlist - Token exists:", !!token);
@@ -62,9 +58,7 @@ export async function removeFromWishlist(productId: string): Promise<IActionResp
 
 export async function getWishlist(): Promise<IActionResponse<IWishlistResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Please login to view wishlist" };

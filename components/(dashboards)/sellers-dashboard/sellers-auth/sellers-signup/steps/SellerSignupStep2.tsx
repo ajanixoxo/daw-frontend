@@ -3,6 +3,7 @@
 import { FC, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileText, LucideIcon, Loader2, X } from "lucide-react";
 import { useSellerSignupStore } from "@/zustand/seller-signup-store";
@@ -10,6 +11,7 @@ import { useAuthStore } from "@/zustand/store";
 import { API_ENDPOINTS } from "@/lib/api/client";
 import { createServerSession } from "@/app/actions/auth";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
@@ -39,7 +41,6 @@ const UploadBox: FC<UploadBoxProps> = ({
     e.preventDefault();
     e.stopPropagation();
     onChange(null);
-    // Reset the file input
     const input = document.getElementById(field) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -90,23 +91,21 @@ const SellerSignupStep2: FC = () => {
   const { documents, shopInfo, personalInfo } = formData;
   const token = useAuthStore((s) => s.sessionData?.accessToken);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof typeof documents, string>>
-  >({});
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const queryClient = useQueryClient();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Partial<Record<keyof typeof documents, string>> = {};
+    const newErrors: Record<string, string> = {};
 
-    if (!documents.idDocument) newErrors.idDocument = "ID document is required";
-    if (!documents.proofOfResidence)
-      newErrors.proofOfResidence = "Proof of residence is required";
-    if (!documents.businessCac)
-      newErrors.businessCac = "Business CAC is required";
+    if (!documents.nin.trim()) newErrors.nin = "NIN is required";
+    else if (!/^\d{11}$/.test(documents.nin.trim()))
+      newErrors.nin = "NIN must be 11 digits";
     if (!documents.passportPhotograph)
-      newErrors.passportPhotograph = "Passport photograph is required";
+      newErrors.passportPhotograph = "Valid Identification is required";
 
     setErrors(newErrors);
     setSubmitError(null);
@@ -127,10 +126,10 @@ const SellerSignupStep2: FC = () => {
           body.append("businessAddress", shopInfo.businessAddress);
         if (shopInfo.shopLogo) body.append("shopLogo", shopInfo.shopLogo);
         if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
-        body.append("idDocument", documents.idDocument!);
-        body.append("proofOfResidence", documents.proofOfResidence!);
-        body.append("businessCac", documents.businessCac!);
+        body.append("nin", documents.nin.trim());
         body.append("passportPhotograph", documents.passportPhotograph!);
+        if (documents.businessCac)
+          body.append("businessCac", documents.businessCac);
 
         const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.SELLER_ONBOARD}`;
         const res = await fetch(url, {
@@ -150,6 +149,16 @@ const SellerSignupStep2: FC = () => {
         toast.success("Seller signup complete. Your shop has been created.");
         reset();
         router.push("/sellers/shop");
+        // Sync roles AFTER navigation starts to prevent flash of guard pages
+        if (data.user) {
+          updateUser({
+            roles: data.user.roles,
+            ...(data.user.shop ? { shop: data.user.shop } : {}),
+          });
+        }
+        queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        queryClient.invalidateQueries({ queryKey: ["my-shop"] });
       } catch (err) {
         const msg =
           err instanceof Error ? err.message : "Something went wrong.";
@@ -172,6 +181,8 @@ const SellerSignupStep2: FC = () => {
       body.append("phone", personalInfo.phone);
       body.append("password", personalInfo.password);
       body.append("confirmPassword", personalInfo.confirmPassword);
+      if (personalInfo.country) body.append("country", personalInfo.country);
+      if (personalInfo.currency) body.append("currency", personalInfo.currency);
       // Shop info fields
       body.append("name", shopInfo.shopName);
       body.append("description", shopInfo.description);
@@ -182,11 +193,11 @@ const SellerSignupStep2: FC = () => {
         body.append("businessAddress", shopInfo.businessAddress);
       if (shopInfo.shopLogo) body.append("shopLogo", shopInfo.shopLogo);
       if (shopInfo.shopBanner) body.append("shopBanner", shopInfo.shopBanner);
-      // Document files
-      body.append("idDocument", documents.idDocument!);
-      body.append("proofOfResidence", documents.proofOfResidence!);
-      body.append("businessCac", documents.businessCac!);
+      // Document fields
+      body.append("nin", documents.nin.trim());
       body.append("passportPhotograph", documents.passportPhotograph!);
+      if (documents.businessCac)
+        body.append("businessCac", documents.businessCac);
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.SHOPS.GUEST_SELLER_ONBOARD}`;
       const res = await fetch(url, {
@@ -208,10 +219,17 @@ const SellerSignupStep2: FC = () => {
         await createServerSession({
           userId: data.user._id,
           email: data.user.email,
-          role: "seller",
+          roles: data.user.roles || ["seller"],
           isVerified: false,
           accessToken: data.token,
           refreshToken: "",
+        });
+
+        // Sync user into Zustand → localStorage so role guards work
+        updateUser({
+          _id: data.user._id,
+          roles: data.user.roles,
+          ...(data.user.shop ? { shop: data.user.shop } : {}),
         });
 
         // Store signupRole for post-OTP redirect
@@ -219,13 +237,12 @@ const SellerSignupStep2: FC = () => {
       }
 
       toast.success(
-        "Account created! Please verify your email to complete signup."
+        "Account created! Please verify your email to complete signup.",
       );
       reset();
       router.push("/otp?mode=signup");
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Something went wrong.";
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
       setSubmitError(msg);
       toast.error(msg);
     } finally {
@@ -244,43 +261,56 @@ const SellerSignupStep2: FC = () => {
           className="text-2xl font-medium text-[#1a1a1a] mb-2"
           style={{ letterSpacing: "-0.96px" }}
         >
-          Documents Upload
+          KYC & Documents
         </h2>
+        <p className="text-sm text-[#6b6b6b]">
+          Provide your NIN for verification and upload required documents
+        </p>
       </div>
 
       <form onSubmit={handleNext} className="flex flex-col gap-6">
-        <UploadBox
-          label="Upload Valid Identification Documents: e.g. NIN, International Passport, Driver's License, Voter's Card"
-          field="idDocument"
-          value={documents.idDocument}
-          onChange={(file) => updateDocuments({ idDocument: file })}
-          error={errors.idDocument}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UploadBox
-            label="Proof of residence"
-            field="proofOfResidence"
-            value={documents.proofOfResidence}
-            onChange={(file) => updateDocuments({ proofOfResidence: file })}
-            error={errors.proofOfResidence}
+        {/* NIN Input */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="nin" className="text-sm font-medium text-[#1a1a1a]">
+            National Identification Number (NIN){" "}
+            <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="nin"
+            type="text"
+            inputMode="numeric"
+            placeholder="Enter your 11-digit NIN"
+            maxLength={11}
+            value={documents.nin}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "");
+              updateDocuments({ nin: val });
+            }}
+            className={`h-12 border-[#e7e8e9] bg-white text-[#1a1a1a] placeholder:text-[#b6b8c0] focus:border-[#f10e7c] focus:ring-[#f10e7c] ${errors.nin ? "border-destructive" : ""}`}
           />
-          <UploadBox
-            label="Business CAC"
-            field="businessCac"
-            value={documents.businessCac}
-            onChange={(file) => updateDocuments({ businessCac: file })}
-            error={errors.businessCac}
-          />
+          {errors.nin && (
+            <span className="text-xs text-destructive">{errors.nin}</span>
+          )}
         </div>
 
+        {/* Valid Identification */}
         <UploadBox
-          label="Passport photograph"
+          label="Valid Identification *"
           field="passportPhotograph"
           value={documents.passportPhotograph}
           onChange={(file) => updateDocuments({ passportPhotograph: file })}
-          description="Upload Passport or Take Image"
+          description="Upload a clear Valid Identification"
           error={errors.passportPhotograph}
+        />
+
+        {/*Business CAC * */}
+        <UploadBox
+          label="Business CAC *"
+          field="businessCac"
+          value={documents.businessCac}
+          onChange={(file) => updateDocuments({ businessCac: file })}
+          description="Upload CAC certificate if available"
+          error={errors.businessCac}
         />
 
         {submitError && (

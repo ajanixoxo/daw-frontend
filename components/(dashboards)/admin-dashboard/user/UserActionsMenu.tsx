@@ -16,9 +16,10 @@ import { UserDetailsDrawer } from "./UserDetailsDrawer";
 interface UserActionsMenuProps {
   userId: string;
   userName: string;
+  isAdmin?: boolean;
 }
 
-export function UserActionsMenu({ userId, userName }: UserActionsMenuProps) {
+export function UserActionsMenu({ userId, userName, isAdmin = false }: UserActionsMenuProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -39,12 +40,14 @@ export function UserActionsMenu({ userId, userName }: UserActionsMenuProps) {
           <DropdownMenuItem onClick={() => setDetailsOpen(true)}>
             View Details
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditOpen(true)}>
+          {/* <DropdownMenuItem onClick={() => setEditOpen(true)}>
             Edit User
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-red-600">
-            Delete User
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
+          {isAdmin && (
+            <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-red-600">
+              Delete User
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

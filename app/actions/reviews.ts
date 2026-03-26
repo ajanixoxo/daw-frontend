@@ -1,16 +1,14 @@
 "use server";
 
 import { apiClient, API_ENDPOINTS } from "@/lib/api/client";
-import { getServerSession, refreshAccessToken } from "@/app/actions/auth";
+import { getFreshToken } from "@/app/actions/auth";
 import { IActionResponse } from "@/types/auth.types";
 import { IReviewsResponse, ICreateReviewRequest, ICreateReviewResponse } from "@/types/review.types";
 import { revalidatePath } from "next/cache";
 
 export async function getReviews(productId: string): Promise<IActionResponse<IReviewsResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     const config = token ? { token } : {};
 
@@ -29,9 +27,7 @@ export async function getReviews(productId: string): Promise<IActionResponse<IRe
 
 export async function createReview(data: ICreateReviewRequest): Promise<IActionResponse<ICreateReviewResponse>> {
   try {
-    await refreshAccessToken();
-    const session = await getServerSession();
-    const token = session?.accessToken;
+    const token = await getFreshToken();
 
     if (!token) {
       return { success: false, error: "Please login to submit a review" };

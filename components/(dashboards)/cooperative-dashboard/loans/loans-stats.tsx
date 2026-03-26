@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { TrendingUp, Users, Percent, AlertCircle } from "lucide-react"
-import { getLoanStats, LoanStats } from "@/app/actions/loans"
+import { getLoanStats } from "@/app/actions/loans"
+
+interface LoanStats {
+  totalDisbursed: number;
+  activeLoans: number;
+  repaymentRate: number;
+  overdueLoans: number;
+  overdueAmount: number;
+}
 
 export function LoansStats() {
   const [stats, setStats] = useState<LoanStats | null>(null)

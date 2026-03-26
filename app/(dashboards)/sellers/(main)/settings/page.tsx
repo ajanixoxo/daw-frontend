@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getSellerSettings } from "@/app/actions/settings";
 import SettingsClientPage from "@/components/(dashboards)/sellers-dashboard/settings/settings-client-page";
 

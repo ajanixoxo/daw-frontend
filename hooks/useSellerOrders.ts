@@ -6,6 +6,7 @@ import { getShopId } from './useSellerProfile';
 // Hook to fetch seller's orders (filtered by shop ID)
 export function useSellerOrders() {
   const shopId = getShopId();
+  const hasValidShopId = typeof shopId === 'string' && shopId.trim() !== '';
 
   return useQuery({
     queryKey: ['seller-orders', shopId],
@@ -36,7 +37,7 @@ export function useSellerOrders() {
         return { orders: [] };
       }
     },
-    enabled: !!shopId && !shopId.includes('[object Object]'),
+    enabled: hasValidShopId,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }

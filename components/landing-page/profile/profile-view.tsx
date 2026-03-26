@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, User } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 import { useProfile } from "@/hooks/useProfile";
@@ -77,9 +77,11 @@ export function ProfileView() {
               </div>
               <div>
                 <p className="text-sm text-[#6b6b6b] mb-1">Role</p>
-                <p className="font-medium text-[#1a1a1a] capitalize">
-                  {user.roles?.[0] || "Buyer"}
-                </p>
+                {user.roles.map(( role, index) => (
+                  <p key={index} className="font-medium text-[#1a1a1a] capitalize">
+                    {role}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
@@ -91,20 +93,20 @@ export function ProfileView() {
         <h3 className="text-lg font-semibold text-[#1a1a1a]">Addresses</h3>
 
         <div className="space-y-4">
-          <AddressCard
-            name="Daniel Ololo"
-            address="17b, David Robinson Avenue"
-            city="Lagos - LEKKI IKATE ELEGUSHI"
-            phone="+234 812 345 6789"
-            isDefault={true}
-          />
-          <AddressCard
-            name="Daniel Preye"
-            address="17b, David Robinson Avenue"
-            city="Lagos - LEKKI IKATE ELEGUSHI"
-            phone="+234 812 345 6789"
-            isDefault={true}
-          />
+          {user.billingAddress?.streetAddress ? (
+            <AddressCard
+              name={user.billingAddress.fullName || `${user.firstName} ${user.lastName}`}
+              address={user.billingAddress.streetAddress}
+              city={`${user.billingAddress.city || ""}${user.billingAddress.state ? `, ${user.billingAddress.state}` : ""}${user.billingAddress.country ? ` (${user.billingAddress.country})` : ""}`}
+              phone={user.billingAddress.phone || user.phone || ""}
+              isDefault={true}
+            />
+          ) : (
+            <div className="bg-white rounded-xl border border-[#e7e8e9] p-8 text-center">
+              <p className="text-[#6b6b6b] text-sm">No billing address saved yet.</p>
+              <p className="text-xs text-[#a1a1a1] mt-1">Go to Settings to add one.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

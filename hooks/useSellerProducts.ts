@@ -23,7 +23,9 @@ async function addProductClient(data: Omit<IAddProductRequest, 'shop_id'>) {
   formData.append('shop_id', shopIdString);
   formData.append('name', data.name);
   formData.append('quantity', String(data.quantity));
+  formData.append('weight', String(data.weight));
   formData.append('price', String(data.price));
+  formData.append('location', data.location || "");
   if (data.description) formData.append('description', data.description);
   if (data.category) formData.append('category', data.category);
   if (data.status) formData.append('status', data.status);
@@ -40,17 +42,27 @@ async function addProductClient(data: Omit<IAddProductRequest, 'shop_id'>) {
     });
   }
 
-  const response = await clientApiClient.post<IAddProductResponse>(
-    API_ENDPOINTS.MARKETPLACE.ADD_PRODUCT,
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
+
+  const { default: axios } = await import('axios');
+  const axiosResponse = await axios.post<IAddProductResponse>(
+    `${API_BASE_URL}${API_ENDPOINTS.MARKETPLACE.ADD_PRODUCT}`,
     formData,
     {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        // DO NOT set Content-Type — let axios set it automatically with boundary
       },
     }
   );
 
-  return response;
+  if (!axiosResponse.data.success) {
+    const err = axiosResponse.data as any;
+    throw new Error(err.message || 'Failed to add product');
+  }
+
+  return axiosResponse.data;
 }
 
 export function useAddProduct() {
@@ -78,6 +90,8 @@ export function useAddProduct() {
 export interface IEditProductData {
   name?: string;
   quantity?: number;
+  weight?: number;
+  location?: string;
   price?: number;
   description?: string;
   category?: string;
@@ -99,7 +113,9 @@ export function useEditProduct() {
 
       if (data.name !== undefined) formData.append('name', data.name);
       if (data.quantity !== undefined) formData.append('quantity', String(data.quantity));
+      if (data.weight !== undefined) formData.append('weight', String(data.weight));
       if (data.price !== undefined) formData.append('price', String(data.price));
+      if (data.location !== undefined) formData.append('location', data.location);
       if (data.description !== undefined) formData.append('description', data.description);
       if (data.category !== undefined) formData.append('category', data.category);
       if (data.status !== undefined) formData.append('status', data.status);
@@ -115,18 +131,25 @@ export function useEditProduct() {
         });
       }
 
-      const response = await clientApiClient.patch<IAddProductResponse>(
-        API_ENDPOINTS.MARKETPLACE.EDIT_PRODUCT(productId),
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
+      const { default: axios } = await import('axios');
+
+      const axiosResponse = await axios.patch<IAddProductResponse>(
+        `${API_BASE_URL}${API_ENDPOINTS.MARKETPLACE.EDIT_PRODUCT(productId)}`,
         formData,
         {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
         }
       );
 
-      if (!response.success) {
-        throw new Error('Failed to update product');
+      if (!axiosResponse.data.success) {
+        const err = axiosResponse.data as any;
+        throw new Error(err.message || 'Failed to update product');
       }
-      return response;
+      return axiosResponse.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -166,17 +189,12 @@ export function useDeleteProduct() {
 // Hook to fetch seller's products (filtered by shop ID)
 export function useSellerProducts() {
   const shopId = getShopId();
+  const hasValidShopId = typeof shopId === 'string' && shopId.trim() !== '';
 
   return useQuery({
     queryKey: ['seller-products', shopId],
     queryFn: async () => {
       if (!shopId) {
-        return { products: [] };
-      }
-
-      // Validate shopId is not corrupted
-      if (shopId.includes('[object Object]')) {
-        console.error('Invalid shopId:', shopId);
         return { products: [] };
       }
 
@@ -196,7 +214,7 @@ export function useSellerProducts() {
         return { products: [] };
       }
     },
-    enabled: !!shopId && !shopId.includes('[object Object]'),
+    enabled: hasValidShopId,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }

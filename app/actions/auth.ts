@@ -30,7 +30,7 @@ export async function createServerSession(
   try {
     const cookieStore = await cookies();
 
-    console.log("Setting cookies for user:", data.userId, "role:", data.role, "isVerified:", data.isVerified);
+    console.log("Setting cookies for user:", data.userId, "role:", data.roles, "isVerified:", data.isVerified);
 
     cookieStore.set("userId", data.userId || "", {
       ...COOKIE_CONFIG,
@@ -42,7 +42,7 @@ export async function createServerSession(
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
-    cookieStore.set("role", data.role || "buyer", {
+    cookieStore.set("roles", JSON.stringify(data.roles || ["buyer"]), {
       ...COOKIE_CONFIG,
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
@@ -75,38 +75,29 @@ export async function getServerSession(): Promise<ISessionData | null> {
     const cookieStore = await cookies();
     const userId = cookieStore.get("userId")?.value;
     const email = cookieStore.get("email")?.value;
-    const role = cookieStore.get("role")?.value;
+    const rolesCookie = cookieStore.get("roles")?.value;
+    const roles: string[] = rolesCookie ? JSON.parse(rolesCookie) : ["buyer"];
     const isVerified = cookieStore.get("isVerified")?.value;
     const accessToken = cookieStore.get("accessToken")?.value;
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
-    console.log("Cookie values:", {
-      userId: !!userId,
-      email: !!email,
-      role: !!role,
-      isVerified: isVerified !== undefined,
-      accessToken: !!accessToken,
-      refreshToken: !!refreshToken,
-      isVerifiedValue: isVerified,
-      actualRole: role
-    });
+    console.log("Cookie values:", { userId: !!userId, email: !!email, roles, isVerified, accessToken: !!accessToken });
 
-
-    if (userId === undefined || email === undefined || role === undefined || accessToken === undefined || refreshToken === undefined || isVerified === undefined) {
-      console.log("Missing required cookie values - role:", role, "refreshToken:", refreshToken);
+    if (userId === undefined || email === undefined || accessToken === undefined || refreshToken === undefined || isVerified === undefined) {
+      console.log("Missing required cookie values - refreshToken:", refreshToken);
       return null;
     }
 
     const session = {
       userId,
       email,
-      role,
+      roles,
       isVerified: isVerified === "true",
       accessToken,
       refreshToken
     };
 
-    console.log("Session created successfully:", { userId: session.userId, email: session.email, role: session.role, isVerified: session.isVerified });
+    console.log("Session created successfully:", { userId: session.userId, email: session.email, roles: session.roles, isVerified: session.isVerified });
     return session;
   } catch (error) {
     console.error("Get session error:", error);
@@ -119,7 +110,7 @@ export async function destroyServerSession(): Promise<IActionResponse> {
     const cookieStore = await cookies();
     cookieStore.delete("userId");
     cookieStore.delete("email");
-    cookieStore.delete("role");
+    cookieStore.delete("roles");
     cookieStore.delete("isVerified");
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
@@ -139,6 +130,30 @@ export async function loginUser(
       API_ENDPOINTS.AUTH.LOGIN,
       credentials
     );
+
+    if (response.isOtpRequired && response.token) {
+      const tempToken = typeof response.token === "string" ? response.token : response.token.accessToken;
+      
+      const sessionData: ISessionData = {
+        userId: "",
+        email: credentials.email,
+        roles: ["buyer"],
+        isVerified: false,
+        accessToken: tempToken,
+        refreshToken: "",
+      };
+
+      const sessionResult = await createServerSession(sessionData);
+      if (!sessionResult.success) {
+        throw new Error(sessionResult.error || "Failed to create session");
+      }
+
+      return {
+        success: true,
+        data: sessionData,
+        message: response.message
+      };
+    }
 
     if (!response.user || !response.token) {
       throw new Error("Invalid response format from server");
@@ -160,7 +175,7 @@ export async function loginUser(
     const sessionData: ISessionData = {
       userId: user._id,
       email: user.email,
-      role: user.roles && user.roles.length > 0 ? user.roles[0] : "buyer",
+      roles: user.roles && user.roles.length > 0 ? user.roles : ["buyer"],
       isVerified: typeof token === "string" ? false : (user.isVerified ?? false),
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -196,6 +211,8 @@ export async function signupUser(
       password: userData.password,
       confirmPassword: userData.confirmPassword,
       phone: userData.phone,
+      country: userData.country,
+      currency: userData.currency,
     };
     if (userData.roles != null) {
       payload.roles = [userData.roles];
@@ -214,7 +231,7 @@ export async function signupUser(
     const sessionData: ISessionData = {
       userId: user._id,
       email: user.email,
-      role: user.roles && user.roles.length > 0 ? user.roles[0] : "buyer",
+      roles: user.roles && user.roles.length > 0 ? user.roles : ["buyer"],
       isVerified: false,
       accessToken: token,
       refreshToken: "",
@@ -261,28 +278,24 @@ export async function verifyEmail(
       throw new Error(response.message || "Verification failed");
     }
 
-    // For sellers, keep the session so they can proceed to KYC
-    // For other users, destroy the session (they need to log in)
-    const isSeller = session.role === "seller";
-    
-    if (isSeller) {
-      // Update session to mark as verified but keep the token
-      const updatedSession: ISessionData = {
-        ...session,
-        isVerified: true,
-      };
-      await createServerSession(updatedSession);
-      
-      return { 
-        success: true, 
-        message: response.message || "Email verified successfully",
-        data: updatedSession
-      };
-    } else {
-      // For non-sellers, destroy session (they need to log in)
-      await destroyServerSession();
-      return { success: true, message: response.message || "Email verified successfully" };
-    }
+    // Backend now returns a proper full token (with roles) after verification.
+    // Upgrade the session so the user can act immediately without re-logging in.
+    const updatedSession: ISessionData = {
+      ...session,
+      isVerified: true,
+      accessToken: response.token?.accessToken || session.accessToken,
+      refreshToken: response.token?.refreshToken || session.refreshToken || "",
+      roles: (response.user?.roles && response.user.roles.length > 0)
+        ? response.user.roles
+        : session.roles,
+    };
+    await createServerSession(updatedSession);
+
+    return {
+      success: true,
+      message: response.message || "Email verified successfully",
+      data: updatedSession
+    };
   } catch (error) {
     console.error("Email Verification error:", error);
     const message = error instanceof Error ? error.message : "Failed to verify email";
@@ -319,7 +332,7 @@ export async function verifyLoginOtp(
       isVerified: true,
       accessToken: response.token.accessToken,
       refreshToken: response.token.refreshToken,
-      role: response.user.roles && response.user.roles.length > 0 ? response.user.roles[0] : session.role,
+      roles: response.user.roles && response.user.roles.length > 0 ? response.user.roles : session?.roles || ["buyer"],
     };
 
     if (session) {
@@ -429,13 +442,14 @@ export async function refreshAccessToken(): Promise<IActionResponse<ISessionData
     // will re-set all cookies with fresh maxAge values.
     const userId = cookieStore.get("userId")?.value || "";
     const email = cookieStore.get("email")?.value || "";
-    const role = cookieStore.get("role")?.value || "buyer";
+    const rolesCookie = cookieStore.get("roles")?.value;
+    const roles: string[] = rolesCookie ? JSON.parse(rolesCookie) : ["buyer"];
     const isVerified = cookieStore.get("isVerified")?.value === "true";
 
     const updatedSessionData: ISessionData = {
       userId,
       email,
-      role,
+      roles,
       isVerified,
       accessToken: token.accessToken,
       refreshToken: token.refreshToken,
@@ -457,6 +471,24 @@ export async function refreshAccessToken(): Promise<IActionResponse<ISessionData
     const message = error instanceof Error ? error.message : "Failed to refresh token";
     return { success: false, error: message };
   }
+}
+
+/**
+ * Attempt a token refresh and return the freshest available access token.
+ * Using the token returned directly from the refresh response avoids the
+ * race condition where cookie mutations made inside refreshAccessToken are
+ * not yet visible to a subsequent getServerSession() call in the same
+ * Next.js server-action request.
+ */
+export async function getFreshToken(): Promise<string | null> {
+  const refreshResult = await refreshAccessToken();
+  if (refreshResult.success && refreshResult.data?.accessToken) {
+    return refreshResult.data.accessToken;
+  }
+  // Refresh failed or no refresh token — fall back to whatever is in the session
+  // (may still be valid if the access token has not expired yet).
+  const session = await getServerSession();
+  return session?.accessToken || null;
 }
 
 export async function checkVerificationStatus(): Promise<{

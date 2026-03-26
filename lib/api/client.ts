@@ -217,8 +217,30 @@ export const API_ENDPOINTS = {
     INITIATE: "/api/payment/initiate",
     VERIFY: (reference: string) => `/api/payment/verify/${reference}`,
   },
+  PAYSTACK: {
+    INITIALIZE: "/api/paystack/initialize",
+    VERIFY: "/api/paystack/verify",
+  },
+  PAYPAL: {
+    CREATE_ORDER: "/api/paypal/create-order",
+    CAPTURE_ORDER: "/api/paypal/capture-order",
+  },
   ADMIN: {
     DASHBOARD_STATS: "/api/admin/dashboard/stats",
     PENDING_COOPERATIVES: "/api/admin/cooperatives/pending",
   },
+  WALLET: {
+    CREATE_STATIC: "/api/wallet/create/static/Account",
+    GET_ACCOUNT: "/api/wallet/get/account",
+    GET_BANKS: "/api/wallet/banks",
+    PAYOUT: "/api/wallet/transfer/money", // Seller payout
+    ADMIN_GET_WALLET: "/api/wallet/create", // Admin create/get business wallet
+    ADMIN_PAYOUT: "/api/wallet/payout", // Admin payout
+    LEDGER: "/api/wallet/ledger",
+    UPDATE_PIN: "/api/wallet/update-pin",
+    ACCOUNT_LOOKUP: "/api/wallet/account-lookup",
+    CHARGE: "/api/wallet/charge",
+    PROFILE: "/auth/profile",
+  },
+
 } as const;

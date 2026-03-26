@@ -14,6 +14,8 @@ import {
 import { Upload, X } from "lucide-react";
 import { useCooperativeSignupStore } from "@/zustand/cooperative-signup-store";
 import type { CooperativeShopInfo } from "@/zustand/cooperative-signup-store";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const DEFAULT_SHOP_INFO: CooperativeShopInfo = {
   shopName: "",
@@ -45,6 +47,10 @@ export function CooperativeSignupStepShop() {
     updateShopInfo({ category: value });
   };
 
+  const handlePhoneChange = (value: string) => {
+    updateShopInfo({ contactNumber: value });
+  };
+
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     field: "shopLogo" | "shopBanner",
@@ -61,7 +67,6 @@ export function CooperativeSignupStepShop() {
     e.preventDefault();
     e.stopPropagation();
     updateShopInfo({ [field]: null });
-    // Reset the file input
     const input = document.getElementById(field) as HTMLInputElement;
     if (input) input.value = "";
   };
@@ -69,8 +74,7 @@ export function CooperativeSignupStepShop() {
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Partial<Record<keyof CooperativeShopInfo, string>> = {};
-    if (!shopInfo.shopName)
-      newErrors.shopName = "Business/Shop name is required";
+    if (!shopInfo.shopName) newErrors.shopName = "Shop name is required";
     if (!shopInfo.description)
       newErrors.description = "Description is required";
     if (!shopInfo.category) newErrors.category = "Category is required";
@@ -87,16 +91,22 @@ export function CooperativeSignupStepShop() {
   return (
     <div className="w-full max-w-[600px]">
       <div className="mb-8">
-        <h1 className="text-2xl font-medium text-[#222]">Shop Information</h1>
-        <p className="text-sm text-gray-500">
-          Provide details about your business/shop
+        <h2
+          className="text-2xl font-medium text-[#1a1a1a] mb-2"
+          style={{ letterSpacing: "-0.96px" }}
+        >
+          Shop Information
+        </h2>
+        <p className="text-sm text-[#6b6b6b]">
+          Provide details about your shop and products
         </p>
       </div>
 
-      <form onSubmit={handleNext} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="shopName" className="text-sm font-medium text-[#222]">
-            Business/Shop Name
+      <form onSubmit={handleNext} className="flex flex-col gap-5">
+        {/* Shop Name */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="shopName" className="auth-label text-text-dark">
+            Shop Name
           </Label>
           <Input
             id="shopName"
@@ -105,35 +115,38 @@ export function CooperativeSignupStepShop() {
             placeholder="e.g., Amina's Fashion Boutique"
             value={shopInfo.shopName}
             onChange={handleChange}
-            className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm focus:border-[#F10E7C] focus:outline-none"
+            className="h-12 rounded-lg border border-input-border bg-white px-4 text-sm placeholder:text-input-placeholder"
+            aria-invalid={!!errors.shopName}
           />
           {errors.shopName && (
-            <span className="text-xs text-red-600">{errors.shopName}</span>
+            <span className="text-xs text-destructive">{errors.shopName}</span>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="description"
-            className="text-sm font-medium text-[#222]"
-          >
+        {/* Description */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="description" className="auth-label text-text-dark">
             Description
           </Label>
           <textarea
             id="description"
             name="description"
-            placeholder="Describe what you sell and what makes your shop unique"
+            placeholder="Describe what you sell and what makes your shop Unique"
             value={shopInfo.description}
             onChange={handleChange}
-            className="min-h-[100px] w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:border-[#F10E7C] focus:outline-none resize-none"
+            className="min-h-[100px] rounded-lg border border-input-border bg-[#F9F9FB] px-4 py-3 text-sm placeholder:text-input-placeholder resize-none focus:outline-none focus:ring-2 focus:ring-brand-pink/20 focus:border-brand-pink"
+            aria-invalid={!!errors.description}
           />
           {errors.description && (
-            <span className="text-xs text-red-600">{errors.description}</span>
+            <span className="text-xs text-destructive">
+              {errors.description}
+            </span>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="category" className="text-sm font-medium text-[#222]">
+        {/* Category */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="category" className="auth-label text-text-dark">
             Category
           </Label>
           <Select
@@ -142,7 +155,8 @@ export function CooperativeSignupStepShop() {
           >
             <SelectTrigger
               id="category"
-              className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm"
+              className="h-12 rounded-lg border border-input-border bg-white px-4 text-sm w-full"
+              aria-invalid={!!errors.category}
             >
               <SelectValue placeholder="Select Category" />
             </SelectTrigger>
@@ -157,37 +171,40 @@ export function CooperativeSignupStepShop() {
             </SelectContent>
           </Select>
           {errors.category && (
-            <span className="text-xs text-red-600">{errors.category}</span>
+            <span className="text-xs text-destructive">{errors.category}</span>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
+        {/* Contact Number & Business Address */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
             <Label
               htmlFor="contactNumber"
-              className="text-sm font-medium text-[#222]"
+              className="auth-label text-text-dark"
             >
               Contact Number
             </Label>
-            <Input
-              id="contactNumber"
-              name="contactNumber"
-              type="tel"
-              placeholder="e.g. 08012345678"
+            <PhoneInput
+              country={"ng"}
               value={shopInfo.contactNumber}
-              onChange={handleChange}
-              className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm focus:border-[#F10E7C] focus:outline-none"
+              onChange={handlePhoneChange}
+              containerClass="w-full"
+              inputClass="!w-full !h-12 !rounded-lg !border !border-input-border !bg-white !px-4 !pl-12 !text-sm !placeholder:text-input-placeholder"
+              buttonClass="!border-none !bg-transparent !pl-3"
+              dropdownClass="!rounded-xl !shadow-lg text-sm"
+              placeholder="Enter contact number"
             />
             {errors.contactNumber && (
-              <span className="text-xs text-red-600">
+              <span className="text-xs text-destructive">
                 {errors.contactNumber}
               </span>
             )}
           </div>
-          <div className="space-y-2">
+
+          <div className="flex flex-col gap-2">
             <Label
               htmlFor="businessAddress"
-              className="text-sm font-medium text-[#222]"
+              className="auth-label text-text-dark"
             >
               Business Address
             </Label>
@@ -198,23 +215,26 @@ export function CooperativeSignupStepShop() {
               placeholder="City, State"
               value={shopInfo.businessAddress}
               onChange={handleChange}
-              className="h-12 rounded-full border border-gray-100 bg-gray-50 px-4 text-sm focus:border-[#F10E7C] focus:outline-none"
+              className="h-12 rounded-lg border border-input-border bg-white px-4 text-sm placeholder:text-input-placeholder"
+              aria-invalid={!!errors.businessAddress}
             />
             {errors.businessAddress && (
-              <span className="text-xs text-red-600">
+              <span className="text-xs text-destructive">
                 {errors.businessAddress}
               </span>
             )}
           </div>
         </div>
 
+        {/* Shop Branding (required)  */}
         <div>
-          <p className="text-sm font-medium text-[#222] mb-4">
-            Shop Branding (Optional)
+          <p className="text-sm font-medium text-[#1a1a1a] mb-4">
+            Shop Branding (required)
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="shopLogo" className="text-xs text-gray-500">
+            {/* Shop Logo */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="shopLogo" className="text-xs text-[#6b6b6b]">
                 Shop Logo
               </Label>
               <div className="relative">
@@ -225,30 +245,34 @@ export function CooperativeSignupStepShop() {
                   onChange={(e) => handleFileChange(e, "shopLogo")}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="h-32 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100 relative transition-colors">
+                <div
+                  className={`h-32 rounded-lg border border-dashed ${shopInfo.shopLogo ? "border-green-500 bg-green-50/50" : "border-input-border"} bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors relative`}
+                >
                   {shopInfo.shopLogo && (
                     <button
                       type="button"
                       onClick={(e) => handleClearFile(e, "shopLogo")}
-                      className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                      className="absolute top-2 right-2 z-20 p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
                       title="Remove file"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <Upload
-                    className={`w-6 h-6 ${shopInfo.shopLogo ? "text-green-500" : "text-gray-400"}`}
+                    className={`w-6 h-6 ${shopInfo.shopLogo ? "text-green-500" : "text-[#b6b8c0]"}`}
                   />
                   <p
-                    className={`text-xs ${shopInfo.shopLogo ? "text-green-600 font-medium" : "text-[#222]"}`}
+                    className={`text-xs ${shopInfo.shopLogo ? "text-green-600 font-medium" : "text-[#1a1a1a]"}`}
                   >
                     {shopInfo.shopLogo ? shopInfo.shopLogo.name : "Upload Logo"}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="shopBanner" className="text-xs text-gray-500">
+
+            {/* Shop Banner */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="shopBanner" className="text-xs text-[#6b6b6b]">
                 Shop Banner
               </Label>
               <div className="relative">
@@ -259,22 +283,24 @@ export function CooperativeSignupStepShop() {
                   onChange={(e) => handleFileChange(e, "shopBanner")}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="h-32 rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:bg-gray-100 relative transition-colors">
+                <div
+                  className={`h-32 rounded-lg border border-dashed ${shopInfo.shopBanner ? "border-green-500 bg-green-50/50" : "border-input-border"} bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors relative`}
+                >
                   {shopInfo.shopBanner && (
                     <button
                       type="button"
                       onClick={(e) => handleClearFile(e, "shopBanner")}
-                      className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
+                      className="absolute top-2 right-2 z-20 p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors shadow-md"
                       title="Remove file"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <Upload
-                    className={`w-6 h-6 ${shopInfo.shopBanner ? "text-green-500" : "text-gray-400"}`}
+                    className={`w-6 h-6 ${shopInfo.shopBanner ? "text-green-500" : "text-[#b6b8c0]"}`}
                   />
                   <p
-                    className={`text-xs ${shopInfo.shopBanner ? "text-green-600 font-medium" : "text-[#222]"}`}
+                    className={`text-xs ${shopInfo.shopBanner ? "text-green-600 font-medium" : "text-[#1a1a1a]"}`}
                   >
                     {shopInfo.shopBanner
                       ? shopInfo.shopBanner.name
@@ -286,18 +312,20 @@ export function CooperativeSignupStepShop() {
           </div>
         </div>
 
-        <div className="flex gap-4 pt-4">
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-6">
           <Button
             type="button"
             variant="outline"
             onClick={handleBack}
-            className="flex-1 h-12 rounded-full border-gray-100 bg-gray-50 text-gray-600 hover:bg-gray-100"
+            className="flex-1 h-12 rounded-[40px] border-2 border-gray-100 bg-white text-[#b6b8c0] font-semibold text-base hover:bg-gray-50"
           >
             Back
           </Button>
           <Button
             type="submit"
-            className="flex-1 h-12 rounded-full bg-[#F10E7C] hover:bg-[#d00c6b] text-white font-medium"
+            className="flex-1 h-12 rounded-[40px] bg-brand-pink hover:bg-brand-pink/90 text-white font-semibold text-base"
+            style={{ letterSpacing: "-0.64px" }}
           >
             Next
           </Button>
