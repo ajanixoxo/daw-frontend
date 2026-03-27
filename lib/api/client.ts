@@ -147,6 +147,7 @@ export const API_ENDPOINTS = {
     GET_ALL_ORDERS: "/marketplace/get/orders",
     GET_ORDERS_BY_SHOP: (shopId: string) =>
       `/marketplace/get/orders/shop/${shopId}`,
+    ORDER_STATUS: (orderId: string) => `/marketplace/order/status/${orderId}`,
   },
   CATEGORIES: {
     CREATE: "/marketplace/categories",
