@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Search, CreditCard, DollarSign, Calendar, CheckCircle, Loader2 } from "lucide-react"
+import { Search, CreditCard, DollarSign, Calendar, CheckCircle, Loader2, X } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,16 +12,40 @@ import {
   getMyHistory,
   initiatePayment,
 } from "@/app/actions/contributions"
-import type { ContributionSummary, ContributionHistoryItem } from "@/app/actions/contributions"
+import type { ContributionSummary, ContributionHistoryItem, PaymentPlatform } from "@/app/actions/contributions"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("en-NG", {
+const ALL_PAYMENT_PLATFORMS: { id: PaymentPlatform; name: string; description: string; color: string; currencies: ("NGN" | "USD")[] }[] = [
+  {
+    id: "paystack",
+    name: "Paystack",
+    description: "Pay with card or bank transfer via Paystack",
+    color: "#00C3F7",
+    currencies: ["NGN"],
+  },
+  {
+    id: "paypal",
+    name: "PayPal",
+    description: "Pay in USD via PayPal",
+    color: "#003087",
+    currencies: ["NGN", "USD"],
+  },
+  {
+    id: "vigipay",
+    name: "VígiPay",
+    description: "Pay via VígiPay wallet",
+    color: "#f10e7c",
+    currencies: ["NGN"],
+  },
+]
+
+const formatCurrency = (amount: number, currency: "NGN" | "USD" = "NGN") =>
+  new Intl.NumberFormat(currency === "USD" ? "en-US" : "en-NG", {
     style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency,
+    minimumFractionDigits: currency === "USD" ? 2 : 0,
+    maximumFractionDigits: currency === "USD" ? 2 : 0,
   }).format(amount)
 
 const formatDate = (dateStr: string | null | undefined) => {
@@ -51,6 +75,8 @@ export default function ContributionPage() {
   const [paying, setPaying] = useState(false)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [showPlatformModal, setShowPlatformModal] = useState(false)
+  const [selectedPlatform, setSelectedPlatform] = useState<PaymentPlatform | null>(null)
 
   const currentMonth = new Date().toLocaleString("en-US", {
     month: "long",
@@ -86,9 +112,15 @@ export default function ContributionPage() {
 
   const handleContribute = async () => {
     if (!summary?.monthlyAmount) return
+    setShowPlatformModal(true)
+  }
+
+  const handleProceedWithPlatform = async () => {
+    if (!summary?.monthlyAmount || !selectedPlatform) return
+    setShowPlatformModal(false)
     setPaying(true)
     try {
-      const result = await initiatePayment(summary.monthlyAmount, currentMonth)
+      const result = await initiatePayment(summary.monthlyAmount, currentMonth, selectedPlatform)
       if (result.success && result.data?.paymentUrl) {
         window.location.href = result.data.paymentUrl
       } else {
@@ -98,8 +130,14 @@ export default function ContributionPage() {
       toast.error("An unexpected error occurred")
     } finally {
       setPaying(false)
+      setSelectedPlatform(null)
     }
   }
+
+  const userCurrency = summary?.currency ?? "NGN"
+  const availablePlatforms = ALL_PAYMENT_PLATFORMS.filter((p) =>
+    p.currencies.includes(userCurrency)
+  )
 
   const paidContributions = history.filter((h) => h.status === "paid")
   const totalPaid = paidContributions.reduce((sum, h) => sum + h.amount, 0)
@@ -142,6 +180,84 @@ export default function ContributionPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f7] p-4 md:p-6 lg:p-8">
+      {/* Payment Platform Modal */}
+      {showPlatformModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-lg font-semibold text-[#101828]">Choose Payment Method</h3>
+                <p className="text-sm text-[#667085] mt-0.5">
+                  Select how you want to pay {summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount, userCurrency) : ""}
+                </p>
+              </div>
+              <button
+                onClick={() => { setShowPlatformModal(false); setSelectedPlatform(null) }}
+                className="size-8 rounded-full flex items-center justify-center hover:bg-[#f5f5f5] text-[#667085]"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {userCurrency === "USD" && (
+              <p className="text-xs text-[#667085] bg-[#f5f5f5] rounded-lg px-3 py-2 mb-4">
+                USD accounts are billed via PayPal only.
+              </p>
+            )}
+
+            <div className="space-y-3 mb-6">
+              {availablePlatforms.map((platform) => (
+                <button
+                  key={platform.id}
+                  onClick={() => setSelectedPlatform(platform.id)}
+                  className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${
+                    selectedPlatform === platform.id
+                      ? "border-[#f10e7c] bg-[#fff5f9]"
+                      : "border-[#e4e7ec] hover:border-[#f10e7c]/40 hover:bg-[#fafafa]"
+                  }`}
+                >
+                  <span
+                    className="size-10 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                    style={{ backgroundColor: platform.color }}
+                  >
+                    {platform.name.slice(0, 2).toUpperCase()}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#101828]">{platform.name}</p>
+                    <p className="text-xs text-[#667085]">{platform.description}</p>
+                  </div>
+                  <span
+                    className={`size-5 rounded-full border-2 shrink-0 flex items-center justify-center ${
+                      selectedPlatform === platform.id
+                        ? "border-[#f10e7c] bg-[#f10e7c]"
+                        : "border-[#d0d5dd]"
+                    }`}
+                  >
+                    {selectedPlatform === platform.id && (
+                      <span className="size-2 rounded-full bg-white" />
+                    )}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <Button
+              onClick={handleProceedWithPlatform}
+              disabled={!selectedPlatform || paying}
+              className="w-full bg-[#f10e7c] hover:bg-[#d00d6a] text-white h-12 text-sm font-medium disabled:opacity-50"
+            >
+              {paying ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Initiating Payment...
+                </>
+              ) : (
+                "Proceed to Payment"
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
@@ -161,7 +277,7 @@ export default function ContributionPage() {
             value={summary?.currentTier || "—"}
             subtitle={
               summary?.monthlyAmount
-                ? `Contribution: ${formatCurrency(summary.monthlyAmount)}`
+                ? `Contribution: ${formatCurrency(summary.monthlyAmount, userCurrency)}`
                 : "No tier assigned"
             }
             iconColor="#E6007A"
@@ -169,7 +285,7 @@ export default function ContributionPage() {
           <StatCard
             icon={DollarSign}
             title="Total Contributions"
-            value={formatCurrency(totalPaid)}
+            value={formatCurrency(totalPaid, userCurrency)}
             subtitleHighlight={String(paidContributions.length)}
             subtitle="Payments made"
             trend="up"
@@ -181,7 +297,7 @@ export default function ContributionPage() {
             value={formatDate(summary?.lastContributionDate)}
             subtitle={
               summary?.lastContributionAmount
-                ? formatCurrency(summary.lastContributionAmount)
+                ? formatCurrency(summary.lastContributionAmount, userCurrency)
                 : "No payments yet"
             }
             iconColor="#E6007A"
@@ -191,7 +307,7 @@ export default function ContributionPage() {
             title="Next Payment Due"
             value={formatDate(summary?.nextDueDate)}
             subtitle={
-              summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount) : "—"
+              summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount, userCurrency) : "—"
             }
             iconColor="#E6007A"
           />
@@ -200,11 +316,12 @@ export default function ContributionPage() {
         {/* Make a Contribution */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-[#000000] mb-1">
-            Make a Contribution
+            {summary?.userType === "seller" ? "Pay Subscription" : "Make a Contribution"}
           </h2>
           <p className="text-[#667185] text-sm mb-6">
-            Your contribution amount is fixed based on your{" "}
-            {summary?.currentTier || "membership"} tier
+            {summary?.userType === "seller"
+              ? `Your monthly subscription is fixed at ${formatCurrency(summary.monthlyAmount, userCurrency)}`
+              : `Your contribution amount is fixed based on your ${summary?.currentTier || "membership"} tier`}
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -220,7 +337,7 @@ export default function ContributionPage() {
               <div className="text-center mb-6">
                 <p className="text-5xl font-bold text-[#f10e7c] mb-2">
                   {summary?.monthlyAmount
-                    ? formatCurrency(summary.monthlyAmount)
+                    ? formatCurrency(summary.monthlyAmount, userCurrency)
                     : "—"}
                 </p>
                 <p className="text-[#667185] text-sm">Monthly Contribution Amount</p>
@@ -246,7 +363,7 @@ export default function ContributionPage() {
                 <p className="text-[#667185] text-sm">
                   {alreadyPaidThisMonth
                     ? "You have already paid your contribution for this month."
-                    : `Click below to pay your ${currentMonth} contribution of ${summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount) : "—"}.`}
+                    : `Click below to pay your ${currentMonth} contribution of ${summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount, userCurrency) : "—"}.`}
                 </p>
               </div>
 
@@ -274,10 +391,11 @@ export default function ContributionPage() {
                       Initiating Payment...
                     </>
                   ) : (
-                    `Contribute ${summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount) : ""}`
+                    `Contribute ${summary?.monthlyAmount ? formatCurrency(summary.monthlyAmount, userCurrency) : ""}`
                   )}
                 </Button>
               )}
+
             </Card>
           </div>
         </div>
@@ -320,7 +438,7 @@ export default function ContributionPage() {
                           {item.month}
                         </TableCell>
                         <TableCell className="text-[#1d2739] text-sm font-medium">
-                          {formatCurrency(item.amount)}
+                          {formatCurrency(item.amount, userCurrency)}
                         </TableCell>
                         <TableCell className="text-[#1d2739] text-sm">
                           {formatDate(item.paidAt)}

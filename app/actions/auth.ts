@@ -473,22 +473,55 @@ export async function refreshAccessToken(): Promise<IActionResponse<ISessionData
   }
 }
 
+/** Returns true if a raw JWT string is still valid with at least `bufferSecs` seconds remaining. */
+function isTokenAlive(token: string, bufferSecs = 60): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    // base64url → base64 → JSON
+    const payload = JSON.parse(
+      Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString()
+    );
+    if (typeof payload.exp !== "number") return false;
+    return Date.now() < (payload.exp - bufferSecs) * 1000;
+  } catch {
+    return false;
+  }
+}
+
 /**
- * Attempt a token refresh and return the freshest available access token.
- * Using the token returned directly from the refresh response avoids the
- * race condition where cookie mutations made inside refreshAccessToken are
- * not yet visible to a subsequent getServerSession() call in the same
- * Next.js server-action request.
+ * Return a valid access token for use in server-side API calls.
+ *
+ * Strategy:
+ *  1. Read the current access token from cookies.
+ *  2. If it is still alive (> 60 s remaining), return it immediately — no
+ *     cookie writes, safe to call from Server Components.
+ *  3. If expired (or absent), attempt a refresh.  Refresh writes new cookies
+ *     via createServerSession, which is only permitted in a Server Action /
+ *     Route Handler context — NOT during a Server Component render.
+ *     If the write is forbidden, the refresh will fail gracefully and we fall
+ *     back to the existing (expired) token so the subsequent API call can
+ *     surface the proper 401 to the caller.
  */
 export async function getFreshToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const existingToken = cookieStore.get("accessToken")?.value || null;
+
+  // Token is still valid — skip the refresh entirely (no cookie write needed).
+  if (existingToken && isTokenAlive(existingToken)) {
+    return existingToken;
+  }
+
+  // Token expired or missing — try to refresh (requires Server Action context).
   const refreshResult = await refreshAccessToken();
   if (refreshResult.success && refreshResult.data?.accessToken) {
     return refreshResult.data.accessToken;
   }
-  // Refresh failed or no refresh token — fall back to whatever is in the session
-  // (may still be valid if the access token has not expired yet).
-  const session = await getServerSession();
-  return session?.accessToken || null;
+
+  // Refresh failed (e.g. called from a Server Component render where cookie
+  // writes are not allowed) — return whatever we have so the caller can
+  // proceed and handle a 401 cleanly.
+  return existingToken;
 }
 
 export async function checkVerificationStatus(): Promise<{

@@ -7,12 +7,19 @@ import { IActionResponse } from "@/types/auth.types";
 // ---------- Interfaces ----------
 
 export interface ContributionSummary {
+  userType: "cooperative" | "seller";
+  currency: "NGN" | "USD";
   currentTier: string;
-  monthlyAmount: number;
+  currentTierId: string | null;
+  monthlyAmount: number;   // amount in the user's currency (NGN or USD)
+  usdAmount: number | null;
+  ngnAmount: number;
   lastContributionAmount: number;
   lastContributionDate: string | null;
   nextDueDate: string;
   status: string;
+  pendingTier: { _id: string; name: string; monthlyContribution: number; usdAmount: number | null } | null;
+  pendingTierEffectiveMonth: string | null;
 }
 
 export interface ContributionHistoryItem {
@@ -327,13 +334,16 @@ export async function getMyHistory(): Promise<IActionResponse<ContributionHistor
   }
 }
 
+export type PaymentPlatform = "vigipay" | "paystack" | "paypal";
+
 /**
- * Initiate a contribution payment via Vigipay
+ * Initiate a contribution payment via the chosen platform
  * Returns a paymentUrl to redirect the user to
  */
 export async function initiatePayment(
   amount: number,
-  month: string
+  month: string,
+  paymentPlatform: PaymentPlatform = "vigipay"
 ): Promise<IActionResponse<{ paymentUrl: string; reference: string }>> {
   try {
     const token = await getFreshToken();
@@ -345,7 +355,7 @@ export async function initiatePayment(
       reference: string;
     }>(
       "/api/contributions/pay",
-      { amount, month },
+      { amount, month, paymentPlatform },
       { token }
     );
 
@@ -355,6 +365,85 @@ export async function initiatePayment(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Payment initiation failed";
+    return { success: false, error: message };
+  }
+}
+
+export interface TierOption {
+  _id: string;
+  name: string;
+  monthlyContribution: number;
+  benefits?: {
+    marketplaceDiscount?: number;
+    masterclassAccess?: boolean;
+    prioritySupport?: boolean;
+    businessConsultation?: boolean;
+  };
+  loanSettings?: {
+    maxAmount?: number;
+    eligibilityCriteria?: { minPaidMonths?: number };
+  };
+}
+
+/**
+ * Fetch available subscription tiers for the DAW cooperative
+ */
+export async function getAvailableTiers(): Promise<IActionResponse<TierOption[]>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const coopId = await getDawCoopId();
+    if (!coopId) return { success: false, error: "Cooperative not found" };
+
+    const response = await apiClient.get<TierOption[] | { data: TierOption[] }>(
+      `/api/tiers/cooperative/${coopId}`,
+      { token }
+    );
+
+    const data = Array.isArray(response) ? response : (response as any).data || [];
+    return { success: true, data };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch tiers";
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Request a tier change — queued for next billing cycle
+ */
+export async function requestTierChange(
+  tierId: string
+): Promise<IActionResponse<{ effectiveMonth: string }>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.put<{
+      success: boolean;
+      message: string;
+      effectiveMonth: string;
+    }>("/api/members/me/tier-change", { tierId }, { token });
+
+    return { success: true, data: { effectiveMonth: response.effectiveMonth }, message: response.message };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to request tier change";
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Cancel a pending tier change
+ */
+export async function cancelTierChange(): Promise<IActionResponse<null>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    await apiClient.delete<{ success: boolean }>("/api/members/me/tier-change", undefined, { token });
+    return { success: true, data: null, message: "Pending tier change cancelled" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to cancel tier change";
     return { success: false, error: message };
   }
 }
