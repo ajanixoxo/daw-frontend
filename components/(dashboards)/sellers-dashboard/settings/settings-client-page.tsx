@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useActionState } from "react";
 import { useRouter } from "next/navigation";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { SettingsHeader } from "@/components/(dashboards)/sellers-dashboard/settings/settings-header";
 import { SettingsTabs } from "@/components/(dashboards)/sellers-dashboard/settings/settings-tabs";
 import { ProfileForm } from "@/components/(dashboards)/sellers-dashboard/settings/profile-form";
@@ -47,8 +47,9 @@ function SubmitButton() {
 export default function SettingsClientPage({ initialData }: SettingsClientPageProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
-  const [state] = useFormState(updateSellerProfile, initialState);
+  const [state] = useActionState(updateSellerProfile, initialState);
   const isMember = hasCooperativeMembership(initialData?.user ?? null);
+  const userCurrency = (initialData?.user?.currency as "NGN" | "USD") ?? "NGN";
 
   useEffect(() => {
     if (state?.success && state?.message) {
@@ -110,7 +111,7 @@ export default function SettingsClientPage({ initialData }: SettingsClientPagePr
 
         {activeTab === "billing" && (
           <div className="mt-10 animate-in fade-in duration-500">
-            <BillingTab isMember={isMember} />
+            <BillingTab isMember={isMember} currency={userCurrency} />
           </div>
         )}
 

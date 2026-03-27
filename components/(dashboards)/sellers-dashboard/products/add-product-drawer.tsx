@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import type { IProduct } from "@/types/product.types";
 
-const MAX_IMAGES = 4;
+const MAX_IMAGES = 6;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 

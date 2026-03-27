@@ -137,21 +137,24 @@ interface OrderCardProps {
 }
 
 function OrderCard({ order, onViewDetails, onTrack }: OrderCardProps) {
+  const imageUrl =
+    order.items?.[0]?.product_image ||
+    order.shop_id?.logo_url ||
+    null;
+
   return (
     <div className="bg-white rounded-2xl border border-[#e7e8e9] p-4 md:p-6">
       <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
-        {/* Product Image - Placeholder or Shop Logo/Banner */}
+        {/* Product Image */}
         <div className="w-full sm:w-[200px] h-[140px] rounded-xl overflow-hidden bg-[#f5f5f5] shrink-0 relative">
-          <Image
-            src={
-              order.items?.[0]?.product_image ||
-              order.shop_id?.logo_url ||
-              "/placeholder.svg"
-            }
-            alt={order.items?.[0]?.product_name || order.shop_id?.name || "Order Image"}
-            fill
-            className="object-cover"
-          />
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              alt={order.items?.[0]?.product_name || order.shop_id?.name || "Order Image"}
+              fill
+              className="object-cover"
+            />
+          )}
         </div>
 
         {/* Order Info */}

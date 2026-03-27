@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { updateSellerPassword } from "@/app/actions/settings";
 import { updateUserProfile } from "@/app/actions/profile";
 import { useProfile } from "@/hooks/useProfile";
@@ -41,7 +41,7 @@ function SubmitButton() {
 export function SecurityTab() {
   const { data: user, refetch } = useProfile();
   const [isUpdating2FA, setIsUpdating2FA] = useState(false);
-  const [state, formAction] = useFormState(updateSellerPassword, initialState);
+  const [state, formAction] = useActionState(updateSellerPassword, initialState);
 
   const handleEmailAuthChange = async (checked: boolean) => {
     setIsUpdating2FA(true);
