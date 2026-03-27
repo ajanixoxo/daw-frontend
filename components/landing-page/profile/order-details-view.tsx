@@ -26,7 +26,7 @@ export function OrderDetailsView({
     );
   }
 
-  if (error || !orderResponse?.order) {
+  if (error || !(orderResponse as any)?.order) {
     return (
       <div className="text-center py-20 text-red-500">
         Failed to load order details. Please try again later.
@@ -34,7 +34,7 @@ export function OrderDetailsView({
     );
   }
 
-  const { order } = orderResponse;
+  const order = (orderResponse as any).order;
 
   /*
   {

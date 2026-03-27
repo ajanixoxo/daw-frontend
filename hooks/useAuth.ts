@@ -61,10 +61,12 @@ export function useLogin(): UseLoginReturn {
             
             if (isAdmin) {
               // Redirect admin to admin dashboard
-              router.push("/admin/dashboard");
+              window.location.href = "/admin/dashboard";
+              return;
             } else if (isCooperativeAdmin) {
               // Redirect cooperative admin to cooperative dashboard
-              router.push("/cooperative/dashboard");
+              window.location.href = "/cooperative/dashboard";
+              return;
             } else if (isSeller) {
               // Fetch profile to check shop and KYC status
               try {
@@ -77,10 +79,12 @@ export function useLogin(): UseLoginReturn {
                   
                   if (hasShops) {
                     // User has shops, redirect to dashboard
-                    router.push("/sellers/dashboard");
+                    window.location.href = "/sellers/dashboard";
+                    return;
                   } else {
                     // Bypass KYC check, redirect directly to create shop
-                    router.push("/sellers/shop/create");
+                    window.location.href = "/sellers/shop/create";
+                    return;
                   }
                 } else {
                   // If profile fetch fails, redirect to dashboard to be safe
@@ -89,17 +93,20 @@ export function useLogin(): UseLoginReturn {
               } catch (error) {
                 console.error("Error checking profile:", error);
                 // On error, redirect to dashboard
-                router.push("/sellers/dashboard");
+                window.location.href = "/sellers/dashboard";
+                return;
               }
             } else if (isLogistics) {
               // Redirect logistics provider to logistics dashboard
-              router.push("/logistics/dashboard");
+              window.location.href = "/logistics/dashboard";
+              return;
             } else {
-              router.push("/");
+              window.location.href = "/";
+              return;
             }
-            router.refresh();
           } else if (!result.data.isVerified) {
-            router.push("/otp?mode=login");
+            window.location.href = "/otp?mode=login";
+            return;
           }
         }
 

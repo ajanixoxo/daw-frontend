@@ -4,7 +4,9 @@ import { useState } from "react"
 import { Search, Package, Clock, Truck, CheckCircle2, Loader2 } from "lucide-react"
 import { StatCard } from "@/components/(dashboards)/sellers-dashboard/stat-card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { OrderStatusModal } from "@/components/shared/order-status-modal"
 import { useSellerOrders } from "@/hooks/useSellerOrders"
 import { IOrder } from "@/types/product.types"
 
@@ -100,6 +102,7 @@ export default function OrdersPage() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
+  const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null);
 
   const filteredOrders = searchQuery.trim()
     ? orders.filter((order) =>
@@ -190,7 +193,7 @@ export default function OrdersPage() {
                   <TableHead className="text-[#475367] font-medium text-xs">Order Date</TableHead>
                   <TableHead className="text-[#475367] font-medium text-xs">Amount</TableHead>
                   <TableHead className="text-[#475367] font-medium text-xs">Status</TableHead>
-                  <TableHead className="w-12"></TableHead>
+                  <TableHead className="text-[#475367] font-medium text-xs">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -249,19 +252,14 @@ export default function OrdersPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      {/* Order actions - coming soon */}
-                      {/* <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="w-4 h-4 text-[#667185]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Order</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Cancel Order</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu> */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-[#f10e7c] hover:text-[#d00c6a] hover:bg-pink-50"
+                        onClick={() => setTrackingOrderId(order._id)}
+                      >
+                        Track
+                      </Button>
                     </TableCell>
                   </TableRow>
                     );
@@ -272,6 +270,11 @@ export default function OrdersPage() {
           </div>
         </div>
       </div>
+      <OrderStatusModal
+        orderId={trackingOrderId || ""}
+        isOpen={!!trackingOrderId}
+        onClose={() => setTrackingOrderId(null)}
+      />
     </div>
   )
 }

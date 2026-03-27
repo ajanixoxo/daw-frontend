@@ -10,7 +10,7 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import { useOrder } from "@/hooks/useOrder";
+import { useOrder, useOrderStatus } from "@/hooks/useOrder";
 import { format } from "date-fns";
 
 interface TrackOrderViewProps {
@@ -20,8 +20,9 @@ interface TrackOrderViewProps {
 
 export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
   const { data: orderResponse, isLoading, error } = useOrder(orderId);
+  const { data: statusResponse, isLoading: isStatusLoading } = useOrderStatus(orderId);
 
-  if (isLoading) {
+  if (isLoading || isStatusLoading) {
     return (
       <div className="flex justify-center items-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-[#f10e7c]" />
@@ -29,7 +30,7 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
     );
   }
 
-  if (error || !orderResponse?.order) {
+  if (error || !(orderResponse as any)?.order) {
     return (
       <div className="text-center py-20 text-red-500">
         Failed to load order details. Please try again later.
@@ -37,7 +38,7 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
     );
   }
 
-  const { order } = orderResponse;
+  const order = (orderResponse as any).order;
 
   // Calculate progress based on status
   let progressPercentage = 0;
@@ -137,45 +138,35 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
       <div className="bg-white rounded-2xl border border-[#e7e8e9] p-4 md:p-6">
         <h3 className="font-semibold text-[#1a1a1a] mb-6">Order Timeline</h3>
         <div className="space-y-6">
-          <TimelineStep
-            icon={<Package className="w-4 h-4" />}
-            status="completed"
-            title="Order Placed"
-            description="Your order has been placed and confirmed"
-            date={format(new Date(order.createdAt), "yyyy-MM-dd")}
-            time={format(new Date(order.createdAt), "h:mm a")}
-          />
-          <TimelineStep
-            icon={<div className="w-2 h-2 rounded-full bg-white" />}
-            status={order.status !== "pending" ? "completed" : "pending"}
-            title="Processing"
-            description="Your order is being prepared by the seller"
-            date={format(new Date(order.createdAt), "yyyy-MM-dd")}
-            expected={order.status === "pending"}
-          />
-          <TimelineStep
-            icon={<Truck className="w-4 h-4" />}
-            status={
-              order.status === "in transit" || order.status === "delivered"
-                ? "completed"
-                : "pending"
-            }
-            title="Shipped"
-            description="Your package has been picked up and is on its way"
-            date={format(new Date(order.createdAt), "yyyy-MM-dd")}
-            expected={
-              order.status === "pending" || order.status === "processing"
-            }
-          />
-          <TimelineStep
-            icon={<CheckCircle className="w-4 h-4" />}
-            status={order.status === "delivered" ? "completed" : "pending"}
-            title="Delivered"
-            description="Package delivered successfully"
-            date={format(new Date(order.createdAt), "yyyy-MM-dd")}
-            expected={order.status !== "delivered"}
-            isLast
-          />
+          {statusResponse?.orderStatus && statusResponse.orderStatus.length > 0 ? (
+            statusResponse.orderStatus.map((item, index) => {
+              const isLast = index === statusResponse.orderStatus.length - 1;
+              const statusLower = item.status.toLowerCase();
+              let icon = <div className="w-2 h-2 rounded-full bg-white" />;
+              if (statusLower === "pending" || statusLower === "placed") {
+                icon = <Package className="w-4 h-4" />;
+              } else if (statusLower === "in transit" || statusLower === "shipped") {
+                icon = <Truck className="w-4 h-4" />;
+              } else if (statusLower === "delivered") {
+                icon = <CheckCircle className="w-4 h-4" />;
+              }
+              
+              return (
+                <TimelineStep
+                  key={index}
+                  icon={icon}
+                  status="completed"
+                  title={item.status}
+                  description={item.note || "Status updated"}
+                  date={item.changed_at ? format(new Date(item.changed_at), "yyyy-MM-dd") : "N/A"}
+                  time={item.changed_at ? format(new Date(item.changed_at), "h:mm a") : ""}
+                  isLast={isLast}
+                />
+              );
+            })
+          ) : (
+            <div className="text-sm text-[#6b6b6b]">No tracking history available yet.</div>
+          )}
         </div>
       </div>
 
