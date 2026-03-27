@@ -49,3 +49,16 @@ export interface IGetOrderResponse {
   success: boolean;
   order: IOrder;
 }
+
+export interface IOrderStatusHistory {
+  status: string;
+  note?: string;
+  changed_at: string;
+  _id?: string;
+}
+
+export interface IGetOrderStatusResponse {
+  success: boolean;
+  orderStatus: IOrderStatusHistory[];
+  status: string;
+}

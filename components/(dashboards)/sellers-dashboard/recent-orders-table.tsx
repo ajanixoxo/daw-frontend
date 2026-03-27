@@ -6,6 +6,8 @@ import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IOrder } from "@/types/product.types";
 import { IShop } from "@/types/shop.types";
+import { useState } from "react";
+import { OrderStatusModal } from "@/components/shared/order-status-modal";
 
 const statusColors: Record<string, string> = {
   shipped: "text-[#34c759] bg-[#d1fadf]",
@@ -75,6 +77,8 @@ export function RecentOrdersTable({
   orders,
   isLoading,
 }: RecentOrdersTableProps) {
+  const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null);
+
   return (
     <Card className="border-[#e7e8e9] shadow-sm bg-white mt-8 rounded-xl">
       <CardHeader className="py-5 px-6 border-b border-[#f3f4f7] flex flex-row items-center justify-between">
@@ -119,18 +123,21 @@ export function RecentOrdersTable({
                 <th className="text-left py-4 px-6 text-xs font-medium text-[#667185] uppercase tracking-wide">
                   Status
                 </th>
+                <th className="text-left py-4 px-6 text-xs font-medium text-[#667185] uppercase tracking-wide">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-[#667185]">
+                  <td colSpan={9} className="py-12 text-center text-[#667185]">
                     Processing...
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-[#667185]">
+                  <td colSpan={9} className="py-12 text-center text-[#667185]">
                     No orders yet
                   </td>
                 </tr>
@@ -181,6 +188,16 @@ export function RecentOrdersTable({
                           {getStatusDisplay(order.status)}
                         </span>
                       </td>
+                      <td className="py-4 px-6">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-[#f10e7c] hover:text-[#d00c6a] hover:bg-pink-50"
+                          onClick={() => setTrackingOrderId(order._id)}
+                        >
+                          Track
+                        </Button>
+                      </td>
                     </tr>
                   );
                 })
@@ -189,6 +206,11 @@ export function RecentOrdersTable({
           </table>
         </div>
       </CardContent>
+      <OrderStatusModal
+        orderId={trackingOrderId || ""}
+        isOpen={!!trackingOrderId}
+        onClose={() => setTrackingOrderId(null)}
+      />
     </Card>
   );
 }
