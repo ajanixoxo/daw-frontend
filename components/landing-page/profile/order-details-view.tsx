@@ -96,7 +96,7 @@ export function OrderDetailsView({
       <div className="bg-white rounded-2xl border border-[#e7e8e9] p-5 md:p-6">
         <h2 className="font-semibold text-[#1a1a1a] mb-5">Order Items</h2>
         <div className="space-y-4">
-          {order.items?.map((item) => (
+          {order.items?.map((item: any) => (
             <div key={item._id} className="flex gap-4 p-3 bg-[#f9f9f9] rounded-xl border border-[#e7e8e9]">
               <div className="w-20 h-20 rounded-lg overflow-hidden relative shrink-0 bg-white">
                 <Image
