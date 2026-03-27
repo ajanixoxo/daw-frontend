@@ -65,7 +65,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <button suppressHydrationWarning className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Digital_African_Women__Copy_-0yPjvRIvJOxKp0KKLhWRGqNABMsatU.png"
