@@ -139,7 +139,7 @@ export function TrackOrderView({ orderId, onBack }: TrackOrderViewProps) {
         <h3 className="font-semibold text-[#1a1a1a] mb-6">Order Timeline</h3>
         <div className="space-y-6">
           {statusResponse?.orderStatus && statusResponse.orderStatus.length > 0 ? (
-            statusResponse.orderStatus.map((item, index) => {
+            statusResponse.orderStatus.map((item: any, index: number) => {
               const isLast = index === statusResponse.orderStatus.length - 1;
               const statusLower = item.status.toLowerCase();
               let icon = <div className="w-2 h-2 rounded-full bg-white" />;
