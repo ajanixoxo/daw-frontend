@@ -30,6 +30,7 @@ const navItems = [
   { icon: ShoppingBag, label: "Listings", href: "/admin/listings" },
   { icon: Wallet, label: "Wallet", href: "/admin/wallet" },
   { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
+  { icon: ShoppingBag, label: "Logistics", href: "/logistics/dashboard" },
   // { icon: Settings, label: "Settings", href: "/admin/settings" },
 ]
 
