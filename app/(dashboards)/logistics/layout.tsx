@@ -29,9 +29,10 @@ export default function LogisticsDashboardLayout({
 
       const roles = user.roles || []
       const isLogisticsProvider = roles.includes("logistics_provider")
+      const isAdmin = roles.includes("admin") || roles.includes("support-admin")
 
-      if (!isLogisticsProvider) {
-        // If not a logistics provider, redirect to home or an unauthorized page
+      if (!isLogisticsProvider && !isAdmin) {
+        // If not a logistics provider or admin, redirect to home or an unauthorized page
         router.push("/")
         return
       }

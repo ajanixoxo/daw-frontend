@@ -13,6 +13,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLogout } from "@/hooks/useAuth"
+import { useAuthStore } from "@/zustand/store"
+import { ShieldCheck } from "lucide-react"
 
 interface DashboardSidebarProps {
   isOpen: boolean
@@ -31,6 +33,9 @@ const navItems = [
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
   const pathname = usePathname()
   const { logout, isLoading: isLoggingOut } = useLogout()
+  const { user } = useAuthStore()
+
+  const isAdmin = user?.roles?.includes("admin") || user?.roles?.includes("support-admin")
 
   const handleLogout = async () => {
     await logout()
@@ -112,6 +117,28 @@ export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: 
                 )
               })}
             </ul>
+            
+            {isAdmin && (
+              <div className="mt-8 pt-8 border-t border-[#e7e8e9]">
+                <p className="px-4 mb-2 text-[10px] font-semibold text-[#98a2b3] uppercase tracking-wider">
+                  Admin Tools
+                </p>
+                <Link
+                  href="/admin/dashboard"
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                    "text-[#667185] hover:bg-[#f9f9f9]",
+                    isCollapsed && "justify-center px-2",
+                  )}
+                  onClick={() => {
+                    if (isOpen) onToggle()
+                  }}
+                >
+                  <ShieldCheck className="h-5 w-5 flex-shrink-0 text-[#f10e7c]" />
+                  {!isCollapsed && <span className="whitespace-nowrap font-semibold">Admin Dashboard</span>}
+                </Link>
+              </div>
+            )}
           </nav>
 
           {/* Logout Button */}
