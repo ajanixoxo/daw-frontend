@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { verifyPayment, verifyPaystackPayment, capturePaypalOrder } from "@/app/actions/checkout";
+import { verifyContribution } from "@/app/actions/contributions";
 import { getOrder } from "@/app/actions/order";
 import { Loader2, Check, Download, Package, ShoppingBag } from "lucide-react";
 import Image from "next/image";
@@ -23,9 +24,10 @@ export function PaymentSuccess() {
 
   // Detect which provider returned based on URL params
   const vigipayRef   = searchParams.get("ref");          // Vigipay
-  const paystackRef  = searchParams.get("reference");    // Paystack (appended by Paystack)
+  const paystackRef  = searchParams.get("reference") || searchParams.get("trxref");    // Paystack (appended by Paystack)
   const paypalToken  = searchParams.get("token");        // PayPal order id (appended by PayPal)
-  const orderId      = searchParams.get("orderId");      // Paystack + PayPal pass this
+  const orderId      = searchParams.get("orderId");      // Paystack + PayPal pass this for orders
+  const type         = searchParams.get("type");         // contribution vs order
 
   const [loading, setLoading] = useState(true);
   const [payment, setPayment] = useState<NormalizedPayment | null>(null);
@@ -35,6 +37,30 @@ export function PaymentSuccess() {
   useEffect(() => {
     const run = async () => {
       try {
+        // ── Cooperative Contribution ────────────────────────────────────────
+        if (type === "contribution" && paystackRef) {
+          const result = await verifyContribution(paystackRef);
+          if (!result.success || !result.data) {
+            setError(result.error || "Failed to verify contribution payment");
+            return;
+          }
+          
+          // Normalized for contributions
+          const contrib = result.data.data || result.data;
+          setPayment({
+            orderId: contrib._id || "contribution",
+            channel: "Paystack",
+            transactionReference: paystackRef,
+            amount: contrib.amount || 0,
+          });
+          
+          setOrderData({
+            isContribution: true,
+            month: contrib.month || "N/A"
+          });
+          return;
+        }
+
         // ── Vigipay ──────────────────────────────────────────────────────────
         if (vigipayRef) {
           const result = await verifyPayment(vigipayRef);
@@ -127,10 +153,10 @@ export function PaymentSuccess() {
             {error || "We couldn't verify your payment."}
           </p>
           <Button
-            onClick={() => router.push("/marketplace")}
+            onClick={() => router.push(type === "contribution" ? "/cooperative/dashboard" : "/marketplace")}
             className="w-full bg-[#222] hover:bg-[#333] text-white rounded-full py-6"
           >
-            Back to Marketplace
+            Back to {type === "contribution" ? "Dashboard" : "Marketplace"}
           </Button>
         </div>
       </div>
@@ -153,18 +179,20 @@ export function PaymentSuccess() {
             <div className="absolute inset-0 w-24 h-24 bg-[#F10E7C]/10 rounded-full scale-125 -z-0 animate-pulse" />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-[#222] mb-4 tracking-tight">
-            Order Completed
+            {orderData?.isContribution ? "Contribution Successful" : "Order Completed"}
           </h1>
           <p className="text-gray-400 text-xl font-medium">
-            Thank you. Your Order has been received
+            {orderData?.isContribution 
+              ? `Thank you. Your contribution for ${orderData.month} has been received`
+              : "Thank you. Your Order has been received"}
           </p>
         </div>
 
         {/* Info Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
           <InfoBox
-            label="Order ID"
-            value={`ORD-${payment.orderId.slice(-6).toUpperCase()}`}
+            label={orderData?.isContribution ? "Type" : "Order ID"}
+            value={orderData?.isContribution ? "Cooperative Contribution" : `ORD-${payment.orderId.slice(-6).toUpperCase()}`}
           />
           <InfoBox label="Payment Method" value={payment.channel || "Card"} />
           <InfoBox
@@ -191,7 +219,9 @@ export function PaymentSuccess() {
         {/* Order Details Section */}
         <div className="bg-[#FAFAFA] rounded-[32px] border border-gray-100 overflow-hidden">
           <div className="p-8 md:p-10 border-b border-gray-200/50 bg-white">
-            <h2 className="text-3xl font-bold text-[#222]">Order Details</h2>
+            <h2 className="text-3xl font-bold text-[#222]">
+              {orderData?.isContribution ? "Contribution Details" : "Order Details"}
+            </h2>
           </div>
 
           <div className="p-8 md:p-10">
@@ -263,7 +293,7 @@ export function PaymentSuccess() {
             {/* Order Summary */}
             <div className="space-y-5 pt-10 border-t border-gray-200/50">
               <h3 className="text-xl font-black text-[#222] mb-6 uppercase tracking-wider">
-                Order Summary
+                {orderData?.isContribution ? "Contribution Summary" : "Order Summary"}
               </h3>
 
               <SummaryRow
@@ -290,11 +320,11 @@ export function PaymentSuccess() {
         {/* Action Buttons */}
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
-            onClick={() => router.push("/marketplace")}
+            onClick={() => router.push(orderData?.isContribution ? "/cooperative/dashboard" : "/marketplace")}
             variant="outline"
             className="rounded-full px-12 py-6 border-gray-200 text-gray-600 font-bold uppercase tracking-widest hover:bg-gray-50 transition-all"
           >
-            Continue Shopping
+            {orderData?.isContribution ? "Return to Dashboard" : "Continue Shopping"}
           </Button>
         </div>
       </div>

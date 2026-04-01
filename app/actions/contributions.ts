@@ -476,3 +476,28 @@ export async function updateContributionTypeStatusAction(
     return { success: false, error: message };
   }
 }
+/**
+ * Verify a contribution payment using its reference
+ */
+export async function verifyContribution(
+  reference: string
+): Promise<IActionResponse<any>> {
+  try {
+    const token = await getFreshToken();
+    if (!token) return { success: false, error: "Authentication required" };
+
+    const response = await apiClient.get<any>(
+      `/api/contributions/verify/${encodeURIComponent(reference)}`,
+      { token }
+    );
+
+    return {
+      success: true,
+      data: response,
+      message: "Contribution verified successfully",
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Verification failed";
+    return { success: false, error: message };
+  }
+}
