@@ -186,26 +186,26 @@ export default function Footer() {
               Subscribe to our newsletter for updates
             </h4>
 
-            <form onSubmit={handleSubscribe} className="space-y-3">
-              <div className="relative flex h-[72px] w-full max-w-[540px] items-center rounded-full border border-[#E5E5E5] bg-white p-[7px] transition-all focus-within:border-[#F10E7C]/30 shadow-sm">
+            <form onSubmit={handleSubscribe} className="space-y-4 w-full max-w-[540px]">
+              <div className="relative flex flex-col sm:flex-row h-auto sm:h-[72px] w-full items-center rounded-3xl sm:rounded-full border border-[#E5E5E5] bg-white p-2 sm:p-[7px] transition-all focus-within:border-[#F10E7C]/30 shadow-sm gap-2 sm:gap-0">
                 <input
                   type="email"
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={status === "loading"}
-                  className="flex-1 bg-transparent pl-8 text-[18px] font-normal text-[#1A1A1A] placeholder:text-[#ADADAD] outline-none disabled:opacity-50"
+                  className="w-full sm:flex-1 bg-transparent py-4 sm:py-0 pl-4 sm:pl-8 text-[16px] sm:text-[18px] font-normal text-[#1A1A1A] placeholder:text-[#ADADAD] outline-none disabled:opacity-50"
                   required
                 />
                 <button 
                   type="submit"
                   disabled={status === "loading"}
-                  className="h-full px-8 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg disabled:opacity-70 disabled:hover:bg-[#F10E7C] flex items-center justify-center min-w-[140px]"
+                  className="w-full sm:w-auto h-[56px] sm:h-full px-6 sm:px-8 rounded-full bg-[#F10E7C] hover:bg-[#d00c69] transition-all active:scale-[0.98] shadow-md hover:shadow-lg disabled:opacity-70 disabled:hover:bg-[#F10E7C] flex items-center justify-center min-w-[140px]"
                 >
                   {status === "loading" ? (
                     <Loader2 className="w-5 h-5 animate-spin text-white" />
                   ) : (
-                    <span className="text-white text-[18px] font-semibold tracking-[-0.01em]">
+                    <span className="text-white text-[16px] sm:text-[18px] font-semibold tracking-[-0.01em]">
                       Subscribe
                     </span>
                   )}

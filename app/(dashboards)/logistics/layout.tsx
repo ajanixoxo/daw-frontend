@@ -20,27 +20,21 @@ export default function LogisticsDashboardLayout({
   const { user, isAuthenticated } = useAuthStore()
 
   useEffect(() => {
-    // Check if user is authenticated and is a logistics provider
-    const checkAuth = () => {
-      if (!isAuthenticated || !user) {
-        router.push("/login")
-        return
-      }
-
+    // Check if user is authenticated and is a logistics provider or admin
+    if (!isAuthenticated) return; // Wait for hydration or let middleware handle it
+    
+    if (user) {
       const roles = user.roles || []
       const isLogisticsProvider = roles.includes("logistics_provider")
       const isAdmin = roles.includes("admin") || roles.includes("support-admin")
 
       if (!isLogisticsProvider && !isAdmin) {
-        // If not a logistics provider or admin, redirect to home or an unauthorized page
+        // If not a logistics provider or admin, redirect to home
         router.push("/")
-        return
+      } else {
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     }
-
-    checkAuth()
   }, [isAuthenticated, user, router])
 
   if (isLoading) {

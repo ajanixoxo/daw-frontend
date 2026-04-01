@@ -328,6 +328,7 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           const isSeller = userRoles.includes("seller") || userRoles.includes("member");
           const isCooperativeAdmin = userRoles.includes("cooperative_admin");
           const isAdmin = userRoles.includes("admin") || userRoles.includes("support-admin");
+          const isLogistics = userRoles.includes("logistics_provider");
           
           if (isAdmin) {
             // Redirect admin to admin dashboard
@@ -337,6 +338,10 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
             // Redirect cooperative admin to cooperative dashboard
             setIsLoading(false);
             window.location.href = "/cooperative/dashboard";
+          } else if (isLogistics) {
+            // Redirect logistics provider to logistics dashboard
+            setIsLoading(false);
+            window.location.href = "/logistics/dashboard";
           } else if (isSeller) {
             // Fetch profile to check shop and KYC status
             try {
