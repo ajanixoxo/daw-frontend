@@ -18,7 +18,7 @@ export interface LogisticsEarnings {
   monthlyChart: Array<{ month: string; amount: number }>;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dawbackend.funtech.dev";
 
 const fetchWithToken = async (token: string, endpoint: string, options: RequestInit = {}) => {
   const headers = {

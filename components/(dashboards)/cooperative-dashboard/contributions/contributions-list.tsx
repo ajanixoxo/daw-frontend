@@ -167,7 +167,10 @@ export function ContributionsList() {
                 <tr key={contribution._id} className="border-b border-[#e4e7ec] transition-colors hover:bg-[#f7f7f7]">
                   <td className="px-4 py-4 text-sm font-medium text-[#000000]">{contribution.member}</td>
                   <td className="px-4 py-4 text-sm text-[#676767]">{contribution.type}</td>
-                  <td className="px-4 py-4 text-sm text-[#000000]">${contribution.amount.toLocaleString()}</td>
+                  <td className="px-4 py-4 text-sm text-[#000000]">
+                    {contribution.currency === "NGN" ? "₦" : "$"}
+                    {contribution.amount.toLocaleString()}
+                  </td>
                   <td className="px-4 py-4 text-sm text-[#676767]">{formatDate(contribution.date)}</td>
                   <td className="px-4 py-4">
                     <span
@@ -218,7 +221,10 @@ export function ContributionsList() {
               <div className="mb-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <div className="mb-1 text-[#676767]">Amount</div>
-                  <div className="font-medium text-[#000000]">${contribution.amount.toLocaleString()}</div>
+                  <div className="font-medium text-[#000000]">
+                    {contribution.currency === "NGN" ? "₦" : "$"}
+                    {contribution.amount.toLocaleString()}
+                  </div>
                 </div>
                 <div>
                   <div className="mb-1 text-[#676767]">Date</div>

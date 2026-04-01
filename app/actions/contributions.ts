@@ -47,6 +47,7 @@ export interface ContributionRecord {
   email: string;
   type: string;
   amount: number;
+  currency?: string;
   date: string;
   status: string;
 }

@@ -217,43 +217,40 @@ export function useLogout(): UseLogoutReturn {
     setIsLoading(true);
     setError(null);
 
-    startTransition(async () => {
-      try {
-        // Attempt server-side logout but don't let it block client-side clearing
-        await logoutUser();
-      } catch (err) {
-        console.error("Server logout failed, proceeding with client-side clear:", err);
-      } finally {
-        // PERMANENTLY clear all client-side state
-        clearAuthData();
-        resetSellerSignup();
-        resetCooperativeSignup();
+    try {
+      // Attempt server-side logout but don't let it block client-side clearing
+      await logoutUser();
+    } catch (err) {
+      console.error("Server logout failed, proceeding with client-side clear:", err);
+    } finally {
+      // PERMANENTLY clear all client-side state
+      clearAuthData();
+      resetSellerSignup();
+      resetCooperativeSignup();
+      
+      // Clear all storage
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
         
-        // Clear all storage
-        if (typeof window !== 'undefined') {
-          localStorage.clear();
-          sessionStorage.clear();
-          
-          // Clear all cookies
-          const cookies = document.cookie.split(";");
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-          }
+        // Clear all cookies
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+          document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
         }
 
         // Dispatch logout event for React Query cache clearing
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('auth:logout'));
-        }
-
-        router.push("/");
-        router.refresh();
-        setIsLoading(false);
+        window.dispatchEvent(new CustomEvent('auth:logout'));
+        
+        // Final heavy-duty redirect
+        window.location.href = "/auth";
       }
-    });
+
+      setIsLoading(false);
+    }
   };
 
   return {
@@ -328,6 +325,7 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
           const isSeller = userRoles.includes("seller") || userRoles.includes("member");
           const isCooperativeAdmin = userRoles.includes("cooperative_admin");
           const isAdmin = userRoles.includes("admin") || userRoles.includes("support-admin");
+          const isLogistics = userRoles.includes("logistics_provider");
           
           if (isAdmin) {
             // Redirect admin to admin dashboard
@@ -337,6 +335,10 @@ export function useVerifyOtp(): UseVerifyOtpReturn {
             // Redirect cooperative admin to cooperative dashboard
             setIsLoading(false);
             window.location.href = "/cooperative/dashboard";
+          } else if (isLogistics) {
+            // Redirect logistics provider to logistics dashboard
+            setIsLoading(false);
+            window.location.href = "/logistics/dashboard";
           } else if (isSeller) {
             // Fetch profile to check shop and KYC status
             try {
