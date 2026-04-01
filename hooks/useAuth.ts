@@ -217,43 +217,40 @@ export function useLogout(): UseLogoutReturn {
     setIsLoading(true);
     setError(null);
 
-    startTransition(async () => {
-      try {
-        // Attempt server-side logout but don't let it block client-side clearing
-        await logoutUser();
-      } catch (err) {
-        console.error("Server logout failed, proceeding with client-side clear:", err);
-      } finally {
-        // PERMANENTLY clear all client-side state
-        clearAuthData();
-        resetSellerSignup();
-        resetCooperativeSignup();
+    try {
+      // Attempt server-side logout but don't let it block client-side clearing
+      await logoutUser();
+    } catch (err) {
+      console.error("Server logout failed, proceeding with client-side clear:", err);
+    } finally {
+      // PERMANENTLY clear all client-side state
+      clearAuthData();
+      resetSellerSignup();
+      resetCooperativeSignup();
+      
+      // Clear all storage
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
         
-        // Clear all storage
-        if (typeof window !== 'undefined') {
-          localStorage.clear();
-          sessionStorage.clear();
-          
-          // Clear all cookies
-          const cookies = document.cookie.split(";");
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-          }
+        // Clear all cookies
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+          document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
         }
 
         // Dispatch logout event for React Query cache clearing
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('auth:logout'));
-        }
-
-        router.push("/");
-        router.refresh();
-        setIsLoading(false);
+        window.dispatchEvent(new CustomEvent('auth:logout'));
+        
+        // Final heavy-duty redirect
+        window.location.href = "/auth";
       }
-    });
+
+      setIsLoading(false);
+    }
   };
 
   return {
