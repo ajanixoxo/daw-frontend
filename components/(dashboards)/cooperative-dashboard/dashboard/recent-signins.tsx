@@ -137,10 +137,10 @@ export function RecentSignins() {
                 members.map((member) => (
                   <tr key={member.userId} className="hover:bg-[#f9f9f9]">
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.firstName} {member.lastName}
+                      {member.firstName || "Unknown"} {member.lastName || ""}
                     </td>
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
-                      {member.email}
+                      {member.email || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-[#1d1d2a]">
                       {formatDate(member.joinDate)}
