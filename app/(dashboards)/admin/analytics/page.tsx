@@ -19,12 +19,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UsersAnalyticsTab } from "@/components/(dashboards)/admin-dashboard/analytics/UsersAnalyticsTab";
 import { CooperativesAnalyticsTab } from "@/components/(dashboards)/admin-dashboard/analytics/CooperativesAnalyticsTab";
 import { RevenueAnalyticsTab } from "@/components/(dashboards)/admin-dashboard/analytics/RevenueAnalyticsTab";
+import { useAuthStore } from "@/zustand/store";
+import { useEffect } from "react";
 
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<TabType>(TabType.OVERVIEW);
 
   const { data: statsData, isLoading: isLoadingStats } = useDashboardStats();
   const { data: analyticsData, isLoading: isLoadingAnalytics } = useAdminAnalytics();
+  const { user } = useAuthStore();
+
+  const userRoles = user?.roles || [];
+  const isSupportAdmin = userRoles.includes("support-admin") || userRoles.includes("support_admin");
+
+  useEffect(() => {
+    if (isSupportAdmin && activeTab === TabType.REVENUE) {
+      setActiveTab(TabType.OVERVIEW);
+    }
+  }, [isSupportAdmin, activeTab]);
 
   // Stats Data
   const stats = {
@@ -157,12 +169,14 @@ export default function AnalyticsPage() {
           >
             {TabType.COOPERATIVES}
           </TabsTrigger>
-          <TabsTrigger
-            value={TabType.REVENUE}
-            className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg flex-1 px-8 py-3.5"
-          >
-            {TabType.REVENUE}
-          </TabsTrigger>
+          {!isSupportAdmin && (
+            <TabsTrigger
+              value={TabType.REVENUE}
+              className="analytics-tab-text data-[state=active]:bg-analytics-tab-active-bg data-[state=active]:text-analytics-tab-active-text data-[state=inactive]:text-analytics-tab-inactive-text rounded-lg flex-1 px-8 py-3.5"
+            >
+              {TabType.REVENUE}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value={TabType.OVERVIEW} className="mt-8">
@@ -175,11 +189,13 @@ export default function AnalyticsPage() {
                   value: d.count
                 })) || []} />
               )}
-              {isLoadingAnalytics ? (<Skeleton className="h-[350px] w-full rounded-xl" />) : (
-                <MonthlySalesChart data={analyticsData?.sales?.map(d => ({
-                  month: getMonthName(d._id.month),
-                  value: d.totalSales
-                })) || []} />
+              {!isSupportAdmin && (
+                isLoadingAnalytics ? (<Skeleton className="h-[350px] w-full rounded-xl" />) : (
+                  <MonthlySalesChart data={analyticsData?.sales?.map(d => ({
+                    month: getMonthName(d._id.month),
+                    value: d.totalSales
+                  })) || []} />
+                )
               )}
             </div>
 

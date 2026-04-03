@@ -16,12 +16,17 @@ import { getLedger } from "@/app/actions/wallet";
 import { ILedgerEntry } from "@/types/wallet.types";
 import { ActivityStatus } from "@/components/(dashboards)/admin-dashboard/dashboard/enums";
 import { ActivityItem as ActivityItemType, ApprovalItem } from "@/components/(dashboards)/admin-dashboard/dashboard/schema";
+import { useAuthStore } from "@/zustand/store";
 
 export default function AdminDashboardPage() {
   const { data: statsData, isLoading: isLoadingStats } = useDashboardStats();
   const { data: pendingLoansData, isLoading: isLoadingPending } = usePendingLoans();
   const [ledger, setLedger] = useState<ILedgerEntry[]>([]);
   const [isLoadingLedger, setIsLoadingLedger] = useState(true);
+  const { user } = useAuthStore();
+
+  const userRoles = user?.roles || [];
+  const isSupportAdmin = userRoles.includes("support-admin") || userRoles.includes("support_admin");
 
   useEffect(() => {
     async function fetchLedger() {
@@ -97,14 +102,16 @@ export default function AdminDashboardPage() {
                 </div>
               }
             />
-            <StatCard
-              icon={<CardsIcon width={13} height={12} color="#f10e7c" />}
-              label="Total Loans Disbursed"
-              value={formatCurrency(statsData?.loans.value ?? 0)}
-              subtitle={
-                <span className="text-[#98A2B3]">Total Value</span>
-              }
-            />
+            {!isSupportAdmin && (
+              <StatCard
+                icon={<CardsIcon width={13} height={12} color="#f10e7c" />}
+                label="Total Loans Disbursed"
+                value={formatCurrency(statsData?.loans.value ?? 0)}
+                subtitle={
+                  <span className="text-[#98A2B3]">Total Value</span>
+                }
+              />
+            )}
             <StatCard
               icon={<ProfileTwoUserIcon width={13} height={13} color="#f10e7c" />}
               label="Active Products"
@@ -131,13 +138,15 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        <div className="space-y-6">
-          {isLoadingLedger ? (
-            <Skeleton className="h-[400px] w-full rounded-xl" />
-          ) : (
-            <RecentActivityPanel activities={recentActivities} />
-          )}
-        </div>
+        {!isSupportAdmin && (
+          <div className="space-y-6">
+            {isLoadingLedger ? (
+              <Skeleton className="h-[400px] w-full rounded-xl" />
+            ) : (
+              <RecentActivityPanel activities={recentActivities} />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

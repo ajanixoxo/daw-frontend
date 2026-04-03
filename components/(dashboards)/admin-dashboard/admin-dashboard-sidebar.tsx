@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLogout } from "@/hooks/useAuth"
+import { useAuthStore } from "@/zustand/store"
 
 interface DashboardSidebarProps {
   isOpen: boolean
@@ -23,20 +24,23 @@ interface DashboardSidebarProps {
   onCollapse: () => void
 }
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
-  { icon: ShoppingBag, label: "User", href: "/admin/user" },
-  { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
-  { icon: ShoppingBag, label: "Listings", href: "/admin/listings" },
-  { icon: Wallet, label: "Wallet", href: "/admin/wallet" },
-  { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
-  { icon: ShoppingBag, label: "Logistics", href: "/logistics/dashboard" },
-  // { icon: Settings, label: "Settings", href: "/admin/settings" },
-]
-
 export function DashboardSidebar({ isOpen, onToggle, isCollapsed, onCollapse }: DashboardSidebarProps) {
   const pathname = usePathname()
   const { logout, isLoading: isLoggingOut } = useLogout()
+  const { user } = useAuthStore()
+
+  const userRoles = user?.roles || []
+  const isSupportAdmin = userRoles.includes("support-admin") || userRoles.includes("support_admin")
+
+  const navItems = [
+    { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
+    { icon: ShoppingBag, label: "User", href: "/admin/user" },
+    { icon: HandCoins, label: "Cooperative", href: "/admin/cooperative" },
+    { icon: ShoppingBag, label: "Listings", href: "/admin/listings" },
+    { icon: Wallet, label: "Wallet", href: "/admin/wallet", hide: isSupportAdmin },
+    { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
+    { icon: ShoppingBag, label: "Logistics", href: "/logistics/dashboard" },
+  ].filter(item => !item.hide)
 
   const handleLogout = async () => {
     await logout()
