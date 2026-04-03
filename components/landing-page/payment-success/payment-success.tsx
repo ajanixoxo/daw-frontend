@@ -192,12 +192,12 @@ export function PaymentSuccess() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
           <InfoBox
             label={orderData?.isContribution ? "Type" : "Order ID"}
-            value={orderData?.isContribution ? "Cooperative Contribution" : `ORD-${payment.orderId.slice(-6).toUpperCase()}`}
+            value={orderData?.isContribution ? "Cooperative Contribution" : `ORD-${(payment.orderId || "XXXXXX").slice(-6).toUpperCase()}`}
           />
           <InfoBox label="Payment Method" value={payment.channel || "Card"} />
           <InfoBox
             label="Transaction ID"
-            value={payment.transactionReference.slice(0, 12).toUpperCase()}
+            value={(payment.transactionReference || "XXXXXXXXXXXX").slice(0, 12).toUpperCase()}
           />
           <InfoBox
             label="Est. Delivery Date"
@@ -264,7 +264,7 @@ export function PaymentSuccess() {
                       </div>
                     </div>
                     <span className="font-bold text-[#F10E7C] text-2xl">
-                      ₦{(item.price * item.quantity).toLocaleString()}
+                      ₦{((item.price || 0) * (item.quantity || 0)).toLocaleString()}
                     </span>
                   </div>
                 ))
@@ -284,7 +284,7 @@ export function PaymentSuccess() {
                     </div>
                   </div>
                   <span className="font-bold text-[#F10E7C] text-2xl">
-                    ₦{payment.amount.toLocaleString()}
+                    ₦{(payment.amount || 0).toLocaleString()}
                   </span>
                 </div>
               )}
@@ -298,7 +298,7 @@ export function PaymentSuccess() {
 
               <SummaryRow
                 label="Subtotal"
-                value={`₦${payment.amount.toLocaleString()}`}
+                value={`₦${(payment.amount || 0).toLocaleString()}`}
               />
               <SummaryRow label="Shipping" value="₦0.00" />
               <SummaryRow label="Tax" value="₦0.00" />
@@ -310,7 +310,7 @@ export function PaymentSuccess() {
                   Total
                 </span>
                 <span className="text-4xl font-black text-[#F10E7C]">
-                  ₦{payment.amount.toLocaleString()}
+                  ₦{(payment.amount || 0).toLocaleString()}
                 </span>
               </div>
             </div>
