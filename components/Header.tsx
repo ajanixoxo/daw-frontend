@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, Loader2, ShoppingCart, User } from "lucide-react";
 import { useAuthStore } from "@/zustand/store";
 import { useLogout } from "@/hooks/useAuth";
@@ -25,6 +26,7 @@ interface HeaderProps {
 }
 
 export default function Header({ theme = "dark" }: HeaderProps) {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -98,54 +100,31 @@ export default function Header({ theme = "dark" }: HeaderProps) {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-5">
-            <Link
-              href="/"
-              className={cn(
-                "font-inter text-[16px] font-semibold tracking-[-0.64px] transition-colors",
-                textColorClass
-              )}
-            >
-              Home
-            </Link>
-            <Link
-              href="/all-shops"
-              className={cn(
-                "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
-                isScrolled
-                  ? "text-[#222]"
-                  : theme === "light"
-                  ? "text-white"
-                  : "text-[#222]"
-              )}
-            >
-              Marketplace
-            </Link>
-            <Link
-              href="/cooperatives"
-              className={cn(
-                "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
-                isScrolled
-                  ? "text-[#222]"
-                  : theme === "light"
-                  ? "text-white"
-                  : "text-[#222]"
-              )}
-            >
-              Cooperatives
-            </Link>
-            <Link
-              href="/masterclass"
-              className={cn(
-                "font-inter text-[16px] font-normal tracking-[-0.64px] transition-colors hover:text-[#F10E7C]",
-                isScrolled
-                  ? "text-[#222]"
-                  : theme === "light"
-                  ? "text-white"
-                  : "text-[#222]"
-              )}
-            >
-              Masterclass
-            </Link>
+            {[
+              { name: "Home", href: "/" },
+              { name: "Marketplace", href: "/all-shops" },
+              { name: "Cooperatives", href: "/cooperatives" },
+              { name: "Masterclass", href: "/masterclass" },
+            ].map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "font-inter text-[16px] tracking-[-0.64px] transition-colors",
+                    isActive
+                      ? "text-[#F10E7C] font-semibold"
+                      : cn(
+                          "font-normal hover:text-[#F10E7C]",
+                          textColorClass
+                        )
+                  )}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -245,34 +224,27 @@ export default function Header({ theme = "dark" }: HeaderProps) {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
           <nav className="flex flex-col px-5 py-4 space-y-4">
-            <Link
-              href="/"
-              className="text-[#222] font-inter text-[16px] font-semibold tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/all-shops"
-              className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Marketplace
-            </Link>
-            <Link
-              href="/cooperatives"
-              className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Cooperatives
-            </Link>
-            <Link
-              href="/masterclass"
-              className="text-[#222] font-inter text-[16px] font-normal tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Masterclass
-            </Link>
+            {[
+              { name: "Home", href: "/" },
+              { name: "Marketplace", href: "/all-shops" },
+              { name: "Cooperatives", href: "/cooperatives" },
+              { name: "Masterclass", href: "/masterclass" },
+            ].map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "font-inter text-[16px] tracking-[-0.64px] hover:text-[#F10E7C] transition-colors py-2",
+                    isActive ? "text-[#F10E7C] font-semibold" : "text-[#222] font-normal"
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
 
             {isFullyAuthenticated ? (
               <>
