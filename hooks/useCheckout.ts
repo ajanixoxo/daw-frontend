@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   placeOrder,
   initiatePayment,
@@ -37,6 +37,7 @@ export const useCheckoutStore = create<CheckoutState>()(
 
 export function usePlaceOrder() {
   const { setOrderData } = useCheckoutStore();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: IPlaceOrderRequest) => {
@@ -48,6 +49,8 @@ export function usePlaceOrder() {
     },
     onSuccess: (data) => {
       setOrderData(data);
+      // Invalidate cart query to reflect cleared cart on server
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 }
