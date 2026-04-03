@@ -283,6 +283,22 @@
   }
 }
 
+@utility scrollbar-visible {
+  scrollbar-width: thin !important;
+  scrollbar-color: #848199 transparent !important;
+  &::-webkit-scrollbar {
+    display: block !important;
+    width: 6px !important;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #848199 !important;
+    border-radius: 10px !important;
+  }
+}
+
 @utility auth-heading {
   font-family: "Satoshi", sans-serif;
   font-size: 40px;
