@@ -84,7 +84,7 @@ export function PopularProducts() {
     <section className="py-12 max-w-[1440px] mx-auto px-5 lg:px-[84px] overflow-hidden">
       <motion.div
         variants={staggerContainer(0.1, 0)}
-        initial="hidden"
+        // initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
       >

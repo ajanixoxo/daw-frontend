@@ -51,10 +51,11 @@ export default function Home() {
           <Hero />
           <CooperativePlatform />
           <FeaturedShops />
-          <PopularProducts />
+         
           <WhyDAWSection />
         </>
-      )}
+      )} 
+      <PopularProducts />
       {/* <MembershipPricing /> */}
       <Testimonials />
       <MarketplaceProducts />
