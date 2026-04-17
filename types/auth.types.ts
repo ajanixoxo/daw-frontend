@@ -56,8 +56,16 @@ export interface IUser {
   isVerified?: boolean;
   kyc_status?: string;
   roles: string[];
+  role?: string;
   status?: string;
   isLoginOtpEnabled?: boolean;
+  account_Balance?: number;
+  pending_amount?: number;
+  wallet_balance?: number;
+  accountNo?: string;
+  accountName?: string;
+  bankName?: string;
+  bankCode?: string;
   shop?: any[];
   member?: any[];
   createdAt?: string;

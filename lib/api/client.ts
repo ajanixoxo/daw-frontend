@@ -243,5 +243,10 @@ export const API_ENDPOINTS = {
     CHARGE: "/api/wallet/charge",
     PROFILE: "/auth/profile",
   },
-
+  WITHDRAWALS: {
+    REQUEST: "/api/withdrawals",
+    GET_ALL: "/api/withdrawals",
+    APPROVE: (id: string) => `/api/withdrawals/${id}/approve`,
+    REJECT: (id: string) => `/api/withdrawals/${id}/reject`,
+  },
 } as const;
