@@ -78,11 +78,23 @@ export async function joinCooperative(data: {
       return { success: false, error: "Authentication required" };
     }
 
-    const response = await apiClient.post<IJoinCooperativeResponse>(
+    const response = await apiClient.post<IJoinCooperativeResponse & { token?: { accessToken: string; refreshToken: string }, user?: any }>(
       API_ENDPOINTS.COOPERATIVES.JOIN,
       { cooperativeId: data.cooperativeId, subscriptionTierId: data.subscriptionTierId },
       { token }
     );
+
+    // Sync session if backend returned new tokens (role upgrade)
+    if (response.token && response.user) {
+      await createServerSession({
+        userId: response.user._id,
+        email: response.user.email,
+        roles: response.user.roles,
+        isVerified: response.user.isVerified ?? true,
+        accessToken: response.token.accessToken,
+        refreshToken: response.token.refreshToken,
+      });
+    }
 
     return {
       success: true,
@@ -120,7 +132,7 @@ export async function cooperativeJoinWithSellerOnboard(
       error?: string;
       member?: unknown;
       shop?: unknown;
-      token?: string; // guest temp token for /auth/verify/email
+      token?: { accessToken: string; refreshToken: string }; // object for all users
       user?: { _id: string; email: string; roles?: string[]; shop?: unknown; member?: unknown[] };
     };
     if (!res.ok) {
@@ -129,16 +141,15 @@ export async function cooperativeJoinWithSellerOnboard(
       return { success: false, error: msg };
     }
 
-    // Guest flow: backend returns a temporary token so the OTP verification page can call /auth/verify/email.
-    // We must persist it into the server session cookies (same pattern as normal signup).
-    if (!token && data?.token && data?.user?._id && data?.user?.email) {
+    // Persist new token into the server session cookies so permissions are active immediately
+    if (data?.token && data?.user?._id && data?.user?.email) {
       await createServerSession({
         userId: data.user._id,
         email: data.user.email,
         roles: data.user.roles || ["buyer"],
-        isVerified: false,
-        accessToken: data.token,
-        refreshToken: "",
+        isVerified: data.user.isVerified ?? false,
+        accessToken: data.token.accessToken,
+        refreshToken: data.token.refreshToken,
       });
     }
 
@@ -175,7 +186,7 @@ export async function guestJoinCooperative(data: {
   try {
     const response = await apiClient.post<
       IJoinCooperativeResponse & {
-        token?: string;
+        token?: { accessToken: string; refreshToken: string };
         user?: { _id: string; email: string; roles?: string[] };
       }
     >(API_ENDPOINTS.COOPERATIVES.JOIN_GUEST, data);
@@ -187,8 +198,8 @@ export async function guestJoinCooperative(data: {
         email: response.user.email,
         roles: response.user.roles || ["buyer"],
         isVerified: false,
-        accessToken: response.token,
-        refreshToken: "",
+        accessToken: response.token.accessToken,
+        refreshToken: response.token.refreshToken,
       });
     }
 

@@ -14,6 +14,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/zustand/store";
 import { useQueryClient } from "@tanstack/react-query";
+import { tokenManager } from "@/lib/api/client-client";
 
 export function CooperativeSignupStep3() {
   const router = useRouter();
@@ -43,6 +44,7 @@ export function CooperativeSignupStep3() {
   };
   const { data: profile } = useProfile();
   const updateUser = useAuthStore((s) => s.updateUser);
+  const updateTokens = useAuthStore((s) => s.updateTokens);
   const queryClient = useQueryClient();
   const [agreed, setAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -175,7 +177,14 @@ export function CooperativeSignupStep3() {
             reset();
             router.push("/sellers/shop");
             if (res.data?.user) {
-              updateUser({ roles: res.data.user.roles });
+              if (res.data.token) {
+                updateTokens(res.data.token.accessToken, res.data.token.refreshToken);
+                tokenManager.setTokens(res.data.token.accessToken, res.data.token.refreshToken);
+              }
+              updateUser({ 
+                roles: res.data.user.roles,
+                ...(res.data.user.shop ? { shop: res.data.user.shop } : {})
+              });
               queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
               queryClient.invalidateQueries({ queryKey: ["profile"] });
               queryClient.invalidateQueries({ queryKey: ["my-shop"] });
@@ -201,8 +210,12 @@ export function CooperativeSignupStep3() {
           toast.success("You have joined the DAW cooperative.");
           reset();
           router.push("/sellers/shop");
-          // Sync roles AFTER navigation starts to prevent flash of "already member" card
+          
           if (res.data?.user) {
+            if (res.data.token) {
+               updateTokens(res.data.token.accessToken, res.data.token.refreshToken);
+               tokenManager.setTokens(res.data.token.accessToken, res.data.token.refreshToken);
+            }
             updateUser({ roles: res.data.user.roles });
           }
           queryClient.invalidateQueries({ queryKey: ["seller-profile"] });

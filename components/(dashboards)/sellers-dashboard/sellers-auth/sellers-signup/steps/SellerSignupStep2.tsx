@@ -92,6 +92,7 @@ const SellerSignupStep2: FC = () => {
   const token = useAuthStore((s) => s.sessionData?.accessToken);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const updateUser = useAuthStore((s) => s.updateUser);
+  const updateTokens = useAuthStore((s) => s.updateTokens);
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -149,13 +150,29 @@ const SellerSignupStep2: FC = () => {
         toast.success("Seller signup complete. Your shop has been created.");
         reset();
         router.push("/sellers/shop");
-        // Sync roles AFTER navigation starts to prevent flash of guard pages
-        if (data.user) {
+        
+        // Sync tokens and roles IMMEDIATELY to prevent 403 Forbidden on subsequent actions
+        if (data.token && data.user) {
+          const { accessToken, refreshToken } = data.token;
+          
+          // 1. Update Zustand store
+          updateTokens(accessToken, refreshToken);
           updateUser({
             roles: data.user.roles,
             ...(data.user.shop ? { shop: data.user.shop } : {}),
           });
+          
+          // 2. Sync server-side cookies
+          await createServerSession({
+            userId: data.user._id,
+            email: data.user.email,
+            roles: data.user.roles,
+            isVerified: true, // Authenticated users are already verified
+            accessToken,
+            refreshToken,
+          });
         }
+        
         queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
         queryClient.invalidateQueries({ queryKey: ["profile"] });
         queryClient.invalidateQueries({ queryKey: ["my-shop"] });
@@ -216,16 +233,19 @@ const SellerSignupStep2: FC = () => {
 
       // Create a server session with the temp token for OTP verification
       if (data.token && data.user) {
+        const { accessToken, refreshToken } = data.token;
+        
         await createServerSession({
           userId: data.user._id,
           email: data.user.email,
           roles: data.user.roles || ["seller"],
           isVerified: false,
-          accessToken: data.token,
-          refreshToken: "",
+          accessToken,
+          refreshToken,
         });
 
-        // Sync user into Zustand → localStorage so role guards work
+        // Sync local auth store and client tokens
+        updateTokens(accessToken, refreshToken);
         updateUser({
           _id: data.user._id,
           roles: data.user.roles,
