@@ -70,6 +70,11 @@ export function ActiveDeliveriesView() {
                 <div>
                   <div className="text-sm text-muted-foreground">Pickup</div>
                   <div className="font-medium text-foreground">{delivery.shop_id?.name || "Store"}</div>
+                  {delivery.shop_id?.owner_id && (
+                    <div className="text-xs text-primary font-medium mt-1">
+                      {delivery.shop_id.owner_id.firstName}: {delivery.shop_id.owner_id.phone}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -99,10 +104,20 @@ export function ActiveDeliveriesView() {
               <Navigation className="h-4 w-4" />
               Get Directions
             </Button>
-            <Button variant="outline" className="gap-2 bg-transparent">
-              <PhoneCall className="h-4 w-4" />
-              Call Customer
+            <Button variant="outline" className="gap-2 bg-transparent" asChild>
+              <a href={`tel:${delivery.buyer_id?.phone}`}>
+                <PhoneCall className="h-4 w-4" />
+                Call Customer
+              </a>
             </Button>
+            {delivery.shop_id?.owner_id?.phone && (
+              <Button variant="outline" className="gap-2 bg-transparent border-primary/30 text-primary hover:bg-primary/5" asChild>
+                <a href={`tel:${delivery.shop_id.owner_id.phone}`}>
+                  <PhoneCall className="h-4 w-4" />
+                  Call Seller
+                </a>
+              </Button>
+            )}
             <Button 
               className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 ml-auto"
               disabled={isUpdating}

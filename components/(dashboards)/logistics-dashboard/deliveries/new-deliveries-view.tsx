@@ -1,5 +1,4 @@
-"use client"
-import { MapPin, User, Package, Navigation, CheckCircle2 } from "lucide-react"
+import { MapPin, User, Package, Navigation, CheckCircle2, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useDeliveries, useUpdateDeliveryStatus } from "@/hooks/useLogistics"
@@ -66,7 +65,12 @@ export function NewDeliveriesView() {
                 <div>
                   <div className="text-sm text-muted-foreground">Pickup Location</div>
                   <div className="font-medium text-foreground">{delivery.shop_id?.name || "Vendor Store"}</div>
-                  <div className="text-xs text-muted-foreground">{delivery.shop_id?.business_address}</div>
+                  {delivery.shop_id?.owner_id && (
+                    <div className="text-xs text-primary font-medium mt-1">
+                      {delivery.shop_id.owner_id.firstName}: {delivery.shop_id.owner_id.phone}
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground mt-1">{delivery.shop_id?.business_address}</div>
                 </div>
               </div>
             </div>
@@ -85,9 +89,11 @@ export function NewDeliveriesView() {
 
           {/* Actions */}
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button variant="outline" className="gap-2 bg-transparent">
-              <Navigation className="h-4 w-4" />
-              View Map
+            <Button variant="outline" className="gap-2 bg-transparent" asChild>
+              <a href={`tel:${delivery.shop_id?.owner_id?.phone}`}>
+                <Phone className="h-4 w-4" />
+                Call Vendor
+              </a>
             </Button>
             <Button 
               className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 ml-auto"

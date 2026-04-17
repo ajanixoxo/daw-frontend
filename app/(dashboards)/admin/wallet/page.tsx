@@ -9,6 +9,7 @@ import { IAdminWalletResponse, ILedgerEntry } from "@/types/wallet.types";
 import { RecentTransactionsTable } from "@/components/(dashboards)/sellers-dashboard/wallet/recent-transactions-table";
 import { AdminPayoutDrawer } from "@/components/(dashboards)/admin-dashboard/wallet/admin-payout-drawer";
 import { UpdateWalletPinModal } from "@/components/(dashboards)/admin-dashboard/wallet/update-wallet-pin-modal";
+import { WithdrawalRequestsTable } from "@/components/(dashboards)/admin-dashboard/wallet/withdrawal-requests-table";
 import { toast } from "sonner";
 import { useAuthStore } from "@/zustand/store";
 
@@ -142,6 +143,13 @@ export default function AdminWalletPage() {
                         </div>
                     </div>
                 </Card>
+            </div>
+
+            <div className="mt-12">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-[#1d1d2a]">Withdrawal Requests</h2>
+                </div>
+                <WithdrawalRequestsTable />
             </div>
 
             <div className="mt-8">

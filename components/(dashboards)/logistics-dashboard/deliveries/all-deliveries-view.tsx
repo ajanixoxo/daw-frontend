@@ -191,19 +191,44 @@ export function AllDeliveriesView() {
         </DialogHeader>
         {selectedDelivery && (
           <div className="space-y-6 mt-4">
-            {/* Customer Details */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarFallback className="bg-[#e9d5ff] text-[#7c3aed] text-lg font-semibold">
-                  {(selectedDelivery.buyer_id?.firstName?.[0] || "U").toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h4 className="font-medium text-foreground text-lg">
-                  {selectedDelivery.buyer_id?.firstName} {selectedDelivery.buyer_id?.lastName}
-                </h4>
-                <p className="text-sm text-muted-foreground">{selectedDelivery.buyer_id?.phone || "No phone provided"}</p>
-                <p className="text-sm text-muted-foreground">{selectedDelivery.buyer_id?.email || "No email provided"}</p>
+            {/* Contact Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Customer Details */}
+              <div className="flex items-center gap-4 p-3 rounded-lg border bg-secondary/10">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-[#e9d5ff] text-[#7c3aed] font-semibold">
+                    {(selectedDelivery.buyer_id?.firstName?.[0] || "U").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Customer</div>
+                  <h4 className="font-medium text-foreground">
+                    {selectedDelivery.buyer_id?.firstName} {selectedDelivery.buyer_id?.lastName}
+                  </h4>
+                  <p className="text-xs text-primary font-medium">{selectedDelivery.buyer_id?.phone || "No phone"}</p>
+                </div>
+              </div>
+
+              {/* Vendor Details */}
+              <div className="flex items-center gap-4 p-3 rounded-lg border bg-secondary/10">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-[#fed7aa] text-[#9a3412] font-semibold">
+                    {(selectedDelivery.shop_id?.name?.[0] || "S").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Vendor</div>
+                  <h4 className="font-medium text-foreground">
+                    {selectedDelivery.shop_id?.name || "Vendor Store"}
+                  </h4>
+                  {selectedDelivery.shop_id?.owner_id ? (
+                    <p className="text-xs text-primary font-medium">
+                      {selectedDelivery.shop_id.owner_id.phone}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">No contact info</p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -237,7 +262,17 @@ export function AllDeliveriesView() {
                   <div className="absolute -left-[29px] top-1 h-4 w-4 rounded-full border-2 border-primary bg-background" />
                   <h5 className="font-medium text-sm text-foreground mb-1">Pickup From</h5>
                   <p className="text-sm text-muted-foreground font-medium">{selectedDelivery.shop_id?.name || "Vendor Store"}</p>
-                  <p className="text-sm text-muted-foreground mt-0.5">{selectedDelivery.shop_id?.business_address || "Store Address Not Provided"}</p>
+                  {selectedDelivery.shop_id?.owner_id && (
+                    <div className="mt-1 space-y-0.5">
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Seller: {selectedDelivery.shop_id.owner_id.firstName} {selectedDelivery.shop_id.owner_id.lastName}
+                      </p>
+                      <p className="text-xs text-primary font-medium">
+                        {selectedDelivery.shop_id.owner_id.phone}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-sm text-muted-foreground mt-1 text-xs">{selectedDelivery.shop_id?.business_address || "Store Address Not Provided"}</p>
                 </div>
                 {/* Destination */}
                 <div className="relative">
