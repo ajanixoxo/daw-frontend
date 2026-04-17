@@ -164,6 +164,8 @@ export function PaymentSuccess() {
   }
 
   const orderItems = (orderData as any)?.orderItems || [];
+  const deliveryFee = (orderData as any)?.order?.delivery_fee || 0;
+  const subtotal = (payment.amount || 0) - deliveryFee;
 
   return (
     <div className="w-full max-w-5xl mx-auto  bg-white rounded-[40px] shadow-[0_10px_50px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden my-18">
@@ -284,7 +286,7 @@ export function PaymentSuccess() {
                     </div>
                   </div>
                   <span className="font-bold text-[#F10E7C] text-2xl">
-                    ₦{(payment.amount || 0).toLocaleString()}
+                    ₦{subtotal.toLocaleString()}
                   </span>
                 </div>
               )}
@@ -298,9 +300,9 @@ export function PaymentSuccess() {
 
               <SummaryRow
                 label="Subtotal"
-                value={`₦${(payment.amount || 0).toLocaleString()}`}
+                value={`₦${subtotal.toLocaleString()}`}
               />
-              <SummaryRow label="Shipping" value="₦0.00" />
+              <SummaryRow label="Shipping" value={`₦${deliveryFee.toLocaleString()}`} />
               <SummaryRow label="Tax" value="₦0.00" />
               <SummaryRow label="Store Views" value="1,234" />
               <SummaryRow label="Coupon Discount" value="-₦0.00" isDiscount />

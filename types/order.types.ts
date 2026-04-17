@@ -19,6 +19,7 @@ export interface IOrder {
   buyer_id: string;
   shop_id: IShop;
   total_amount: number;
+  delivery_fee: number;
   discount: number;
   escrow_status: string;
   payment_status: string;
