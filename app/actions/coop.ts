@@ -25,6 +25,7 @@ interface IJoinCooperativeResponse {
     member?: { _id: string; cooperativeId: string }[];
     avatar?: string;
   };
+  token?: { accessToken: string; refreshToken: string };
 }
 
 interface IFetchMemberResponse {
@@ -117,7 +118,13 @@ export async function joinCooperative(data: {
 export async function cooperativeJoinWithSellerOnboard(
   formData: FormData
 ): Promise<
-  IActionResponse<{ member: unknown; shop: unknown; message: string; user?: { _id: string; roles: string[]; member?: unknown[] } }>
+  IActionResponse<{ 
+    member: unknown; 
+    shop: unknown; 
+    message: string; 
+    user?: { _id: string; email: string; isVerified?: boolean; roles: string[]; shop?: unknown; member?: unknown[] }; 
+    token?: { accessToken: string; refreshToken: string } 
+  }>
 > {
   try {
     const token = await getFreshToken();
@@ -133,7 +140,7 @@ export async function cooperativeJoinWithSellerOnboard(
       member?: unknown;
       shop?: unknown;
       token?: { accessToken: string; refreshToken: string }; // object for all users
-      user?: { _id: string; email: string; roles?: string[]; shop?: unknown; member?: unknown[] };
+      user?: { _id: string; email: string; isVerified?: boolean; roles?: string[]; shop?: unknown; member?: unknown[] };
     };
     if (!res.ok) {
       const msg =
@@ -187,7 +194,7 @@ export async function guestJoinCooperative(data: {
     const response = await apiClient.post<
       IJoinCooperativeResponse & {
         token?: { accessToken: string; refreshToken: string };
-        user?: { _id: string; email: string; roles?: string[] };
+        user?: { _id: string; email: string; isVerified?: boolean; roles?: string[] };
       }
     >(API_ENDPOINTS.COOPERATIVES.JOIN_GUEST, data);
 

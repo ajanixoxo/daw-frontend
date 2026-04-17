@@ -181,9 +181,10 @@ export function CooperativeSignupStep3() {
                 updateTokens(res.data.token.accessToken, res.data.token.refreshToken);
                 tokenManager.setTokens(res.data.token.accessToken, res.data.token.refreshToken);
               }
+              const user = res.data.user as any;
               updateUser({ 
-                roles: res.data.user.roles,
-                ...(res.data.user.shop ? { shop: res.data.user.shop } : {})
+                roles: user.roles,
+                ...(user.shop ? { shop: user.shop } : {})
               });
               queryClient.invalidateQueries({ queryKey: ["seller-profile"] });
               queryClient.invalidateQueries({ queryKey: ["profile"] });
