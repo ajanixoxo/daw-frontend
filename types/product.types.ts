@@ -104,6 +104,7 @@ export interface IOrder {
   buyer_id: string | { _id: string; [key: string]: any };
   shop_id: string | IShop;
   total_amount: number;
+  delivery_fee?: number;
   discount: number;
   escrow_status: "pending" | "completed" | "released" | "refunded";
   payment_status: "paid" | "unpaid" | "partial";

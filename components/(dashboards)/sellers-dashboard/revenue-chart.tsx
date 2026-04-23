@@ -67,7 +67,7 @@ function computeMonthlyRevenue(orders: IOrder[]) {
       return false;
     });
     if (entry) {
-      entry.value += order.total_amount || 0;
+      entry.value += (order.total_amount || 0) - (order.delivery_fee || 0);
     }
   }
 
@@ -88,7 +88,7 @@ export function RevenueChart({ orders }: RevenueChartProps) {
   const chartData = useMemo(() => computeMonthlyRevenue(orders), [orders]);
 
   const totalRevenue = useMemo(
-    () => orders.reduce((sum, o) => sum + (o.total_amount || 0), 0),
+    () => orders.reduce((sum, o) => sum + ((o.total_amount || 0) - (o.delivery_fee || 0)), 0),
     [orders],
   );
 
